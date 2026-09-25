@@ -21,7 +21,7 @@
   "scripts": {
     "prepare": "is-ci || husky install",
     "postinstall": "patch-package && yarn intl:compile-if-needed",
-    "prebuild": "EXPO_NO_GIT_STATUS=1 expo prebuild --clean",
+    "native:prebuild": "EXPO_NO_GIT_STATUS=1 expo prebuild --clean",
     "android": "expo run:android",
     "android:prod": "expo run:android --variant release",
     "android:profile": "BSKY_PROFILE=1 expo run:android --variant release",
@@ -33,7 +33,8 @@
     "build-all": "yarn intl:build && yarn use-build-number-with-bump eas build --platform all",
     "build-ios": "yarn use-build-number-with-bump eas build -p ios",
     "build-android": "yarn use-build-number-with-bump eas build -p android",
-    "build": "yarn use-build-number-with-bump eas build",
+    "build": "yarn intl:compile && yarn build-web",
+    "build:native": "yarn native:prebuild && yarn use-build-number-with-bump eas build",
     "build-embed": "cd bskyembed && yarn build && yarn build-snippet && cd .. && node ./scripts/post-embed-build.js",
     "start": "expo start --dev-client",
     "start:prod": "expo start --dev-client --no-dev --minify",
