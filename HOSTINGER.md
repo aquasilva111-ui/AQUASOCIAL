@@ -19,3 +19,5 @@ workflow is available as `yarn build:native`.
 
 After deployment, verify both the home page and a directly opened client route
 such as `/search`; the host must serve `index.html` for client-side routes.
+The post-build script copies `web/.htaccess` into `web-build` to configure this
+fallback on Hostinger while preserving static asset requests.

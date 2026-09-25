@@ -2,6 +2,10 @@ const path = require('path')
 const fs = require('fs')
 
 const projectRoot = path.join(__dirname, '..')
+fs.copyFileSync(
+  path.join(projectRoot, 'web/.htaccess'),
+  path.join(projectRoot, 'web-build/.htaccess'),
+)
 const templateFile = path.join(
   projectRoot,
   'bskyweb',
