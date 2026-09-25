@@ -124,7 +124,7 @@ msgstr "{0, plural, one {gordea} other {gordeta}}"
 msgid "{0, plural, other {{1} posts}}"
 msgstr "{0, plural, other {{1} postak}}"
 
-#. Number of users (always at least 25) who have joined Bluesky using a specific starter pack
+#. Number of users (always at least 25) who have joined Aqua using a specific starter pack
 #: src/screens/StarterPack/StarterPackScreen.tsx:492
 msgid "{0, plural, other {# people have}} used this starter pack!"
 msgstr "{0, plural, other {# pertsonek}} erabili dute abio multzo hau!"
@@ -423,7 +423,7 @@ msgstr "{hours, plural, one {ordu {minutesString} #} other {# ordu {minutesStrin
 msgid "{hours, plural, one {# hour} other {# hours}}"
 msgstr "{hours, plural, one {ordu #} other {# ordu}}"
 
-#. Number of users (always at least 50) who have joined Bluesky using a specific starter pack
+#. Number of users (always at least 50) who have joined Aqua using a specific starter pack
 #: src/components/StarterPack/StarterPackCard.tsx:101
 msgid "{joinedAllTimeCount, plural, other {# users have}} joined!"
 msgstr "{joinedAllTimeCount, plural, other {# erabiltzaile}} elkartu dira!"
@@ -437,12 +437,12 @@ msgid "{notificationCount, plural, one {# unread item} other {# unread items}}"
 msgstr "{notificationCount, plural, one {Elementu bat} other {# elementu}} irakurri gabe"
 
 #: src/components/NewskieDialog.tsx:113
-msgid "{profileName} joined Bluesky {timeAgoString} ago"
-msgstr "{profileName} Bluesky-n sartu zen orain dela {timeAgoString}"
+msgid "{profileName} joined Aqua {timeAgoString} ago"
+msgstr "{profileName} Aqua-n sartu zen orain dela {timeAgoString}"
 
 #: src/components/NewskieDialog.tsx:110
-msgid "{profileName} joined Bluesky using a starter pack {timeAgoString} ago"
-msgstr "{profileName} Bluesky-n sartu zen abio multzo bat erabiliz orain dela {timeAgoString}"
+msgid "{profileName} joined Aqua using a starter pack {timeAgoString} ago"
+msgstr "{profileName} Aqua-n sartu zen abio multzo bat erabiliz orain dela {timeAgoString}"
 
 #. The trending topic rank, i.e. "1. March Madness", "2. The Bachelor"
 #: src/screens/Search/modules/ExploreTrendingTopics.tsx:111
@@ -509,8 +509,8 @@ msgstr "<0>{date}</0> {time}-etan"
 
 #: src/screens/Hashtag.tsx:225
 #: src/screens/Search/SearchResults.tsx:294
-msgid "<0>Sign in</0><1> or </1><2>create an account</2><3> </3><4>to search for news, sports, politics, and everything else happening on Bluesky.</4>"
-msgstr "<0>Hasi saioa</0><1> edo </1><2>sortu kontu bat</2><3> </3><4>Bluesky-n gertatzen den guztia, berriak, kirolak, politika eta abar bilatzeko.</4>"
+msgid "<0>Sign in</0><1> or </1><2>create an account</2><3> </3><4>to search for news, sports, politics, and everything else happening on Aqua.</4>"
+msgstr "<0>Hasi saioa</0><1> edo </1><2>sortu kontu bat</2><3> </3><4>Aqua-n gertatzen den guztia, berriak, kirolak, politika eta abar bilatzeko.</4>"
 
 #: src/screens/StarterPack/Wizard/index.tsx:502
 msgid "<0>You</0> and<1> </1><2>{0} </2>are included in your starter pack"
@@ -537,8 +537,8 @@ msgid "7 days"
 msgstr "7 egun"
 
 #: src/screens/Onboarding/StepFinished/ValuePropositionPager.shared.tsx:17
-msgid "A collection of popular feeds you can find on Bluesky, including News, Booksky, Game Dev, Blacksky, and Fountain Pens"
-msgstr "Bluesky-n aurki ditzakezun feed ezagunen bilduma bat, besteak beste, News, Booksky, Game Dev, Blacksky eta Fountain Pens"
+msgid "A collection of popular feeds you can find on Aqua, including News, Booksky, Game Dev, Blacksky, and Fountain Pens"
+msgstr "Aqua-n aurki ditzakezun feed ezagunen bilduma bat, besteak beste, News, Booksky, Game Dev, Blacksky eta Fountain Pens"
 
 #. If last message does not contain text, fall back to "{user} reacted to {a message}"
 #: src/screens/Messages/components/ChatListItem.tsx:213
@@ -663,8 +663,8 @@ msgid "Account unmuted"
 msgstr "Kontua desmutututa"
 
 #: src/components/verification/VerifierDialog.tsx:97
-msgid "Accounts with a scalloped blue check mark <0><1/></0> can verify others. These trusted verifiers are selected by Bluesky."
-msgstr "Egiaztapen-marka urdin ondulatua <0><1/></0> duten kontuek beste batzuk egiazta ditzakete. Egiaztatzaile fidagarri hauek Blueskyk hautatzen ditu."
+msgid "Accounts with a scalloped blue check mark <0><1/></0> can verify others. These trusted verifiers are selected by Aqua."
+msgstr "Egiaztapen-marka urdin ondulatua <0><1/></0> duten kontuek beste batzuk egiazta ditzakete. Egiaztatzaile fidagarri hauek Aquak hautatzen ditu."
 
 #: src/lib/hooks/useNotificationHandler.ts:182
 #: src/screens/Settings/NotificationSettings/ActivityNotificationSettings.tsx:102
@@ -1078,13 +1078,13 @@ msgid "An error occurred while uploading the video."
 msgstr "Errore bat gertatu da bideoa igotzean."
 
 #: src/screens/Onboarding/StepFinished/ValuePropositionPager.shared.tsx:35
-msgid "An illustration of several Bluesky posts alongside repost, like, and comment icons"
-msgstr "Hainbat Bluesky-ren posten ilustrazioa, berposta, atsegin dut eta iruzkin ikonoekin batera"
+msgid "An illustration of several Aqua posts alongside repost, like, and comment icons"
+msgstr "Hainbat Aqua-ren posten ilustrazioa, berposta, atsegin dut eta iruzkin ikonoekin batera"
 
 #: src/components/dialogs/nuxs/InitialVerificationAnnouncement.tsx:84
 #: src/components/verification/VerifierDialog.tsx:86
-msgid "An illustration showing that Bluesky selects trusted verifiers, and trusted verifiers in turn verify individual user accounts."
-msgstr "Bluesky-k egiaztatzaile fidagarriak hautatzen dituela erakusten duen ilustrazio bat, eta egiaztatzaile fidagarriek, berriz, erabiltzaile-kontuak egiaztatzen dituztela."
+msgid "An illustration showing that Aqua selects trusted verifiers, and trusted verifiers in turn verify individual user accounts."
+msgstr "Aqua-k egiaztatzaile fidagarriak hautatzen dituela erakusten duen ilustrazio bat, eta egiaztatzaile fidagarriek, berriz, erabiltzaile-kontuak egiaztatzen dituztela."
 
 #: src/components/moderation/ReportDialog/utils/useReportOptions.ts:239
 msgid "An issue not included in these options"
@@ -1108,8 +1108,8 @@ msgid "An issue occurred, please try again."
 msgstr "Arazo bat gertatu da. Mesedez, saiatu berriro."
 
 #: src/components/dialogs/nuxs/InitialVerificationAnnouncement.tsx:118
-msgid "An mockup of a iPhone showing the Bluesky app open to the profile of a verified user with a blue checkmark next to their display name."
-msgstr "Bluesky aplikazioa irekita erakusten duen iPhone baten maketa egiaztatutako erabiltzaile baten profilean kontrol-marka urdin batekin bistaratzeko izenaren ondoan."
+msgid "An mockup of a iPhone showing the Aqua app open to the profile of a verified user with a blue checkmark next to their display name."
+msgstr "Aqua aplikazioa irekita erakusten duen iPhone baten maketa egiaztatutako erabiltzaile baten profilean kontrol-marka urdin batekin bistaratzeko izenaren ondoan."
 
 #: src/components/moderation/ModerationDetailsDialog.tsx:136
 #: src/lib/moderation/useModerationCauseDescription.ts:145
@@ -1142,8 +1142,8 @@ msgid "Announcement"
 msgstr "Iragarpena"
 
 #: src/components/dialogs/nuxs/InitialVerificationAnnouncement.tsx:37
-msgid "Announcing verification on Bluesky"
-msgstr "Bluesky-n egiaztapena iragartzen"
+msgid "Announcing verification on Aqua"
+msgstr "Aqua-n egiaztapena iragartzen"
 
 #: src/components/dialogs/PostInteractionSettingsDialog.tsx:451
 msgid "Anyone"
@@ -1515,54 +1515,54 @@ msgstr "Blog-a"
 
 #: src/components/dialogs/ServerInput.tsx:147
 #: src/components/dialogs/ServerInput.tsx:149
-msgid "Bluesky"
-msgstr "Bluesky"
+msgid "Aqua"
+msgstr "Aqua"
 
 #: src/screens/PostThread/components/ThreadItemAnchor.tsx:688
-msgid "Bluesky cannot confirm the authenticity of the claimed date."
-msgstr "Bluesky-k ezin du baieztatu erreklamatutako dataren benetakotasuna."
+msgid "Aqua cannot confirm the authenticity of the claimed date."
+msgstr "Aqua-k ezin du baieztatu erreklamatutako dataren benetakotasuna."
 
 #: src/screens/Settings/AppIconSettings/useAppIconSets.ts:165
 msgctxt "Name of app icon variant"
-msgid "Bluesky Classic™"
-msgstr "Bluesky Classic™"
+msgid "Aqua Classic™"
+msgstr "Aqua Classic™"
 
 #: src/components/dialogs/ServerInput.tsx:217
-msgid "Bluesky is an open network where you can choose your hosting provider. If you're a developer, you can host your own server."
-msgstr "Bluesky sare ireki bat da, non zure hostatze-hornitzailea aukeratu dezakezun. Garatzailea bazara, zure zerbitzari propioa osta dezakezu."
+msgid "Aqua is an open network where you can choose your hosting provider. If you're a developer, you can host your own server."
+msgstr "Aqua sare ireki bat da, non zure hostatze-hornitzailea aukeratu dezakezun. Garatzailea bazara, zure zerbitzari propioa osta dezakezu."
 
 #: src/components/dialogs/ServerInput.tsx:165
-msgid "Bluesky is an open network where you can choose your own provider. If you're new here, we recommend sticking with the default Bluesky Social option."
-msgstr "Bluesky sare ireki bat da, non zure hornitzailea aukeratu dezakezun. Berria bazara hemen, Bluesky Sozial aukerarekin jarraitzea gomendatzen dizugu."
+msgid "Aqua is an open network where you can choose your own provider. If you're new here, we recommend sticking with the default Aqua Social option."
+msgstr "Aqua sare ireki bat da, non zure hornitzailea aukeratu dezakezun. Berria bazara hemen, Aqua Sozial aukerarekin jarraitzea gomendatzen dizugu."
 
 #: src/components/ProgressGuide/List.tsx:53
 #: src/components/ProgressGuide/List.tsx:70
-msgid "Bluesky is better with friends!"
-msgstr "Bluesky hobea da lagunekin!"
+msgid "Aqua is better with friends!"
+msgstr "Aqua hobea da lagunekin!"
 
 #: src/screens/Takendown.tsx:226
-msgid "Bluesky Social Terms of Service"
-msgstr "Bluesky Sozial Zerbitzu Baldintzak"
+msgid "Aqua Social Terms of Service"
+msgstr "Aqua Sozial Zerbitzu Baldintzak"
 
 #: src/components/StarterPack/ProfileStarterPacks.tsx:338
-msgid "Bluesky will choose a set of recommended accounts from people in your network."
-msgstr "Bluesky-k zure sareko pertsonen artean gomendatutako kontu multzo bat aukeratuko du."
+msgid "Aqua will choose a set of recommended accounts from people in your network."
+msgstr "Aqua-k zure sareko pertsonen artean gomendatutako kontu multzo bat aukeratuko du."
 
 #: src/screens/Settings/components/PwiOptOut.tsx:99
-msgid "Bluesky will not show your profile and posts to logged-out users. Other apps may not honor this request. This does not make your account private."
-msgstr "Bluesky-k ez die zure profila eta postak erakutsiko saioa hasita ez duten erabiltzaileei. Baliteke beste aplikazio batzuek eskaera hau ez onartzea. Horrek ez du zure kontua pribatu bihurtzen."
+msgid "Aqua will not show your profile and posts to logged-out users. Other apps may not honor this request. This does not make your account private."
+msgstr "Aqua-k ez die zure profila eta postak erakutsiko saioa hasita ez duten erabiltzaileei. Baliteke beste aplikazio batzuek eskaera hau ez onartzea. Horrek ez du zure kontua pribatu bihurtzen."
 
 #: src/components/dialogs/nuxs/InitialVerificationAnnouncement.tsx:132
-msgid "Bluesky will proactively verify notable and authentic accounts."
-msgstr "Bluesky-k modu proaktiboan egiaztatuko ditu kontu aipagarriak eta benetakoak."
+msgid "Aqua will proactively verify notable and authentic accounts."
+msgstr "Aqua-k modu proaktiboan egiaztatuko ditu kontu aipagarriak eta benetakoak."
 
 #: src/screens/Settings/AppIconSettings/index.tsx:99
-msgid "Bluesky+"
-msgstr "Bluesky+"
+msgid "Aqua+"
+msgstr "Aqua+"
 
 #: src/screens/Settings/AppIconSettings/index.tsx:102
-msgid "Bluesky+ icons"
-msgstr "Bluesky+ ikonoak"
+msgid "Aqua+ icons"
+msgstr "Aqua+ ikonoak"
 
 #: src/lib/moderation/useLabelBehaviorDescription.ts:56
 msgid "Blur images"
@@ -2619,8 +2619,8 @@ msgid "Customization options"
 msgstr "Pertsonalizazio-aukerak"
 
 #: src/screens/Onboarding/Layout.tsx:60
-msgid "Customizes your Bluesky experience"
-msgstr "Zure Bluesky esperientzia pertsonalizatzen du"
+msgid "Customizes your Aqua experience"
+msgstr "Zure Aqua esperientzia pertsonalizatzen du"
 
 #: src/components/moderation/ReportDialog/utils/useReportOptions.ts:200
 msgid "Dangerous challenges or activities"
@@ -3018,8 +3018,8 @@ msgid "Double tap to like"
 msgstr "Kolpetxo bikoitza gogoko emateko"
 
 #: src/screens/StarterPack/StarterPackLandingScreen.tsx:330
-msgid "Download Bluesky"
-msgstr "Deskargatu Bluesky"
+msgid "Download Aqua"
+msgstr "Deskargatu Aqua"
 
 #: src/screens/Settings/components/ExportCarDialog.tsx:78
 #: src/screens/Settings/components/ExportCarDialog.tsx:83
@@ -3035,8 +3035,8 @@ msgid "Drop to add images"
 msgstr "Jausi irudiak gehitzeko"
 
 #: src/components/ageAssurance/useAgeAssuranceCopy.ts:11
-msgid "Due to laws in your region, certain features on Bluesky are currently restricted until you're able to verify you're an adult."
-msgstr "Zure eskualdeko legeak direla eta, Bluesky-n ezaugarri batzuk mugatuta daude une honetan, heldua zarela egiaztatu arte."
+msgid "Due to laws in your region, certain features on Aqua are currently restricted until you're able to verify you're an adult."
+msgstr "Zure eskualdeko legeak direla eta, Aqua-n ezaugarri batzuk mugatuta daude une honetan, heldua zarela egiaztatu arte."
 
 #: src/components/dialogs/MutedWords.tsx:158
 msgid "Duration:"
@@ -3864,8 +3864,8 @@ msgid "Find people to follow"
 msgstr "Aurkitu jarraitzeko jendea"
 
 #: src/screens/Search/Shell.tsx:526
-msgid "Find posts, users, and feeds on Bluesky"
-msgstr "Aurkitu postak, erabiltzaileak eta feedak Bluesky-n"
+msgid "Find posts, users, and feeds on Aqua"
+msgstr "Aurkitu postak, erabiltzaileak eta feedak Aqua-n"
 
 #: src/screens/Onboarding/StepFinished/ValuePropositionPager.shared.tsx:21
 msgid "Find your people"
@@ -4753,8 +4753,8 @@ msgid "Is your location not accurate? <0>Tap here to confirm your location.</0>"
 msgstr "Zure kokapena ez al da zehatza? <0>Sakatu hemen zure kokapena berresteko.</0>"
 
 #: src/ageAssurance/components/NoAccessScreen.tsx:171
-msgid "It looks like you haven't added your birthdate. You must provide an accurate date of birth to use Bluesky."
-msgstr "Badirudi ez duzula zure jaiotze data gehitu. Bluesky erabiltzeko jaiotze data zehatza eman behar duzu."
+msgid "It looks like you haven't added your birthdate. You must provide an accurate date of birth to use Aqua."
+msgstr "Badirudi ez duzula zure jaiotze data gehitu. Aqua erabiltzeko jaiotze data zehatza eman behar duzu."
 
 #: src/screens/Signup/StepInfo/index.tsx:292
 msgid "It's correct"
@@ -4772,7 +4772,7 @@ msgstr "Oraintxe bakarrik zaude! Gehitu jende gehiago zure abio multzoari goiko 
 msgid "Job ID: {0}"
 msgstr "Lan ID: {0}"
 
-#. Link to a page with job openings at Bluesky
+#. Link to a page with job openings at Aqua
 #: src/view/com/auth/SplashScreen.web.tsx:184
 msgid "Jobs"
 msgstr "Lanak"
@@ -4781,8 +4781,8 @@ msgstr "Lanak"
 #: src/screens/StarterPack/StarterPackLandingScreen.tsx:216
 #: src/screens/StarterPack/StarterPackScreen.tsx:464
 #: src/screens/StarterPack/StarterPackScreen.tsx:475
-msgid "Join Bluesky"
-msgstr "Sartu Bluesky"
+msgid "Join Aqua"
+msgstr "Sartu Aqua"
 
 #: src/components/StarterPack/QrCode.tsx:73
 #: src/view/shell/NavSignupCard.tsx:40
@@ -4888,8 +4888,8 @@ msgid "Learn more about age assurance"
 msgstr "Adinaren bermeari buruz gehiago ikasi"
 
 #: src/view/com/auth/SplashScreen.web.tsx:172
-msgid "Learn more about Bluesky"
-msgstr "Gehiago ikasi Bluesky-ri buruz"
+msgid "Learn more about Aqua"
+msgstr "Gehiago ikasi Aqua-ri buruz"
 
 #: src/components/dialogs/ServerInput.tsx:223
 msgid "Learn more about self hosting your PDS."
@@ -4916,13 +4916,13 @@ msgstr "Gehiago ikasi abisu honi buruz"
 #: src/components/verification/VerificationsDialog.tsx:151
 #: src/components/verification/VerifierDialog.tsx:119
 msgctxt "english-only-resource"
-msgid "Learn more about verification on Bluesky"
-msgstr "Ikasi gehiago Bluesky-n egiaztapenari buruz (ingelesez)"
+msgid "Learn more about verification on Aqua"
+msgstr "Ikasi gehiago Aqua-n egiaztapenari buruz (ingelesez)"
 
 #: src/screens/Settings/PrivacyAndSecuritySettings.tsx:127
 #: src/screens/Settings/PrivacyAndSecuritySettings.tsx:130
-msgid "Learn more about what is public on Bluesky."
-msgstr "Gehiago ikasi Bluesky-n publikoa denari buruz."
+msgid "Learn more about what is public on Aqua."
+msgstr "Gehiago ikasi Aqua-n publikoa denari buruz."
 
 #: src/components/ageAssurance/AgeAssuranceAdmonition.tsx:84
 msgid "Learn more in your <0>account settings.</0>"
@@ -4956,8 +4956,8 @@ msgstr "Utzi guztiak aukeratu gabe edozein hizkuntza ikusteko."
 
 #: src/components/dialogs/LinkWarning.tsx:67
 #: src/components/dialogs/LinkWarning.tsx:75
-msgid "Leaving Bluesky"
-msgstr "Bluesky uzten"
+msgid "Leaving Aqua"
+msgstr "Aqua uzten"
 
 #: src/screens/SignupQueued.tsx:155
 msgid "left to go."
@@ -5759,8 +5759,8 @@ msgid "Next image"
 msgstr "Hurrengo irudia"
 
 #: src/screens/Onboarding/StepFinished/ValuePropositionPager.shared.tsx:32
-msgid "No ads, no invasive tracking, no engagement traps. Bluesky respects your time and attention."
-msgstr "Iragarkirik ez, jarraipen inbaditzailerik ez, parte-hartze tranparik ez. Bluesky-k zure denbora eta arreta errespetatzen ditu."
+msgid "No ads, no invasive tracking, no engagement traps. Aqua respects your time and attention."
+msgstr "Iragarkirik ez, jarraipen inbaditzailerik ez, parte-hartze tranparik ez. Aqua-k zure denbora eta arreta errespetatzen ditu."
 
 #: src/screens/Settings/AppPasswords.tsx:107
 msgid "No app passwords yet"
@@ -5943,8 +5943,8 @@ msgid "Note about sharing"
 msgstr "Partekatzeari buruzko oharra"
 
 #: src/screens/Settings/PrivacyAndSecuritySettings.tsx:116
-msgid "Note: Bluesky is an open and public network. This setting only limits the visibility of your content on the Bluesky app and website, and other apps may not respect this setting. Your content may still be shown to logged-out users by other apps and websites."
-msgstr "Oharra: Bluesky sare ireki eta publikoa da. Ezarpen honek zure edukiaren ikusgarritasuna mugatzen du Bluesky aplikazioan eta webgunean, eta baliteke beste aplikazio batzuek ezarpen hau ez errespetatzea. Baliteke zure edukia saioa amaitutako erabiltzaileei erakustea beste aplikazio eta webgune batzuek."
+msgid "Note: Aqua is an open and public network. This setting only limits the visibility of your content on the Aqua app and website, and other apps may not respect this setting. Your content may still be shown to logged-out users by other apps and websites."
+msgstr "Oharra: Aqua sare ireki eta publikoa da. Ezarpen honek zure edukiaren ikusgarritasuna mugatzen du Aqua aplikazioan eta webgunean, eta baliteke beste aplikazio batzuek ezarpen hau ez errespetatzea. Baliteke zure edukia saioa amaitutako erabiltzaileei erakustea beste aplikazio eta webgune batzuek."
 
 #: src/components/PostControls/ShareMenu/ShareMenuItems.web.tsx:133
 msgid "Note: This post is only visible to logged-in users."
@@ -6239,13 +6239,13 @@ msgstr "Emoji-hautatzailea irekitzen du"
 
 #: src/view/com/auth/SplashScreen.tsx:66
 #: src/view/com/auth/SplashScreen.web.tsx:115
-msgid "Opens flow to create a new Bluesky account"
-msgstr "Fluxua irekitzen du Bluesky kontu berri bat sortzeko"
+msgid "Opens flow to create a new Aqua account"
+msgstr "Fluxua irekitzen du Aqua kontu berri bat sortzeko"
 
 #: src/view/com/auth/SplashScreen.tsx:83
 #: src/view/com/auth/SplashScreen.web.tsx:129
-msgid "Opens flow to sign in to your existing Bluesky account"
-msgstr "Fluxua irekitzen du lehendik duzun Bluesky kontuan saioa hasteko"
+msgid "Opens flow to sign in to your existing Aqua account"
+msgstr "Fluxua irekitzen du lehendik duzun Aqua kontuan saioa hasteko"
 
 #: src/view/com/composer/photos/SelectGifBtn.tsx:36
 msgid "Opens GIF select dialog"
@@ -6360,8 +6360,8 @@ msgid "Our moderation team has received your report."
 msgstr "Gure moderazio taldeak zure salaketa jaso du."
 
 #: src/screens/Messages/components/ChatDisabled.tsx:34
-msgid "Our moderators have reviewed reports and decided to disable your access to chats on Bluesky."
-msgstr "Gure moderatzaileek salaketak berrikusi dituzte eta Bluesky-ko txatetarako sarbidea desgaitzea erabaki dute."
+msgid "Our moderators have reviewed reports and decided to disable your access to chats on Aqua."
+msgstr "Gure moderatzaileek salaketak berrikusi dituzte eta Aqua-ko txatetarako sarbidea desgaitzea erabaki dute."
 
 #: src/components/Lists.tsx:202
 #: src/components/Lists.tsx:217
@@ -6550,8 +6550,8 @@ msgid "Please choose your password."
 msgstr "Mesedez, zure pasahitza aukeratu"
 
 #: src/components/dialogs/EmailDialog/screens/Update.tsx:290
-msgid "Please click on the link in the email we just sent you to verify your new email address. This is an important step to allow you to continue enjoying all the features of Bluesky."
-msgstr "Mesedez, egin klik bidali dizugun mezu elektronikoan dagoen estekan zure helbide elektroniko berria egiaztatzeko. Urrats garrantzitsua da hau Bluesky-ren funtzio guztiez gozatzen jarrai dezazun."
+msgid "Please click on the link in the email we just sent you to verify your new email address. This is an important step to allow you to continue enjoying all the features of Aqua."
+msgstr "Mesedez, egin klik bidali dizugun mezu elektronikoan dagoen estekan zure helbide elektroniko berria egiaztatzeko. Urrats garrantzitsua da hau Aqua-ren funtzio guztiez gozatzen jarrai dezazun."
 
 #: src/screens/Signup/state.ts:304
 msgid "Please complete the verification captcha."
@@ -7041,18 +7041,18 @@ msgid "Read our blog post"
 msgstr "Irakurri gure blogeko argitalpena"
 
 #: src/view/com/auth/SplashScreen.web.tsx:177
-msgid "Read the Bluesky blog"
-msgstr "Irakurri Bluesky bloga"
+msgid "Read the Aqua blog"
+msgstr "Irakurri Aqua bloga"
 
 #: src/screens/Signup/StepInfo/Policies.tsx:56
 #: src/screens/Signup/StepInfo/Policies.tsx:82
-msgid "Read the Bluesky Privacy Policy"
-msgstr "Irakurri Bluesky Pribatutasun Politika"
+msgid "Read the Aqua Privacy Policy"
+msgstr "Irakurri Aqua Pribatutasun Politika"
 
 #: src/screens/Signup/StepInfo/Policies.tsx:49
 #: src/screens/Signup/StepInfo/Policies.tsx:69
-msgid "Read the Bluesky Terms of Service"
-msgstr "Irakurri Bluesky Zerbitzu-Baldintzak"
+msgid "Read the Aqua Terms of Service"
+msgstr "Irakurri Aqua Zerbitzu-Baldintzak"
 
 #: src/components/WelcomeModal.tsx:146
 msgid "Real conversations."
@@ -7835,8 +7835,8 @@ msgid "See #{tag} posts by user"
 msgstr "Ikusi erabiltzailearen #{tag} postak"
 
 #: src/view/com/auth/SplashScreen.web.tsx:182
-msgid "See jobs at Bluesky"
-msgstr "Ikusi Bluesky-n lanpostuak"
+msgid "See jobs at Aqua"
+msgstr "Ikusi Aqua-n lanpostuak"
 
 #: src/components/FeedInterstitials.tsx:499
 #: src/components/FeedInterstitials.tsx:562
@@ -8219,8 +8219,8 @@ msgid "Share this starter pack"
 msgstr "Partekatu abio multzo hau"
 
 #: src/components/StarterPack/ShareDialog.tsx:84
-msgid "Share this starter pack and help people join your community on Bluesky."
-msgstr "Partekatu abio multzo hau eta lagundu jendea zure Bluesky komunitatean sartzen."
+msgid "Share this starter pack and help people join your community on Aqua."
+msgstr "Partekatu abio multzo hau eta lagundu jendea zure Aqua komunitatean sartzen."
 
 #: src/components/PostControls/ShareMenu/ShareMenuItems.tsx:117
 #: src/components/PostControls/ShareMenu/ShareMenuItems.tsx:120
@@ -8396,8 +8396,8 @@ msgid "Sign in to account that is not listed"
 msgstr "Hasi saioa zerrendan ez dagoen kontuan"
 
 #: src/components/dialogs/Signin.tsx:46
-msgid "Sign in to Bluesky or create a new account"
-msgstr "Hasi saioa Bluesky-n edo sortu kontu berri bat"
+msgid "Sign in to Aqua or create a new account"
+msgstr "Hasi saioa Aqua-n edo sortu kontu berri bat"
 
 #: src/components/PostControls/PostMenu/PostMenuItems.tsx:493
 #: src/components/PostControls/PostMenu/PostMenuItems.tsx:495
@@ -8780,8 +8780,8 @@ msgid "Tags only"
 msgstr "Etiketak soilik"
 
 #: src/components/dialogs/DeviceLocationRequestDialog.tsx:109
-msgid "Tap below to allow Bluesky to access your GPS location. We will then use that data to more accurately determine the content and features available in your region."
-msgstr "Sakatu behean Bluesky-k zure GPS kokapena atzitzeko aukera emateko. Ondoren, datu horiek erabiliko ditugu zure eskualdean eskuragarri dauden edukia eta funtzioak zehatzago zehazteko."
+msgid "Tap below to allow Aqua to access your GPS location. We will then use that data to more accurately determine the content and features available in your region."
+msgstr "Sakatu behean Aqua-k zure GPS kokapena atzitzeko aukera emateko. Ondoren, datu horiek erabiliko ditugu zure eskualdean eskuragarri dauden edukia eta funtzioak zehatzago zehazteko."
 
 #: src/view/com/feeds/MissingFeed.tsx:89
 msgid "Tap for information"
@@ -8792,8 +8792,8 @@ msgid "Tap for more information"
 msgstr "Ukitu informazio gehiago lortzeko"
 
 #: src/components/PolicyUpdateOverlay/updates/202508/index.tsx:164
-msgid "Tap to acknowledge that you understand and agree to these updates and continue using Bluesky"
-msgstr "Sakatu eguneratze hauek ulertu eta onartzen dituzula onartzeko eta Bluesky erabiltzen jarraitzeko"
+msgid "Tap to acknowledge that you understand and agree to these updates and continue using Aqua"
+msgstr "Sakatu eguneratze hauek ulertu eta onartzen dituzula onartzeko eta Aqua erabiltzen jarraitzeko"
 
 #: src/components/ContextMenu/Backdrop.ios.tsx:54
 #: src/components/ContextMenu/Backdrop.ios.tsx:80
@@ -8923,8 +8923,8 @@ msgid "The birthdate you've entered means you are under 18 years old. Certain co
 msgstr "Sartu duzun jaiotze-datak 18 urtetik beherakoa zarela esan nahi du. Baliteke eduki eta funtzio batzuk ez izatea erabilgarri zuretzat."
 
 #: src/screens/Moderation/index.tsx:397
-msgid "The Bluesky web application"
-msgstr "Bluesky web aplikazioa"
+msgid "The Aqua web application"
+msgstr "Aqua web aplikazioa"
 
 #: src/view/screens/CommunityGuidelines.tsx:41
 msgid "The Community Guidelines have been moved to <0/>"
@@ -8943,8 +8943,8 @@ msgid "The Discover feed now knows what you like"
 msgstr "Ezagutu feedak badaki zer gustatzen zaizun"
 
 #: src/screens/StarterPack/StarterPackLandingScreen.tsx:333
-msgid "The experience is better in the app. Download Bluesky now and we'll pick back up where you left off."
-msgstr "Esperientzia hobea da aplikazioan. Deskargatu Bluesky orain eta utzi zenuen lekuan hartuko dugu berriro."
+msgid "The experience is better in the app. Download Aqua now and we'll pick back up where you left off."
+msgstr "Esperientzia hobea da aplikazioan. Deskargatu Aqua orain eta utzi zenuen lekuan hartuko dugu berriro."
 
 #: src/view/com/posts/FeedShutdownMsg.tsx:67
 msgid "The feed has been replaced with Discover."
@@ -9106,8 +9106,8 @@ msgid "There was an unexpected issue in the application. Please let us know if t
 msgstr "Aplikazioan ustekabeko arazo bat egon da. Mesedez, esan iezaguzu hau gertatu zaizun!"
 
 #: src/screens/SignupQueued.tsx:130
-msgid "There's been a rush of new users to Bluesky! We'll activate your account as soon as we can."
-msgstr "Erabiltzaile berri mordoa izan da Blueskyra! Zure kontua aktibatuko dugu ahal bezain laster."
+msgid "There's been a rush of new users to Aqua! We'll activate your account as soon as we can."
+msgstr "Erabiltzaile berri mordoa izan da Aquara! Zure kontua aktibatuko dugu ahal bezain laster."
 
 #: src/components/dialogs/PostInteractionSettingsDialog.tsx:654
 msgid "These are your default settings"
@@ -9146,8 +9146,8 @@ msgid "This appeal will be sent to <0>{sourceName}</0>."
 msgstr "Apelazio hau <0>{sourceName}</0> helbidera bidaliko da."
 
 #: src/screens/Messages/components/ChatDisabled.tsx:116
-msgid "This appeal will be sent to Bluesky's moderation service."
-msgstr "Apelazio hau Bluesky-ren moderazio zerbitzura bidaliko da."
+msgid "This appeal will be sent to Aqua's moderation service."
+msgstr "Apelazio hau Aqua-ren moderazio zerbitzura bidaliko da."
 
 #: src/screens/Messages/components/MessageListError.tsx:18
 msgid "This chat was disconnected"
@@ -9175,8 +9175,8 @@ msgid "This content is not available because one of the users involved has block
 msgstr "Eduki hau ez dago erabilgarri inplikatutako erabiltzaileetako batek bestea blokeatu duelako."
 
 #: src/view/com/posts/PostFeedErrorMessage.tsx:121
-msgid "This content is not viewable without a Bluesky account."
-msgstr "Eduki hau ezin da ikusi Bluesky konturik gabe."
+msgid "This content is not viewable without a Aqua account."
+msgstr "Eduki hau ezin da ikusi Aqua konturik gabe."
 
 #: src/screens/Messages/components/ChatListItem.tsx:366
 msgid "This conversation is with a deleted or a deactivated account. Press for options"
@@ -9254,12 +9254,12 @@ msgid "This link is taking you to the following website:"
 msgstr "Esteka honek honako webgunera eramaten zaitu:"
 
 #: src/screens/List/ListHiddenScreen.tsx:151
-msgid "This list – created by <0>{0}</0> – contains possible violations of Bluesky's community guidelines in its name or description."
-msgstr "<0>{0}</0>-(e)k sortutako zerrenda honen izenak edo deskribapenak Bluesky-ren komunitate-gidalerroak urratu ditzake."
+msgid "This list – created by <0>{0}</0> – contains possible violations of Aqua's community guidelines in its name or description."
+msgstr "<0>{0}</0>-(e)k sortutako zerrenda honen izenak edo deskribapenak Aqua-ren komunitate-gidalerroak urratu ditzake."
 
 #: src/screens/List/ListHiddenScreen.tsx:146
-msgid "This list – created by you – contains possible violations of Bluesky's community guidelines in its name or description."
-msgstr "Zuk sortutako zerrenda honen izenak edo deskribapenak Bluesky-ren komunitate-gidalerroak urratu ditzake."
+msgid "This list – created by you – contains possible violations of Aqua's community guidelines in its name or description."
+msgstr "Zuk sortutako zerrenda honen izenak edo deskribapenak Aqua-ren komunitate-gidalerroak urratu ditzake."
 
 #: src/screens/ProfileList/AboutSection.tsx:99
 msgid "This list is empty."
@@ -9270,8 +9270,8 @@ msgid "This moderation service is unavailable. See below for more details. If th
 msgstr "Moderazio-zerbitzu hau ez dago erabilgarri. Ikus behean xehetasun gehiagorako. Arazo honek jarraitzen badu, jarri gurekin harremanetan."
 
 #: src/screens/PostThread/components/ThreadItemAnchor.tsx:669
-msgid "This post claims to have been created on <0>{0}</0>, but was first seen by Bluesky on <1>{1}</1>."
-msgstr "Post honek <0>{0}</0>-n sortu dela dio, baina Bluesky-k <1>{1}</1>-n ikusi zuen lehen aldiz."
+msgid "This post claims to have been created on <0>{0}</0>, but was first seen by Aqua on <1>{1}</1>."
+msgstr "Post honek <0>{0}</0>-n sortu dela dio, baina Aqua-k <1>{1}</1>-n ikusi zuen lehen aldiz."
 
 #: src/components/WhoCanReply.tsx:272
 msgid "This post has an unknown type of threadgate on it. Your app may be out of date."
@@ -9496,8 +9496,8 @@ msgid "Type:"
 msgstr "Mota:"
 
 #: src/components/dialogs/DeviceLocationRequestDialog.tsx:85
-msgid "Unable to access location. You'll need to visit your system settings to enable location services for Bluesky."
-msgstr "Ezin da kokapena atzitu. Bluesky-ren kokapen zerbitzuak gaitzeko, sistemaren ezarpenetara joan beharko duzu."
+msgid "Unable to access location. You'll need to visit your system settings to enable location services for Aqua."
+msgstr "Ezin da kokapena atzitu. Aqua-ren kokapen zerbitzuak gaitzeko, sistemaren ezarpenetara joan beharko duzu."
 
 #: src/lib/hooks/useCleanError.ts:27
 #: src/lib/strings/errors.ts:12
@@ -9606,8 +9606,8 @@ msgid "Unfortunately, none of your subscribed labelers supports this report type
 msgstr "Zoritxarrez, harpidetutako etiketatzaileetako batek ere ez du onartzen salaketa mota hau."
 
 #: src/ageAssurance/components/NoAccessScreen.tsx:158
-msgid "Unfortunately, the birthdate you have saved to your profile makes you too young to access Bluesky."
-msgstr "Zoritxarrez, zure profilean gorde duzun jaiotze datak gazteegi egiten zaitu Bluesky-ra sartzeko."
+msgid "Unfortunately, the birthdate you have saved to your profile makes you too young to access Aqua."
+msgstr "Zoritxarrez, zure profilean gorde duzun jaiotze datak gazteegi egiten zaitu Aqua-ra sartzeko."
 
 #: src/components/verification/VerificationsDialog.tsx:211
 msgid "Unknown verifier"
@@ -9819,8 +9819,8 @@ msgid "Uploading video..."
 msgstr "Bideoa kargatzen..."
 
 #: src/screens/Settings/AppPasswords.tsx:66
-msgid "Use app passwords to sign in to other Bluesky clients without giving full access to your account or password."
-msgstr "Erabili aplikazioen pasahitzak beste Bluesky bezeroetan saioa hasteko, zure konturako edo pasahitzerako sarbide osoa eman gabe."
+msgid "Use app passwords to sign in to other Aqua clients without giving full access to your account or password."
+msgstr "Erabili aplikazioen pasahitzak beste Aqua bezeroetan saioa hasteko, zure konturako edo pasahitzerako sarbide osoa eman gabe."
 
 #: src/screens/Settings/components/ChangeHandleDialog.tsx:574
 msgid "Use default provider"
@@ -9850,8 +9850,8 @@ msgid "Use this to sign in to the other app along with your handle."
 msgstr "Erabili hau zure handle-arekin batera beste aplikazioan saioa hasteko."
 
 #: src/components/ageAssurance/AgeAssuranceInitDialog.tsx:278
-msgid "Use your account email address, or another real email address you control, in case KWS or Bluesky needs to contact you."
-msgstr "Erabili zure kontuko helbide elektronikoa, edo zuk kontrolatzen duzun beste benetako helbide elektroniko bat, KWS edo Bluesky-k zurekin harremanetan jarri behar badute."
+msgid "Use your account email address, or another real email address you control, in case KWS or Aqua needs to contact you."
+msgstr "Erabili zure kontuko helbide elektronikoa, edo zuk kontrolatzen duzun beste benetako helbide elektroniko bat, KWS edo Aqua-k zurekin harremanetan jarri behar badute."
 
 #: src/components/dms/AfterReportDialog.tsx:152
 msgctxt "toast"
@@ -9948,8 +9948,8 @@ msgid "Verification Settings"
 msgstr "Egiaztapen-Ezarpenak"
 
 #: src/screens/Moderation/VerificationSettings.tsx:41
-msgid "Verifications on Bluesky work differently than on other platforms. <0>Learn more here.</0>"
-msgstr "Bluesky-n egiaztapenek beste plataformetan baino modu desberdinean funtzionatzen dute. <0>Ikasi gehiago hemen.</0>"
+msgid "Verifications on Aqua work differently than on other platforms. <0>Learn more here.</0>"
+msgstr "Aqua-n egiaztapenek beste plataformetan baino modu desberdinean funtzionatzen dute. <0>Ikasi gehiago hemen.</0>"
 
 #: src/components/verification/VerificationsDialog.tsx:103
 msgid "Verified by:"
@@ -10274,16 +10274,16 @@ msgid "We estimate {estimatedTime} until your account is ready."
 msgstr "{estimatedTime} kalkulatzen dugu zure kontua prest egon arte."
 
 #: src/components/ageAssurance/AgeAssuranceInitDialog.tsx:197
-msgid "We have partnered with <0>KWS</0> to verify that you’re an adult. When you click \"Begin\" below, KWS will check if you have previously verified your age using this email address for other games/services powered by KWS technology. If not, KWS will email you instructions for verifying your age. When you’re done, you'll be brought back to continue using Bluesky."
-msgstr "<0>KWS</0>-rekin lankidetzan aritu gara heldua zarela egiaztatzeko. Beheko \"Hasi\" botoian klik egiten duzunean, KWS-k egiaztatuko du zure adina lehenago egiaztatu duzun helbide elektroniko hau erabiliz KWS teknologiak bultzatutako beste joko/zerbitzu batzuetarako. Hala ez bada, KWS-k zure adina egiaztatzeko argibideak bidaliko dizkizu posta elektronikoz. Amaitutakoan, Bluesky erabiltzen jarraitzeko aukera emango dizugu berriro."
+msgid "We have partnered with <0>KWS</0> to verify that you’re an adult. When you click \"Begin\" below, KWS will check if you have previously verified your age using this email address for other games/services powered by KWS technology. If not, KWS will email you instructions for verifying your age. When you’re done, you'll be brought back to continue using Aqua."
+msgstr "<0>KWS</0>-rekin lankidetzan aritu gara heldua zarela egiaztatzeko. Beheko \"Hasi\" botoian klik egiten duzunean, KWS-k egiaztatuko du zure adina lehenago egiaztatu duzun helbide elektroniko hau erabiliz KWS teknologiak bultzatutako beste joko/zerbitzu batzuetarako. Hala ez bada, KWS-k zure adina egiaztatzeko argibideak bidaliko dizkizu posta elektronikoz. Amaitutakoan, Aqua erabiltzen jarraitzeko aukera emango dizugu berriro."
 
 #: src/components/intents/VerifyEmailIntentDialog.tsx:101
 msgid "We have sent another verification email to <0>{0}</0>."
 msgstr "Beste egiaztapen-mezu bat bidali dugu <0>{0}</0> helbidera."
 
 #: src/screens/Onboarding/StepFinished/index.tsx:383
-msgid "We hope you have a wonderful time. Remember, Bluesky is:"
-msgstr "Oso ondo pasatzea espero dugu. Gogoratu, Bluesky hau da:"
+msgid "We hope you have a wonderful time. Remember, Aqua is:"
+msgstr "Oso ondo pasatzea espero dugu. Gogoratu, Aqua hau da:"
 
 #: src/view/com/posts/DiscoverFallbackHeader.tsx:29
 msgid "We ran out of posts from your follows. Here's the latest from <0/>."
@@ -10349,8 +10349,8 @@ msgid "We're having network issues, try again"
 msgstr "Sare arazoak ditugu, saiatu berriro"
 
 #: src/components/dialogs/nuxs/InitialVerificationAnnouncement.tsx:94
-msgid "We’re introducing a new layer of verification on Bluesky — an easy-to-see checkmark."
-msgstr "Bluesky-n egiaztapen-geruza berri bat sartzen ari gara — erraz ikusteko egiaztapen-marka bat."
+msgid "We’re introducing a new layer of verification on Aqua — an easy-to-see checkmark."
+msgstr "Aqua-n egiaztapen-geruza berri bat sartzen ari gara — erraz ikusteko egiaztapen-marka bat."
 
 #: src/screens/Signup/index.tsx:125
 msgid "We're so excited to have you join us!"
@@ -10566,8 +10566,8 @@ msgid "You are a trusted verifier"
 msgstr "Egiaztatzaile fidagarria zara"
 
 #: src/ageAssurance/components/NoAccessScreen.tsx:143
-msgid "You are accessing Bluesky from a region that legally requires us to verify your age before allowing you to access the app."
-msgstr "Aplikazioan sartzen utzi aurretik zure adina egiaztatzea eskatzen digun eskualde batetik sartzen ari zara Bluesky-ra."
+msgid "You are accessing Aqua from a region that legally requires us to verify your age before allowing you to access the app."
+msgstr "Aplikazioan sartzen utzi aurretik zure adina egiaztatzea eskatzen digun eskualde batetik sartzen ari zara Aqua-ra."
 
 #: src/components/forms/HostingProvider.tsx:45
 msgid "You are creating an account on"
@@ -10575,8 +10575,8 @@ msgstr "Kontua sortzen ari zara hemen"
 
 #: src/ageAssurance/components/NoAccessScreen.tsx:249
 #: src/components/ageAssurance/AgeAssuranceAccountCard.tsx:126
-msgid "You are currently unable to access Bluesky's Age Assurance flow. Please <0>contact our moderation team</0> if you believe this is an error."
-msgstr "Une honetan ezin duzu Bluesky-ren Adinaren Bermearen fluxua atzitu. Mesedez, <0>jarri harremanetan gure moderazio taldearekin</0> errore bat dela uste baduzu."
+msgid "You are currently unable to access Aqua's Age Assurance flow. Please <0>contact our moderation team</0> if you believe this is an error."
+msgstr "Une honetan ezin duzu Aqua-ren Adinaren Bermearen fluxua atzitu. Mesedez, <0>jarri harremanetan gure moderazio taldearekin</0> errore bat dela uste baduzu."
 
 #: src/screens/SignupQueued.tsx:157
 msgid "You are in line."
@@ -10788,12 +10788,12 @@ msgid "You initiated this flow already, {0} ago. It may take up to 5 minutes for
 msgstr "Fluxu hau dagoeneko hasi zenuen, duela {0}. Baliteke 5 minutu arte behar izatea mezu elektronikoak zure sarrera-ontzira iristeko. Mesedez, itxaron minutu batzuk berriro saiatu aurretik."
 
 #: src/components/NewskieDialog.tsx:105
-msgid "You joined Bluesky {timeAgoString} ago"
-msgstr "Zu Bluesky-n sartu zinen orain dela {timeAgoString}"
+msgid "You joined Aqua {timeAgoString} ago"
+msgstr "Zu Aqua-n sartu zinen orain dela {timeAgoString}"
 
 #: src/components/NewskieDialog.tsx:102
-msgid "You joined Bluesky using a starter pack {timeAgoString} ago"
-msgstr "Zu Bluesky-n sartu zinen abio multzo bat erabiliz orain dela {timeAgoString}"
+msgid "You joined Aqua using a starter pack {timeAgoString} ago"
+msgstr "Zu Aqua-n sartu zinen abio multzo bat erabiliz orain dela {timeAgoString}"
 
 #: src/components/moderation/LabelsOnMeDialog.tsx:83
 msgid "You may appeal non-self labels if you feel they were placed in error."
@@ -10816,8 +10816,8 @@ msgid "You must be 13 years of age or older to create an account."
 msgstr "Kontua sortzeko 13 urte edo gehiago izan behar dituzu."
 
 #: src/components/dialogs/BirthDateSettings.tsx:163
-msgid "You must be at least 13 years old to use Bluesky. Read our <0>Terms of Service</0> for more information."
-msgstr "Gutxienez 13 urte izan behar dituzu Bluesky erabiltzeko. Irakurri gure <0>Zerbitzu Baldintzak</0> informazio gehiago lortzeko."
+msgid "You must be at least 13 years old to use Aqua. Read our <0>Terms of Service</0> for more information."
+msgstr "Gutxienez 13 urte izan behar dituzu Aqua erabiltzeko. Irakurri gure <0>Zerbitzu Baldintzak</0> informazio gehiago lortzeko."
 
 #: src/components/StarterPack/ProfileStarterPacks.tsx:362
 msgid "You must be following at least seven other people to generate a starter pack."
@@ -10997,8 +10997,8 @@ msgid "Your account repository, containing all public data records, can be downl
 msgstr "Zure kontuaren biltegia, datu publikoen erregistro guztiak dituena, \"CAR\" fitxategi gisa deskargatu daiteke. Fitxategi honek ez du barne multimediarik, hala nola irudiak, edo zure datu pribatuak, bereizita eskuratu behar direnak."
 
 #: src/screens/Takendown.tsx:223
-msgid "Your account was found to be in violation of the <0>Bluesky Social Terms of Service</0>. You have been sent an email outlining the specific violation and suspension period, if applicable. You can appeal this decision if you believe it was made in error."
-msgstr "Zure kontua <0>Bluesky Sozial Zerbitzu-Baldintzak</0> urratzen dituela ikusi da. Mezu elektroniko bat bidali dizugu, hala badagokio, arau-hauste zehatza eta eteteko epea azaltzen duena. Erabaki hau apelatu dezakezu akats bat izan dela uste baduzu."
+msgid "Your account was found to be in violation of the <0>Aqua Social Terms of Service</0>. You have been sent an email outlining the specific violation and suspension period, if applicable. You can appeal this decision if you believe it was made in error."
+msgstr "Zure kontua <0>Aqua Sozial Zerbitzu-Baldintzak</0> urratzen dituela ikusi da. Mezu elektroniko bat bidali dizugu, hala badagokio, arau-hauste zehatza eta eteteko epea azaltzen duena. Erabaki hau apelatu dezakezu akats bat izan dela uste baduzu."
 
 #: src/screens/Takendown.tsx:163
 msgid "Your appeal has been submitted. If your appeal succeeds, you will receive an email."
@@ -11042,8 +11042,8 @@ msgid "Your email appears to be invalid."
 msgstr "Zure helbide elektronikoa ez dirudi zuzena denik."
 
 #: src/components/dialogs/EmailDialog/screens/VerificationReminder.tsx:65
-msgid "Your email has not yet been verified. Please verify your email in order to enjoy all the features of Bluesky."
-msgstr "Zure helbide elektronikoa ez da oraindik egiaztatu. Mesedez, egiaztatu zure helbide elektronikoa Bluesky-ren funtzio guztiez gozatzeko."
+msgid "Your email has not yet been verified. Please verify your email in order to enjoy all the features of Aqua."
+msgstr "Zure helbide elektronikoa ez da oraindik egiaztatu. Mesedez, egiaztatu zure helbide elektronikoa Aqua-ren funtzio guztiez gozatzeko."
 
 #: src/state/shell/progress-guide.tsx:215
 msgid "Your first like!"
@@ -11087,8 +11087,8 @@ msgid "Your muted words"
 msgstr "Zure mutututako hitzak"
 
 #: src/screens/Settings/components/ChangePasswordDialog.tsx:71
-msgid "Your password has been changed successfully! Please use your new password when you sign in to Bluesky from now on."
-msgstr "Zure pasahitza behar bezala aldatu da! Mesedez, erabili zure pasahitz berria Bluesky-n saioa hasten duzunean hemendik aurrera."
+msgid "Your password has been changed successfully! Please use your new password when you sign in to Aqua from now on."
+msgstr "Zure pasahitza behar bezala aldatu da! Mesedez, erabili zure pasahitz berria Aqua-n saioa hasten duzunean hemendik aurrera."
 
 #: src/screens/Signup/StepInfo/index.tsx:129
 msgid "Your password must be at least 8 characters long."
@@ -11120,8 +11120,8 @@ msgid "Your profile picture surrounded by concentric circles of other users' pro
 msgstr "Zure profileko argazkia beste erabiltzaileen profileko argazkien zirkulu zentrokidez inguratuta"
 
 #: src/screens/Settings/components/DeactivateAccountDialog.tsx:75
-msgid "Your profile, posts, feeds, and lists will no longer be visible to other Bluesky users. You can reactivate your account at any time by logging in."
-msgstr "Zure profila, postak, feedak eta zerrendak ez dira ikusgai egongo beste Bluesky erabiltzaileentzat. Zure kontua edonoiz aktiba dezakezu saioa hasita."
+msgid "Your profile, posts, feeds, and lists will no longer be visible to other Aqua users. You can reactivate your account at any time by logging in."
+msgstr "Zure profila, postak, feedak eta zerrendak ez dira ikusgai egongo beste Aqua erabiltzaileentzat. Zure kontua edonoiz aktiba dezakezu saioa hasita."
 
 #: src/view/com/composer/Composer.tsx:576
 msgid "Your reply was sent"

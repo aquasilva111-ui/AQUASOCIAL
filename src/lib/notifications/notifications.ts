@@ -16,7 +16,7 @@ import {IS_DEV} from '#/env'
 
 /**
  * @private
- * Registers the device's push notification token with the Bluesky server.
+ * Registers the device's push notification token with the Aqua server.
  */
 async function _registerPushToken({
   agent,
@@ -61,7 +61,7 @@ async function _registerPushToken({
 const _registerPushTokenDebounced = debounce(_registerPushToken, 100)
 
 /**
- * Hook to register the device's push notification token with the Bluesky. If
+ * Hook to register the device's push notification token with the Aqua. If
  * the user is not logged in, this will do nothing.
  *
  * Use this instead of using `_registerPushToken` or
@@ -105,7 +105,7 @@ async function getPushToken() {
 }
 
 /**
- * Hook to get the device push token and register it with the Bluesky server.
+ * Hook to get the device push token and register it with the Aqua server.
  * Should only be called after a user has logged-in, since registration is an
  * authed endpoint.
  *
@@ -164,7 +164,7 @@ export function useGetAndRegisterPushToken() {
 }
 
 /**
- * Hook to register the device's push notification token with the Bluesky
+ * Hook to register the device's push notification token with the Aqua
  * server, as well as listen for push token updates, should they occurr.
  *
  * Registered via the shell, which wraps the navigation stack, meaning if we
@@ -193,7 +193,7 @@ export function useNotificationsRegistration() {
     getAndRegisterPushToken()
 
     /**
-     * Register the push token with the Bluesky server, whenever it changes.
+     * Register the push token with the Aqua server, whenever it changes.
      * This is also fired any time `getDevicePushTokenAsync` is called.
      *
      * Since this is registered immediately after `getAndRegisterPushToken`, it
@@ -261,7 +261,7 @@ export function useRequestNotificationsPermission() {
          * Right after login, `currentAccount` in this scope will be undefined,
          * but calling `getPushToken` will result in `addPushTokenListener`
          * listeners being called, which will handle the registration with the
-         * Bluesky server.
+         * Aqua server.
          */
         getPushToken()
       }

@@ -124,7 +124,7 @@ msgstr "{0, plural, one {air a shàbhaladh} two {air a shàbhaladh} few {air an 
 msgid "{0, plural, other {{1} posts}}"
 msgstr "{0, plural, one {{1} phost} two {{1} phost} few {{1} puist}other {{1} post}}"
 
-#. Number of users (always at least 25) who have joined Bluesky using a specific starter pack
+#. Number of users (always at least 25) who have joined Aqua using a specific starter pack
 #: src/screens/StarterPack/StarterPackScreen.tsx:492
 msgid "{0, plural, other {# people have}} used this starter pack!"
 msgstr "Chleachd {0, plural, one {# duine} two {# dhuine} few {# daoine} other {# duin}} a’ phacaid tòiseachaidh seo!"
@@ -423,7 +423,7 @@ msgstr "{hours, plural, one {# uair a thìde {minutesString}} two {# uair a thì
 msgid "{hours, plural, one {# hour} other {# hours}}"
 msgstr "{hours, plural, one {# uair a thìde} two {# uair a thìde} few {# uairean a thìde} other {# uair a thìde}}"
 
-#. Number of users (always at least 50) who have joined Bluesky using a specific starter pack
+#. Number of users (always at least 50) who have joined Aqua using a specific starter pack
 #: src/components/StarterPack/StarterPackCard.tsx:101
 msgid "{joinedAllTimeCount, plural, other {# users have}} joined!"
 msgstr "Chaidh {joinedAllTimeCount, plural, one {# chleachdaiche} two {# chleachdaiche} few {# cleachdaichean} other {# cleachdaiche}} an sàs ann!"
@@ -437,12 +437,12 @@ msgid "{notificationCount, plural, one {# unread item} other {# unread items}}"
 msgstr "{notificationCount, plural, one {# nì gun leughadh} two {# nì gun leughadh} few {# nithean gun leughadh} other {# nì gun leughadh}}"
 
 #: src/components/NewskieDialog.tsx:113
-msgid "{profileName} joined Bluesky {timeAgoString} ago"
-msgstr "Chaidh {profileName} an sàs Bluesky {timeAgoString} air ais"
+msgid "{profileName} joined Aqua {timeAgoString} ago"
+msgstr "Chaidh {profileName} an sàs Aqua {timeAgoString} air ais"
 
 #: src/components/NewskieDialog.tsx:110
-msgid "{profileName} joined Bluesky using a starter pack {timeAgoString} ago"
-msgstr "Chaidh {profileName} an sàs Bluesky {timeAgoString} air ais, a’ cleachdadh pacaid-thòiseachaidh"
+msgid "{profileName} joined Aqua using a starter pack {timeAgoString} ago"
+msgstr "Chaidh {profileName} an sàs Aqua {timeAgoString} air ais, a’ cleachdadh pacaid-thòiseachaidh"
 
 #. The trending topic rank, i.e. "1. March Madness", "2. The Bachelor"
 #: src/screens/Search/modules/ExploreTrendingTopics.tsx:111
@@ -509,8 +509,8 @@ msgstr "<0>{date}</0> aig {time}"
 
 #: src/screens/Hashtag.tsx:225
 #: src/screens/Search/SearchResults.tsx:294
-msgid "<0>Sign in</0><1> or </1><2>create an account</2><3> </3><4>to search for news, sports, politics, and everything else happening on Bluesky.</4>"
-msgstr "<0>Clàraich a-steach</0><1> no </1><2>cruthaich cunntas</2><3> </3><4>airson naidheachdan, spòrs, poileataigs is rud sam bith eile a tha a’ dol air Bluesky a lorg.</4>"
+msgid "<0>Sign in</0><1> or </1><2>create an account</2><3> </3><4>to search for news, sports, politics, and everything else happening on Aqua.</4>"
+msgstr "<0>Clàraich a-steach</0><1> no </1><2>cruthaich cunntas</2><3> </3><4>airson naidheachdan, spòrs, poileataigs is rud sam bith eile a tha a’ dol air Aqua a lorg.</4>"
 
 #: src/screens/StarterPack/Wizard/index.tsx:502
 msgid "<0>You</0> and<1> </1><2>{0} </2>are included in your starter pack"
@@ -537,8 +537,8 @@ msgid "7 days"
 msgstr "7 làithean"
 
 #: src/screens/Onboarding/StepFinished/ValuePropositionPager.shared.tsx:17
-msgid "A collection of popular feeds you can find on Bluesky, including News, Booksky, Game Dev, Blacksky, and Fountain Pens"
-msgstr "Cruinneachadh de dh’inbhirean air a bheil fèill mhòr air Bluesky, a’ gabhail a-staigh News, Booksky, Game Dev, Blacksky agus Fountain Pens"
+msgid "A collection of popular feeds you can find on Aqua, including News, Booksky, Game Dev, Blacksky, and Fountain Pens"
+msgstr "Cruinneachadh de dh’inbhirean air a bheil fèill mhòr air Aqua, a’ gabhail a-staigh News, Booksky, Game Dev, Blacksky agus Fountain Pens"
 
 #. If last message does not contain text, fall back to "{user} reacted to {a message}"
 #: src/screens/Messages/components/ChatListItem.tsx:213
@@ -663,8 +663,8 @@ msgid "Account unmuted"
 msgstr "Chaidh an cunntas a neo-mhùchadh"
 
 #: src/components/verification/VerifierDialog.tsx:97
-msgid "Accounts with a scalloped blue check mark <0><1/></0> can verify others. These trusted verifiers are selected by Bluesky."
-msgstr "’S urrainn do chunntasan aig a bheil cromag chrom-bhileach ghorm <0><1/></0> cunntasan eile a dhearbhadh. ’S e Bluesky a thaghas an luchd-dearbhaidh earbsach seo."
+msgid "Accounts with a scalloped blue check mark <0><1/></0> can verify others. These trusted verifiers are selected by Aqua."
+msgstr "’S urrainn do chunntasan aig a bheil cromag chrom-bhileach ghorm <0><1/></0> cunntasan eile a dhearbhadh. ’S e Aqua a thaghas an luchd-dearbhaidh earbsach seo."
 
 #: src/lib/hooks/useNotificationHandler.ts:182
 #: src/screens/Settings/NotificationSettings/ActivityNotificationSettings.tsx:102
@@ -1078,13 +1078,13 @@ msgid "An error occurred while uploading the video."
 msgstr "Dh’èirich mearachd rè luchdadh suas a’ video."
 
 #: src/screens/Onboarding/StepFinished/ValuePropositionPager.shared.tsx:35
-msgid "An illustration of several Bluesky posts alongside repost, like, and comment icons"
-msgstr "Dealbh de ghrunn puist Bluesky ri taobh ìomhaigheadan ath-phostaidh, ’s toil agus bheachdan"
+msgid "An illustration of several Aqua posts alongside repost, like, and comment icons"
+msgstr "Dealbh de ghrunn puist Aqua ri taobh ìomhaigheadan ath-phostaidh, ’s toil agus bheachdan"
 
 #: src/components/dialogs/nuxs/InitialVerificationAnnouncement.tsx:84
 #: src/components/verification/VerifierDialog.tsx:86
-msgid "An illustration showing that Bluesky selects trusted verifiers, and trusted verifiers in turn verify individual user accounts."
-msgstr "Dealbh a sheallas gun tagh Bluesky luchd-dearbhaidh earbsach agus gun dearbh an luchd-dearbhaidh earbsach seo cunntasan fa leth aig an luchd-chleachdaidh an uair sin."
+msgid "An illustration showing that Aqua selects trusted verifiers, and trusted verifiers in turn verify individual user accounts."
+msgstr "Dealbh a sheallas gun tagh Aqua luchd-dearbhaidh earbsach agus gun dearbh an luchd-dearbhaidh earbsach seo cunntasan fa leth aig an luchd-chleachdaidh an uair sin."
 
 #: src/components/moderation/ReportDialog/utils/useReportOptions.ts:239
 msgid "An issue not included in these options"
@@ -1108,8 +1108,8 @@ msgid "An issue occurred, please try again."
 msgstr "Dh’èirich duilgheadas, feuch ris a-rithist."
 
 #: src/components/dialogs/nuxs/InitialVerificationAnnouncement.tsx:118
-msgid "An mockup of a iPhone showing the Bluesky app open to the profile of a verified user with a blue checkmark next to their display name."
-msgstr "Dealbh mas fhìor dhe iPhone a tha a’ sealltainn aplacaid Bluesky agus a’ phròifil aig cleachdaiche dearbhte le cromag ghorm ris an ainm-taisbeanaidh aca."
+msgid "An mockup of a iPhone showing the Aqua app open to the profile of a verified user with a blue checkmark next to their display name."
+msgstr "Dealbh mas fhìor dhe iPhone a tha a’ sealltainn aplacaid Aqua agus a’ phròifil aig cleachdaiche dearbhte le cromag ghorm ris an ainm-taisbeanaidh aca."
 
 #: src/components/moderation/ModerationDetailsDialog.tsx:136
 #: src/lib/moderation/useModerationCauseDescription.ts:145
@@ -1142,8 +1142,8 @@ msgid "Announcement"
 msgstr "Fios-naidheachd"
 
 #: src/components/dialogs/nuxs/InitialVerificationAnnouncement.tsx:37
-msgid "Announcing verification on Bluesky"
-msgstr "Naidheachd mu dhearbhadh air Bluesky"
+msgid "Announcing verification on Aqua"
+msgstr "Naidheachd mu dhearbhadh air Aqua"
 
 #: src/components/dialogs/PostInteractionSettingsDialog.tsx:451
 msgid "Anyone"
@@ -1515,54 +1515,54 @@ msgstr "Bloga"
 
 #: src/components/dialogs/ServerInput.tsx:147
 #: src/components/dialogs/ServerInput.tsx:149
-msgid "Bluesky"
-msgstr "Bluesky"
+msgid "Aqua"
+msgstr "Aqua"
 
 #: src/screens/PostThread/components/ThreadItemAnchor.tsx:688
-msgid "Bluesky cannot confirm the authenticity of the claimed date."
-msgstr "Chan urrainn dha Bluesky dearbhadh gu bheil an ceann-là a thathar a’ cumail a-mach fìor."
+msgid "Aqua cannot confirm the authenticity of the claimed date."
+msgstr "Chan urrainn dha Aqua dearbhadh gu bheil an ceann-là a thathar a’ cumail a-mach fìor."
 
 #: src/screens/Settings/AppIconSettings/useAppIconSets.ts:165
 msgctxt "Name of app icon variant"
-msgid "Bluesky Classic™"
-msgstr "Bluesky Classic™"
+msgid "Aqua Classic™"
+msgstr "Aqua Classic™"
 
 #: src/components/dialogs/ServerInput.tsx:217
-msgid "Bluesky is an open network where you can choose your hosting provider. If you're a developer, you can host your own server."
-msgstr "’S e lìonra fosgailte a th’ ann am Bluesky far an urrainn dhut solaraiche òstaireachd a thaghadh thu fhèin. Mas e neach-leasachaidh a th’ annad, is urrainn dhut frithealaiche a chur air chois thu fhèin."
+msgid "Aqua is an open network where you can choose your hosting provider. If you're a developer, you can host your own server."
+msgstr "’S e lìonra fosgailte a th’ ann am Aqua far an urrainn dhut solaraiche òstaireachd a thaghadh thu fhèin. Mas e neach-leasachaidh a th’ annad, is urrainn dhut frithealaiche a chur air chois thu fhèin."
 
 #: src/components/dialogs/ServerInput.tsx:165
-msgid "Bluesky is an open network where you can choose your own provider. If you're new here, we recommend sticking with the default Bluesky Social option."
-msgstr "’S e lìonra fosgailte a th’ ann am Bluesky far an urrainn dhut solaraiche a thaghadh thu fhèin. Ma tha thu air ùr-thighinn dhan àite, mholamaid dhut a’ bhun-roghainn, Bluesky Social, a chleachdadh an toiseach."
+msgid "Aqua is an open network where you can choose your own provider. If you're new here, we recommend sticking with the default Aqua Social option."
+msgstr "’S e lìonra fosgailte a th’ ann am Aqua far an urrainn dhut solaraiche a thaghadh thu fhèin. Ma tha thu air ùr-thighinn dhan àite, mholamaid dhut a’ bhun-roghainn, Aqua Social, a chleachdadh an toiseach."
 
 #: src/components/ProgressGuide/List.tsx:53
 #: src/components/ProgressGuide/List.tsx:70
-msgid "Bluesky is better with friends!"
-msgstr "Tha Bluesky nas fheàrr le caraidean!"
+msgid "Aqua is better with friends!"
+msgstr "Tha Aqua nas fheàrr le caraidean!"
 
 #: src/screens/Takendown.tsx:226
-msgid "Bluesky Social Terms of Service"
-msgstr "Teirmichean na seirbheise aig Bluesky Social"
+msgid "Aqua Social Terms of Service"
+msgstr "Teirmichean na seirbheise aig Aqua Social"
 
 #: src/components/StarterPack/ProfileStarterPacks.tsx:338
-msgid "Bluesky will choose a set of recommended accounts from people in your network."
-msgstr "Taghaidh Bluesky grunn chunntasan aig daoine air an lìonra agad a mholar."
+msgid "Aqua will choose a set of recommended accounts from people in your network."
+msgstr "Taghaidh Aqua grunn chunntasan aig daoine air an lìonra agad a mholar."
 
 #: src/screens/Settings/components/PwiOptOut.tsx:99
-msgid "Bluesky will not show your profile and posts to logged-out users. Other apps may not honor this request. This does not make your account private."
-msgstr "Cha leig Bluesky a’ phròifil agus na puist agad ri daoine nach eil clàraichte a-staigh. Dh’fhaoidte nach gèill aplacaidean eile ris an iarrtas seo. Cha dèan seo cunntas prìobhaideach dheth."
+msgid "Aqua will not show your profile and posts to logged-out users. Other apps may not honor this request. This does not make your account private."
+msgstr "Cha leig Aqua a’ phròifil agus na puist agad ri daoine nach eil clàraichte a-staigh. Dh’fhaoidte nach gèill aplacaidean eile ris an iarrtas seo. Cha dèan seo cunntas prìobhaideach dheth."
 
 #: src/components/dialogs/nuxs/InitialVerificationAnnouncement.tsx:132
-msgid "Bluesky will proactively verify notable and authentic accounts."
-msgstr "Nì Bluesky dearbhadh iad fhèin air fìor-chunntasan mòra."
+msgid "Aqua will proactively verify notable and authentic accounts."
+msgstr "Nì Aqua dearbhadh iad fhèin air fìor-chunntasan mòra."
 
 #: src/screens/Settings/AppIconSettings/index.tsx:99
-msgid "Bluesky+"
-msgstr "Bluesky+"
+msgid "Aqua+"
+msgstr "Aqua+"
 
 #: src/screens/Settings/AppIconSettings/index.tsx:102
-msgid "Bluesky+ icons"
-msgstr "Ìomhaigheagan Bluesky+"
+msgid "Aqua+ icons"
+msgstr "Ìomhaigheagan Aqua+"
 
 #: src/lib/moderation/useLabelBehaviorDescription.ts:56
 msgid "Blur images"
@@ -2619,7 +2619,7 @@ msgid "Customization options"
 msgstr "Roghainnean gnàthachaidh"
 
 #: src/screens/Onboarding/Layout.tsx:60
-msgid "Customizes your Bluesky experience"
+msgid "Customizes your Aqua experience"
 msgstr "Cuir air gleus àrainneachd Bhluesky dhut fhèin"
 
 #: src/components/moderation/ReportDialog/utils/useReportOptions.ts:200
@@ -3018,8 +3018,8 @@ msgid "Double tap to like"
 msgstr "Thoir gnogag dhùbailte a dh’innse gur toil leat e"
 
 #: src/screens/StarterPack/StarterPackLandingScreen.tsx:330
-msgid "Download Bluesky"
-msgstr "Luchdaich a-nuas Bluesky"
+msgid "Download Aqua"
+msgstr "Luchdaich a-nuas Aqua"
 
 #: src/screens/Settings/components/ExportCarDialog.tsx:78
 #: src/screens/Settings/components/ExportCarDialog.tsx:83
@@ -3035,7 +3035,7 @@ msgid "Drop to add images"
 msgstr "Leig às dealbh airson a chur ris"
 
 #: src/components/ageAssurance/useAgeAssuranceCopy.ts:11
-msgid "Due to laws in your region, certain features on Bluesky are currently restricted until you're able to verify you're an adult."
+msgid "Due to laws in your region, certain features on Aqua are currently restricted until you're able to verify you're an adult."
 msgstr ""
 
 #: src/components/dialogs/MutedWords.tsx:158
@@ -3864,8 +3864,8 @@ msgid "Find people to follow"
 msgstr "Lorg daoine airson an leantainn"
 
 #: src/screens/Search/Shell.tsx:526
-msgid "Find posts, users, and feeds on Bluesky"
-msgstr "Lorg puist, cleachdaichean is inbhirean air Bluesky"
+msgid "Find posts, users, and feeds on Aqua"
+msgstr "Lorg puist, cleachdaichean is inbhirean air Aqua"
 
 #: src/screens/Onboarding/StepFinished/ValuePropositionPager.shared.tsx:21
 msgid "Find your people"
@@ -4753,7 +4753,7 @@ msgid "Is your location not accurate? <0>Tap here to confirm your location.</0>"
 msgstr "Nach eil an t-ionad agad ceart? <0>Briog an-seo ’s dearbh càit a bheil thu.</0>"
 
 #: src/ageAssurance/components/NoAccessScreen.tsx:171
-msgid "It looks like you haven't added your birthdate. You must provide an accurate date of birth to use Bluesky."
+msgid "It looks like you haven't added your birthdate. You must provide an accurate date of birth to use Aqua."
 msgstr ""
 
 #: src/screens/Signup/StepInfo/index.tsx:292
@@ -4772,7 +4772,7 @@ msgstr "Chan eil ann ach thu fhèin an-dràsta fhèin! Cuir barrachd dhaoine ris
 msgid "Job ID: {0}"
 msgstr "ID na h-obrach: {0}"
 
-#. Link to a page with job openings at Bluesky
+#. Link to a page with job openings at Aqua
 #: src/view/com/auth/SplashScreen.web.tsx:184
 msgid "Jobs"
 msgstr "Obraichean"
@@ -4781,8 +4781,8 @@ msgstr "Obraichean"
 #: src/screens/StarterPack/StarterPackLandingScreen.tsx:216
 #: src/screens/StarterPack/StarterPackScreen.tsx:464
 #: src/screens/StarterPack/StarterPackScreen.tsx:475
-msgid "Join Bluesky"
-msgstr "Rach an sàs Bluesky"
+msgid "Join Aqua"
+msgstr "Rach an sàs Aqua"
 
 #: src/components/StarterPack/QrCode.tsx:73
 #: src/view/shell/NavSignupCard.tsx:40
@@ -4888,8 +4888,8 @@ msgid "Learn more about age assurance"
 msgstr "Barrachd fiosrachadh mu dhearbhadh na h-aoise"
 
 #: src/view/com/auth/SplashScreen.web.tsx:172
-msgid "Learn more about Bluesky"
-msgstr "Barrachd fiosrachaidh mu dhèidhinn Bluesky"
+msgid "Learn more about Aqua"
+msgstr "Barrachd fiosrachaidh mu dhèidhinn Aqua"
 
 #: src/components/dialogs/ServerInput.tsx:223
 msgid "Learn more about self hosting your PDS."
@@ -4916,13 +4916,13 @@ msgstr "Barrachd fiosrachaidh mun rabhadh seo"
 #: src/components/verification/VerificationsDialog.tsx:151
 #: src/components/verification/VerifierDialog.tsx:119
 msgctxt "english-only-resource"
-msgid "Learn more about verification on Bluesky"
-msgstr "Barrachd fiosrachaidh mun dearbhadh air Bluesky"
+msgid "Learn more about verification on Aqua"
+msgstr "Barrachd fiosrachaidh mun dearbhadh air Aqua"
 
 #: src/screens/Settings/PrivacyAndSecuritySettings.tsx:127
 #: src/screens/Settings/PrivacyAndSecuritySettings.tsx:130
-msgid "Learn more about what is public on Bluesky."
-msgstr "Barrachd fiosrachaidh mu na rudan a tha poblach air Bluesky."
+msgid "Learn more about what is public on Aqua."
+msgstr "Barrachd fiosrachaidh mu na rudan a tha poblach air Aqua."
 
 #: src/components/ageAssurance/AgeAssuranceAdmonition.tsx:84
 msgid "Learn more in your <0>account settings.</0>"
@@ -4956,8 +4956,8 @@ msgstr "Ma tha thu airson stuth fhaicinn ge be dè an cànan, na tagh gin gu h-�
 
 #: src/components/dialogs/LinkWarning.tsx:67
 #: src/components/dialogs/LinkWarning.tsx:75
-msgid "Leaving Bluesky"
-msgstr "A’ fàgail Bluesky"
+msgid "Leaving Aqua"
+msgstr "A’ fàgail Aqua"
 
 #: src/screens/SignupQueued.tsx:155
 msgid "left to go."
@@ -5759,8 +5759,8 @@ msgid "Next image"
 msgstr "An t-ath-dhealbh"
 
 #: src/screens/Onboarding/StepFinished/ValuePropositionPager.shared.tsx:32
-msgid "No ads, no invasive tracking, no engagement traps. Bluesky respects your time and attention."
-msgstr "Gun sanasachd, gun tracadh a bhriseas a-steach air do phrìobhaideachd, gun ribean com-pàirteachaidh. Tha suim aig Bluesky dha d’ ùine is aire."
+msgid "No ads, no invasive tracking, no engagement traps. Aqua respects your time and attention."
+msgstr "Gun sanasachd, gun tracadh a bhriseas a-steach air do phrìobhaideachd, gun ribean com-pàirteachaidh. Tha suim aig Aqua dha d’ ùine is aire."
 
 #: src/screens/Settings/AppPasswords.tsx:107
 msgid "No app passwords yet"
@@ -5943,8 +5943,8 @@ msgid "Note about sharing"
 msgstr "Fiosrachadh mu cho-roinneadh"
 
 #: src/screens/Settings/PrivacyAndSecuritySettings.tsx:116
-msgid "Note: Bluesky is an open and public network. This setting only limits the visibility of your content on the Bluesky app and website, and other apps may not respect this setting. Your content may still be shown to logged-out users by other apps and websites."
-msgstr "An aire: Tha Bluesky na lìonra fosgailte agus poblach. Chan eil an roghainn seo a’ cuingeachadh ach faicsinneachd na susbainte agad ann an aplacaid Bluesky is air an làrach-lìn ach dh’fhaoidte nach gèill aplacaidean eile ris an roghainn seo. Dh’fhaoidte gun seall aplacaidean is làraichean-lìn eile an t-susbaint agad do luchd-cleachdaidh a rinn clàradh a-mach."
+msgid "Note: Aqua is an open and public network. This setting only limits the visibility of your content on the Aqua app and website, and other apps may not respect this setting. Your content may still be shown to logged-out users by other apps and websites."
+msgstr "An aire: Tha Aqua na lìonra fosgailte agus poblach. Chan eil an roghainn seo a’ cuingeachadh ach faicsinneachd na susbainte agad ann an aplacaid Aqua is air an làrach-lìn ach dh’fhaoidte nach gèill aplacaidean eile ris an roghainn seo. Dh’fhaoidte gun seall aplacaidean is làraichean-lìn eile an t-susbaint agad do luchd-cleachdaidh a rinn clàradh a-mach."
 
 #: src/components/PostControls/ShareMenu/ShareMenuItems.web.tsx:133
 msgid "Note: This post is only visible to logged-in users."
@@ -6239,12 +6239,12 @@ msgstr "Fosglaidh seo ròghnaichear nan emoji"
 
 #: src/view/com/auth/SplashScreen.tsx:66
 #: src/view/com/auth/SplashScreen.web.tsx:115
-msgid "Opens flow to create a new Bluesky account"
+msgid "Opens flow to create a new Aqua account"
 msgstr "Fosglaidh seo an sruth airson cunntas Bhluesky ùr a chruthachadh"
 
 #: src/view/com/auth/SplashScreen.tsx:83
 #: src/view/com/auth/SplashScreen.web.tsx:129
-msgid "Opens flow to sign in to your existing Bluesky account"
+msgid "Opens flow to sign in to your existing Aqua account"
 msgstr "Fosglaidh seo an sruth airson clàradh a-steach dhan chunntas Bhluesky agad"
 
 #: src/view/com/composer/photos/SelectGifBtn.tsx:36
@@ -6360,8 +6360,8 @@ msgid "Our moderation team has received your report."
 msgstr "Fhuair an sgioba modarataireachd againn an aithris a chuir thu thugainn."
 
 #: src/screens/Messages/components/ChatDisabled.tsx:34
-msgid "Our moderators have reviewed reports and decided to disable your access to chats on Bluesky."
-msgstr "Thug na modaratairean againn sùil air aithrisean a fhuair sinn is chuir iad romhpa cead-inntrigidh do chabadaich air Bluesky a thoirt air falbh uat."
+msgid "Our moderators have reviewed reports and decided to disable your access to chats on Aqua."
+msgstr "Thug na modaratairean againn sùil air aithrisean a fhuair sinn is chuir iad romhpa cead-inntrigidh do chabadaich air Aqua a thoirt air falbh uat."
 
 #: src/components/Lists.tsx:202
 #: src/components/Lists.tsx:217
@@ -6550,8 +6550,8 @@ msgid "Please choose your password."
 msgstr "Tagh facal-faire."
 
 #: src/components/dialogs/EmailDialog/screens/Update.tsx:290
-msgid "Please click on the link in the email we just sent you to verify your new email address. This is an important step to allow you to continue enjoying all the features of Bluesky."
-msgstr "Briog air a’ cheangal sa phost-d a chuir sinn thugad airson an seòladh puist-d ùr agad a dhearbhadh. Seo ceum cudromach a nì cinnteach gum faigh thu làn-chothrom air Bluesky fhathast."
+msgid "Please click on the link in the email we just sent you to verify your new email address. This is an important step to allow you to continue enjoying all the features of Aqua."
+msgstr "Briog air a’ cheangal sa phost-d a chuir sinn thugad airson an seòladh puist-d ùr agad a dhearbhadh. Seo ceum cudromach a nì cinnteach gum faigh thu làn-chothrom air Aqua fhathast."
 
 #: src/screens/Signup/state.ts:304
 msgid "Please complete the verification captcha."
@@ -7041,18 +7041,18 @@ msgid "Read our blog post"
 msgstr "Leugh am post sa bhloga againn"
 
 #: src/view/com/auth/SplashScreen.web.tsx:177
-msgid "Read the Bluesky blog"
-msgstr "Leugh am bloga aig Bluesky"
+msgid "Read the Aqua blog"
+msgstr "Leugh am bloga aig Aqua"
 
 #: src/screens/Signup/StepInfo/Policies.tsx:56
 #: src/screens/Signup/StepInfo/Policies.tsx:82
-msgid "Read the Bluesky Privacy Policy"
+msgid "Read the Aqua Privacy Policy"
 msgstr "Leugh poileasaidh prìobhaideachd Bhluesky"
 
 #: src/screens/Signup/StepInfo/Policies.tsx:49
 #: src/screens/Signup/StepInfo/Policies.tsx:69
-msgid "Read the Bluesky Terms of Service"
-msgstr "Leugh teirmichean na seirbheise aig Bluesky"
+msgid "Read the Aqua Terms of Service"
+msgstr "Leugh teirmichean na seirbheise aig Aqua"
 
 #: src/components/WelcomeModal.tsx:146
 msgid "Real conversations."
@@ -7835,8 +7835,8 @@ msgid "See #{tag} posts by user"
 msgstr "Seall puist ris a bheil taga #{tag} leis a’ chleachdaiche"
 
 #: src/view/com/auth/SplashScreen.web.tsx:182
-msgid "See jobs at Bluesky"
-msgstr "Faic dè na dreuchdan bàna aig Bluesky"
+msgid "See jobs at Aqua"
+msgstr "Faic dè na dreuchdan bàna aig Aqua"
 
 #: src/components/FeedInterstitials.tsx:499
 #: src/components/FeedInterstitials.tsx:562
@@ -8219,8 +8219,8 @@ msgid "Share this starter pack"
 msgstr "Co-roinn a’ phacaid tòiseachaidh seo"
 
 #: src/components/StarterPack/ShareDialog.tsx:84
-msgid "Share this starter pack and help people join your community on Bluesky."
-msgstr "Co-roinn a’ phacaid tòiseachaidh seo agus cuidich daoine nad choimhearsnachd a tha air ùr-thighinn gu Bluesky."
+msgid "Share this starter pack and help people join your community on Aqua."
+msgstr "Co-roinn a’ phacaid tòiseachaidh seo agus cuidich daoine nad choimhearsnachd a tha air ùr-thighinn gu Aqua."
 
 #: src/components/PostControls/ShareMenu/ShareMenuItems.tsx:117
 #: src/components/PostControls/ShareMenu/ShareMenuItems.tsx:120
@@ -8396,8 +8396,8 @@ msgid "Sign in to account that is not listed"
 msgstr "Clàraich a-steach gu cunntas nach eil air an liosta"
 
 #: src/components/dialogs/Signin.tsx:46
-msgid "Sign in to Bluesky or create a new account"
-msgstr "Clàraich a-steach gu Bluesky no cruthaich cunntas ùr"
+msgid "Sign in to Aqua or create a new account"
+msgstr "Clàraich a-steach gu Aqua no cruthaich cunntas ùr"
 
 #: src/components/PostControls/PostMenu/PostMenuItems.tsx:493
 #: src/components/PostControls/PostMenu/PostMenuItems.tsx:495
@@ -8780,8 +8780,8 @@ msgid "Tags only"
 msgstr "Tagaichean a-mhàin"
 
 #: src/components/dialogs/DeviceLocationRequestDialog.tsx:109
-msgid "Tap below to allow Bluesky to access your GPS location. We will then use that data to more accurately determine the content and features available in your region."
-msgstr "Thoir gnogag gu h-ìosal airson cothrom dhan ionad GPS a thoirt dha Bluesky. Leis an dàta seo, ’s urrainn dhuinn susbaint is gleusan a bhuineas dhan àite far a bheil thusa a shealltann dhut."
+msgid "Tap below to allow Aqua to access your GPS location. We will then use that data to more accurately determine the content and features available in your region."
+msgstr "Thoir gnogag gu h-ìosal airson cothrom dhan ionad GPS a thoirt dha Aqua. Leis an dàta seo, ’s urrainn dhuinn susbaint is gleusan a bhuineas dhan àite far a bheil thusa a shealltann dhut."
 
 #: src/view/com/feeds/MissingFeed.tsx:89
 msgid "Tap for information"
@@ -8792,8 +8792,8 @@ msgid "Tap for more information"
 msgstr "Thoir gnogag airson barrachd fiosrachaidh"
 
 #: src/components/PolicyUpdateOverlay/updates/202508/index.tsx:164
-msgid "Tap to acknowledge that you understand and agree to these updates and continue using Bluesky"
-msgstr "Thoir gnogag airson innse gu bheil thu a’ tuigsinn na tha ùr agus ag aontachadh ris airson cumail a’ dol le Bluesky"
+msgid "Tap to acknowledge that you understand and agree to these updates and continue using Aqua"
+msgstr "Thoir gnogag airson innse gu bheil thu a’ tuigsinn na tha ùr agus ag aontachadh ris airson cumail a’ dol le Aqua"
 
 #: src/components/ContextMenu/Backdrop.ios.tsx:54
 #: src/components/ContextMenu/Backdrop.ios.tsx:80
@@ -8923,8 +8923,8 @@ msgid "The birthdate you've entered means you are under 18 years old. Certain co
 msgstr "A rèir latha do bhreith, tha thu nas òige na 18 bliadhna. Bidh cuid a shusbaint is gleusan ann nach fhaigh thu cothrom air math dh’fhaodte."
 
 #: src/screens/Moderation/index.tsx:397
-msgid "The Bluesky web application"
-msgstr "Aplacaid-lìn Bluesky"
+msgid "The Aqua web application"
+msgstr "Aplacaid-lìn Aqua"
 
 #: src/view/screens/CommunityGuidelines.tsx:41
 msgid "The Community Guidelines have been moved to <0/>"
@@ -8943,8 +8943,8 @@ msgid "The Discover feed now knows what you like"
 msgstr "Tha fios aig an inbhir “Fidir” a-nis dè na rudan as toil leat"
 
 #: src/screens/StarterPack/StarterPackLandingScreen.tsx:333
-msgid "The experience is better in the app. Download Bluesky now and we'll pick back up where you left off."
-msgstr "Gheibh thu àrainneachd nas fheàrr san aplacaid. Luchdaich a-nuas Bluesky an-dràsta agus leanamaid oirnn far an do stad thu."
+msgid "The experience is better in the app. Download Aqua now and we'll pick back up where you left off."
+msgstr "Gheibh thu àrainneachd nas fheàrr san aplacaid. Luchdaich a-nuas Aqua an-dràsta agus leanamaid oirnn far an do stad thu."
 
 #: src/view/com/posts/FeedShutdownMsg.tsx:67
 msgid "The feed has been replaced with Discover."
@@ -9106,8 +9106,8 @@ msgid "There was an unexpected issue in the application. Please let us know if t
 msgstr "Dh’èirich duilgheadas ris nach robh dùil san aplacaid. Innis dhuinn ma thachair sin riut-sa!"
 
 #: src/screens/SignupQueued.tsx:130
-msgid "There's been a rush of new users to Bluesky! We'll activate your account as soon as we can."
-msgstr "Tha sluagh mòr air ùr-thighinn dha Bluesky! Cuiridh sinn an cunntas agad an gnìomh cho luath ’s a ghabhas."
+msgid "There's been a rush of new users to Aqua! We'll activate your account as soon as we can."
+msgstr "Tha sluagh mòr air ùr-thighinn dha Aqua! Cuiridh sinn an cunntas agad an gnìomh cho luath ’s a ghabhas."
 
 #: src/components/dialogs/PostInteractionSettingsDialog.tsx:654
 msgid "These are your default settings"
@@ -9146,7 +9146,7 @@ msgid "This appeal will be sent to <0>{sourceName}</0>."
 msgstr "Thèid an t-ath-thagradh seo a chur gu <0>{sourceName}</0>."
 
 #: src/screens/Messages/components/ChatDisabled.tsx:116
-msgid "This appeal will be sent to Bluesky's moderation service."
+msgid "This appeal will be sent to Aqua's moderation service."
 msgstr "Thèid an t-ath-thagradh seo a chur gu seirbheis modarataireachd Bhluesky."
 
 #: src/screens/Messages/components/MessageListError.tsx:18
@@ -9175,7 +9175,7 @@ msgid "This content is not available because one of the users involved has block
 msgstr "Chan eil an t-susbaint seo ri fhaighinn a chionn ’s gu bheil cleachdaiche an sàs a bhac cuideigin eile a tha an sàs ann."
 
 #: src/view/com/posts/PostFeedErrorMessage.tsx:121
-msgid "This content is not viewable without a Bluesky account."
+msgid "This content is not viewable without a Aqua account."
 msgstr "Chan fhaicear an t-susbaint seo as aonais cunntas Bhluesky."
 
 #: src/screens/Messages/components/ChatListItem.tsx:366
@@ -9254,11 +9254,11 @@ msgid "This link is taking you to the following website:"
 msgstr "Tha an ceangal airson d’ ath-stiùireadh gun làrach-lìn a leanas:"
 
 #: src/screens/List/ListHiddenScreen.tsx:151
-msgid "This list – created by <0>{0}</0> – contains possible violations of Bluesky's community guidelines in its name or description."
+msgid "This list – created by <0>{0}</0> – contains possible violations of Aqua's community guidelines in its name or description."
 msgstr "Tha ainm no tuairisgeul na liosta seo – air a chruthachadh le <0>{0}</0> – a’ briseadh stiùireadh coimhearsnachd Bhluesky ma dh’fhaoidte."
 
 #: src/screens/List/ListHiddenScreen.tsx:146
-msgid "This list – created by you – contains possible violations of Bluesky's community guidelines in its name or description."
+msgid "This list – created by you – contains possible violations of Aqua's community guidelines in its name or description."
 msgstr "Tha ainm no tuairisgeul na liosta seo – a chruthaich thu fhèin – a’ briseadh stiùireadh coimhearsnachd Bhluesky ma dh’fhaoidte."
 
 #: src/screens/ProfileList/AboutSection.tsx:99
@@ -9270,8 +9270,8 @@ msgid "This moderation service is unavailable. See below for more details. If th
 msgstr "Chan eil an t-seirbheis modarataireachd seo ri làimh. Chì thu barrachd fiosrachaidh mu dhèidhinn gu h-ìosal. Ma mhaireas an duilgheadas seo, cuir fios thugainn."
 
 #: src/screens/PostThread/components/ThreadItemAnchor.tsx:669
-msgid "This post claims to have been created on <0>{0}</0>, but was first seen by Bluesky on <1>{1}</1>."
-msgstr "Tha am post seo a’ cumail a-mach gun deach a chruthachadh <0>{0}</0> ach chunnacas e air Bluesky <1>{1}</1> an toiseach."
+msgid "This post claims to have been created on <0>{0}</0>, but was first seen by Aqua on <1>{1}</1>."
+msgstr "Tha am post seo a’ cumail a-mach gun deach a chruthachadh <0>{0}</0> ach chunnacas e air Aqua <1>{1}</1> an toiseach."
 
 #: src/components/WhoCanReply.tsx:272
 msgid "This post has an unknown type of threadgate on it. Your app may be out of date."
@@ -9496,7 +9496,7 @@ msgid "Type:"
 msgstr "An seòrsa:"
 
 #: src/components/dialogs/DeviceLocationRequestDialog.tsx:85
-msgid "Unable to access location. You'll need to visit your system settings to enable location services for Bluesky."
+msgid "Unable to access location. You'll need to visit your system settings to enable location services for Aqua."
 msgstr ""
 
 #: src/lib/hooks/useCleanError.ts:27
@@ -9606,7 +9606,7 @@ msgid "Unfortunately, none of your subscribed labelers supports this report type
 msgstr "Gu mì-fhortanach, chan eil taic do dh’aithrisean dhen t-seòrsa seo aig gin dhe na leubailichean a tha fo-sgrìobhadh agad aca."
 
 #: src/ageAssurance/components/NoAccessScreen.tsx:158
-msgid "Unfortunately, the birthdate you have saved to your profile makes you too young to access Bluesky."
+msgid "Unfortunately, the birthdate you have saved to your profile makes you too young to access Aqua."
 msgstr ""
 
 #: src/components/verification/VerificationsDialog.tsx:211
@@ -9819,7 +9819,7 @@ msgid "Uploading video..."
 msgstr "A’ luchdadh suas a’ video…"
 
 #: src/screens/Settings/AppPasswords.tsx:66
-msgid "Use app passwords to sign in to other Bluesky clients without giving full access to your account or password."
+msgid "Use app passwords to sign in to other Aqua clients without giving full access to your account or password."
 msgstr "Cleachd faclan-faire aplacaid airson clàradh a-steach gu cliantan Bhluesky eile gun a bhith a’ toirt seachad làn-chothrom air an fhacal-fhaire no cunntas agad."
 
 #: src/screens/Settings/components/ChangeHandleDialog.tsx:574
@@ -9850,8 +9850,8 @@ msgid "Use this to sign in to the other app along with your handle."
 msgstr "Cleachd seo airson clàradh a-steach gun aplacaid eile leis an làmhrachan agad."
 
 #: src/components/ageAssurance/AgeAssuranceInitDialog.tsx:278
-msgid "Use your account email address, or another real email address you control, in case KWS or Bluesky needs to contact you."
-msgstr "Cleachd seòladh post-d a’ chunntais agad no seòladh puist-d ceart eile agad air eagal ’s gum bi aig KWS no Bluesky fios a chur thugad."
+msgid "Use your account email address, or another real email address you control, in case KWS or Aqua needs to contact you."
+msgstr "Cleachd seòladh post-d a’ chunntais agad no seòladh puist-d ceart eile agad air eagal ’s gum bi aig KWS no Aqua fios a chur thugad."
 
 #: src/components/dms/AfterReportDialog.tsx:152
 msgctxt "toast"
@@ -9948,8 +9948,8 @@ msgid "Verification Settings"
 msgstr "Roghainnean dearbhaidh"
 
 #: src/screens/Moderation/VerificationSettings.tsx:41
-msgid "Verifications on Bluesky work differently than on other platforms. <0>Learn more here.</0>"
-msgstr "Tha dearbhadh air Bluesky caran eadar-dhealaichte an coimeas ri ùrlaran eile. <0>Barrachd fiosrachaidh an-seo</0>"
+msgid "Verifications on Aqua work differently than on other platforms. <0>Learn more here.</0>"
+msgstr "Tha dearbhadh air Aqua caran eadar-dhealaichte an coimeas ri ùrlaran eile. <0>Barrachd fiosrachaidh an-seo</0>"
 
 #: src/components/verification/VerificationsDialog.tsx:103
 msgid "Verified by:"
@@ -10274,16 +10274,16 @@ msgid "We estimate {estimatedTime} until your account is ready."
 msgstr "Bidh e mu thuaiream {estimatedTime} gus am bi an cunntas agad deiseil."
 
 #: src/components/ageAssurance/AgeAssuranceInitDialog.tsx:197
-msgid "We have partnered with <0>KWS</0> to verify that you’re an adult. When you click \"Begin\" below, KWS will check if you have previously verified your age using this email address for other games/services powered by KWS technology. If not, KWS will email you instructions for verifying your age. When you’re done, you'll be brought back to continue using Bluesky."
-msgstr "Tha sinn ann an com-pàirteachas le <0>KWS</0> airson dearbhadh gur e inbheach a th’ annad. Nuair a bhriogas tu air “Tòisich” gu h-ìosal, bheir KWS sùil an do dhearbh thu d’ aois roimhe leis an t-seòladh phuist-d agad ann an geamannan no seirbheisean eile a chleachdas teicneolas KWS. Mur an do rinn, innsidh KWS dhut ann am post-d mar a dhearbhas tu d’ aois. An dèidh dhut sin a dhèanamh, thèid d’ ath-stiùireadh air ais an-seo airson cumail a’ dol le Bluesky."
+msgid "We have partnered with <0>KWS</0> to verify that you’re an adult. When you click \"Begin\" below, KWS will check if you have previously verified your age using this email address for other games/services powered by KWS technology. If not, KWS will email you instructions for verifying your age. When you’re done, you'll be brought back to continue using Aqua."
+msgstr "Tha sinn ann an com-pàirteachas le <0>KWS</0> airson dearbhadh gur e inbheach a th’ annad. Nuair a bhriogas tu air “Tòisich” gu h-ìosal, bheir KWS sùil an do dhearbh thu d’ aois roimhe leis an t-seòladh phuist-d agad ann an geamannan no seirbheisean eile a chleachdas teicneolas KWS. Mur an do rinn, innsidh KWS dhut ann am post-d mar a dhearbhas tu d’ aois. An dèidh dhut sin a dhèanamh, thèid d’ ath-stiùireadh air ais an-seo airson cumail a’ dol le Aqua."
 
 #: src/components/intents/VerifyEmailIntentDialog.tsx:101
 msgid "We have sent another verification email to <0>{0}</0>."
 msgstr "Chuir sinn post-d dearbhaidh eile gu <0>{0}</0>."
 
 #: src/screens/Onboarding/StepFinished/index.tsx:383
-msgid "We hope you have a wonderful time. Remember, Bluesky is:"
-msgstr "Tha sinn an dòchas gum bi spòrs is sùgradh agad ann. Cuimhnich, tha Bluesky:"
+msgid "We hope you have a wonderful time. Remember, Aqua is:"
+msgstr "Tha sinn an dòchas gum bi spòrs is sùgradh agad ann. Cuimhnich, tha Aqua:"
 
 #: src/view/com/posts/DiscoverFallbackHeader.tsx:29
 msgid "We ran out of posts from your follows. Here's the latest from <0/>."
@@ -10349,8 +10349,8 @@ msgid "We're having network issues, try again"
 msgstr "Tha duilgheadasan aig an lìonra againn, feuch ris a-rithist"
 
 #: src/components/dialogs/nuxs/InitialVerificationAnnouncement.tsx:94
-msgid "We’re introducing a new layer of verification on Bluesky — an easy-to-see checkmark."
-msgstr "Tha sinn a’ toirt a-steach ìre eile de dhearbhadh air Bluesky – cromag fhollaiseach."
+msgid "We’re introducing a new layer of verification on Aqua — an easy-to-see checkmark."
+msgstr "Tha sinn a’ toirt a-steach ìre eile de dhearbhadh air Aqua – cromag fhollaiseach."
 
 #: src/screens/Signup/index.tsx:125
 msgid "We're so excited to have you join us!"
@@ -10566,7 +10566,7 @@ msgid "You are a trusted verifier"
 msgstr "’S e neach-dearbhaidh earbsach a th’ annad"
 
 #: src/ageAssurance/components/NoAccessScreen.tsx:143
-msgid "You are accessing Bluesky from a region that legally requires us to verify your age before allowing you to access the app."
+msgid "You are accessing Aqua from a region that legally requires us to verify your age before allowing you to access the app."
 msgstr ""
 
 #: src/components/forms/HostingProvider.tsx:45
@@ -10575,8 +10575,8 @@ msgstr "Tha thu a’ cruthachadh cunntas air"
 
 #: src/ageAssurance/components/NoAccessScreen.tsx:249
 #: src/components/ageAssurance/AgeAssuranceAccountCard.tsx:126
-msgid "You are currently unable to access Bluesky's Age Assurance flow. Please <0>contact our moderation team</0> if you believe this is an error."
-msgstr "Chan eil cead-inntrigidh agad do shruth dearbhadh na h-aoise aig Bluesky. <0>Cuir fios gu sgioba na modarataireachd againn</0> mas e mearachd a tha seo nad bheachd."
+msgid "You are currently unable to access Aqua's Age Assurance flow. Please <0>contact our moderation team</0> if you believe this is an error."
+msgstr "Chan eil cead-inntrigidh agad do shruth dearbhadh na h-aoise aig Aqua. <0>Cuir fios gu sgioba na modarataireachd againn</0> mas e mearachd a tha seo nad bheachd."
 
 #: src/screens/SignupQueued.tsx:157
 msgid "You are in line."
@@ -10788,11 +10788,11 @@ msgid "You initiated this flow already, {0} ago. It may take up to 5 minutes for
 msgstr "Dhùisg thu an struth seo {0} air ais mar-thà. Dh’fhaoidte gun toir post-d suas ri 5 mionaidean mus ruig iad am bogsa a-steach agad. Feuch is fuirich mionaid no dhà eile mus dèan thu oidhirp eile."
 
 #: src/components/NewskieDialog.tsx:105
-msgid "You joined Bluesky {timeAgoString} ago"
+msgid "You joined Aqua {timeAgoString} ago"
 msgstr ""
 
 #: src/components/NewskieDialog.tsx:102
-msgid "You joined Bluesky using a starter pack {timeAgoString} ago"
+msgid "You joined Aqua using a starter pack {timeAgoString} ago"
 msgstr ""
 
 #: src/components/moderation/LabelsOnMeDialog.tsx:83
@@ -10816,7 +10816,7 @@ msgid "You must be 13 years of age or older to create an account."
 msgstr "Feumaidh tu a bhith co-dhiù 13 bliadhna mus urrainn dhut cunntas a chruthachadh."
 
 #: src/components/dialogs/BirthDateSettings.tsx:163
-msgid "You must be at least 13 years old to use Bluesky. Read our <0>Terms of Service</0> for more information."
+msgid "You must be at least 13 years old to use Aqua. Read our <0>Terms of Service</0> for more information."
 msgstr ""
 
 #: src/components/StarterPack/ProfileStarterPacks.tsx:362
@@ -10997,8 +10997,8 @@ msgid "Your account repository, containing all public data records, can be downl
 msgstr "’S urrainn dhut ionad-tasgaidh a’ chunntais agad, a’ gabhail a-staigh na clàran dàta poblach air fad, a luchdadh a-nuas mar fhaidhle “CAR”. Cha bhi meadhanan leabaichte, mar dhealbhan, no an dàta prìobhaideach agad san fhaidhle seo agus feumaidh tu greim fhaighinn air seo fa leth."
 
 #: src/screens/Takendown.tsx:223
-msgid "Your account was found to be in violation of the <0>Bluesky Social Terms of Service</0>. You have been sent an email outlining the specific violation and suspension period, if applicable. You can appeal this decision if you believe it was made in error."
-msgstr "Chaidh co-dhùnadh gu bheil an cunntas agad a’ briseadh <0>teirmichean na seirbheise aig Bluesky Social</0>. Chaidh post-d a chur thugad a mhìnicheas mar a bhris thu iad agus dè cho fada ’s a bhios e na dhàil, mas e sin a rinneadh. ’S urrainn dhut ath-thagradh a thogail an aghaidh a’ cho-dhùnaidh seo mas e mearachd a th’ ann nad bheachd."
+msgid "Your account was found to be in violation of the <0>Aqua Social Terms of Service</0>. You have been sent an email outlining the specific violation and suspension period, if applicable. You can appeal this decision if you believe it was made in error."
+msgstr "Chaidh co-dhùnadh gu bheil an cunntas agad a’ briseadh <0>teirmichean na seirbheise aig Aqua Social</0>. Chaidh post-d a chur thugad a mhìnicheas mar a bhris thu iad agus dè cho fada ’s a bhios e na dhàil, mas e sin a rinneadh. ’S urrainn dhut ath-thagradh a thogail an aghaidh a’ cho-dhùnaidh seo mas e mearachd a th’ ann nad bheachd."
 
 #: src/screens/Takendown.tsx:163
 msgid "Your appeal has been submitted. If your appeal succeeds, you will receive an email."
@@ -11042,8 +11042,8 @@ msgid "Your email appears to be invalid."
 msgstr "Tha coltas nach eil am post-d agad dligheach."
 
 #: src/components/dialogs/EmailDialog/screens/VerificationReminder.tsx:65
-msgid "Your email has not yet been verified. Please verify your email in order to enjoy all the features of Bluesky."
-msgstr "Cha deach am post-d agad a dhearbhadh fhathast. Dearbh e ’s faigh làn-chothrom air Bluesky."
+msgid "Your email has not yet been verified. Please verify your email in order to enjoy all the features of Aqua."
+msgstr "Cha deach am post-d agad a dhearbhadh fhathast. Dearbh e ’s faigh làn-chothrom air Aqua."
 
 #: src/state/shell/progress-guide.tsx:215
 msgid "Your first like!"
@@ -11087,7 +11087,7 @@ msgid "Your muted words"
 msgstr "Na faclan a mhùch thu"
 
 #: src/screens/Settings/components/ChangePasswordDialog.tsx:71
-msgid "Your password has been changed successfully! Please use your new password when you sign in to Bluesky from now on."
+msgid "Your password has been changed successfully! Please use your new password when you sign in to Aqua from now on."
 msgstr ""
 
 #: src/screens/Signup/StepInfo/index.tsx:129
@@ -11120,7 +11120,7 @@ msgid "Your profile picture surrounded by concentric circles of other users' pro
 msgstr ""
 
 #: src/screens/Settings/components/DeactivateAccountDialog.tsx:75
-msgid "Your profile, posts, feeds, and lists will no longer be visible to other Bluesky users. You can reactivate your account at any time by logging in."
+msgid "Your profile, posts, feeds, and lists will no longer be visible to other Aqua users. You can reactivate your account at any time by logging in."
 msgstr "Chan fhaic luchd-cleachdaidh Bhluesky eile a’ phròifil, na puist, inbhirean is liostaichean agad tuilleadh. ’S urrainn dhut an cunntas agad ath-ghnìomhachadh uair sam bith."
 
 #: src/view/com/composer/Composer.tsx:576

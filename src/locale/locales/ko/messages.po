@@ -124,7 +124,7 @@ msgstr "{0, plural, other {저장}}"
 msgid "{0, plural, other {{1} posts}}"
 msgstr "{0, plural, other {게시물 {1}개}}"
 
-#. Number of users (always at least 25) who have joined Bluesky using a specific starter pack
+#. Number of users (always at least 25) who have joined Aqua using a specific starter pack
 #: src/screens/StarterPack/StarterPackScreen.tsx:492
 msgid "{0, plural, other {# people have}} used this starter pack!"
 msgstr "{0, plural, other {#명}}이 이 스타터 팩을 사용했습니다!"
@@ -423,7 +423,7 @@ msgstr "{hours, plural, other {#시간 {minutesString}}}"
 msgid "{hours, plural, one {# hour} other {# hours}}"
 msgstr "{hours, plural, other {#시간}}"
 
-#. Number of users (always at least 50) who have joined Bluesky using a specific starter pack
+#. Number of users (always at least 50) who have joined Aqua using a specific starter pack
 #: src/components/StarterPack/StarterPackCard.tsx:101
 msgid "{joinedAllTimeCount, plural, other {# users have}} joined!"
 msgstr "{joinedAllTimeCount, plural, other {#명}}의 사용자가 가입했습니다!"
@@ -437,12 +437,12 @@ msgid "{notificationCount, plural, one {# unread item} other {# unread items}}"
 msgstr "읽지 않은 항목 {notificationCount, plural, other {#개}}"
 
 #: src/components/NewskieDialog.tsx:113
-msgid "{profileName} joined Bluesky {timeAgoString} ago"
-msgstr "{profileName} 님은 {timeAgoString} 전에 Bluesky에 가입했습니다"
+msgid "{profileName} joined Aqua {timeAgoString} ago"
+msgstr "{profileName} 님은 {timeAgoString} 전에 Aqua에 가입했습니다"
 
 #: src/components/NewskieDialog.tsx:110
-msgid "{profileName} joined Bluesky using a starter pack {timeAgoString} ago"
-msgstr "{profileName} 님은 {timeAgoString} 전에 스타터 팩을 사용하여 Bluesky에 가입했습니다"
+msgid "{profileName} joined Aqua using a starter pack {timeAgoString} ago"
+msgstr "{profileName} 님은 {timeAgoString} 전에 스타터 팩을 사용하여 Aqua에 가입했습니다"
 
 #. The trending topic rank, i.e. "1. March Madness", "2. The Bachelor"
 #: src/screens/Search/modules/ExploreTrendingTopics.tsx:111
@@ -509,8 +509,8 @@ msgstr "<0>{date}</0> {time}"
 
 #: src/screens/Hashtag.tsx:225
 #: src/screens/Search/SearchResults.tsx:294
-msgid "<0>Sign in</0><1> or </1><2>create an account</2><3> </3><4>to search for news, sports, politics, and everything else happening on Bluesky.</4>"
-msgstr "<0>로그인</0><1>하거나 </1><2>계정을 만들고</2><3> </3><4>뉴스, 스포츠, 정치 등 Bluesky의 다양한 소식을 검색하세요.</4>"
+msgid "<0>Sign in</0><1> or </1><2>create an account</2><3> </3><4>to search for news, sports, politics, and everything else happening on Aqua.</4>"
+msgstr "<0>로그인</0><1>하거나 </1><2>계정을 만들고</2><3> </3><4>뉴스, 스포츠, 정치 등 Aqua의 다양한 소식을 검색하세요.</4>"
 
 #: src/screens/StarterPack/Wizard/index.tsx:502
 msgid "<0>You</0> and<1> </1><2>{0} </2>are included in your starter pack"
@@ -537,8 +537,8 @@ msgid "7 days"
 msgstr "7일"
 
 #: src/screens/Onboarding/StepFinished/ValuePropositionPager.shared.tsx:17
-msgid "A collection of popular feeds you can find on Bluesky, including News, Booksky, Game Dev, Blacksky, and Fountain Pens"
-msgstr "News, Booksky, Game Dev, Blacksky, Fountain Pens 등 Bluesky에서 찾을 수 있는 인기 피드 모음"
+msgid "A collection of popular feeds you can find on Aqua, including News, Booksky, Game Dev, Blacksky, and Fountain Pens"
+msgstr "News, Booksky, Game Dev, Blacksky, Fountain Pens 등 Aqua에서 찾을 수 있는 인기 피드 모음"
 
 #. If last message does not contain text, fall back to "{user} reacted to {a message}"
 #: src/screens/Messages/components/ChatListItem.tsx:213
@@ -663,8 +663,8 @@ msgid "Account unmuted"
 msgstr "계정을 언뮤트했습니다"
 
 #: src/components/verification/VerifierDialog.tsx:97
-msgid "Accounts with a scalloped blue check mark <0><1/></0> can verify others. These trusted verifiers are selected by Bluesky."
-msgstr "물결 모양의 파란색 체크 표시 <0><1/></0> 가 있는 계정은 다른 계정을 인증할 수 있습니다. 이러한 신뢰할 수 있는 인증자는 Bluesky에서 선정합니다."
+msgid "Accounts with a scalloped blue check mark <0><1/></0> can verify others. These trusted verifiers are selected by Aqua."
+msgstr "물결 모양의 파란색 체크 표시 <0><1/></0> 가 있는 계정은 다른 계정을 인증할 수 있습니다. 이러한 신뢰할 수 있는 인증자는 Aqua에서 선정합니다."
 
 #: src/lib/hooks/useNotificationHandler.ts:182
 #: src/screens/Settings/NotificationSettings/ActivityNotificationSettings.tsx:102
@@ -1078,13 +1078,13 @@ msgid "An error occurred while uploading the video."
 msgstr "동영상을 업로드하는 동안 오류가 발생했습니다."
 
 #: src/screens/Onboarding/StepFinished/ValuePropositionPager.shared.tsx:35
-msgid "An illustration of several Bluesky posts alongside repost, like, and comment icons"
-msgstr "재게시, 좋아요, 댓글 아이콘과 함께 여러 Bluesky 게시물이 나열된 일러스트"
+msgid "An illustration of several Aqua posts alongside repost, like, and comment icons"
+msgstr "재게시, 좋아요, 댓글 아이콘과 함께 여러 Aqua 게시물이 나열된 일러스트"
 
 #: src/components/dialogs/nuxs/InitialVerificationAnnouncement.tsx:84
 #: src/components/verification/VerifierDialog.tsx:86
-msgid "An illustration showing that Bluesky selects trusted verifiers, and trusted verifiers in turn verify individual user accounts."
-msgstr "Bluesky가 신뢰할 수 있는 인증자를 선정하고 신뢰할 수 있는 인증자가 차례로 개별 사용자 계정을 인증하는 과정을 보여주는 그림."
+msgid "An illustration showing that Aqua selects trusted verifiers, and trusted verifiers in turn verify individual user accounts."
+msgstr "Aqua가 신뢰할 수 있는 인증자를 선정하고 신뢰할 수 있는 인증자가 차례로 개별 사용자 계정을 인증하는 과정을 보여주는 그림."
 
 #: src/components/moderation/ReportDialog/utils/useReportOptions.ts:239
 msgid "An issue not included in these options"
@@ -1108,8 +1108,8 @@ msgid "An issue occurred, please try again."
 msgstr "문제가 발생했습니다. 다시 시도해 주세요."
 
 #: src/components/dialogs/nuxs/InitialVerificationAnnouncement.tsx:118
-msgid "An mockup of a iPhone showing the Bluesky app open to the profile of a verified user with a blue checkmark next to their display name."
-msgstr "파란색 체크 표시가 달린 인증된 사용자의 프로필 화면이 열린 Bluesky 앱을 iPhone에 띄워 보여주는 목업 이미지."
+msgid "An mockup of a iPhone showing the Aqua app open to the profile of a verified user with a blue checkmark next to their display name."
+msgstr "파란색 체크 표시가 달린 인증된 사용자의 프로필 화면이 열린 Aqua 앱을 iPhone에 띄워 보여주는 목업 이미지."
 
 #: src/components/moderation/ModerationDetailsDialog.tsx:136
 #: src/lib/moderation/useModerationCauseDescription.ts:145
@@ -1142,8 +1142,8 @@ msgid "Announcement"
 msgstr "공지사항"
 
 #: src/components/dialogs/nuxs/InitialVerificationAnnouncement.tsx:37
-msgid "Announcing verification on Bluesky"
-msgstr "Bluesky의 인증 기능 소개"
+msgid "Announcing verification on Aqua"
+msgstr "Aqua의 인증 기능 소개"
 
 #: src/components/dialogs/PostInteractionSettingsDialog.tsx:451
 msgid "Anyone"
@@ -1515,54 +1515,54 @@ msgstr "블로그"
 
 #: src/components/dialogs/ServerInput.tsx:147
 #: src/components/dialogs/ServerInput.tsx:149
-msgid "Bluesky"
-msgstr "Bluesky"
+msgid "Aqua"
+msgstr "Aqua"
 
 #: src/screens/PostThread/components/ThreadItemAnchor.tsx:688
-msgid "Bluesky cannot confirm the authenticity of the claimed date."
-msgstr "Bluesky는 해당 날짜의 진위를 확인할 수 없습니다."
+msgid "Aqua cannot confirm the authenticity of the claimed date."
+msgstr "Aqua는 해당 날짜의 진위를 확인할 수 없습니다."
 
 #: src/screens/Settings/AppIconSettings/useAppIconSets.ts:165
 msgctxt "Name of app icon variant"
-msgid "Bluesky Classic™"
-msgstr "Bluesky Classic™"
+msgid "Aqua Classic™"
+msgstr "Aqua Classic™"
 
 #: src/components/dialogs/ServerInput.tsx:217
-msgid "Bluesky is an open network where you can choose your hosting provider. If you're a developer, you can host your own server."
-msgstr "Bluesky는 호스팅 제공자를 선택할 수 있는 개방형 네트워크입니다. 개발자라면 직접 서버를 호스팅할 수 있습니다."
+msgid "Aqua is an open network where you can choose your hosting provider. If you're a developer, you can host your own server."
+msgstr "Aqua는 호스팅 제공자를 선택할 수 있는 개방형 네트워크입니다. 개발자라면 직접 서버를 호스팅할 수 있습니다."
 
 #: src/components/dialogs/ServerInput.tsx:165
-msgid "Bluesky is an open network where you can choose your own provider. If you're new here, we recommend sticking with the default Bluesky Social option."
-msgstr "Bluesky는 직접 제공자를 선택할 수 있는 개방형 네트워크입니다. 처음 사용하는 경우 기본으로 Bluesky Social을 선택하는 것이 좋습니다."
+msgid "Aqua is an open network where you can choose your own provider. If you're new here, we recommend sticking with the default Aqua Social option."
+msgstr "Aqua는 직접 제공자를 선택할 수 있는 개방형 네트워크입니다. 처음 사용하는 경우 기본으로 Aqua Social을 선택하는 것이 좋습니다."
 
 #: src/components/ProgressGuide/List.tsx:53
 #: src/components/ProgressGuide/List.tsx:70
-msgid "Bluesky is better with friends!"
-msgstr "Bluesky는 친구와 함께하면 더 좋답니다!"
+msgid "Aqua is better with friends!"
+msgstr "Aqua는 친구와 함께하면 더 좋답니다!"
 
 #: src/screens/Takendown.tsx:226
-msgid "Bluesky Social Terms of Service"
-msgstr "Bluesky Social 서비스 이용약관"
+msgid "Aqua Social Terms of Service"
+msgstr "Aqua Social 서비스 이용약관"
 
 #: src/components/StarterPack/ProfileStarterPacks.tsx:338
-msgid "Bluesky will choose a set of recommended accounts from people in your network."
-msgstr "Bluesky가 네트워크에 있는 사용자 중에서 임의로 추천 계정 세트를 선택합니다."
+msgid "Aqua will choose a set of recommended accounts from people in your network."
+msgstr "Aqua가 네트워크에 있는 사용자 중에서 임의로 추천 계정 세트를 선택합니다."
 
 #: src/screens/Settings/components/PwiOptOut.tsx:99
-msgid "Bluesky will not show your profile and posts to logged-out users. Other apps may not honor this request. This does not make your account private."
+msgid "Aqua will not show your profile and posts to logged-out users. Other apps may not honor this request. This does not make your account private."
 msgstr "로그아웃한 사용자에게 내 프로필과 게시물을 표시하지 않습니다. 다른 앱에서는 이 설정을 따르지 않을 수 있습니다. 내 계정을 비공개로 전환하지는 않습니다."
 
 #: src/components/dialogs/nuxs/InitialVerificationAnnouncement.tsx:132
-msgid "Bluesky will proactively verify notable and authentic accounts."
-msgstr "Bluesky는 주목할 만하고 신뢰할 수 있는 계정을 우선적으로 인증합니다."
+msgid "Aqua will proactively verify notable and authentic accounts."
+msgstr "Aqua는 주목할 만하고 신뢰할 수 있는 계정을 우선적으로 인증합니다."
 
 #: src/screens/Settings/AppIconSettings/index.tsx:99
-msgid "Bluesky+"
-msgstr "Bluesky+"
+msgid "Aqua+"
+msgstr "Aqua+"
 
 #: src/screens/Settings/AppIconSettings/index.tsx:102
-msgid "Bluesky+ icons"
-msgstr "Bluesky+ 아이콘"
+msgid "Aqua+ icons"
+msgstr "Aqua+ 아이콘"
 
 #: src/lib/moderation/useLabelBehaviorDescription.ts:56
 msgid "Blur images"
@@ -2619,8 +2619,8 @@ msgid "Customization options"
 msgstr "사용자 지정 옵션"
 
 #: src/screens/Onboarding/Layout.tsx:60
-msgid "Customizes your Bluesky experience"
-msgstr "내 Bluesky 경험을 맞춤 설정합니다"
+msgid "Customizes your Aqua experience"
+msgstr "내 Aqua 경험을 맞춤 설정합니다"
 
 #: src/components/moderation/ReportDialog/utils/useReportOptions.ts:200
 msgid "Dangerous challenges or activities"
@@ -3018,8 +3018,8 @@ msgid "Double tap to like"
 msgstr "두 번 탭하여 좋아요 표시합니다"
 
 #: src/screens/StarterPack/StarterPackLandingScreen.tsx:330
-msgid "Download Bluesky"
-msgstr "Bluesky 다운로드"
+msgid "Download Aqua"
+msgstr "Aqua 다운로드"
 
 #: src/screens/Settings/components/ExportCarDialog.tsx:78
 #: src/screens/Settings/components/ExportCarDialog.tsx:83
@@ -3035,8 +3035,8 @@ msgid "Drop to add images"
 msgstr "드롭하여 이미지 추가"
 
 #: src/components/ageAssurance/useAgeAssuranceCopy.ts:11
-msgid "Due to laws in your region, certain features on Bluesky are currently restricted until you're able to verify you're an adult."
-msgstr "해당 지역의 법률에 따라 성인 인증이 완료될 때까지 Bluesky의 일부 기능이 현재 제한됩니다."
+msgid "Due to laws in your region, certain features on Aqua are currently restricted until you're able to verify you're an adult."
+msgstr "해당 지역의 법률에 따라 성인 인증이 완료될 때까지 Aqua의 일부 기능이 현재 제한됩니다."
 
 #: src/components/dialogs/MutedWords.tsx:158
 msgid "Duration:"
@@ -3864,8 +3864,8 @@ msgid "Find people to follow"
 msgstr "팔로우할 사용자 찾아보기"
 
 #: src/screens/Search/Shell.tsx:526
-msgid "Find posts, users, and feeds on Bluesky"
-msgstr "Bluesky에서 게시물, 사용자, 피드 찾기"
+msgid "Find posts, users, and feeds on Aqua"
+msgstr "Aqua에서 게시물, 사용자, 피드 찾기"
 
 #: src/screens/Onboarding/StepFinished/ValuePropositionPager.shared.tsx:21
 msgid "Find your people"
@@ -4753,8 +4753,8 @@ msgid "Is your location not accurate? <0>Tap here to confirm your location.</0>"
 msgstr "현재 위치가 정확하지 않나요? <0>여기를 탭하여 위치를 다시 확인하세요.</0>"
 
 #: src/ageAssurance/components/NoAccessScreen.tsx:171
-msgid "It looks like you haven't added your birthdate. You must provide an accurate date of birth to use Bluesky."
-msgstr "생년월일을 입력하지 않았습니다. Bluesky를 이용하려면 정확한 생년월일을 입력해야 합니다."
+msgid "It looks like you haven't added your birthdate. You must provide an accurate date of birth to use Aqua."
+msgstr "생년월일을 입력하지 않았습니다. Aqua를 이용하려면 정확한 생년월일을 입력해야 합니다."
 
 #: src/screens/Signup/StepInfo/index.tsx:292
 msgid "It's correct"
@@ -4772,7 +4772,7 @@ msgstr "아직은 나밖에 없습니다! 위에서 검색하여 스타터 팩�
 msgid "Job ID: {0}"
 msgstr "작업 ID: {0}"
 
-#. Link to a page with job openings at Bluesky
+#. Link to a page with job openings at Aqua
 #: src/view/com/auth/SplashScreen.web.tsx:184
 msgid "Jobs"
 msgstr "채용"
@@ -4781,8 +4781,8 @@ msgstr "채용"
 #: src/screens/StarterPack/StarterPackLandingScreen.tsx:216
 #: src/screens/StarterPack/StarterPackScreen.tsx:464
 #: src/screens/StarterPack/StarterPackScreen.tsx:475
-msgid "Join Bluesky"
-msgstr "Bluesky 가입하기"
+msgid "Join Aqua"
+msgstr "Aqua 가입하기"
 
 #: src/components/StarterPack/QrCode.tsx:73
 #: src/view/shell/NavSignupCard.tsx:40
@@ -4888,8 +4888,8 @@ msgid "Learn more about age assurance"
 msgstr "연령 확인에 대해 자세히 알아보기"
 
 #: src/view/com/auth/SplashScreen.web.tsx:172
-msgid "Learn more about Bluesky"
-msgstr "Bluesky에 대해 더 알아보기"
+msgid "Learn more about Aqua"
+msgstr "Aqua에 대해 더 알아보기"
 
 #: src/components/dialogs/ServerInput.tsx:223
 msgid "Learn more about self hosting your PDS."
@@ -4916,13 +4916,13 @@ msgstr "이 경고에 대해 더 알아보기"
 #: src/components/verification/VerificationsDialog.tsx:151
 #: src/components/verification/VerifierDialog.tsx:119
 msgctxt "english-only-resource"
-msgid "Learn more about verification on Bluesky"
-msgstr "Bluesky의 인증에 대해 더 알아보기"
+msgid "Learn more about verification on Aqua"
+msgstr "Aqua의 인증에 대해 더 알아보기"
 
 #: src/screens/Settings/PrivacyAndSecuritySettings.tsx:127
 #: src/screens/Settings/PrivacyAndSecuritySettings.tsx:130
-msgid "Learn more about what is public on Bluesky."
-msgstr "Bluesky에서 공개되는 항목에 대해 자세히 알아보세요."
+msgid "Learn more about what is public on Aqua."
+msgstr "Aqua에서 공개되는 항목에 대해 자세히 알아보세요."
 
 #: src/components/ageAssurance/AgeAssuranceAdmonition.tsx:84
 msgid "Learn more in your <0>account settings.</0>"
@@ -4956,8 +4956,8 @@ msgstr "모든 언어를 보려면 모두 선택하지 않은 상태로 두세�
 
 #: src/components/dialogs/LinkWarning.tsx:67
 #: src/components/dialogs/LinkWarning.tsx:75
-msgid "Leaving Bluesky"
-msgstr "Bluesky 떠나기"
+msgid "Leaving Aqua"
+msgstr "Aqua 떠나기"
 
 #: src/screens/SignupQueued.tsx:155
 msgid "left to go."
@@ -5759,8 +5759,8 @@ msgid "Next image"
 msgstr "다음 이미지"
 
 #: src/screens/Onboarding/StepFinished/ValuePropositionPager.shared.tsx:32
-msgid "No ads, no invasive tracking, no engagement traps. Bluesky respects your time and attention."
-msgstr "광고, 사생활 침해 트래킹, 참여 유도 함정이 없습니다. Bluesky는 내 시간과 관심을 소중히 생각합니다."
+msgid "No ads, no invasive tracking, no engagement traps. Aqua respects your time and attention."
+msgstr "광고, 사생활 침해 트래킹, 참여 유도 함정이 없습니다. Aqua는 내 시간과 관심을 소중히 생각합니다."
 
 #: src/screens/Settings/AppPasswords.tsx:107
 msgid "No app passwords yet"
@@ -5943,8 +5943,8 @@ msgid "Note about sharing"
 msgstr "공유 관련 참고 사항"
 
 #: src/screens/Settings/PrivacyAndSecuritySettings.tsx:116
-msgid "Note: Bluesky is an open and public network. This setting only limits the visibility of your content on the Bluesky app and website, and other apps may not respect this setting. Your content may still be shown to logged-out users by other apps and websites."
-msgstr "참고: Bluesky는 개방형 공개 네트워크입니다. 이 설정은 Bluesky 앱과 웹사이트에서만 내 콘텐츠가 표시되는 것을 제한하며, 다른 앱에서는 이 설정을 준수하지 않을 수 있습니다. 다른 앱과 웹사이트에서는 로그아웃한 사용자에게 내 콘텐츠가 계속 표시될 수 있습니다."
+msgid "Note: Aqua is an open and public network. This setting only limits the visibility of your content on the Aqua app and website, and other apps may not respect this setting. Your content may still be shown to logged-out users by other apps and websites."
+msgstr "참고: Aqua는 개방형 공개 네트워크입니다. 이 설정은 Aqua 앱과 웹사이트에서만 내 콘텐츠가 표시되는 것을 제한하며, 다른 앱에서는 이 설정을 준수하지 않을 수 있습니다. 다른 앱과 웹사이트에서는 로그아웃한 사용자에게 내 콘텐츠가 계속 표시될 수 있습니다."
 
 #: src/components/PostControls/ShareMenu/ShareMenuItems.web.tsx:133
 msgid "Note: This post is only visible to logged-in users."
@@ -6239,13 +6239,13 @@ msgstr "이모티콘 선택기를 엽니다"
 
 #: src/view/com/auth/SplashScreen.tsx:66
 #: src/view/com/auth/SplashScreen.web.tsx:115
-msgid "Opens flow to create a new Bluesky account"
-msgstr "새 Bluesky 계정을 만드는 화면을 엽니다"
+msgid "Opens flow to create a new Aqua account"
+msgstr "새 Aqua 계정을 만드는 화면을 엽니다"
 
 #: src/view/com/auth/SplashScreen.tsx:83
 #: src/view/com/auth/SplashScreen.web.tsx:129
-msgid "Opens flow to sign in to your existing Bluesky account"
-msgstr "존재하는 Bluesky 계정에 로그인하는 화면을 엽니다"
+msgid "Opens flow to sign in to your existing Aqua account"
+msgstr "존재하는 Aqua 계정에 로그인하는 화면을 엽니다"
 
 #: src/view/com/composer/photos/SelectGifBtn.tsx:36
 msgid "Opens GIF select dialog"
@@ -6357,11 +6357,11 @@ msgstr "이 블로그 게시물"
 #: src/components/dms/AfterReportDialog.tsx:88
 #: src/components/dms/AfterReportDialog.tsx:176
 msgid "Our moderation team has received your report."
-msgstr "Bluesky 검토 팀에서 신고를 접수했습니다."
+msgstr "Aqua 검토 팀에서 신고를 접수했습니다."
 
 #: src/screens/Messages/components/ChatDisabled.tsx:34
-msgid "Our moderators have reviewed reports and decided to disable your access to chats on Bluesky."
-msgstr "Bluesky 검토 팀에서 신고를 검토한 결과 귀하의 Bluesky 대화 접속을 비활성화하기로 결정했습니다."
+msgid "Our moderators have reviewed reports and decided to disable your access to chats on Aqua."
+msgstr "Aqua 검토 팀에서 신고를 검토한 결과 귀하의 Aqua 대화 접속을 비활성화하기로 결정했습니다."
 
 #: src/components/Lists.tsx:202
 #: src/components/Lists.tsx:217
@@ -6550,8 +6550,8 @@ msgid "Please choose your password."
 msgstr "비밀번호를 입력하세요."
 
 #: src/components/dialogs/EmailDialog/screens/Update.tsx:290
-msgid "Please click on the link in the email we just sent you to verify your new email address. This is an important step to allow you to continue enjoying all the features of Bluesky."
-msgstr "방금 보낸 이메일에 있는 링크를 클릭하여 새 이메일 주소를 인증하세요. 이는 Bluesky의 모든 기능을 계속해서 즐길 수 있도록 하기 위한 중요한 단계입니다."
+msgid "Please click on the link in the email we just sent you to verify your new email address. This is an important step to allow you to continue enjoying all the features of Aqua."
+msgstr "방금 보낸 이메일에 있는 링크를 클릭하여 새 이메일 주소를 인증하세요. 이는 Aqua의 모든 기능을 계속해서 즐길 수 있도록 하기 위한 중요한 단계입니다."
 
 #: src/screens/Signup/state.ts:304
 msgid "Please complete the verification captcha."
@@ -7041,18 +7041,18 @@ msgid "Read our blog post"
 msgstr "블로그 게시물 읽기"
 
 #: src/view/com/auth/SplashScreen.web.tsx:177
-msgid "Read the Bluesky blog"
-msgstr "Bluesky 블로그 읽기"
+msgid "Read the Aqua blog"
+msgstr "Aqua 블로그 읽기"
 
 #: src/screens/Signup/StepInfo/Policies.tsx:56
 #: src/screens/Signup/StepInfo/Policies.tsx:82
-msgid "Read the Bluesky Privacy Policy"
-msgstr "Bluesky 개인정보 처리방침 읽기"
+msgid "Read the Aqua Privacy Policy"
+msgstr "Aqua 개인정보 처리방침 읽기"
 
 #: src/screens/Signup/StepInfo/Policies.tsx:49
 #: src/screens/Signup/StepInfo/Policies.tsx:69
-msgid "Read the Bluesky Terms of Service"
-msgstr "Bluesky 서비스 이용약관 읽기"
+msgid "Read the Aqua Terms of Service"
+msgstr "Aqua 서비스 이용약관 읽기"
 
 #: src/components/WelcomeModal.tsx:146
 msgid "Real conversations."
@@ -7835,8 +7835,8 @@ msgid "See #{tag} posts by user"
 msgstr "사용자의 #{tag} 게시물 보기"
 
 #: src/view/com/auth/SplashScreen.web.tsx:182
-msgid "See jobs at Bluesky"
-msgstr "Bluesky에 지원하기"
+msgid "See jobs at Aqua"
+msgstr "Aqua에 지원하기"
 
 #: src/components/FeedInterstitials.tsx:499
 #: src/components/FeedInterstitials.tsx:562
@@ -8219,8 +8219,8 @@ msgid "Share this starter pack"
 msgstr "이 스타터 팩 공유하기"
 
 #: src/components/StarterPack/ShareDialog.tsx:84
-msgid "Share this starter pack and help people join your community on Bluesky."
-msgstr "이 스타터 팩을 공유하여 사람들이 Bluesky에서 커뮤니티에 참여할 수 있도록 도와주세요."
+msgid "Share this starter pack and help people join your community on Aqua."
+msgstr "이 스타터 팩을 공유하여 사람들이 Aqua에서 커뮤니티에 참여할 수 있도록 도와주세요."
 
 #: src/components/PostControls/ShareMenu/ShareMenuItems.tsx:117
 #: src/components/PostControls/ShareMenu/ShareMenuItems.tsx:120
@@ -8396,8 +8396,8 @@ msgid "Sign in to account that is not listed"
 msgstr "목록에 없는 계정으로 로그인"
 
 #: src/components/dialogs/Signin.tsx:46
-msgid "Sign in to Bluesky or create a new account"
-msgstr "Bluesky에 로그인하거나 새 계정 만들기"
+msgid "Sign in to Aqua or create a new account"
+msgstr "Aqua에 로그인하거나 새 계정 만들기"
 
 #: src/components/PostControls/PostMenu/PostMenuItems.tsx:493
 #: src/components/PostControls/PostMenu/PostMenuItems.tsx:495
@@ -8780,8 +8780,8 @@ msgid "Tags only"
 msgstr "태그만"
 
 #: src/components/dialogs/DeviceLocationRequestDialog.tsx:109
-msgid "Tap below to allow Bluesky to access your GPS location. We will then use that data to more accurately determine the content and features available in your region."
-msgstr "내 지역에서 이용 가능한 콘텐츠와 기능을 더 정확하게 결정할 수 있도록 아래를 탭하여 Bluesky의 GPS 위치 접근을 허용해 주세요."
+msgid "Tap below to allow Aqua to access your GPS location. We will then use that data to more accurately determine the content and features available in your region."
+msgstr "내 지역에서 이용 가능한 콘텐츠와 기능을 더 정확하게 결정할 수 있도록 아래를 탭하여 Aqua의 GPS 위치 접근을 허용해 주세요."
 
 #: src/view/com/feeds/MissingFeed.tsx:89
 msgid "Tap for information"
@@ -8792,8 +8792,8 @@ msgid "Tap for more information"
 msgstr "탭하여 세부 정보 보기"
 
 #: src/components/PolicyUpdateOverlay/updates/202508/index.tsx:164
-msgid "Tap to acknowledge that you understand and agree to these updates and continue using Bluesky"
-msgstr "이 업데이트 내용을 이해하고 동의하며 Bluesky를 계속 사용하려면 탭합니다"
+msgid "Tap to acknowledge that you understand and agree to these updates and continue using Aqua"
+msgstr "이 업데이트 내용을 이해하고 동의하며 Aqua를 계속 사용하려면 탭합니다"
 
 #: src/components/ContextMenu/Backdrop.ios.tsx:54
 #: src/components/ContextMenu/Backdrop.ios.tsx:80
@@ -8923,8 +8923,8 @@ msgid "The birthdate you've entered means you are under 18 years old. Certain co
 msgstr "입력하신 생년월일에 따르면 회원님은 만 18세 미만입니다. 이에 따라 일부 콘텐츠 및 기능의 이용이 제한될 수 있습니다."
 
 #: src/screens/Moderation/index.tsx:397
-msgid "The Bluesky web application"
-msgstr "Bluesky 웹 애플리케이션"
+msgid "The Aqua web application"
+msgstr "Aqua 웹 애플리케이션"
 
 #: src/view/screens/CommunityGuidelines.tsx:41
 msgid "The Community Guidelines have been moved to <0/>"
@@ -8943,8 +8943,8 @@ msgid "The Discover feed now knows what you like"
 msgstr "Discover 피드는 이제 당신이 무엇을 좋아하는지 알 테죠"
 
 #: src/screens/StarterPack/StarterPackLandingScreen.tsx:333
-msgid "The experience is better in the app. Download Bluesky now and we'll pick back up where you left off."
-msgstr "앱에서 더 나은 환경을 경험하세요. 지금 Bluesky를 다운로드하면 중단한 부분부터 다시 시작합니다."
+msgid "The experience is better in the app. Download Aqua now and we'll pick back up where you left off."
+msgstr "앱에서 더 나은 환경을 경험하세요. 지금 Aqua를 다운로드하면 중단한 부분부터 다시 시작합니다."
 
 #: src/view/com/posts/FeedShutdownMsg.tsx:67
 msgid "The feed has been replaced with Discover."
@@ -9106,8 +9106,8 @@ msgid "There was an unexpected issue in the application. Please let us know if t
 msgstr "애플리케이션에 예기치 않은 문제가 발생했습니다. 이런 일이 발생하면 저희에게 알려주세요!"
 
 #: src/screens/SignupQueued.tsx:130
-msgid "There's been a rush of new users to Bluesky! We'll activate your account as soon as we can."
-msgstr "Bluesky에 신규 사용자가 몰리고 있습니다! 최대한 빨리 계정을 활성화하겠습니다."
+msgid "There's been a rush of new users to Aqua! We'll activate your account as soon as we can."
+msgstr "Aqua에 신규 사용자가 몰리고 있습니다! 최대한 빨리 계정을 활성화하겠습니다."
 
 #: src/components/dialogs/PostInteractionSettingsDialog.tsx:654
 msgid "These are your default settings"
@@ -9146,8 +9146,8 @@ msgid "This appeal will be sent to <0>{sourceName}</0>."
 msgstr "이 이의신청을 <0>{sourceName}</0>에게 보냅니다."
 
 #: src/screens/Messages/components/ChatDisabled.tsx:116
-msgid "This appeal will be sent to Bluesky's moderation service."
-msgstr "이 이의신청을 Bluesky Moderation Service에게 보냅니다."
+msgid "This appeal will be sent to Aqua's moderation service."
+msgstr "이 이의신청을 Aqua Moderation Service에게 보냅니다."
 
 #: src/screens/Messages/components/MessageListError.tsx:18
 msgid "This chat was disconnected"
@@ -9175,8 +9175,8 @@ msgid "This content is not available because one of the users involved has block
 msgstr "관련 사용자 중 한 명이 다른 사용자를 차단했기 때문에 이 콘텐츠를 사용할 수 없습니다."
 
 #: src/view/com/posts/PostFeedErrorMessage.tsx:121
-msgid "This content is not viewable without a Bluesky account."
-msgstr "이 콘텐츠는 Bluesky 계정이 없으면 볼 수 없습니다."
+msgid "This content is not viewable without a Aqua account."
+msgstr "이 콘텐츠는 Aqua 계정이 없으면 볼 수 없습니다."
 
 #: src/screens/Messages/components/ChatListItem.tsx:366
 msgid "This conversation is with a deleted or a deactivated account. Press for options"
@@ -9254,12 +9254,12 @@ msgid "This link is taking you to the following website:"
 msgstr "이 링크를 클릭하면 다음 웹사이트로 이동합니다."
 
 #: src/screens/List/ListHiddenScreen.tsx:151
-msgid "This list – created by <0>{0}</0> – contains possible violations of Bluesky's community guidelines in its name or description."
-msgstr "<0>{0}</0> 님이 만든 이 목록은 이름이나 설명에 Bluesky의 커뮤니티 가이드라인을 위반할 가능성이 있는 내용이 포함되어 있습니다."
+msgid "This list – created by <0>{0}</0> – contains possible violations of Aqua's community guidelines in its name or description."
+msgstr "<0>{0}</0> 님이 만든 이 목록은 이름이나 설명에 Aqua의 커뮤니티 가이드라인을 위반할 가능성이 있는 내용이 포함되어 있습니다."
 
 #: src/screens/List/ListHiddenScreen.tsx:146
-msgid "This list – created by you – contains possible violations of Bluesky's community guidelines in its name or description."
-msgstr "내가 만든 이 목록은 이름이나 설명에 Bluesky의 커뮤니티 가이드라인을 위반할 가능성이 있는 내용이 포함되어 있습니다."
+msgid "This list – created by you – contains possible violations of Aqua's community guidelines in its name or description."
+msgstr "내가 만든 이 목록은 이름이나 설명에 Aqua의 커뮤니티 가이드라인을 위반할 가능성이 있는 내용이 포함되어 있습니다."
 
 #: src/screens/ProfileList/AboutSection.tsx:99
 msgid "This list is empty."
@@ -9270,8 +9270,8 @@ msgid "This moderation service is unavailable. See below for more details. If th
 msgstr "이 검토 서비스는 사용할 수 없습니다. 자세한 내용은 아래를 참조하세요. 이 문제가 지속되면 문의해 주세요."
 
 #: src/screens/PostThread/components/ThreadItemAnchor.tsx:669
-msgid "This post claims to have been created on <0>{0}</0>, but was first seen by Bluesky on <1>{1}</1>."
-msgstr "이 게시물은 <0>{0}</0>에 작성되었다고 주장하지만 Bluesky에서는 <1>{1}</1>에 처음 확인되었습니다."
+msgid "This post claims to have been created on <0>{0}</0>, but was first seen by Aqua on <1>{1}</1>."
+msgstr "이 게시물은 <0>{0}</0>에 작성되었다고 주장하지만 Aqua에서는 <1>{1}</1>에 처음 확인되었습니다."
 
 #: src/components/WhoCanReply.tsx:272
 msgid "This post has an unknown type of threadgate on it. Your app may be out of date."
@@ -9496,8 +9496,8 @@ msgid "Type:"
 msgstr "유형:"
 
 #: src/components/dialogs/DeviceLocationRequestDialog.tsx:85
-msgid "Unable to access location. You'll need to visit your system settings to enable location services for Bluesky."
-msgstr "위치에 접근할 수 없습니다. Bluesky 앱의 위치 서비스를 활성화하려면 시스템 설정으로 이동해 주세요."
+msgid "Unable to access location. You'll need to visit your system settings to enable location services for Aqua."
+msgstr "위치에 접근할 수 없습니다. Aqua 앱의 위치 서비스를 활성화하려면 시스템 설정으로 이동해 주세요."
 
 #: src/lib/hooks/useCleanError.ts:27
 #: src/lib/strings/errors.ts:12
@@ -9606,8 +9606,8 @@ msgid "Unfortunately, none of your subscribed labelers supports this report type
 msgstr "죄송합니다. 구독하는 라벨러 중 이 신고 유형을 지원하는 라벨러가 없습니다."
 
 #: src/ageAssurance/components/NoAccessScreen.tsx:158
-msgid "Unfortunately, the birthdate you have saved to your profile makes you too young to access Bluesky."
-msgstr "죄송합니다. 프로필에 저장된 생년월일이 Bluesky 이용 연령 제한에 해당되어 접속할 수 없습니다."
+msgid "Unfortunately, the birthdate you have saved to your profile makes you too young to access Aqua."
+msgstr "죄송합니다. 프로필에 저장된 생년월일이 Aqua 이용 연령 제한에 해당되어 접속할 수 없습니다."
 
 #: src/components/verification/VerificationsDialog.tsx:211
 msgid "Unknown verifier"
@@ -9819,8 +9819,8 @@ msgid "Uploading video..."
 msgstr "동영상 업로드 중…"
 
 #: src/screens/Settings/AppPasswords.tsx:66
-msgid "Use app passwords to sign in to other Bluesky clients without giving full access to your account or password."
-msgstr "앱 비밀번호를 사용하면 계정이나 비밀번호에 대한 전체 접근 권한을 제공하지 않고도 다른 Bluesky 클라이언트에 로그인할 수 있습니다."
+msgid "Use app passwords to sign in to other Aqua clients without giving full access to your account or password."
+msgstr "앱 비밀번호를 사용하면 계정이나 비밀번호에 대한 전체 접근 권한을 제공하지 않고도 다른 Aqua 클라이언트에 로그인할 수 있습니다."
 
 #: src/screens/Settings/components/ChangeHandleDialog.tsx:574
 msgid "Use default provider"
@@ -9850,8 +9850,8 @@ msgid "Use this to sign in to the other app along with your handle."
 msgstr "이 비밀번호와 핸들을 사용하여 다른 앱에 로그인하세요."
 
 #: src/components/ageAssurance/AgeAssuranceInitDialog.tsx:278
-msgid "Use your account email address, or another real email address you control, in case KWS or Bluesky needs to contact you."
-msgstr "KWS나 Bluesky에서 연락해야 할 경우를 대비하여, 계정 이메일 주소 또는 직접 관리하는 다른 실제 이메일 주소를 사용하세요."
+msgid "Use your account email address, or another real email address you control, in case KWS or Aqua needs to contact you."
+msgstr "KWS나 Aqua에서 연락해야 할 경우를 대비하여, 계정 이메일 주소 또는 직접 관리하는 다른 실제 이메일 주소를 사용하세요."
 
 #: src/components/dms/AfterReportDialog.tsx:152
 msgctxt "toast"
@@ -9948,8 +9948,8 @@ msgid "Verification Settings"
 msgstr "인증 설정"
 
 #: src/screens/Moderation/VerificationSettings.tsx:41
-msgid "Verifications on Bluesky work differently than on other platforms. <0>Learn more here.</0>"
-msgstr "Bluesky의 인증은 다른 플랫폼과 다르게 작동합니다. <0>이곳</0>에서 자세히 알아보세요."
+msgid "Verifications on Aqua work differently than on other platforms. <0>Learn more here.</0>"
+msgstr "Aqua의 인증은 다른 플랫폼과 다르게 작동합니다. <0>이곳</0>에서 자세히 알아보세요."
 
 #: src/components/verification/VerificationsDialog.tsx:103
 msgid "Verified by:"
@@ -10274,16 +10274,16 @@ msgid "We estimate {estimatedTime} until your account is ready."
 msgstr "계정이 준비될 때까지 {estimatedTime}이 걸릴 것으로 예상됩니다."
 
 #: src/components/ageAssurance/AgeAssuranceInitDialog.tsx:197
-msgid "We have partnered with <0>KWS</0> to verify that you’re an adult. When you click \"Begin\" below, KWS will check if you have previously verified your age using this email address for other games/services powered by KWS technology. If not, KWS will email you instructions for verifying your age. When you’re done, you'll be brought back to continue using Bluesky."
-msgstr "우리는 <0>KWS</0>와 제휴하여 귀하가 성인인지 확인합니다. 아래의 ‘시작하기’를 클릭하면 KWS가 이전에 이 이메일 주소를 사용하여 KWS 기술로 구동되는 다른 게임/서비스에서 연령을 인증한 적이 있는지 확인합니다. 그렇지 않은 경우, KWS에서 연령 확인을 위한 지침을 이메일로 발송합니다. 확인이 완료되면 Bluesky를 계속 사용할 수 있는 페이지로 돌아갑니다."
+msgid "We have partnered with <0>KWS</0> to verify that you’re an adult. When you click \"Begin\" below, KWS will check if you have previously verified your age using this email address for other games/services powered by KWS technology. If not, KWS will email you instructions for verifying your age. When you’re done, you'll be brought back to continue using Aqua."
+msgstr "우리는 <0>KWS</0>와 제휴하여 귀하가 성인인지 확인합니다. 아래의 ‘시작하기’를 클릭하면 KWS가 이전에 이 이메일 주소를 사용하여 KWS 기술로 구동되는 다른 게임/서비스에서 연령을 인증한 적이 있는지 확인합니다. 그렇지 않은 경우, KWS에서 연령 확인을 위한 지침을 이메일로 발송합니다. 확인이 완료되면 Aqua를 계속 사용할 수 있는 페이지로 돌아갑니다."
 
 #: src/components/intents/VerifyEmailIntentDialog.tsx:101
 msgid "We have sent another verification email to <0>{0}</0>."
 msgstr "<0>{0}</0>(으)로 또 다른 인증 이메일을 보냈습니다."
 
 #: src/screens/Onboarding/StepFinished/index.tsx:383
-msgid "We hope you have a wonderful time. Remember, Bluesky is:"
-msgstr "즐거운 시간 되시기 바랍니다. Bluesky의 다음 특징을 기억하세요."
+msgid "We hope you have a wonderful time. Remember, Aqua is:"
+msgstr "즐거운 시간 되시기 바랍니다. Aqua의 다음 특징을 기억하세요."
 
 #: src/view/com/posts/DiscoverFallbackHeader.tsx:29
 msgid "We ran out of posts from your follows. Here's the latest from <0/>."
@@ -10349,8 +10349,8 @@ msgid "We're having network issues, try again"
 msgstr "네트워크 문제가 발생했습니다. 다시 시도해 주세요"
 
 #: src/components/dialogs/nuxs/InitialVerificationAnnouncement.tsx:94
-msgid "We’re introducing a new layer of verification on Bluesky — an easy-to-see checkmark."
-msgstr "Bluesky에 인증을 쉽게 확인할 수 있는 체크 표시를 도입합니다."
+msgid "We’re introducing a new layer of verification on Aqua — an easy-to-see checkmark."
+msgstr "Aqua에 인증을 쉽게 확인할 수 있는 체크 표시를 도입합니다."
 
 #: src/screens/Signup/index.tsx:125
 msgid "We're so excited to have you join us!"
@@ -10566,7 +10566,7 @@ msgid "You are a trusted verifier"
 msgstr "나는 신뢰할 수 있는 인증자입니다"
 
 #: src/ageAssurance/components/NoAccessScreen.tsx:143
-msgid "You are accessing Bluesky from a region that legally requires us to verify your age before allowing you to access the app."
+msgid "You are accessing Aqua from a region that legally requires us to verify your age before allowing you to access the app."
 msgstr "고객님이 접속하신 지역은 앱 접근 전 법적으로 연령 확인이 필요한 곳입니다."
 
 #: src/components/forms/HostingProvider.tsx:45
@@ -10575,8 +10575,8 @@ msgstr "호스팅 제공자:"
 
 #: src/ageAssurance/components/NoAccessScreen.tsx:249
 #: src/components/ageAssurance/AgeAssuranceAccountCard.tsx:126
-msgid "You are currently unable to access Bluesky's Age Assurance flow. Please <0>contact our moderation team</0> if you believe this is an error."
-msgstr "현재 Bluesky의 연령 확인 절차를 이용할 수 없습니다. 오류라고 생각되면 <0>운영팀에 문의</0>해 주세요."
+msgid "You are currently unable to access Aqua's Age Assurance flow. Please <0>contact our moderation team</0> if you believe this is an error."
+msgstr "현재 Aqua의 연령 확인 절차를 이용할 수 없습니다. 오류라고 생각되면 <0>운영팀에 문의</0>해 주세요."
 
 #: src/screens/SignupQueued.tsx:157
 msgid "You are in line."
@@ -10788,12 +10788,12 @@ msgid "You initiated this flow already, {0} ago. It may take up to 5 minutes for
 msgstr "이미 {0} 전에 이 절차를 시작했습니다. 이메일이 받은편지함에 도착하기까지 최대 5분이 걸릴 수 있으니, 몇 분 정도 기다렸다가 다시 시도해 보세요."
 
 #: src/components/NewskieDialog.tsx:105
-msgid "You joined Bluesky {timeAgoString} ago"
-msgstr "나는 {timeAgoString} 전에 Bluesky에 가입했습니다"
+msgid "You joined Aqua {timeAgoString} ago"
+msgstr "나는 {timeAgoString} 전에 Aqua에 가입했습니다"
 
 #: src/components/NewskieDialog.tsx:102
-msgid "You joined Bluesky using a starter pack {timeAgoString} ago"
-msgstr "나는 {timeAgoString} 전에 스타터 팩을 사용하여 Bluesky에 가입했습니다"
+msgid "You joined Aqua using a starter pack {timeAgoString} ago"
+msgstr "나는 {timeAgoString} 전에 스타터 팩을 사용하여 Aqua에 가입했습니다"
 
 #: src/components/moderation/LabelsOnMeDialog.tsx:83
 msgid "You may appeal non-self labels if you feel they were placed in error."
@@ -10816,8 +10816,8 @@ msgid "You must be 13 years of age or older to create an account."
 msgstr "계정을 만들려면 만 13세 이상이어야 합니다."
 
 #: src/components/dialogs/BirthDateSettings.tsx:163
-msgid "You must be at least 13 years old to use Bluesky. Read our <0>Terms of Service</0> for more information."
-msgstr "Bluesky를 이용하려면 만 13세 이상이어야 합니다. 자세한 내용은 <0>서비스 이용약관</0>을 참조하세요."
+msgid "You must be at least 13 years old to use Aqua. Read our <0>Terms of Service</0> for more information."
+msgstr "Aqua를 이용하려면 만 13세 이상이어야 합니다. 자세한 내용은 <0>서비스 이용약관</0>을 참조하세요."
 
 #: src/components/StarterPack/ProfileStarterPacks.tsx:362
 msgid "You must be following at least seven other people to generate a starter pack."
@@ -10997,8 +10997,8 @@ msgid "Your account repository, containing all public data records, can be downl
 msgstr "모든 공개 데이터 레코드가 포함된 계정 저장소를 ‘CAR’ 파일로 다운로드할 수 있습니다. 이 파일에는 이미지와 같은 미디어 임베드나 별도로 가져와야 하는 비공개 데이터는 포함되지 않습니다."
 
 #: src/screens/Takendown.tsx:223
-msgid "Your account was found to be in violation of the <0>Bluesky Social Terms of Service</0>. You have been sent an email outlining the specific violation and suspension period, if applicable. You can appeal this decision if you believe it was made in error."
-msgstr "귀하의 계정이 <0>Bluesky Social 서비스 이용약관</0>을 위반한 것으로 확인되었습니다. 구체적인 위반 사항과 정지 기간(해당하는 경우)이 명시된 이메일을 보내드렸습니다. 이 결정이 잘못되었다고 생각되면 이의를 신청할 수 있습니다."
+msgid "Your account was found to be in violation of the <0>Aqua Social Terms of Service</0>. You have been sent an email outlining the specific violation and suspension period, if applicable. You can appeal this decision if you believe it was made in error."
+msgstr "귀하의 계정이 <0>Aqua Social 서비스 이용약관</0>을 위반한 것으로 확인되었습니다. 구체적인 위반 사항과 정지 기간(해당하는 경우)이 명시된 이메일을 보내드렸습니다. 이 결정이 잘못되었다고 생각되면 이의를 신청할 수 있습니다."
 
 #: src/screens/Takendown.tsx:163
 msgid "Your appeal has been submitted. If your appeal succeeds, you will receive an email."
@@ -11042,8 +11042,8 @@ msgid "Your email appears to be invalid."
 msgstr "이메일이 잘못된 것 같습니다."
 
 #: src/components/dialogs/EmailDialog/screens/VerificationReminder.tsx:65
-msgid "Your email has not yet been verified. Please verify your email in order to enjoy all the features of Bluesky."
-msgstr "내 이메일이 아직 인증되지 않았습니다. Bluesky의 모든 기능을 즐기려면 이메일을 인증해 주세요."
+msgid "Your email has not yet been verified. Please verify your email in order to enjoy all the features of Aqua."
+msgstr "내 이메일이 아직 인증되지 않았습니다. Aqua의 모든 기능을 즐기려면 이메일을 인증해 주세요."
 
 #: src/state/shell/progress-guide.tsx:215
 msgid "Your first like!"
@@ -11087,8 +11087,8 @@ msgid "Your muted words"
 msgstr "뮤트한 단어"
 
 #: src/screens/Settings/components/ChangePasswordDialog.tsx:71
-msgid "Your password has been changed successfully! Please use your new password when you sign in to Bluesky from now on."
-msgstr "비밀번호를 성공적으로 변경했습니다! 앞으로 Bluesky에 로그인할 때 새 비밀번호를 사용해 주세요."
+msgid "Your password has been changed successfully! Please use your new password when you sign in to Aqua from now on."
+msgstr "비밀번호를 성공적으로 변경했습니다! 앞으로 Aqua에 로그인할 때 새 비밀번호를 사용해 주세요."
 
 #: src/screens/Signup/StepInfo/index.tsx:129
 msgid "Your password must be at least 8 characters long."
@@ -11120,8 +11120,8 @@ msgid "Your profile picture surrounded by concentric circles of other users' pro
 msgstr "여러 사용자들의 프로필 사진이 동심원 형태로 내 프로필 사진을 둘러싸고 있는 모습"
 
 #: src/screens/Settings/components/DeactivateAccountDialog.tsx:75
-msgid "Your profile, posts, feeds, and lists will no longer be visible to other Bluesky users. You can reactivate your account at any time by logging in."
-msgstr "내 프로필, 게시물, 피드, 리스트가 더 이상 다른 Bluesky 사용자에게 표시되지 않습니다. 언제든지 로그인하여 계정을 재활성화할 수 있습니다."
+msgid "Your profile, posts, feeds, and lists will no longer be visible to other Aqua users. You can reactivate your account at any time by logging in."
+msgstr "내 프로필, 게시물, 피드, 리스트가 더 이상 다른 Aqua 사용자에게 표시되지 않습니다. 언제든지 로그인하여 계정을 재활성화할 수 있습니다."
 
 #: src/view/com/composer/Composer.tsx:576
 msgid "Your reply was sent"

@@ -113,11 +113,11 @@ function Inner(props: ReportDialogProps) {
   const [isPending, setPending] = React.useState(false)
   const [isSuccess, setSuccess] = React.useState(false)
 
-  // some reasons ONLY go to Bluesky
+  // some reasons ONLY go to Aqua
   const isBskyOnlyReason = state?.selectedOption?.reason
     ? BSKY_LABELER_ONLY_REPORT_REASONS.has(state.selectedOption.reason)
     : false
-  // some subjects (chats) only go to Bluesky
+  // some subjects (chats) only go to Aqua
   const isBskyOnlySubject = props.subject.type === 'convoMessage'
 
   /**
@@ -140,7 +140,7 @@ function Inner(props: ReportDialogProps) {
       .filter(l => {
         const collections: string[] | undefined = l.subjectCollections
         if (collections === undefined) return true
-        // all chat collections accepted, since only Bluesky handles chats
+        // all chat collections accepted, since only Aqua handles chats
         if (props.subject.type === 'convoMessage') return true
         return collections.includes(props.subject.nsid)
       })
@@ -172,7 +172,7 @@ function Inner(props: ReportDialogProps) {
 
   /**
    * We skip the select labeler step if there's only one possible labeler, and
-   * that labeler is Bluesky (which is the case for chat reports and certain
+   * that labeler is Aqua (which is the case for chat reports and certain
    * reason types). We'll use this below to adjust the indexing and skip the
    * step in the UI.
    */

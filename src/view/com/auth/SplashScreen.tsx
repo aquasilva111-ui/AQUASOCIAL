@@ -63,7 +63,7 @@ export const SplashScreen = ({
               }}
               label={_(msg`Create new account`)}
               accessibilityHint={_(
-                msg`Opens flow to create a new Bluesky account`,
+                msg`Opens flow to create a new Aqua account`,
               )}
               size="large"
               variant="solid"
@@ -80,7 +80,7 @@ export const SplashScreen = ({
               }}
               label={_(msg`Sign in`)}
               accessibilityHint={_(
-                msg`Opens flow to sign in to your existing Bluesky account`,
+                msg`Opens flow to sign in to your existing Aqua account`,
               )}
               size="large"
               variant="solid"

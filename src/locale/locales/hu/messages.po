@@ -124,7 +124,7 @@ msgstr "{0, plural, other {mentés}}"
 msgid "{0, plural, other {{1} posts}}"
 msgstr "{0, plural, other {{1} bejegyzés}}"
 
-#. Number of users (always at least 25) who have joined Bluesky using a specific starter pack
+#. Number of users (always at least 25) who have joined Aqua using a specific starter pack
 #: src/screens/StarterPack/StarterPackScreen.tsx:492
 msgid "{0, plural, other {# people have}} used this starter pack!"
 msgstr "{0, plural, one {}other {#}} személy regisztrált ezzel a kezdőcsomaggal!"
@@ -423,7 +423,7 @@ msgstr "{hours, plural, one {# óra {minutesString}} other {# óra {minutesStrin
 msgid "{hours, plural, one {# hour} other {# hours}}"
 msgstr "{hours, plural, one {# óra} other {# óra}}"
 
-#. Number of users (always at least 50) who have joined Bluesky using a specific starter pack
+#. Number of users (always at least 50) who have joined Aqua using a specific starter pack
 #: src/components/StarterPack/StarterPackCard.tsx:101
 msgid "{joinedAllTimeCount, plural, other {# users have}} joined!"
 msgstr "{joinedAllTimeCount, plural, other {#}} felhasználó csatlakozott ezzel!"
@@ -437,12 +437,12 @@ msgid "{notificationCount, plural, one {# unread item} other {# unread items}}"
 msgstr "{notificationCount, plural, one {# olvasatlan értesítés} other {# olvasatlan értesítés}}"
 
 #: src/components/NewskieDialog.tsx:113
-msgid "{profileName} joined Bluesky {timeAgoString} ago"
-msgstr "{profileName} {timeAgoString} csatlakozott a Blueskyhoz"
+msgid "{profileName} joined Aqua {timeAgoString} ago"
+msgstr "{profileName} {timeAgoString} csatlakozott a Aquahoz"
 
 #: src/components/NewskieDialog.tsx:110
-msgid "{profileName} joined Bluesky using a starter pack {timeAgoString} ago"
-msgstr "{profileName} {timeAgoString} csatlakozott a Blueskyhoz egy kezdőcsomag igénybevételével"
+msgid "{profileName} joined Aqua using a starter pack {timeAgoString} ago"
+msgstr "{profileName} {timeAgoString} csatlakozott a Aquahoz egy kezdőcsomag igénybevételével"
 
 #. The trending topic rank, i.e. "1. March Madness", "2. The Bachelor"
 #: src/screens/Search/modules/ExploreTrendingTopics.tsx:111
@@ -509,8 +509,8 @@ msgstr "<0>{date}</0>, {time}"
 
 #: src/screens/Hashtag.tsx:225
 #: src/screens/Search/SearchResults.tsx:294
-msgid "<0>Sign in</0><1> or </1><2>create an account</2><3> </3><4>to search for news, sports, politics, and everything else happening on Bluesky.</4>"
-msgstr "<0>Jelentkezz be</0><1> vagy </1><2>regisztrálj</2><3>, </3><4>ha szeretnél a Blueskyon híreket, sport- és politikai bejegyzéseket, vagy bármi mást keresni!</4>"
+msgid "<0>Sign in</0><1> or </1><2>create an account</2><3> </3><4>to search for news, sports, politics, and everything else happening on Aqua.</4>"
+msgstr "<0>Jelentkezz be</0><1> vagy </1><2>regisztrálj</2><3>, </3><4>ha szeretnél a Aquaon híreket, sport- és politikai bejegyzéseket, vagy bármi mást keresni!</4>"
 
 #: src/screens/StarterPack/Wizard/index.tsx:502
 msgid "<0>You</0> and<1> </1><2>{0} </2>are included in your starter pack"
@@ -537,8 +537,8 @@ msgid "7 days"
 msgstr "7 napig"
 
 #: src/screens/Onboarding/StepFinished/ValuePropositionPager.shared.tsx:17
-msgid "A collection of popular feeds you can find on Bluesky, including News, Booksky, Game Dev, Blacksky, and Fountain Pens"
-msgstr "A Bluesky néhány hírfolyamát ábrázoló illusztráció. Az alábbi hírfolyamok vannak megjelenítve: News, Booksky, Game Dev, Blacksky és Fountain Pens"
+msgid "A collection of popular feeds you can find on Aqua, including News, Booksky, Game Dev, Blacksky, and Fountain Pens"
+msgstr "A Aqua néhány hírfolyamát ábrázoló illusztráció. Az alábbi hírfolyamok vannak megjelenítve: News, Booksky, Game Dev, Blacksky és Fountain Pens"
 
 #. If last message does not contain text, fall back to "{user} reacted to {a message}"
 #: src/screens/Messages/components/ChatListItem.tsx:213
@@ -663,8 +663,8 @@ msgid "Account unmuted"
 msgstr "Fiók némítása feloldva"
 
 #: src/components/verification/VerifierDialog.tsx:97
-msgid "Accounts with a scalloped blue check mark <0><1/></0> can verify others. These trusted verifiers are selected by Bluesky."
-msgstr "Másokat hitelesíteni csak a <0><1/></0> recés pipával rendelkező fiókok képesek. Ezeket a megbízható hitelesítőket a Bluesky jelöli ki."
+msgid "Accounts with a scalloped blue check mark <0><1/></0> can verify others. These trusted verifiers are selected by Aqua."
+msgstr "Másokat hitelesíteni csak a <0><1/></0> recés pipával rendelkező fiókok képesek. Ezeket a megbízható hitelesítőket a Aqua jelöli ki."
 
 #: src/lib/hooks/useNotificationHandler.ts:182
 #: src/screens/Settings/NotificationSettings/ActivityNotificationSettings.tsx:102
@@ -1078,13 +1078,13 @@ msgid "An error occurred while uploading the video."
 msgstr "A videó feltöltése meghiúsult."
 
 #: src/screens/Onboarding/StepFinished/ValuePropositionPager.shared.tsx:35
-msgid "An illustration of several Bluesky posts alongside repost, like, and comment icons"
-msgstr "Illusztráció, amely számos Bluesky-bejegyzést ábrázol megosztási-, kedvelési- és hozzászólási ikonok között"
+msgid "An illustration of several Aqua posts alongside repost, like, and comment icons"
+msgstr "Illusztráció, amely számos Aqua-bejegyzést ábrázol megosztási-, kedvelési- és hozzászólási ikonok között"
 
 #: src/components/dialogs/nuxs/InitialVerificationAnnouncement.tsx:84
 #: src/components/verification/VerifierDialog.tsx:86
-msgid "An illustration showing that Bluesky selects trusted verifiers, and trusted verifiers in turn verify individual user accounts."
-msgstr "A megbízható hitelesítőket a Bluesky jelöli ki, akik ezután képesek más személyeket hitelesíteni."
+msgid "An illustration showing that Aqua selects trusted verifiers, and trusted verifiers in turn verify individual user accounts."
+msgstr "A megbízható hitelesítőket a Aqua jelöli ki, akik ezután képesek más személyeket hitelesíteni."
 
 #: src/components/moderation/ReportDialog/utils/useReportOptions.ts:239
 msgid "An issue not included in these options"
@@ -1108,8 +1108,8 @@ msgid "An issue occurred, please try again."
 msgstr "Hiba történt. Próbáld újra."
 
 #: src/components/dialogs/nuxs/InitialVerificationAnnouncement.tsx:118
-msgid "An mockup of a iPhone showing the Bluesky app open to the profile of a verified user with a blue checkmark next to their display name."
-msgstr "Egy kék pipával rendelkező felhasználó, az iPhone-os Bluesky alkalmazásban megjelenítve."
+msgid "An mockup of a iPhone showing the Aqua app open to the profile of a verified user with a blue checkmark next to their display name."
+msgstr "Egy kék pipával rendelkező felhasználó, az iPhone-os Aqua alkalmazásban megjelenítve."
 
 #: src/components/moderation/ModerationDetailsDialog.tsx:136
 #: src/lib/moderation/useModerationCauseDescription.ts:145
@@ -1142,8 +1142,8 @@ msgid "Announcement"
 msgstr "Közlemény"
 
 #: src/components/dialogs/nuxs/InitialVerificationAnnouncement.tsx:37
-msgid "Announcing verification on Bluesky"
-msgstr "Hitelesítés a Blueskyon"
+msgid "Announcing verification on Aqua"
+msgstr "Hitelesítés a Aquaon"
 
 #: src/components/dialogs/PostInteractionSettingsDialog.tsx:451
 msgid "Anyone"
@@ -1515,54 +1515,54 @@ msgstr "Blog"
 
 #: src/components/dialogs/ServerInput.tsx:147
 #: src/components/dialogs/ServerInput.tsx:149
-msgid "Bluesky"
-msgstr "Bluesky"
+msgid "Aqua"
+msgstr "Aqua"
 
 #: src/screens/PostThread/components/ThreadItemAnchor.tsx:688
-msgid "Bluesky cannot confirm the authenticity of the claimed date."
-msgstr "A Bluesky nem tudja megerősíteni a létrehozás dátumát."
+msgid "Aqua cannot confirm the authenticity of the claimed date."
+msgstr "A Aqua nem tudja megerősíteni a létrehozás dátumát."
 
 #: src/screens/Settings/AppIconSettings/useAppIconSets.ts:165
 msgctxt "Name of app icon variant"
-msgid "Bluesky Classic™"
-msgstr "Klasszikus Bluesky"
+msgid "Aqua Classic™"
+msgstr "Klasszikus Aqua"
 
 #: src/components/dialogs/ServerInput.tsx:217
-msgid "Bluesky is an open network where you can choose your hosting provider. If you're a developer, you can host your own server."
-msgstr "A Bluesky egy nyílt hálózat, ahol saját szolgáltatót választhatsz. Ha fejlesztő vagy, saját kiszolgálót is üzemeltethetsz."
+msgid "Aqua is an open network where you can choose your hosting provider. If you're a developer, you can host your own server."
+msgstr "A Aqua egy nyílt hálózat, ahol saját szolgáltatót választhatsz. Ha fejlesztő vagy, saját kiszolgálót is üzemeltethetsz."
 
 #: src/components/dialogs/ServerInput.tsx:165
-msgid "Bluesky is an open network where you can choose your own provider. If you're new here, we recommend sticking with the default Bluesky Social option."
-msgstr "A Bluesky egy nyílt hálózat, ahol saját szolgáltatót választhatsz. Ha kezdő felhasználó vagy, akkor az alapértelmezett Bluesky Social lehetőséget javasoljuk."
+msgid "Aqua is an open network where you can choose your own provider. If you're new here, we recommend sticking with the default Aqua Social option."
+msgstr "A Aqua egy nyílt hálózat, ahol saját szolgáltatót választhatsz. Ha kezdő felhasználó vagy, akkor az alapértelmezett Aqua Social lehetőséget javasoljuk."
 
 #: src/components/ProgressGuide/List.tsx:53
 #: src/components/ProgressGuide/List.tsx:70
-msgid "Bluesky is better with friends!"
-msgstr "A Bluesky ismerősökkel még jobb!"
+msgid "Aqua is better with friends!"
+msgstr "A Aqua ismerősökkel még jobb!"
 
 #: src/screens/Takendown.tsx:226
-msgid "Bluesky Social Terms of Service"
-msgstr "A Bluesky felhasználási feltételei"
+msgid "Aqua Social Terms of Service"
+msgstr "A Aqua felhasználási feltételei"
 
 #: src/components/StarterPack/ProfileStarterPacks.tsx:338
-msgid "Bluesky will choose a set of recommended accounts from people in your network."
-msgstr "A Bluesky egy javasolt felhasználócsoportot fog kijelölni a hálózatodon."
+msgid "Aqua will choose a set of recommended accounts from people in your network."
+msgstr "A Aqua egy javasolt felhasználócsoportot fog kijelölni a hálózatodon."
 
 #: src/screens/Settings/components/PwiOptOut.tsx:99
-msgid "Bluesky will not show your profile and posts to logged-out users. Other apps may not honor this request. This does not make your account private."
-msgstr "A Bluesky nem fogja megjeleníteni a profilodat és a bejegyzéseidet a kijelentkezett felhasználók számára. Lehetséges, hogy ezt a kérést nem minden alkalmazás fogja tiszteletben tartani. Ez a beállítás nem teszi priváttá a profilodat."
+msgid "Aqua will not show your profile and posts to logged-out users. Other apps may not honor this request. This does not make your account private."
+msgstr "A Aqua nem fogja megjeleníteni a profilodat és a bejegyzéseidet a kijelentkezett felhasználók számára. Lehetséges, hogy ezt a kérést nem minden alkalmazás fogja tiszteletben tartani. Ez a beállítás nem teszi priváttá a profilodat."
 
 #: src/components/dialogs/nuxs/InitialVerificationAnnouncement.tsx:132
-msgid "Bluesky will proactively verify notable and authentic accounts."
-msgstr "A Bluesky mostantól hitelesíti a jelentős és megbízható fiókokat."
+msgid "Aqua will proactively verify notable and authentic accounts."
+msgstr "A Aqua mostantól hitelesíti a jelentős és megbízható fiókokat."
 
 #: src/screens/Settings/AppIconSettings/index.tsx:99
-msgid "Bluesky+"
-msgstr "Bluesky+"
+msgid "Aqua+"
+msgstr "Aqua+"
 
 #: src/screens/Settings/AppIconSettings/index.tsx:102
-msgid "Bluesky+ icons"
-msgstr "Bluesky+-ikonok"
+msgid "Aqua+ icons"
+msgstr "Aqua+-ikonok"
 
 #: src/lib/moderation/useLabelBehaviorDescription.ts:56
 msgid "Blur images"
@@ -1579,7 +1579,7 @@ msgstr "Könyvek"
 
 #: src/components/moderation/ReportDialog/utils/useReportOptions.ts:215
 msgid "Breaking site rules"
-msgstr "A Bluesky szabályzatának megszegése"
+msgstr "A Aqua szabályzatának megszegése"
 
 #: src/view/com/feeds/ProfileFeedgens.tsx:158
 #: src/view/com/feeds/ProfileFeedgens.tsx:159
@@ -2155,7 +2155,7 @@ msgstr "Közösségi irányelvek"
 #: src/screens/Onboarding/StepFinished/index.tsx:340
 #: src/screens/Onboarding/StepFinished/index.tsx:438
 msgid "Complete onboarding and start using your account"
-msgstr "Regisztrációs varázsló befejezése és a Bluesky használatának megkezdése"
+msgstr "Regisztrációs varázsló befejezése és a Aqua használatának megkezdése"
 
 #: src/screens/Signup/index.tsx:183
 msgid "Complete the challenge"
@@ -2619,7 +2619,7 @@ msgid "Customization options"
 msgstr "Testreszabás"
 
 #: src/screens/Onboarding/Layout.tsx:60
-msgid "Customizes your Bluesky experience"
+msgid "Customizes your Aqua experience"
 msgstr "A Bluseky-élményed testreszabása"
 
 #: src/components/moderation/ReportDialog/utils/useReportOptions.ts:200
@@ -3018,8 +3018,8 @@ msgid "Double tap to like"
 msgstr "Koppints kétszer a kedveléshez"
 
 #: src/screens/StarterPack/StarterPackLandingScreen.tsx:330
-msgid "Download Bluesky"
-msgstr "A Bluesky letöltése"
+msgid "Download Aqua"
+msgstr "A Aqua letöltése"
 
 #: src/screens/Settings/components/ExportCarDialog.tsx:78
 #: src/screens/Settings/components/ExportCarDialog.tsx:83
@@ -3035,8 +3035,8 @@ msgid "Drop to add images"
 msgstr "A csatoláshoz húzd ide a képet."
 
 #: src/components/ageAssurance/useAgeAssuranceCopy.ts:11
-msgid "Due to laws in your region, certain features on Bluesky are currently restricted until you're able to verify you're an adult."
-msgstr "Helyi törvények miatt a Bluesky bizonyos funkciói jelenleg korlátozás alatt állnak, amíg be nem bizonyítod, hogy felnőtt vagy."
+msgid "Due to laws in your region, certain features on Aqua are currently restricted until you're able to verify you're an adult."
+msgstr "Helyi törvények miatt a Aqua bizonyos funkciói jelenleg korlátozás alatt állnak, amíg be nem bizonyítod, hogy felnőtt vagy."
 
 #: src/components/dialogs/MutedWords.tsx:158
 msgid "Duration:"
@@ -3864,8 +3864,8 @@ msgid "Find people to follow"
 msgstr "Követendő személyek felfedezése"
 
 #: src/screens/Search/Shell.tsx:526
-msgid "Find posts, users, and feeds on Bluesky"
-msgstr "Bejegyzések, felhasználók és hírfolyamok felfedezése a Blueskyon"
+msgid "Find posts, users, and feeds on Aqua"
+msgstr "Bejegyzések, felhasználók és hírfolyamok felfedezése a Aquaon"
 
 #: src/screens/Onboarding/StepFinished/ValuePropositionPager.shared.tsx:21
 msgid "Find your people"
@@ -4753,8 +4753,8 @@ msgid "Is your location not accurate? <0>Tap here to confirm your location.</0>"
 msgstr "Helytelenül állapítottuk meg a tartózkodási helyedet? <0>Koppints ide a megerősítéshez.</0>"
 
 #: src/ageAssurance/components/NoAccessScreen.tsx:171
-msgid "It looks like you haven't added your birthdate. You must provide an accurate date of birth to use Bluesky."
-msgstr "Úgy tűnik, hogy még nem adtad meg a születési dátumodat. Ez szükséges a Bluesky használatához."
+msgid "It looks like you haven't added your birthdate. You must provide an accurate date of birth to use Aqua."
+msgstr "Úgy tűnik, hogy még nem adtad meg a születési dátumodat. Ez szükséges a Aqua használatához."
 
 #: src/screens/Signup/StepInfo/index.tsx:292
 msgid "It's correct"
@@ -4772,7 +4772,7 @@ msgstr "Még csak Te szerepelsz a kezdőcsomagban. A fenti keresővel másokat i
 msgid "Job ID: {0}"
 msgstr "Állásazonosító: {0}"
 
-#. Link to a page with job openings at Bluesky
+#. Link to a page with job openings at Aqua
 #: src/view/com/auth/SplashScreen.web.tsx:184
 msgid "Jobs"
 msgstr "Karrier"
@@ -4781,8 +4781,8 @@ msgstr "Karrier"
 #: src/screens/StarterPack/StarterPackLandingScreen.tsx:216
 #: src/screens/StarterPack/StarterPackScreen.tsx:464
 #: src/screens/StarterPack/StarterPackScreen.tsx:475
-msgid "Join Bluesky"
-msgstr "Csatlakozz a Blueskyhoz!"
+msgid "Join Aqua"
+msgstr "Csatlakozz a Aquahoz!"
 
 #: src/components/StarterPack/QrCode.tsx:73
 #: src/view/shell/NavSignupCard.tsx:40
@@ -4888,8 +4888,8 @@ msgid "Learn more about age assurance"
 msgstr "További információ az életkor-igazolásról"
 
 #: src/view/com/auth/SplashScreen.web.tsx:172
-msgid "Learn more about Bluesky"
-msgstr "További információ a Blueskyról"
+msgid "Learn more about Aqua"
+msgstr "További információ a Aquaról"
 
 #: src/components/dialogs/ServerInput.tsx:223
 msgid "Learn more about self hosting your PDS."
@@ -4916,13 +4916,13 @@ msgstr "További információ erről a figyelmeztetésről"
 #: src/components/verification/VerificationsDialog.tsx:151
 #: src/components/verification/VerifierDialog.tsx:119
 msgctxt "english-only-resource"
-msgid "Learn more about verification on Bluesky"
-msgstr "További információ a Blueskyos hitelesítésől"
+msgid "Learn more about verification on Aqua"
+msgstr "További információ a Aquaos hitelesítésől"
 
 #: src/screens/Settings/PrivacyAndSecuritySettings.tsx:127
 #: src/screens/Settings/PrivacyAndSecuritySettings.tsx:130
-msgid "Learn more about what is public on Bluesky."
-msgstr "További információ a Bluesky-tartalmak nyilvánosságáról."
+msgid "Learn more about what is public on Aqua."
+msgstr "További információ a Aqua-tartalmak nyilvánosságáról."
 
 #: src/components/ageAssurance/AgeAssuranceAdmonition.tsx:84
 msgid "Learn more in your <0>account settings.</0>"
@@ -4956,8 +4956,8 @@ msgstr "Az összes nyelv megjelenítéséhez kapcsolj ki minden nyelvet."
 
 #: src/components/dialogs/LinkWarning.tsx:67
 #: src/components/dialogs/LinkWarning.tsx:75
-msgid "Leaving Bluesky"
-msgstr "A Bluesky elhagyása"
+msgid "Leaving Aqua"
+msgstr "A Aqua elhagyása"
 
 #: src/screens/SignupQueued.tsx:155
 msgid "left to go."
@@ -5759,8 +5759,8 @@ msgid "Next image"
 msgstr "Következő kép"
 
 #: src/screens/Onboarding/StepFinished/ValuePropositionPager.shared.tsx:32
-msgid "No ads, no invasive tracking, no engagement traps. Bluesky respects your time and attention."
-msgstr "Ilyen egy közösségi oldal hirdetések, magánéletsértő nyomonkövetés és visszarángatás nélkül. A Bluesky tiszteletben tartja az idődet és a figyelmedet."
+msgid "No ads, no invasive tracking, no engagement traps. Aqua respects your time and attention."
+msgstr "Ilyen egy közösségi oldal hirdetések, magánéletsértő nyomonkövetés és visszarángatás nélkül. A Aqua tiszteletben tartja az idődet és a figyelmedet."
 
 #: src/screens/Settings/AppPasswords.tsx:107
 msgid "No app passwords yet"
@@ -5943,8 +5943,8 @@ msgid "Note about sharing"
 msgstr "Korlátozott láthatóság"
 
 #: src/screens/Settings/PrivacyAndSecuritySettings.tsx:116
-msgid "Note: Bluesky is an open and public network. This setting only limits the visibility of your content on the Bluesky app and website, and other apps may not respect this setting. Your content may still be shown to logged-out users by other apps and websites."
-msgstr "Megjegyzés: A Bluesky egy nyílt és nyilvános hálózat. Ez a beállítás csak a Bluesky alkalmazásban és -honlapon korlátozza a tartalmaid láthatóságát és nem biztos, hogy más alkalmazások is tiszteletben tartják. Lehetséges, hogy más alkalmazásokban és honlapokon ugyanúgy láthatóak maradnak a tartalmaid kijelentkezett felhasználók számára is."
+msgid "Note: Aqua is an open and public network. This setting only limits the visibility of your content on the Aqua app and website, and other apps may not respect this setting. Your content may still be shown to logged-out users by other apps and websites."
+msgstr "Megjegyzés: A Aqua egy nyílt és nyilvános hálózat. Ez a beállítás csak a Aqua alkalmazásban és -honlapon korlátozza a tartalmaid láthatóságát és nem biztos, hogy más alkalmazások is tiszteletben tartják. Lehetséges, hogy más alkalmazásokban és honlapokon ugyanúgy láthatóak maradnak a tartalmaid kijelentkezett felhasználók számára is."
 
 #: src/components/PostControls/ShareMenu/ShareMenuItems.web.tsx:133
 msgid "Note: This post is only visible to logged-in users."
@@ -6239,12 +6239,12 @@ msgstr "Emojiválasztó megnyitása"
 
 #: src/view/com/auth/SplashScreen.tsx:66
 #: src/view/com/auth/SplashScreen.web.tsx:115
-msgid "Opens flow to create a new Bluesky account"
+msgid "Opens flow to create a new Aqua account"
 msgstr "Regisztrációs varázsló indítása"
 
 #: src/view/com/auth/SplashScreen.tsx:83
 #: src/view/com/auth/SplashScreen.web.tsx:129
-msgid "Opens flow to sign in to your existing Bluesky account"
+msgid "Opens flow to sign in to your existing Aqua account"
 msgstr "Bejelentkezési varázsló megnyitása"
 
 #: src/view/com/composer/photos/SelectGifBtn.tsx:36
@@ -6360,8 +6360,8 @@ msgid "Our moderation team has received your report."
 msgstr "Megkaptuk a jelentésedet."
 
 #: src/screens/Messages/components/ChatDisabled.tsx:34
-msgid "Our moderators have reviewed reports and decided to disable your access to chats on Bluesky."
-msgstr "A fiókod ellen jelentések érkeztek, és miután a moderátoraink felülvizsgálták őket, úgy döntöttek, hogy megfosztanak a csevegési jogosultságoktól a Blueskyon."
+msgid "Our moderators have reviewed reports and decided to disable your access to chats on Aqua."
+msgstr "A fiókod ellen jelentések érkeztek, és miután a moderátoraink felülvizsgálták őket, úgy döntöttek, hogy megfosztanak a csevegési jogosultságoktól a Aquaon."
 
 #: src/components/Lists.tsx:202
 #: src/components/Lists.tsx:217
@@ -6550,8 +6550,8 @@ msgid "Please choose your password."
 msgstr "Válassz egy jelszót."
 
 #: src/components/dialogs/EmailDialog/screens/Update.tsx:290
-msgid "Please click on the link in the email we just sent you to verify your new email address. This is an important step to allow you to continue enjoying all the features of Bluesky."
-msgstr "Kérjük, kattints a tőlünk kapott e-mailben található hivatkozásra a címed visszaigazolásához. Ez fontos, ha továbbra is használni kívánod a Bluesky összes funkcióját."
+msgid "Please click on the link in the email we just sent you to verify your new email address. This is an important step to allow you to continue enjoying all the features of Aqua."
+msgstr "Kérjük, kattints a tőlünk kapott e-mailben található hivatkozásra a címed visszaigazolásához. Ez fontos, ha továbbra is használni kívánod a Aqua összes funkcióját."
 
 #: src/screens/Signup/state.ts:304
 msgid "Please complete the verification captcha."
@@ -7041,18 +7041,18 @@ msgid "Read our blog post"
 msgstr "Blogbejegyzés megtekintése"
 
 #: src/view/com/auth/SplashScreen.web.tsx:177
-msgid "Read the Bluesky blog"
-msgstr "A Bluesky blog megnyitása (angolul)"
+msgid "Read the Aqua blog"
+msgstr "A Aqua blog megnyitása (angolul)"
 
 #: src/screens/Signup/StepInfo/Policies.tsx:56
 #: src/screens/Signup/StepInfo/Policies.tsx:82
-msgid "Read the Bluesky Privacy Policy"
-msgstr "A Bluesky adatvédelmi irányelveinek megtekintése"
+msgid "Read the Aqua Privacy Policy"
+msgstr "A Aqua adatvédelmi irányelveinek megtekintése"
 
 #: src/screens/Signup/StepInfo/Policies.tsx:49
 #: src/screens/Signup/StepInfo/Policies.tsx:69
-msgid "Read the Bluesky Terms of Service"
-msgstr "A Bluesky felhasználói feltételeinek megtekintése"
+msgid "Read the Aqua Terms of Service"
+msgstr "A Aqua felhasználói feltételeinek megtekintése"
 
 #: src/components/WelcomeModal.tsx:146
 msgid "Real conversations."
@@ -7835,8 +7835,8 @@ msgid "See #{tag} posts by user"
 msgstr "A felhasználó #{tag} címkével ellátott bejegyzéseinek megtekintése"
 
 #: src/view/com/auth/SplashScreen.web.tsx:182
-msgid "See jobs at Bluesky"
-msgstr "Állások a Blueskynál"
+msgid "See jobs at Aqua"
+msgstr "Állások a Aquanál"
 
 #: src/components/FeedInterstitials.tsx:499
 #: src/components/FeedInterstitials.tsx:562
@@ -8219,8 +8219,8 @@ msgid "Share this starter pack"
 msgstr "Kezdőcsomag továbbítása"
 
 #: src/components/StarterPack/ShareDialog.tsx:84
-msgid "Share this starter pack and help people join your community on Bluesky."
-msgstr "Oszd meg ezt a kezdőcsomagot, hogy mások is csatlakozhassanak a Blueskyos közösségedhez!"
+msgid "Share this starter pack and help people join your community on Aqua."
+msgstr "Oszd meg ezt a kezdőcsomagot, hogy mások is csatlakozhassanak a Aquaos közösségedhez!"
 
 #: src/components/PostControls/ShareMenu/ShareMenuItems.tsx:117
 #: src/components/PostControls/ShareMenu/ShareMenuItems.tsx:120
@@ -8396,8 +8396,8 @@ msgid "Sign in to account that is not listed"
 msgstr "Bejelentkezés egy másik felhasználói fiókba"
 
 #: src/components/dialogs/Signin.tsx:46
-msgid "Sign in to Bluesky or create a new account"
-msgstr "Jelentkezz be vagy hozz létre egy Bluesky-fiókot."
+msgid "Sign in to Aqua or create a new account"
+msgstr "Jelentkezz be vagy hozz létre egy Aqua-fiókot."
 
 #: src/components/PostControls/PostMenu/PostMenuItems.tsx:493
 #: src/components/PostControls/PostMenu/PostMenuItems.tsx:495
@@ -8780,8 +8780,8 @@ msgid "Tags only"
 msgstr "Csak címkék"
 
 #: src/components/dialogs/DeviceLocationRequestDialog.tsx:109
-msgid "Tap below to allow Bluesky to access your GPS location. We will then use that data to more accurately determine the content and features available in your region."
-msgstr "Koppints az alábbi gombra, hogy hozzáférést biztosíts a Blueskynak a tartózkodási helyedhez. Ezzel az információval automatikusan és pontosan meghatározhatjuk a régiódban megjeleníthető tartalmakat és beállításokat."
+msgid "Tap below to allow Aqua to access your GPS location. We will then use that data to more accurately determine the content and features available in your region."
+msgstr "Koppints az alábbi gombra, hogy hozzáférést biztosíts a Aquanak a tartózkodási helyedhez. Ezzel az információval automatikusan és pontosan meghatározhatjuk a régiódban megjeleníthető tartalmakat és beállításokat."
 
 #: src/view/com/feeds/MissingFeed.tsx:89
 msgid "Tap for information"
@@ -8792,8 +8792,8 @@ msgid "Tap for more information"
 msgstr "További információ"
 
 #: src/components/PolicyUpdateOverlay/updates/202508/index.tsx:164
-msgid "Tap to acknowledge that you understand and agree to these updates and continue using Bluesky"
-msgstr "A Blueskyt érintő változtatások megértésének jelzéséhez és elfogadásához koppints ide"
+msgid "Tap to acknowledge that you understand and agree to these updates and continue using Aqua"
+msgstr "A Aquat érintő változtatások megértésének jelzéséhez és elfogadásához koppints ide"
 
 #: src/components/ContextMenu/Backdrop.ios.tsx:54
 #: src/components/ContextMenu/Backdrop.ios.tsx:80
@@ -8922,11 +8922,11 @@ msgstr "A válaszlánc szerzője elrejtette ezt a választ."
 
 #: src/components/dialogs/BirthDateSettings.tsx:154
 msgid "The birthdate you've entered means you are under 18 years old. Certain content and features may be unavailable to you."
-msgstr "A megadott születési dátum szerint még nem vagy felnőttkorú. Ez azt jelenti, hogy a Bluesky bizonyos tartalmai és funkciói nem lesznek elérhetőek Számodra."
+msgstr "A megadott születési dátum szerint még nem vagy felnőttkorú. Ez azt jelenti, hogy a Aqua bizonyos tartalmai és funkciói nem lesznek elérhetőek Számodra."
 
 #: src/screens/Moderation/index.tsx:397
-msgid "The Bluesky web application"
-msgstr "A Bluesky webalkalmazás"
+msgid "The Aqua web application"
+msgstr "A Aqua webalkalmazás"
 
 #: src/view/screens/CommunityGuidelines.tsx:41
 msgid "The Community Guidelines have been moved to <0/>"
@@ -8945,8 +8945,8 @@ msgid "The Discover feed now knows what you like"
 msgstr "A Felfedezés hírfolyam olyan tartalmakat jelenít meg, amelyek tetszhetnek Neked"
 
 #: src/screens/StarterPack/StarterPackLandingScreen.tsx:333
-msgid "The experience is better in the app. Download Bluesky now and we'll pick back up where you left off."
-msgstr "Az alkalmazás jobb. Töltsd le a Blueskyt és onnan folytatjuk, ahol abbahagytad!"
+msgid "The experience is better in the app. Download Aqua now and we'll pick back up where you left off."
+msgstr "Az alkalmazás jobb. Töltsd le a Aquat és onnan folytatjuk, ahol abbahagytad!"
 
 #: src/view/com/posts/FeedShutdownMsg.tsx:67
 msgid "The feed has been replaced with Discover."
@@ -9108,8 +9108,8 @@ msgid "There was an unexpected issue in the application. Please let us know if t
 msgstr "Váratlan alkalmazáshiba történt. Kérjük jelentsd!"
 
 #: src/screens/SignupQueued.tsx:130
-msgid "There's been a rush of new users to Bluesky! We'll activate your account as soon as we can."
-msgstr "Jelenleg rengeteg új felhasználó csatlakozik a Blueskyhoz. A fiókodat aktiválni fogjuk, amint tudjuk!"
+msgid "There's been a rush of new users to Aqua! We'll activate your account as soon as we can."
+msgstr "Jelenleg rengeteg új felhasználó csatlakozik a Aquahoz. A fiókodat aktiválni fogjuk, amint tudjuk!"
 
 #: src/components/dialogs/PostInteractionSettingsDialog.tsx:654
 msgid "These are your default settings"
@@ -9148,8 +9148,8 @@ msgid "This appeal will be sent to <0>{sourceName}</0>."
 msgstr "A fellebbezés címzettje: <0>{sourceName}</0>."
 
 #: src/screens/Messages/components/ChatDisabled.tsx:116
-msgid "This appeal will be sent to Bluesky's moderation service."
-msgstr "Ez a fellebbezés a Bluesky moderálási szolgáltatásához lesz elküldve."
+msgid "This appeal will be sent to Aqua's moderation service."
+msgstr "Ez a fellebbezés a Aqua moderálási szolgáltatásához lesz elküldve."
 
 #: src/screens/Messages/components/MessageListError.tsx:18
 msgid "This chat was disconnected"
@@ -9177,7 +9177,7 @@ msgid "This content is not available because one of the users involved has block
 msgstr "Ez a tartalom jelenleg nem elérhető, mert az egyik kapcsolódó felhasználó letiltotta a másikat."
 
 #: src/view/com/posts/PostFeedErrorMessage.tsx:121
-msgid "This content is not viewable without a Bluesky account."
+msgid "This content is not viewable without a Aqua account."
 msgstr "Ezt a tartalmat bejelentkezés nélkül nem tekintheted meg."
 
 #: src/screens/Messages/components/ChatListItem.tsx:366
@@ -9256,12 +9256,12 @@ msgid "This link is taking you to the following website:"
 msgstr "Ez a hivatkozás az alábbi honlapra mutat:"
 
 #: src/screens/List/ListHiddenScreen.tsx:151
-msgid "This list – created by <0>{0}</0> – contains possible violations of Bluesky's community guidelines in its name or description."
-msgstr "Ennek a(z) <0>{0}</0> által létrehozott listának a címe vagy leírása lehetséges, hogy megsérti a Bluesky közösségi irányelveit."
+msgid "This list – created by <0>{0}</0> – contains possible violations of Aqua's community guidelines in its name or description."
+msgstr "Ennek a(z) <0>{0}</0> által létrehozott listának a címe vagy leírása lehetséges, hogy megsérti a Aqua közösségi irányelveit."
 
 #: src/screens/List/ListHiddenScreen.tsx:146
-msgid "This list – created by you – contains possible violations of Bluesky's community guidelines in its name or description."
-msgstr "Ennek az Általad létrehozott listának a címe vagy leírása lehetséges, hogy megsérti a Bluesky közösségi irányelveit."
+msgid "This list – created by you – contains possible violations of Aqua's community guidelines in its name or description."
+msgstr "Ennek az Általad létrehozott listának a címe vagy leírása lehetséges, hogy megsérti a Aqua közösségi irányelveit."
 
 #: src/screens/ProfileList/AboutSection.tsx:99
 msgid "This list is empty."
@@ -9272,8 +9272,8 @@ msgid "This moderation service is unavailable. See below for more details. If th
 msgstr "Ez a moderálási szolgáltatás jelenleg nem elérhető. A részleteket alább olvashatod. Ha a probléma fennáll, lépj velünk kapcsolatba."
 
 #: src/screens/PostThread/components/ThreadItemAnchor.tsx:669
-msgid "This post claims to have been created on <0>{0}</0>, but was first seen by Bluesky on <1>{1}</1>."
-msgstr "A bejegyzés adatai szerint az eredeti létrehozási dátuma <0>{0}</0> volt, de először ekkor jelent meg a Blueskyon: <1>{1}</1>"
+msgid "This post claims to have been created on <0>{0}</0>, but was first seen by Aqua on <1>{1}</1>."
+msgstr "A bejegyzés adatai szerint az eredeti létrehozási dátuma <0>{0}</0> volt, de először ekkor jelent meg a Aquaon: <1>{1}</1>"
 
 #: src/components/WhoCanReply.tsx:272
 msgid "This post has an unknown type of threadgate on it. Your app may be out of date."
@@ -9498,8 +9498,8 @@ msgid "Type:"
 msgstr "Típus:"
 
 #: src/components/dialogs/DeviceLocationRequestDialog.tsx:85
-msgid "Unable to access location. You'll need to visit your system settings to enable location services for Bluesky."
-msgstr "Nincs hozzáférésünk a tartózkodási helyedhez. Engedélyezned kell a Bluesky helyelérését a rendszerbeállításokban."
+msgid "Unable to access location. You'll need to visit your system settings to enable location services for Aqua."
+msgstr "Nincs hozzáférésünk a tartózkodási helyedhez. Engedélyezned kell a Aqua helyelérését a rendszerbeállításokban."
 
 #: src/lib/hooks/useCleanError.ts:27
 #: src/lib/strings/errors.ts:12
@@ -9608,8 +9608,8 @@ msgid "Unfortunately, none of your subscribed labelers supports this report type
 msgstr "A feljegyzőid közül egyik sem támogatja ezt a jelentési típust."
 
 #: src/ageAssurance/components/NoAccessScreen.tsx:158
-msgid "Unfortunately, the birthdate you have saved to your profile makes you too young to access Bluesky."
-msgstr "A megadott születési dátum szerint sajnos túl fiatal vagy a Bluesky használatához."
+msgid "Unfortunately, the birthdate you have saved to your profile makes you too young to access Aqua."
+msgstr "A megadott születési dátum szerint sajnos túl fiatal vagy a Aqua használatához."
 
 #: src/components/verification/VerificationsDialog.tsx:211
 msgid "Unknown verifier"
@@ -9821,8 +9821,8 @@ msgid "Uploading video..."
 msgstr "Videó feltöltése folyamatban…"
 
 #: src/screens/Settings/AppPasswords.tsx:66
-msgid "Use app passwords to sign in to other Bluesky clients without giving full access to your account or password."
-msgstr "Egy alkalmazásjelszó használatával bármely egyéb Bluesky-kliensbe bejelentkezhetsz, anélkül hogy teljes hozzáférést biztosítanál a fiókodhoz vagy a valódi jelszavadhoz."
+msgid "Use app passwords to sign in to other Aqua clients without giving full access to your account or password."
+msgstr "Egy alkalmazásjelszó használatával bármely egyéb Aqua-kliensbe bejelentkezhetsz, anélkül hogy teljes hozzáférést biztosítanál a fiókodhoz vagy a valódi jelszavadhoz."
 
 #: src/screens/Settings/components/ChangeHandleDialog.tsx:574
 msgid "Use default provider"
@@ -9852,8 +9852,8 @@ msgid "Use this to sign in to the other app along with your handle."
 msgstr "A másik alkalmazásba a felhasználóneveddel és ezzel jelentkezhetsz be."
 
 #: src/components/ageAssurance/AgeAssuranceInitDialog.tsx:278
-msgid "Use your account email address, or another real email address you control, in case KWS or Bluesky needs to contact you."
-msgstr "Add meg a fiókod e-mail-címét vagy egy másik, tulajdonodat képző e-mail-címet, arra az esetre, ha a jövőben a KWS-nek vagy a Blueskynak fel kell vennie Veled a kapcsolatot."
+msgid "Use your account email address, or another real email address you control, in case KWS or Aqua needs to contact you."
+msgstr "Add meg a fiókod e-mail-címét vagy egy másik, tulajdonodat képző e-mail-címet, arra az esetre, ha a jövőben a KWS-nek vagy a Aquanak fel kell vennie Veled a kapcsolatot."
 
 #: src/components/dms/AfterReportDialog.tsx:152
 msgctxt "toast"
@@ -9950,8 +9950,8 @@ msgid "Verification Settings"
 msgstr "Hitelesítési beállítások"
 
 #: src/screens/Moderation/VerificationSettings.tsx:41
-msgid "Verifications on Bluesky work differently than on other platforms. <0>Learn more here.</0>"
-msgstr "A Bluesky a megszokottól eltérően kezeli a hitelesítéseket. <0>További információ</0>."
+msgid "Verifications on Aqua work differently than on other platforms. <0>Learn more here.</0>"
+msgstr "A Aqua a megszokottól eltérően kezeli a hitelesítéseket. <0>További információ</0>."
 
 #: src/components/verification/VerificationsDialog.tsx:103
 msgid "Verified by:"
@@ -10276,16 +10276,16 @@ msgid "We estimate {estimatedTime} until your account is ready."
 msgstr "A fiókod elkészültéig becsült hátralévő idő: {estimatedTime}"
 
 #: src/components/ageAssurance/AgeAssuranceInitDialog.tsx:197
-msgid "We have partnered with <0>KWS</0> to verify that you’re an adult. When you click \"Begin\" below, KWS will check if you have previously verified your age using this email address for other games/services powered by KWS technology. If not, KWS will email you instructions for verifying your age. When you’re done, you'll be brought back to continue using Bluesky."
-msgstr "A felnőttléted igazolásához a <0>KWS</0> szolgáltatását használjuk. Ha rákattintasz az alábbi indítás-gombra, a KWS ellenőrzi, hogy az e-mail-címed már szerepel-e az adatbázisukban. Ha nem, akkor kapni fogsz tőlük egy e-mailt, ami további utasításokat tartalmaz. Amint végeztél, vissza leszel irányítva a Blueskyra."
+msgid "We have partnered with <0>KWS</0> to verify that you’re an adult. When you click \"Begin\" below, KWS will check if you have previously verified your age using this email address for other games/services powered by KWS technology. If not, KWS will email you instructions for verifying your age. When you’re done, you'll be brought back to continue using Aqua."
+msgstr "A felnőttléted igazolásához a <0>KWS</0> szolgáltatását használjuk. Ha rákattintasz az alábbi indítás-gombra, a KWS ellenőrzi, hogy az e-mail-címed már szerepel-e az adatbázisukban. Ha nem, akkor kapni fogsz tőlük egy e-mailt, ami további utasításokat tartalmaz. Amint végeztél, vissza leszel irányítva a Aquara."
 
 #: src/components/intents/VerifyEmailIntentDialog.tsx:101
 msgid "We have sent another verification email to <0>{0}</0>."
 msgstr "Küldtünk egy új visszaigazoló e-mailt a(z) <0>{0}</0> címre."
 
 #: src/screens/Onboarding/StepFinished/index.tsx:383
-msgid "We hope you have a wonderful time. Remember, Bluesky is:"
-msgstr "Reméljük, jól érzed magad! Ne feledd; a Bluesky:"
+msgid "We hope you have a wonderful time. Remember, Aqua is:"
+msgstr "Reméljük, jól érzed magad! Ne feledd; a Aqua:"
 
 #: src/view/com/posts/DiscoverFallbackHeader.tsx:29
 msgid "We ran out of posts from your follows. Here's the latest from <0/>."
@@ -10351,7 +10351,7 @@ msgid "We're having network issues, try again"
 msgstr "Hálózati hiba történt. Próbáld újra."
 
 #: src/components/dialogs/nuxs/InitialVerificationAnnouncement.tsx:94
-msgid "We’re introducing a new layer of verification on Bluesky — an easy-to-see checkmark."
+msgid "We’re introducing a new layer of verification on Aqua — an easy-to-see checkmark."
 msgstr "Bevezetjük a hitelesítés egy új formáját: egy könnyen látható jelvényt."
 
 #: src/screens/Signup/index.tsx:125
@@ -10568,8 +10568,8 @@ msgid "You are a trusted verifier"
 msgstr "Megbítzható hitelesítő vagy"
 
 #: src/ageAssurance/components/NoAccessScreen.tsx:143
-msgid "You are accessing Bluesky from a region that legally requires us to verify your age before allowing you to access the app."
-msgstr "A helyi törvények szerint a Bluesky haszálata előtt igazolnod kell az életkorodat."
+msgid "You are accessing Aqua from a region that legally requires us to verify your age before allowing you to access the app."
+msgstr "A helyi törvények szerint a Aqua haszálata előtt igazolnod kell az életkorodat."
 
 #: src/components/forms/HostingProvider.tsx:45
 msgid "You are creating an account on"
@@ -10577,7 +10577,7 @@ msgstr "Ez a fiók az alábbi tárhelyszolgáltatónál lesz létrehozva:"
 
 #: src/ageAssurance/components/NoAccessScreen.tsx:249
 #: src/components/ageAssurance/AgeAssuranceAccountCard.tsx:126
-msgid "You are currently unable to access Bluesky's Age Assurance flow. Please <0>contact our moderation team</0> if you believe this is an error."
+msgid "You are currently unable to access Aqua's Age Assurance flow. Please <0>contact our moderation team</0> if you believe this is an error."
 msgstr "Jelenleg nincs hozzáférésed az életkor-igazolási folyamathoz. Ha úgy gondolod, hogy ez hibás megállapítás, vedd fel a kapcsolatot a <0>moderálási csapatunkkal</0>."
 
 #: src/screens/SignupQueued.tsx:157
@@ -10790,12 +10790,12 @@ msgid "You initiated this flow already, {0} ago. It may take up to 5 minutes for
 msgstr "Az életkor-igazolási folyamatot már {0} ezelőtt megkezdted. Az e-mailek célba érése akár 5 percig is eltarthat. Várj pár percet, mielőtt újra próbálkoznál."
 
 #: src/components/NewskieDialog.tsx:105
-msgid "You joined Bluesky {timeAgoString} ago"
-msgstr "{timeAgoString} csatlakoztál a Blueskyhoz"
+msgid "You joined Aqua {timeAgoString} ago"
+msgstr "{timeAgoString} csatlakoztál a Aquahoz"
 
 #: src/components/NewskieDialog.tsx:102
-msgid "You joined Bluesky using a starter pack {timeAgoString} ago"
-msgstr "{timeAgoString} csatlakoztál a Blueskyhoz egy kezdőcsomag igénybevételével"
+msgid "You joined Aqua using a starter pack {timeAgoString} ago"
+msgstr "{timeAgoString} csatlakoztál a Aquahoz egy kezdőcsomag igénybevételével"
 
 #: src/components/moderation/LabelsOnMeDialog.tsx:83
 msgid "You may appeal non-self labels if you feel they were placed in error."
@@ -10818,8 +10818,8 @@ msgid "You must be 13 years of age or older to create an account."
 msgstr "A regisztrációhoz legalább 13 évesnek kell lenned."
 
 #: src/components/dialogs/BirthDateSettings.tsx:163
-msgid "You must be at least 13 years old to use Bluesky. Read our <0>Terms of Service</0> for more information."
-msgstr "A Bluesky használatához be kell töltened a 13. életévedet. További információért olvasd el a <0>felhasználási feltételeket</0>."
+msgid "You must be at least 13 years old to use Aqua. Read our <0>Terms of Service</0> for more information."
+msgstr "A Aqua használatához be kell töltened a 13. életévedet. További információért olvasd el a <0>felhasználási feltételeket</0>."
 
 #: src/components/StarterPack/ProfileStarterPacks.tsx:362
 msgid "You must be following at least seven other people to generate a starter pack."
@@ -10999,8 +10999,8 @@ msgid "Your account repository, containing all public data records, can be downl
 msgstr "A fiókod adattára, ami az összes nyilvános adatodat tartalmazza, letölthető egy „CAR” fájlként. Ez a fájl nem tartalmazza a beágyazott médiatartalmakat (pl.: képeket), sem pedig a személyes adataidat, amit külön kell lekérned."
 
 #: src/screens/Takendown.tsx:223
-msgid "Your account was found to be in violation of the <0>Bluesky Social Terms of Service</0>. You have been sent an email outlining the specific violation and suspension period, if applicable. You can appeal this decision if you believe it was made in error."
-msgstr "A fiókod megsértette a <0>Bluesky Social felhasználási feltételeit</0>. Küldtünk Számodra egy e-mailt a felfüggesztésed okáról és (adott esetben) hosszáról. Ha úgy gondolod, hogy a felfüggesztés tévedésből történt, lehetőséged van fellebbezni azt."
+msgid "Your account was found to be in violation of the <0>Aqua Social Terms of Service</0>. You have been sent an email outlining the specific violation and suspension period, if applicable. You can appeal this decision if you believe it was made in error."
+msgstr "A fiókod megsértette a <0>Aqua Social felhasználási feltételeit</0>. Küldtünk Számodra egy e-mailt a felfüggesztésed okáról és (adott esetben) hosszáról. Ha úgy gondolod, hogy a felfüggesztés tévedésből történt, lehetőséged van fellebbezni azt."
 
 #: src/screens/Takendown.tsx:163
 msgid "Your appeal has been submitted. If your appeal succeeds, you will receive an email."
@@ -11044,8 +11044,8 @@ msgid "Your email appears to be invalid."
 msgstr "Az e-mail-címed érvénytelen."
 
 #: src/components/dialogs/EmailDialog/screens/VerificationReminder.tsx:65
-msgid "Your email has not yet been verified. Please verify your email in order to enjoy all the features of Bluesky."
-msgstr "A Bluesky teljes funkcionalitásának kihasználásához az e-mail-címed visszaigazolása szükséges."
+msgid "Your email has not yet been verified. Please verify your email in order to enjoy all the features of Aqua."
+msgstr "A Aqua teljes funkcionalitásának kihasználásához az e-mail-címed visszaigazolása szükséges."
 
 #: src/state/shell/progress-guide.tsx:215
 msgid "Your first like!"
@@ -11089,7 +11089,7 @@ msgid "Your muted words"
 msgstr "Elnémított szavak"
 
 #: src/screens/Settings/components/ChangePasswordDialog.tsx:71
-msgid "Your password has been changed successfully! Please use your new password when you sign in to Bluesky from now on."
+msgid "Your password has been changed successfully! Please use your new password when you sign in to Aqua from now on."
 msgstr "A jelszóváltoztatás sikeresen megtörtént. A legközelebbi bejelentkezésor már az új jelszót kell használnod."
 
 #: src/screens/Signup/StepInfo/index.tsx:129
@@ -11122,8 +11122,8 @@ msgid "Your profile picture surrounded by concentric circles of other users' pro
 msgstr "A saját profilképed más fiókok profilképeivel körülvéve, többrétegű gyűrűs elrendezésben"
 
 #: src/screens/Settings/components/DeactivateAccountDialog.tsx:75
-msgid "Your profile, posts, feeds, and lists will no longer be visible to other Bluesky users. You can reactivate your account at any time by logging in."
-msgstr "A profilod, bejegyzéseid, hírfolyamaid és listáid mostantól el vannak rejtve a többi Bluesky-felhasználó elől. A fiókod újraaktiválásához jelentkezz be."
+msgid "Your profile, posts, feeds, and lists will no longer be visible to other Aqua users. You can reactivate your account at any time by logging in."
+msgstr "A profilod, bejegyzéseid, hírfolyamaid és listáid mostantól el vannak rejtve a többi Aqua-felhasználó elől. A fiókod újraaktiválásához jelentkezz be."
 
 #: src/view/com/composer/Composer.tsx:576
 msgid "Your reply was sent"

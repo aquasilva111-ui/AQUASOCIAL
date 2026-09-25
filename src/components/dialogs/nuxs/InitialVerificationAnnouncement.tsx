@@ -34,7 +34,7 @@ export function InitialVerificationAnnouncement() {
       <Dialog.Handle />
 
       <Dialog.ScrollableInner
-        label={_(msg`Announcing verification on Bluesky`)}
+        label={_(msg`Announcing verification on Aqua`)}
         style={[
           gtMobile ? {width: 'auto', maxWidth: 400, minWidth: 200} : a.w_full,
         ]}>
@@ -81,7 +81,7 @@ export function InitialVerificationAnnouncement() {
                 },
               ]}
               alt={_(
-                msg`An illustration showing that Bluesky selects trusted verifiers, and trusted verifiers in turn verify individual user accounts.`,
+                msg`An illustration showing that Aqua selects trusted verifiers, and trusted verifiers in turn verify individual user accounts.`,
               )}
             />
           </View>
@@ -92,7 +92,7 @@ export function InitialVerificationAnnouncement() {
             </Text>
             <Text style={[a.leading_snug, a.text_md]}>
               <Trans>
-                We’re introducing a new layer of verification on Bluesky — an
+                We’re introducing a new layer of verification on Aqua — an
                 easy-to-see checkmark.
               </Trans>
             </Text>
@@ -115,7 +115,7 @@ export function InitialVerificationAnnouncement() {
                 },
               ]}
               alt={_(
-                msg`An mockup of a iPhone showing the Bluesky app open to the profile of a verified user with a blue checkmark next to their display name.`,
+                msg`An mockup of a iPhone showing the Aqua app open to the profile of a verified user with a blue checkmark next to their display name.`,
               )}
             />
           </View>
@@ -130,7 +130,7 @@ export function InitialVerificationAnnouncement() {
             <View style={[a.gap_sm]}>
               <Text style={[a.leading_snug, a.text_md]}>
                 <Trans>
-                  Bluesky will proactively verify notable and authentic
+                  Aqua will proactively verify notable and authentic
                   accounts.
                 </Trans>
               </Text>
