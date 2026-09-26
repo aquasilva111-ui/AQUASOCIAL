@@ -116,7 +116,7 @@ const scrollViewStyles = StyleSheet.create({
     width: '100%',
   },
   contentContainer: {
-    paddingBottom: 100,
+    paddingBottom: 120,
   },
 })
 

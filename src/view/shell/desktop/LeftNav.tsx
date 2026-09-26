@@ -16,14 +16,10 @@ import {
   type CommonNavigatorParams,
   type NavigationProp,
 } from '#/lib/routes/types'
-import {useGate} from '#/lib/statsig/statsig'
 import {sanitizeDisplayName} from '#/lib/strings/display-names'
 import {isInvalidHandle, sanitizeHandle} from '#/lib/strings/handles'
 import {emitSoftReset} from '#/state/events'
-import {useHomeBadge} from '#/state/home-badge'
 import {useFetchHandle} from '#/state/queries/handle'
-import {useUnreadMessageCount} from '#/state/queries/messages/list-conversations'
-import {useUnreadNotifications} from '#/state/queries/notifications/unread'
 import {useProfilesQuery} from '#/state/queries/profile'
 import {type SessionAccount, useSession, useSessionApi} from '#/state/session'
 import {useLoggedOutViewControls} from '#/state/shell/logged-out'
@@ -36,10 +32,6 @@ import {atoms as a, tokens, useLayoutBreakpoints, useTheme, web} from '#/alf'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
 import {type DialogControlProps} from '#/components/Dialog'
 import {ArrowBoxLeft_Stroke2_Corner0_Rounded as LeaveIcon} from '#/components/icons/ArrowBoxLeft'
-import {
-  Bell_Filled_Corner0_Rounded as BellFilled,
-  Bell_Stroke2_Corner0_Rounded as Bell,
-} from '#/components/icons/Bell'
 import {Book_Stroke2_Corner2_Rounded as Book} from '#/components/icons/Book'
 import {Bookmark, BookmarkFilled} from '#/components/icons/Bookmark'
 import {
@@ -52,25 +44,12 @@ import {
   Hashtag_Filled_Corner0_Rounded as HashtagFilled,
   Hashtag_Stroke2_Corner0_Rounded as Hashtag,
 } from '#/components/icons/Hashtag'
-import {
-  HomeOpen_Filled_Corner0_Rounded as HomeFilled,
-  HomeOpen_Stoke2_Corner0_Rounded as Home,
-} from '#/components/icons/HomeOpen'
-import {MagnifyingGlass_Filled_Stroke2_Corner0_Rounded as MagnifyingGlassFilled} from '#/components/icons/MagnifyingGlass'
-import {MagnifyingGlass2_Stroke2_Corner0_Rounded as MagnifyingGlass} from '#/components/icons/MagnifyingGlass2'
-import {
-  Message_Stroke2_Corner0_Rounded as Message,
-  Message_Stroke2_Corner0_Rounded_Filled as MessageFilled,
-} from '#/components/icons/Message'
 import {PlusLarge_Stroke2_Corner0_Rounded as PlusIcon} from '#/components/icons/Plus'
 import {
   SettingsGear2_Filled_Corner0_Rounded as SettingsFilled,
   SettingsGear2_Stroke2_Corner0_Rounded as Settings,
 } from '#/components/icons/SettingsGear2'
-import {
-  UserCircle_Filled_Corner0_Rounded as UserCircleFilled,
-  UserCircle_Stroke2_Corner0_Rounded as UserCircle,
-} from '#/components/icons/UserCircle'
+import {UserCircle_Stroke2_Corner0_Rounded as UserCircle} from '#/components/icons/UserCircle'
 import {CENTER_COLUMN_OFFSET} from '#/components/Layout'
 import * as Menu from '#/components/Menu'
 import * as Prompt from '#/components/Prompt'
@@ -586,41 +565,13 @@ function ComposeBtn() {
   )
 }
 
-function ChatNavItem() {
-  const pal = usePalette('default')
-  const {_} = useLingui()
-  const numUnreadMessages = useUnreadMessageCount()
-
-  return (
-    <NavItem
-      href="/messages"
-      count={numUnreadMessages.numUnread}
-      hasNew={numUnreadMessages.hasNew}
-      icon={
-        <Message style={pal.text} aria-hidden={true} width={NAV_ICON_WIDTH} />
-      }
-      iconFilled={
-        <MessageFilled
-          style={pal.text}
-          aria-hidden={true}
-          width={NAV_ICON_WIDTH}
-        />
-      }
-      label={_(msg`Chat`)}
-    />
-  )
-}
-
 export function DesktopLeftNav() {
-  const {hasSession, currentAccount} = useSession()
+  const {hasSession} = useSession()
   const pal = usePalette('default')
   const {_} = useLingui()
   const {isDesktop} = useWebMediaQueries()
   const {leftNavMinimal, centerColumnOffset} = useLayoutBreakpoints()
   const t = useTheme()
-  const numUnreadNotifications = useUnreadNotifications()
-  const hasHomeBadge = useHomeBadge()
-  const gate = useGate()
 
   if (!hasSession && !isDesktop) {
     return null
@@ -654,63 +605,6 @@ export function DesktopLeftNav() {
 
       {hasSession && (
         <>
-          <NavItem
-            href="/"
-            hasNew={hasHomeBadge && gate('remove_show_latest_button')}
-            icon={
-              <Home
-                aria-hidden={true}
-                width={NAV_ICON_WIDTH}
-                style={pal.text}
-              />
-            }
-            iconFilled={
-              <HomeFilled
-                aria-hidden={true}
-                width={NAV_ICON_WIDTH}
-                style={pal.text}
-              />
-            }
-            label={_(msg`Home`)}
-          />
-          <NavItem
-            href="/search"
-            icon={
-              <MagnifyingGlass
-                style={pal.text}
-                aria-hidden={true}
-                width={NAV_ICON_WIDTH}
-              />
-            }
-            iconFilled={
-              <MagnifyingGlassFilled
-                style={pal.text}
-                aria-hidden={true}
-                width={NAV_ICON_WIDTH}
-              />
-            }
-            label={_(msg`Explore`)}
-          />
-          <NavItem
-            href="/notifications"
-            count={numUnreadNotifications}
-            icon={
-              <Bell
-                aria-hidden={true}
-                width={NAV_ICON_WIDTH}
-                style={pal.text}
-              />
-            }
-            iconFilled={
-              <BellFilled
-                aria-hidden={true}
-                width={NAV_ICON_WIDTH}
-                style={pal.text}
-              />
-            }
-            label={_(msg`Notifications`)}
-          />
-          <ChatNavItem />
           <NavItem
             href="/feeds"
             icon={
@@ -808,24 +702,6 @@ export function DesktopLeftNav() {
             )}
           />
           <NavItem
-            href={currentAccount ? makeProfileLink(currentAccount) : '/'}
-            icon={
-              <UserCircle
-                aria-hidden={true}
-                width={NAV_ICON_WIDTH}
-                style={pal.text}
-              />
-            }
-            iconFilled={
-              <UserCircleFilled
-                aria-hidden={true}
-                width={NAV_ICON_WIDTH}
-                style={pal.text}
-              />
-            }
-            label={_(msg`Profile`)}
-          />
-          <NavItem
             href="/settings"
             icon={
               <Settings
@@ -856,7 +732,7 @@ const styles = StyleSheet.create({
     ...a.fixed,
     top: 0,
     paddingTop: 10,
-    paddingBottom: 10,
+    paddingBottom: 110,
     left: '50%',
     width: 240,
     // @ts-expect-error web only
@@ -865,7 +741,7 @@ const styles = StyleSheet.create({
   },
   leftNavMinimal: {
     paddingTop: 0,
-    paddingBottom: 0,
+    paddingBottom: 110,
     paddingLeft: 0,
     paddingRight: 0,
     height: '100%',

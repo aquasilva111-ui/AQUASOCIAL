@@ -3,6 +3,9 @@ import {StyleSheet} from 'react-native'
 import {colors} from '#/lib/styles'
 import {atoms as a} from '#/alf'
 
+export const DOCK_INSET = 12
+export const DOCK_MAX_WIDTH = 720
+
 export const styles = StyleSheet.create({
   bottomBar: {
     position: 'absolute',
@@ -10,20 +13,59 @@ export const styles = StyleSheet.create({
     left: 0,
     right: 0,
     flexDirection: 'row',
-    borderTopWidth: StyleSheet.hairlineWidth,
-    paddingLeft: 5,
-    paddingRight: 10,
+    justifyContent: 'center',
+    paddingLeft: DOCK_INSET,
+    paddingRight: DOCK_INSET,
+    paddingBottom: DOCK_INSET,
+    backgroundColor: 'transparent',
+    borderTopWidth: 0,
+    pointerEvents: 'box-none',
   },
   bottomBarWeb: a.fixed,
+  dock: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+    maxWidth: DOCK_MAX_WIDTH,
+    borderRadius: 28,
+    paddingLeft: 6,
+    paddingRight: 6,
+    paddingTop: 6,
+    paddingBottom: 6,
+    borderWidth: 1,
+  },
   ctrl: {
     flex: 1,
-    paddingTop: 13,
-    paddingBottom: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: 6,
+    paddingBottom: 6,
+    minHeight: 44,
+  },
+  ctrlLabel: {
+    fontSize: 11,
+    fontWeight: '600',
+    marginTop: 2,
+    letterSpacing: 0.1,
+  },
+  createCtrl: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: 2,
+    paddingBottom: 2,
+  },
+  createBtn: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   notificationCount: {
     position: 'absolute',
     left: '52%',
-    top: 8,
+    top: 4,
     paddingHorizontal: 4,
     paddingBottom: 1,
     borderRadius: 6,
@@ -44,7 +86,7 @@ export const styles = StyleSheet.create({
     position: 'absolute',
     left: '54%',
     marginLeft: 4,
-    top: 10,
+    top: 8,
     width: 8,
     height: 8,
     backgroundColor: colors.blue3,

@@ -147,9 +147,10 @@ function NativeStackNavigator({
     }
   }
 
-  // Show the bottom bar if we have a session only on mobile web. If we don't have a session, we want to show it
-  // on both tablet and mobile web so that we see the create account CTA.
-  const showBottomBar = hasSession ? isMobile : leftNavMinimal
+  // Bottom dock is always visible (mobile + desktop). Left nav stays on
+  // tablet/desktop for Feeds, Lists, Saved, and Settings.
+  const showBottomBar = hasSession || leftNavMinimal
+  const showLeftNav = !isMobile
 
   return (
     <NavigationContent>
@@ -164,7 +165,8 @@ function NativeStackNavigator({
       </View>
       {isWeb && (
         <>
-          {showBottomBar ? <BottomBarWeb /> : <DesktopLeftNav />}
+          {showLeftNav && <DesktopLeftNav />}
+          {showBottomBar && <BottomBarWeb />}
           {!isMobile && <DesktopRightNav routeName={activeRoute.name} />}
         </>
       )}

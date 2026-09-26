@@ -152,9 +152,6 @@ let DrawerContent = ({}: React.PropsWithoutRef<{}>): React.ReactNode => {
     isAtSearch,
     isAtFeeds,
     isAtBookmarks,
-    isAtNotifications,
-    isAtMyProfile,
-    isAtMessages,
   } = useNavigationTabState()
   const {hasSession, currentAccount} = useSession()
 
@@ -206,16 +203,6 @@ let DrawerContent = ({}: React.PropsWithoutRef<{}>): React.ReactNode => {
 
   const onPressSearch = React.useCallback(
     () => onPressTab('Search'),
-    [onPressTab],
-  )
-
-  const onPressMessages = React.useCallback(
-    () => onPressTab('Messages'),
-    [onPressTab],
-  )
-
-  const onPressNotifications = React.useCallback(
-    () => onPressTab('Notifications'),
     [onPressTab],
   )
 
@@ -290,22 +277,11 @@ let DrawerContent = ({}: React.PropsWithoutRef<{}>): React.ReactNode => {
 
         {hasSession ? (
           <>
-            <SearchMenuItem isActive={isAtSearch} onPress={onPressSearch} />
-            <HomeMenuItem isActive={isAtHome} onPress={onPressHome} />
-            <ChatMenuItem isActive={isAtMessages} onPress={onPressMessages} />
-            <NotificationsMenuItem
-              isActive={isAtNotifications}
-              onPress={onPressNotifications}
-            />
             <FeedsMenuItem isActive={isAtFeeds} onPress={onPressMyFeeds} />
             <ListsMenuItem onPress={onPressLists} />
             <BookmarksMenuItem
               isActive={isAtBookmarks}
               onPress={onPressBookmarks}
-            />
-            <ProfileMenuItem
-              isActive={isAtMyProfile}
-              onPress={onPressProfile}
             />
             <SettingsMenuItem onPress={onPressSettings} />
           </>

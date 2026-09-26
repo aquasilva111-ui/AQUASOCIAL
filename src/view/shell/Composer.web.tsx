@@ -14,7 +14,7 @@ import {
 import {atoms as a, flatten, useBreakpoints, useTheme} from '#/alf'
 import {ComposePost, useComposerCancelRef} from '../com/composer/Composer'
 
-const BOTTOM_BAR_HEIGHT = 61
+const BOTTOM_BAR_HEIGHT = 96
 
 export function Composer({}: {winHeight: number}) {
   const state = useComposerState()

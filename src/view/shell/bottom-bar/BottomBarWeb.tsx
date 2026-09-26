@@ -1,17 +1,14 @@
 import React from 'react'
 import {View} from 'react-native'
-import Animated from 'react-native-reanimated'
 import {msg, plural, Trans} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 import {useNavigationState} from '@react-navigation/native'
 
-import {useHideBottomBarBorder} from '#/lib/hooks/useHideBottomBarBorder'
-import {useMinimalShellFooterTransform} from '#/lib/hooks/useMinimalShellTransform'
+import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
+import {useWebMediaQueries} from '#/lib/hooks/useWebMediaQueries'
 import {getCurrentRoute, isTab} from '#/lib/routes/helpers'
 import {makeProfileLink} from '#/lib/routes/links'
 import {type CommonNavigatorParams} from '#/lib/routes/types'
-import {useGate} from '#/lib/statsig/statsig'
-import {useHomeBadge} from '#/state/home-badge'
 import {useUnreadMessageCount} from '#/state/queries/messages/list-conversations'
 import {useUnreadNotifications} from '#/state/queries/notifications/unread'
 import {useSession} from '#/state/session'
@@ -37,6 +34,7 @@ import {
   Message_Stroke2_Corner0_Rounded as Message,
   Message_Stroke2_Corner0_Rounded_Filled as MessageFilled,
 } from '#/components/icons/Message'
+import {PlusLarge_Stroke2_Corner0_Rounded as PlusIcon} from '#/components/icons/Plus'
 import {
   UserCircle_Filled_Corner0_Rounded as UserCircleFilled,
   UserCircle_Stroke2_Corner0_Rounded as UserCircle,
@@ -48,17 +46,16 @@ export function BottomBarWeb() {
   const {_} = useLingui()
   const {hasSession, currentAccount} = useSession()
   const t = useTheme()
-  const footerMinimalShellTransform = useMinimalShellFooterTransform()
   const {requestSwitchToAccount} = useLoggedOutViewControls()
   const closeAllActiveElements = useCloseAllActiveElements()
   const {footerHeight} = useShellLayout()
-  const hideBorder = useHideBottomBarBorder()
-  const iconWidth = 26
+  const {isTabletOrDesktop} = useWebMediaQueries()
+  const {openComposer} = useOpenComposer()
+  const iconWidth = 24
+  const showLabels = isTabletOrDesktop
 
   const unreadMessageCount = useUnreadMessageCount()
   const notificationCountStr = useUnreadNotifications()
-  const hasHomeBadge = useHomeBadge()
-  const gate = useGate()
 
   const showSignIn = React.useCallback(() => {
     closeAllActiveElements()
@@ -68,28 +65,41 @@ export function BottomBarWeb() {
   const showCreateAccount = React.useCallback(() => {
     closeAllActiveElements()
     requestSwitchToAccount({requestedAccount: 'new'})
-    // setShowLoggedOut(true)
   }, [requestSwitchToAccount, closeAllActiveElements])
 
+  const dockSurface =
+    t.scheme === 'dark' ? 'rgba(22, 24, 28, 0.78)' : 'rgba(255, 255, 255, 0.78)'
+  const dockBorder =
+    t.scheme === 'dark' ? 'rgba(255, 255, 255, 0.12)' : 'rgba(15, 23, 42, 0.08)'
+
   return (
-    <Animated.View
+    <View
       role="navigation"
-      style={[
-        styles.bottomBar,
-        styles.bottomBarWeb,
-        t.atoms.bg,
-        hideBorder
-          ? {borderColor: t.atoms.bg.backgroundColor}
-          : t.atoms.border_contrast_low,
-        footerMinimalShellTransform,
-      ]}
+      pointerEvents="box-none"
+      style={[styles.bottomBar, styles.bottomBarWeb]}
       onLayout={event => footerHeight.set(event.nativeEvent.layout.height)}>
       {hasSession ? (
-        <>
+        <View
+          style={[
+            styles.dock,
+            {
+              backgroundColor: dockSurface,
+              borderColor: dockBorder,
+              // @ts-expect-error web only
+              backdropFilter: 'blur(18px)',
+              // @ts-expect-error web only
+              WebkitBackdropFilter: 'blur(18px)',
+              boxShadow:
+                t.scheme === 'dark'
+                  ? '0 8px 28px rgba(0, 0, 0, 0.35)'
+                  : '0 8px 28px rgba(15, 23, 42, 0.10)',
+            },
+          ]}>
           <NavItem
             routeName="Home"
             href="/"
-            hasNew={hasHomeBadge && gate('remove_show_latest_button')}>
+            label={_(msg`Home`)}
+            showLabel={showLabels}>
             {({isActive}) => {
               const Icon = isActive ? HomeFilled : Home
               return (
@@ -101,7 +111,11 @@ export function BottomBarWeb() {
               )
             }}
           </NavItem>
-          <NavItem routeName="Search" href="/search">
+          <NavItem
+            routeName="Search"
+            href="/search"
+            label={_(msg`Search`)}
+            showLabel={showLabels}>
             {({isActive}) => {
               const Icon = isActive ? MagnifyingGlassFilled : MagnifyingGlass
               return (
@@ -114,81 +128,113 @@ export function BottomBarWeb() {
             }}
           </NavItem>
 
-          {hasSession && (
-            <>
-              <NavItem
-                routeName="Messages"
-                href="/messages"
-                notificationCount={unreadMessageCount.numUnread}
-                hasNew={unreadMessageCount.hasNew}>
-                {({isActive}) => {
-                  const Icon = isActive ? MessageFilled : Message
-                  return (
-                    <Icon
-                      aria-hidden={true}
-                      width={iconWidth - 1}
-                      style={[
-                        styles.ctrlIcon,
-                        t.atoms.text,
-                        styles.messagesIcon,
-                      ]}
-                    />
-                  )
-                }}
-              </NavItem>
-              <NavItem
-                routeName="Notifications"
-                href="/notifications"
-                notificationCount={notificationCountStr}>
-                {({isActive}) => {
-                  const Icon = isActive ? BellFilled : Bell
-                  return (
-                    <Icon
-                      aria-hidden={true}
-                      width={iconWidth}
-                      style={[styles.ctrlIcon, t.atoms.text, styles.bellIcon]}
-                    />
-                  )
-                }}
-              </NavItem>
-              <NavItem
-                routeName="Profile"
-                href={
-                  currentAccount
-                    ? makeProfileLink({
-                        did: currentAccount.did,
-                        handle: currentAccount.handle,
-                      })
-                    : '/'
-                }>
-                {({isActive}) => {
-                  const Icon = isActive ? UserCircleFilled : UserCircle
-                  return (
-                    <Icon
-                      aria-hidden={true}
-                      width={iconWidth}
-                      style={[
-                        styles.ctrlIcon,
-                        t.atoms.text,
-                        styles.profileIcon,
-                      ]}
-                    />
-                  )
-                }}
-              </NavItem>
-            </>
-          )}
-        </>
+          <View style={styles.createCtrl}>
+            <Button
+              onPress={() => openComposer({})}
+              label={_(msg`Create`)}
+              style={[
+                styles.createBtn,
+                {backgroundColor: t.palette.primary_500},
+              ]}>
+              <PlusIcon
+                aria-hidden={true}
+                width={22}
+                fill={t.palette.white}
+                style={{color: t.palette.white}}
+              />
+            </Button>
+            {showLabels && (
+              <Text
+                style={[
+                  styles.ctrlLabel,
+                  t.atoms.text_contrast_medium,
+                  {marginTop: 4},
+                ]}>
+                Create
+              </Text>
+            )}
+          </View>
+
+          <NavItem
+            routeName="Messages"
+            href="/messages"
+            label="Mailssage"
+            notificationCount={unreadMessageCount.numUnread}
+            hasNew={unreadMessageCount.hasNew}
+            showLabel={showLabels}>
+            {({isActive}) => {
+              const Icon = isActive ? MessageFilled : Message
+              return (
+                <Icon
+                  aria-hidden={true}
+                  width={iconWidth - 1}
+                  style={[styles.ctrlIcon, t.atoms.text, styles.messagesIcon]}
+                />
+              )
+            }}
+          </NavItem>
+          <NavItem
+            routeName="Notifications"
+            href="/notifications"
+            label={_(msg`Notificações`)}
+            notificationCount={notificationCountStr}
+            showLabel={showLabels}>
+            {({isActive}) => {
+              const Icon = isActive ? BellFilled : Bell
+              return (
+                <Icon
+                  aria-hidden={true}
+                  width={iconWidth}
+                  style={[styles.ctrlIcon, t.atoms.text, styles.bellIcon]}
+                />
+              )
+            }}
+          </NavItem>
+          <NavItem
+            routeName="Profile"
+            href={
+              currentAccount
+                ? makeProfileLink({
+                    did: currentAccount.did,
+                    handle: currentAccount.handle,
+                  })
+                : '/'
+            }
+            label={_(msg`Perfil`)}
+            showLabel={showLabels}>
+            {({isActive}) => {
+              const Icon = isActive ? UserCircleFilled : UserCircle
+              return (
+                <Icon
+                  aria-hidden={true}
+                  width={iconWidth}
+                  style={[styles.ctrlIcon, t.atoms.text, styles.profileIcon]}
+                />
+              )
+            }}
+          </NavItem>
+        </View>
       ) : (
-        <>
+        <View
+          style={[
+            styles.dock,
+            {
+              backgroundColor: dockSurface,
+              borderColor: dockBorder,
+              // @ts-expect-error web only
+              backdropFilter: 'blur(18px)',
+              // @ts-expect-error web only
+              WebkitBackdropFilter: 'blur(18px)',
+            },
+          ]}>
           <View
             style={{
               width: '100%',
               flexDirection: 'row',
               alignItems: 'center',
               justifyContent: 'space-between',
-              paddingTop: 14,
-              paddingBottom: 14,
+              paddingTop: 8,
+              paddingBottom: 8,
               paddingLeft: 14,
               paddingRight: 6,
               gap: 8,
@@ -223,9 +269,9 @@ export function BottomBarWeb() {
               </Button>
             </View>
           </View>
-        </>
+        </View>
       )}
-    </Animated.View>
+    </View>
   )
 }
 
@@ -233,9 +279,19 @@ const NavItem: React.FC<{
   children: (props: {isActive: boolean}) => React.ReactNode
   href: string
   routeName: string
+  label: string
+  showLabel?: boolean
   hasNew?: boolean
   notificationCount?: string
-}> = ({children, href, routeName, hasNew, notificationCount}) => {
+}> = ({
+  children,
+  href,
+  routeName,
+  label,
+  showLabel,
+  hasNew,
+  notificationCount,
+}) => {
   const t = useTheme()
   const {_} = useLingui()
   const {currentAccount} = useSession()
@@ -246,7 +302,6 @@ const NavItem: React.FC<{
     return getCurrentRoute(state)
   })
 
-  // Checks whether we're on someone else's profile
   const isOnDifferentProfile =
     currentRoute.name === 'Profile' &&
     routeName === 'Profile' &&
@@ -265,12 +320,22 @@ const NavItem: React.FC<{
   return (
     <Link
       href={href}
-      style={[styles.ctrl, a.pb_lg]}
+      style={[styles.ctrl]}
       navigationAction={isOnDifferentProfile ? 'push' : 'navigate'}
       aria-role="link"
-      aria-label={routeName}
+      aria-label={label}
       accessible={true}>
       {children({isActive})}
+      {showLabel && (
+        <Text
+          style={[
+            styles.ctrlLabel,
+            isActive ? t.atoms.text : t.atoms.text_contrast_medium,
+            isActive && a.font_bold,
+          ]}>
+          {label}
+        </Text>
+      )}
       {notificationCount ? (
         <View
           style={[

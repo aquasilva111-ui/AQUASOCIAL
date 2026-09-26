@@ -12,9 +12,8 @@ import {PressableScale} from '#/lib/custom-animations/PressableScale'
 import {BOTTOM_BAR_AVI} from '#/lib/demo'
 import {useHaptics} from '#/lib/haptics'
 import {useDedupe} from '#/lib/hooks/useDedupe'
-import {useHideBottomBarBorder} from '#/lib/hooks/useHideBottomBarBorder'
-import {useMinimalShellFooterTransform} from '#/lib/hooks/useMinimalShellTransform'
 import {useNavigationTabState} from '#/lib/hooks/useNavigationTabState'
+import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
 import {usePalette} from '#/lib/hooks/usePalette'
 import {clamp} from '#/lib/numbers'
 import {getTabState, TabState} from '#/lib/routes/helpers'
@@ -49,9 +48,10 @@ import {
   Message_Stroke2_Corner0_Rounded as Message,
   Message_Stroke2_Corner0_Rounded_Filled as MessageFilled,
 } from '#/components/icons/Message'
+import {PlusLarge_Stroke2_Corner0_Rounded as PlusIcon} from '#/components/icons/Plus'
 import {Text} from '#/components/Typography'
 import {useDemoMode} from '#/storage/hooks/demo-mode'
-import {styles} from './BottomBarStyles'
+import {DOCK_INSET, styles} from './BottomBarStyles'
 
 type TabOptions = 'Home' | 'Search' | 'Messages' | 'Notifications' | 'MyProfile'
 
@@ -65,17 +65,17 @@ export function BottomBar({navigation}: BottomTabBarProps) {
     useNavigationTabState()
   const numUnreadNotifications = useUnreadNotifications()
   const numUnreadMessages = useUnreadMessageCount()
-  const footerMinimalShellTransform = useMinimalShellFooterTransform()
   const {data: profile} = useProfileQuery({did: currentAccount?.did})
   const {requestSwitchToAccount} = useLoggedOutViewControls()
   const closeAllActiveElements = useCloseAllActiveElements()
   const dedupe = useDedupe()
   const accountSwitchControl = useDialogControl()
   const playHaptic = useHaptics()
+  const {openComposer} = useOpenComposer()
   const hasHomeBadge = useHomeBadge()
   const gate = useGate()
-  const hideBorder = useHideBottomBarBorder()
-  const iconWidth = 28
+  const t = useTheme()
+  const iconWidth = 26
 
   const showSignIn = useCallback(() => {
     closeAllActiveElements()
@@ -145,18 +145,34 @@ export function BottomBar({navigation}: BottomTabBarProps) {
       <SwitchAccountDialog control={accountSwitchControl} />
 
       <Animated.View
+        pointerEvents="box-none"
         style={[
           styles.bottomBar,
-          pal.view,
-          hideBorder ? {borderColor: pal.view.backgroundColor} : pal.border,
-          {paddingBottom: clamp(safeAreaInsets.bottom, 15, 60)},
-          footerMinimalShellTransform,
+          {paddingBottom: clamp(safeAreaInsets.bottom, DOCK_INSET, 40)},
         ]}
         onLayout={e => {
           footerHeight.set(e.nativeEvent.layout.height)
         }}>
         {hasSession ? (
-          <>
+          <View
+            style={[
+              styles.dock,
+              {
+                backgroundColor:
+                  t.scheme === 'dark'
+                    ? 'rgba(22, 24, 28, 0.88)'
+                    : 'rgba(255, 255, 255, 0.88)',
+                borderColor:
+                  t.scheme === 'dark'
+                    ? 'rgba(255, 255, 255, 0.12)'
+                    : 'rgba(15, 23, 42, 0.08)',
+                shadowColor: '#000',
+                shadowOpacity: 0.12,
+                shadowRadius: 20,
+                shadowOffset: {width: 0, height: 8},
+                elevation: 12,
+              },
+            ]}>
             <Btn
               testID="bottomBarHomeBtn"
               icon={
@@ -199,6 +215,22 @@ export function BottomBar({navigation}: BottomTabBarProps) {
               accessibilityHint=""
             />
             <Btn
+              testID="bottomBarCreateBtn"
+              icon={
+                <View
+                  style={[
+                    styles.createBtn,
+                    {backgroundColor: t.palette.primary_500},
+                  ]}>
+                  <PlusIcon width={22} style={{color: t.palette.white}} />
+                </View>
+              }
+              onPress={() => openComposer({})}
+              accessibilityRole="button"
+              accessibilityLabel={_(msg`Create`)}
+              accessibilityHint=""
+            />
+            <Btn
               testID="bottomBarMessagesBtn"
               icon={
                 isAtMessages ? (
@@ -218,7 +250,7 @@ export function BottomBar({navigation}: BottomTabBarProps) {
               hasNew={numUnreadMessages.hasNew}
               accessible={true}
               accessibilityRole="tab"
-              accessibilityLabel={_(msg`Chat`)}
+              accessibilityLabel="Mailssage"
               accessibilityHint={
                 numUnreadMessages.count > 0
                   ? _(
@@ -249,7 +281,7 @@ export function BottomBar({navigation}: BottomTabBarProps) {
               notificationCount={numUnreadNotifications}
               accessible={true}
               accessibilityRole="tab"
-              accessibilityLabel={_(msg`Notifications`)}
+              accessibilityLabel={_(msg`Notificações`)}
               accessibilityHint={
                 numUnreadNotifications === ''
                   ? ''
@@ -313,10 +345,10 @@ export function BottomBar({navigation}: BottomTabBarProps) {
               onPress={onPressProfile}
               onLongPress={onLongPressProfile}
               accessibilityRole="tab"
-              accessibilityLabel={_(msg`Profile`)}
+              accessibilityLabel={_(msg`Perfil`)}
               accessibilityHint=""
             />
-          </>
+          </View>
         ) : (
           <>
             <View
