@@ -4,12 +4,12 @@ Use these settings for the React website:
 
 - Framework: React
 - Root directory: `./`
-- Package manager: Yarn
-- Build command: `yarn run build`
+- Package manager: npm
+- Build command: `npm run build`
 - Output directory: `web-build`
 - Node: 20.x (20.19 or newer)
 
-`yarn build` compiles the checked-in Lingui translation catalogs, exports the
+`npm run build` compiles the checked-in Lingui translation catalogs, exports the
 website with Webpack, and runs the existing web post-build script. Do not run
 Expo native prebuild on the web host: it generates Android/iOS projects and
 requires native-only configuration such as `google-services.json`.
