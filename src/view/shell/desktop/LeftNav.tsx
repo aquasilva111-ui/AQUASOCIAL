@@ -40,6 +40,7 @@ import {
   Bell_Filled_Corner0_Rounded as BellFilled,
   Bell_Stroke2_Corner0_Rounded as Bell,
 } from '#/components/icons/Bell'
+import {Book_Stroke2_Corner2_Rounded as Book} from '#/components/icons/Book'
 import {Bookmark, BookmarkFilled} from '#/components/icons/Bookmark'
 import {
   BulletList_Filled_Corner0_Rounded as ListFilled,
@@ -616,6 +617,7 @@ export function DesktopLeftNav() {
   const {_} = useLingui()
   const {isDesktop} = useWebMediaQueries()
   const {leftNavMinimal, centerColumnOffset} = useLayoutBreakpoints()
+  const t = useTheme()
   const numUnreadNotifications = useUnreadNotifications()
   const hasHomeBadge = useHomeBadge()
   const gate = useGate()
@@ -727,6 +729,43 @@ export function DesktopLeftNav() {
             }
             label={_(msg`Feeds`)}
           />
+          {/* Wiki — placeholder sem destino por enquanto */}
+          <PressableWithHover
+            style={[
+              a.flex_row,
+              a.align_center,
+              a.p_md,
+              a.rounded_sm,
+              a.gap_sm,
+              a.outline_inset_1,
+              a.transition_color,
+            ]}
+            hoverStyle={t.atoms.bg_contrast_25}
+            accessibilityLabel={_(msg`Wiki`)}
+            accessibilityHint="">
+            <View
+              style={[
+                a.align_center,
+                a.justify_center,
+                {
+                  width: 24,
+                  height: 24,
+                },
+                leftNavMinimal && {
+                  width: 40,
+                  height: 40,
+                },
+              ]}>
+              <Book
+                aria-hidden={true}
+                width={NAV_ICON_WIDTH}
+                style={pal.text}
+              />
+            </View>
+            {!leftNavMinimal && (
+              <Text style={[a.text_xl, a.font_normal]}>{_(msg`Wiki`)}</Text>
+            )}
+          </PressableWithHover>
           <NavItem
             href="/lists"
             icon={
