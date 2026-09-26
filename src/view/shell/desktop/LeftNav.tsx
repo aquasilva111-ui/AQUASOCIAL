@@ -741,7 +741,7 @@ export function DesktopLeftNav() {
               a.transition_color,
             ]}
             hoverStyle={t.atoms.bg_contrast_25}
-            accessibilityLabel={_(msg`Wiki`)}
+            accessibilityLabel="Wiki"
             accessibilityHint="">
             <View
               style={[
@@ -763,7 +763,7 @@ export function DesktopLeftNav() {
               />
             </View>
             {!leftNavMinimal && (
-              <Text style={[a.text_xl, a.font_normal]}>{_(msg`Wiki`)}</Text>
+              <Text style={[a.text_xl, a.font_normal]}>Wiki</Text>
             )}
           </PressableWithHover>
           <NavItem
