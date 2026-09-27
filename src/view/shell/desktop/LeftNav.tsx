@@ -36,6 +36,7 @@ import {ArrowBoxLeft_Stroke2_Corner0_Rounded as LeaveIcon} from '#/components/ic
 import {Book_Stroke2_Corner2_Rounded as Book} from '#/components/icons/Book'
 import {DotGrid_Stroke2_Corner0_Rounded as EllipsisIcon} from '#/components/icons/DotGrid'
 import {EditBig_Stroke2_Corner0_Rounded as EditBig} from '#/components/icons/EditBig'
+import {Gift1_Stroke2_Corner0_Rounded as GiftIcon} from '#/components/icons/Gift1'
 import {Image_Stroke2_Corner0_Rounded as ImagesIcon} from '#/components/icons/Image'
 import {LiveVideo_Stroke2_Corner0_Rounded as VideosIcon} from '#/components/icons/LiveVideo'
 import {Newspaper_Stroke2_Corner2_Rounded as Newspaper} from '#/components/icons/Newspaper'
@@ -679,6 +680,16 @@ export function DesktopLeftNav() {
               />
             }
             label="Books"
+          />
+          <PlaceholderNavItem
+            icon={
+              <GiftIcon
+                aria-hidden={true}
+                width={NAV_ICON_WIDTH}
+                style={pal.text}
+              />
+            }
+            label="Shop"
           />
           <PlaceholderNavItem
             icon={
