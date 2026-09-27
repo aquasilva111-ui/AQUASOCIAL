@@ -27,12 +27,16 @@ export class AuthorFeedAPI implements FeedAPI {
     return params
   }
 
-  async peekLatest(): Promise<AppBskyFeedDefs.FeedViewPost> {
+  async peekLatest({
+    limit = 1,
+  }: {
+    limit?: number
+  } = {}): Promise<AppBskyFeedDefs.FeedViewPost[]> {
     const res = await this.agent.getAuthorFeed({
       ...this.params,
-      limit: 1,
+      limit,
     })
-    return res.data.feed[0]
+    return res.data.feed
   }
 
   async fetch({

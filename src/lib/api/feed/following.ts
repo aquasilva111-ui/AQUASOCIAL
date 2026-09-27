@@ -9,11 +9,15 @@ export class FollowingFeedAPI implements FeedAPI {
     this.agent = agent
   }
 
-  async peekLatest(): Promise<AppBskyFeedDefs.FeedViewPost> {
+  async peekLatest({
+    limit = 1,
+  }: {
+    limit?: number
+  } = {}): Promise<AppBskyFeedDefs.FeedViewPost[]> {
     const res = await this.agent.getTimeline({
-      limit: 1,
+      limit,
     })
-    return res.data.feed[0]
+    return res.data.feed
   }
 
   async fetch({

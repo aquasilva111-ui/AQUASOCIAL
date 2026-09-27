@@ -11,6 +11,7 @@ import {HomeHeaderLayoutMobile} from '#/view/com/home/HomeHeaderLayoutMobile'
 import {Logo} from '#/view/icons/Logo'
 import {atoms as a, useBreakpoints, useGutters, useTheme} from '#/alf'
 import {ButtonIcon} from '#/components/Button'
+import {FeedViewSwitcher} from '#/components/feeds/FeedViewSwitcher'
 import {Hashtag_Stroke2_Corner0_Rounded as FeedsIcon} from '#/components/icons/Hashtag'
 import * as Layout from '#/components/Layout'
 import {Link} from '#/components/Link'
@@ -47,21 +48,22 @@ function HomeHeaderLayoutDesktopAndTablet({
         <Layout.Center>
           <View
             style={[a.flex_row, a.align_center, gutters, a.pt_md, t.atoms.bg]}>
-            <View style={{width: 34}} />
-            <View style={[a.flex_1, a.align_center, a.justify_center]}>
-              <Logo width={kawaii ? 60 : 28} />
+            <View style={a.flex_1} />
+            <Logo width={kawaii ? 60 : 28} />
+            <View style={[a.flex_1, a.flex_row, a.align_center, a.justify_end]}>
+              <FeedViewSwitcher placement="header" />
+              <Link
+                to="/feeds"
+                hitSlop={10}
+                label={_(msg`View your feeds and explore more`)}
+                size="small"
+                variant="ghost"
+                color="secondary"
+                shape="square"
+                style={[a.justify_center]}>
+                <ButtonIcon icon={FeedsIcon} size="lg" />
+              </Link>
             </View>
-            <Link
-              to="/feeds"
-              hitSlop={10}
-              label={_(msg`View your feeds and explore more`)}
-              size="small"
-              variant="ghost"
-              color="secondary"
-              shape="square"
-              style={[a.justify_center]}>
-              <ButtonIcon icon={FeedsIcon} size="lg" />
-            </Link>
           </View>
         </Layout.Center>
       )}

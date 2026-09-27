@@ -45,10 +45,21 @@ cards use author DID plus record key. Social URLs and existing routes remain.
 Sidebar/drawer expose Images and Videos alongside existing navigation.
 
 The Home selector uses the existing FeedExperienceProvider state. Its compact
-30px trigger shows the current mode and chevron. Web retains the six-option
-menu, keyboard navigation, Escape and outside-click dismissal. Mode is never
-part of the feed query key. Images/Video use the same MediaGallery as dedicated
-pages. Selecting a source or topic in a dedicated page is explicit and local.
+30px trigger shows the current mode and chevron, now as a glassmorphism capsule
+(fully rounded, translucent blur) placed beside the hashtag (feeds) button in
+the desktop web header row; on smaller breakpoints and for guests it stays
+centered below the tab bar. Web retains the six-option menu, keyboard
+navigation, Escape and outside-click dismissal, with the menu aligned to the
+header edge when opened from the top row. Mode is never part of the feed query
+key. Images/Video use the same MediaGallery as dedicated pages. Selecting a
+source or topic in a dedicated page is explicit and local.
+
+When fresh posts arrive, an animated glass capsule pill (up arrow, stacked
+author avatars, "posted") drops in at the top of the feed, mirroring the X
+new-posts affordance; activating it scrolls up and loads the latest posts. It is
+driven by `peekNewPosts` (a multi-post `peekLatest` on the feed APIs), falls
+back to the previous load-latest button when no author data is available, and
+respects the `remove_show_latest_button` gate.
 
 Dedicated pages reuse current selected feed by default, with explicit discovery,
 following, own media, saved and search contexts. Guests see only public contexts.
@@ -74,7 +85,8 @@ adapter can supply these fields without changing cards or queries.
 
 Created: `src/lib/media/experiences.ts`, `src/screens/Media/*`,
 `src/components/feeds/MediaCard.tsx`, `MediaGallery.tsx`, `MediaGallery.web.tsx`,
-`media-gallery.css`, `FeedViewSwitcher.web.tsx`,
+`media-gallery.css`, `FeedViewSwitcher.web.tsx`, `NewPostsPill.tsx`,
+`NewPostsPill.web.tsx`, `new-posts-pill.css`,
 `__tests__/lib/media-experiences.test.ts`.
 
 Connected existing/in-progress experience files: `FeedViewSwitcher.tsx`,

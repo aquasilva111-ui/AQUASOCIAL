@@ -28,8 +28,9 @@ export const experienceIcons = {
 /**
  * Native feed view switcher: a compact row of mode icons shown in the home
  * header. Web has a richer dropdown version in FeedViewSwitcher.web.tsx.
+ * `placement` is web-only (header row vs below the tab bar) and ignored here.
  */
-export function FeedViewSwitcher() {
+export function FeedViewSwitcher(_props: {placement?: 'page' | 'header'}) {
   const mode = useFeedExperience()
   const setMode = useSetFeedExperience()
   const t = useTheme()
@@ -46,7 +47,7 @@ export function FeedViewSwitcher() {
               color="secondary"
               style={[
                 a.border,
-                a.rounded_sm,
+                a.rounded_full,
                 t.atoms.border_contrast_low,
                 a.px_sm,
                 a.gap_xs,

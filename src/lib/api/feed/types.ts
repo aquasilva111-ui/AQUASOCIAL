@@ -6,7 +6,11 @@ export interface FeedAPIResponse {
 }
 
 export interface FeedAPI {
-  peekLatest(): Promise<AppBskyFeedDefs.FeedViewPost>
+  peekLatest({
+    limit,
+  }?: {
+    limit?: number
+  }): Promise<AppBskyFeedDefs.FeedViewPost[]>
   fetch({
     cursor,
     limit,

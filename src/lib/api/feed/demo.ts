@@ -10,8 +10,12 @@ export class DemoFeedAPI implements FeedAPI {
     this.agent = agent
   }
 
-  async peekLatest(): Promise<AppBskyFeedDefs.FeedViewPost> {
-    return DEMO_FEED.feed[0]
+  async peekLatest({
+    limit = 1,
+  }: {
+    limit?: number
+  } = {}): Promise<AppBskyFeedDefs.FeedViewPost[]> {
+    return DEMO_FEED.feed.slice(0, limit)
   }
 
   async fetch(): Promise<FeedAPIResponse> {

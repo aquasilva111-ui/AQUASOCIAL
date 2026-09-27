@@ -30,8 +30,8 @@ export class PostListFeedAPI implements FeedAPI {
     }
   }
 
-  async peekLatest(): Promise<AppBskyFeedDefs.FeedViewPost> {
-    if (this.peek) return this.peek
+  async peekLatest(): Promise<AppBskyFeedDefs.FeedViewPost[]> {
+    if (this.peek) return [this.peek]
     throw new Error('Has not fetched yet')
   }
 

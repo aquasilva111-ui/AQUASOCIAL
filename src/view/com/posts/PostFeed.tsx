@@ -48,7 +48,7 @@ import {
   type FeedParams,
   type FeedPostSlice,
   type FeedPostSliceItem,
-  pollLatest,
+  peekNewPosts,
   RQKEY,
   usePostFeedQuery,
 } from '#/state/queries/post-feed'
@@ -220,7 +220,7 @@ let PostFeed = ({
   pollInterval?: number
   disablePoll?: boolean
   scrollElRef?: ListRef
-  onHasNew?: (v: boolean) => void
+  onHasNew?: (v: boolean, latestPosts?: AppBskyFeedDefs.PostView[]) => void
   onScrolledDownChange?: (isScrolledDown: boolean) => void
   renderEmptyState: () => JSX.Element
   renderEndOfFeed?: () => JSX.Element
@@ -298,11 +298,12 @@ let PostFeed = ({
     }
 
     try {
-      if (await pollLatest(data.pages[0])) {
+      const newPosts = await peekNewPosts(data.pages[0])
+      if (newPosts.length > 0) {
         if (isEmpty) {
           refetch()
         } else {
-          onHasNew(true)
+          onHasNew(true, newPosts)
         }
       }
     } catch (e) {

@@ -31,16 +31,20 @@ export class CustomFeedAPI implements FeedAPI {
     this.userInterests = userInterests
   }
 
-  async peekLatest(): Promise<AppBskyFeedDefs.FeedViewPost> {
+  async peekLatest({
+    limit = 1,
+  }: {
+    limit?: number
+  } = {}): Promise<AppBskyFeedDefs.FeedViewPost[]> {
     const contentLangs = getContentLanguages().join(',')
     const res = await this.agent.app.bsky.feed.getFeed(
       {
         ...this.params,
-        limit: 1,
+        limit,
       },
       {headers: {'Accept-Language': contentLangs}},
     )
-    return res.data.feed[0]
+    return res.data.feed
   }
 
   async fetch({

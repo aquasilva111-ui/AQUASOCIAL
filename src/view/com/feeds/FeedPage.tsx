@@ -34,6 +34,8 @@ import {truncateAndInvalidate} from '#/state/queries/util'
 import {useSession} from '#/state/session'
 import {useSetMinimalShellMode} from '#/state/shell'
 import {useFeedExperience} from '#/state/shell/feed-experience'
+import {atoms as a} from '#/alf'
+import {NewPostsPill} from '#/components/feeds/NewPostsPill'
 import {useHeaderOffset} from '#/components/hooks/useHeaderOffset'
 import {PostFeed} from '../posts/PostFeed'
 import {FAB} from '../util/fab/FAB'
@@ -77,6 +79,9 @@ export function FeedPage({
   const feedFeedback = useFeedFeedback(feedInfo, hasSession)
   const scrollElRef = useRef<ListMethods>(null)
   const [hasNew, setHasNew] = useState(false)
+  const [newPosters, setNewPosters] = useState<
+    AppBskyActorDefs.ProfileViewBasic[]
+  >([])
   const setHomeBadge = useSetHomeBadge()
   const isVideoFeed = useMemo(() => {
     const isBskyVideoFeed = VIDEO_FEED_URIS.includes(feedInfo.uri)
@@ -100,6 +105,28 @@ export function FeedPage({
     setMinimalShellMode(false)
   }, [headerOffset, setMinimalShellMode])
 
+  const onHasNew = useCallback(
+    (v: boolean, latestPosts?: AppBskyFeedDefs.PostView[]) => {
+      setHasNew(v)
+      if (!v) {
+        setNewPosters([])
+        return
+      }
+      if (latestPosts?.length) {
+        const seen = new Set<string>()
+        const authors: AppBskyActorDefs.ProfileViewBasic[] = []
+        for (const post of latestPosts) {
+          if (seen.has(post.author.did)) continue
+          seen.add(post.author.did)
+          authors.push(post.author)
+          if (authors.length === 3) break
+        }
+        setNewPosters(authors)
+      }
+    },
+    [setHasNew, setNewPosters],
+  )
+
   const onSoftReset = useCallback(() => {
     const isScreenFocused =
       getTabState(getRootNavigation(navigation).getState(), 'Home') ===
@@ -107,14 +134,14 @@ export function FeedPage({
     if (isScreenFocused && isPageFocused) {
       scrollToTop()
       truncateAndInvalidate(queryClient, FEED_RQKEY(feed))
-      setHasNew(false)
+      onHasNew(false)
       logEvent('feed:refresh', {
         feedType: feed.split('|')[0],
         feedUrl: feed,
         reason: 'soft-reset',
       })
     }
-  }, [navigation, isPageFocused, scrollToTop, queryClient, feed])
+  }, [navigation, isPageFocused, scrollToTop, queryClient, feed, onHasNew])
 
   // fires when page within screen is activated/deactivated
   useEffect(() => {
@@ -131,13 +158,13 @@ export function FeedPage({
   const onPressLoadLatest = useCallback(() => {
     scrollToTop()
     truncateAndInvalidate(queryClient, FEED_RQKEY(feed))
-    setHasNew(false)
+    onHasNew(false)
     logEvent('feed:refresh', {
       feedType: feed.split('|')[0],
       feedUrl: feed,
       reason: 'load-latest',
     })
-  }, [scrollToTop, feed, queryClient])
+  }, [scrollToTop, feed, queryClient, onHasNew])
 
   const shouldPrefetch = isNative && isPageAdjacent
   const isDiscoverFeed = feedInfo.uri === DISCOVER_FEED_URI
@@ -158,7 +185,7 @@ export function FeedPage({
             disablePoll={hasNew || !isPageFocused}
             scrollElRef={scrollElRef}
             onScrolledDownChange={setIsScrolledDown}
-            onHasNew={setHasNew}
+            onHasNew={onHasNew}
             renderEmptyState={renderEmptyState}
             renderEndOfFeed={renderEndOfFeed}
             headerOffset={headerOffset}
@@ -167,12 +194,33 @@ export function FeedPage({
           />
         </FeedFeedbackProvider>
       </MainScrollProvider>
-      {(isScrolledDown || hasNew) && (
-        <LoadLatestBtn
-          onPress={onPressLoadLatest}
-          label={_(msg`Load new posts`)}
-          showIndicator={hasNew}
-        />
+      {hasNew && newPosters.length > 0 ? (
+        <View
+          pointerEvents="box-none"
+          style={[
+            a.absolute,
+            a.z_20,
+            a.align_center,
+            {
+              top: headerOffset + 8,
+              left: 0,
+              right: 0,
+            },
+          ]}>
+          <NewPostsPill
+            authors={newPosters}
+            onPress={onPressLoadLatest}
+            label={_(msg`Load new posts`)}
+          />
+        </View>
+      ) : (
+        (isScrolledDown || hasNew) && (
+          <LoadLatestBtn
+            onPress={onPressLoadLatest}
+            label={_(msg`Load new posts`)}
+            showIndicator={hasNew}
+          />
+        )
       )}
 
       {hasSession && (

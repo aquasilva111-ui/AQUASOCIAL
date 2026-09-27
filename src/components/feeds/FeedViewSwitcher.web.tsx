@@ -34,7 +34,11 @@ const labels = {
   editorial: 'Editorial',
 }
 
-export function FeedViewSwitcher() {
+export function FeedViewSwitcher({
+  placement = 'page',
+}: {
+  placement?: 'page' | 'header'
+}) {
   const mode = useFeedExperience()
   const setMode = useSetFeedExperience()
   const theme = useTheme()
@@ -58,7 +62,11 @@ export function FeedViewSwitcher() {
   return (
     <div
       ref={root}
-      className="feed-view-switcher"
+      className={
+        placement === 'header'
+          ? 'feed-view-switcher feed-view-switcher--header'
+          : 'feed-view-switcher'
+      }
       data-theme={theme.name}
       onBlur={event => {
         if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false)
@@ -111,7 +119,11 @@ export function FeedViewSwitcher() {
           id={id}
           role="menu"
           aria-label="Feed view"
-          className="feed-view-menu">
+          className={
+            placement === 'header'
+              ? 'feed-view-menu feed-view-menu--end'
+              : 'feed-view-menu'
+          }>
           {FEED_EXPERIENCE_MODES.map(value => (
             <button
               key={value}

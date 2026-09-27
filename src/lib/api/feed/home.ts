@@ -61,11 +61,15 @@ export class HomeFeedAPI implements FeedAPI {
     this.itemCursor = 0
   }
 
-  async peekLatest(): Promise<AppBskyFeedDefs.FeedViewPost> {
+  async peekLatest({
+    limit,
+  }: {
+    limit?: number
+  } = {}): Promise<AppBskyFeedDefs.FeedViewPost[]> {
     if (this.usingDiscover) {
-      return this.discover.peekLatest()
+      return this.discover.peekLatest({limit})
     }
-    return this.following.peekLatest()
+    return this.following.peekLatest({limit})
   }
 
   async fetch({

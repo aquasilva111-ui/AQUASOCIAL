@@ -416,26 +416,26 @@ export function usePostFeedQuery(
   return query
 }
 
-export async function pollLatest(page: FeedPage | undefined) {
+export async function peekNewPosts(
+  page: FeedPage | undefined,
+  limit = 8,
+): Promise<AppBskyFeedDefs.PostView[]> {
   if (!page) {
-    return false
+    return []
   }
   if (AppState.currentState !== 'active') {
-    return
+    return []
   }
 
-  logger.debug('usePostFeedQuery: pollLatest')
-  const post = await page.api.peekLatest()
-  if (post) {
-    const slices = page.tuner.tune([post], {
-      dryRun: true,
-    })
-    if (slices[0]) {
-      return true
-    }
+  logger.debug('usePostFeedQuery: peekNewPosts')
+  const posts = await page.api.peekLatest({limit})
+  if (!posts.length) {
+    return []
   }
-
-  return false
+  const slices = page.tuner.tune(posts, {
+    dryRun: true,
+  })
+  return slices.flatMap(slice => (slice.items[0] ? [slice.items[0].post] : []))
 }
 
 function createApi({
