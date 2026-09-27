@@ -1025,7 +1025,11 @@ let PostFeed = ({
       })
     return (
       <Layout.Center
-        style={{paddingTop: headerOffset, ...(isNative ? {flex: 1} : {})}}>
+        style={{
+          paddingTop: headerOffset,
+          ...(isNative ? {flex: 1} : {}),
+          ...(!isNative && experienceMode === 'images' ? {maxWidth: 1260} : {}),
+        }}>
         <MediaGallery
           scrollElRef={scrollElRef}
           onScrolledDownChange={onScrolledDownChange}

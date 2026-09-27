@@ -74,9 +74,15 @@ function MediaCardInner({
         : 1
   const rkey = new AtUri(post.uri).rkey
   const href = `/${mode === 'video' ? 'videos/watch' : 'images/view'}/${post.author.did}/${rkey}`
+  const isPics = mode === 'images'
+  const authorName = post.author.displayName || post.author.handle
   return (
     <View
-      style={[a.overflow_hidden, a.pb_sm, {borderRadius: IMAGE_BORDER_RADIUS}]}
+      style={[
+        a.overflow_hidden,
+        !isPics && a.pb_sm,
+        {borderRadius: IMAGE_BORDER_RADIUS},
+      ]}
       testID={`media-card-${mode}`}>
       <Hider.Outer modui={modui}>
         <Hider.Mask>
@@ -101,7 +107,7 @@ function MediaCardInner({
                 accessibilityHint="Abre a publicação original"
                 source={thumbnail ? {uri: thumbnail} : undefined}
                 style={[a.w_full, a.h_full]}
-                contentFit={mode === 'images' ? 'contain' : 'cover'}
+                contentFit="cover"
                 accessibilityLabel={image?.alt || record.text}
                 transition={150}
                 recyclingKey={post.uri}
@@ -109,46 +115,70 @@ function MediaCardInner({
             </View>
             {!!record.text && (
               <Text
-                numberOfLines={mode === 'video' ? 2 : 3}
-                style={[a.pt_sm, a.text_sm, a.font_semi_bold, a.leading_snug]}>
+                numberOfLines={isPics ? 1 : 2}
+                style={[
+                  a.pt_sm,
+                  a.text_sm,
+                  isPics ? a.font_normal : a.font_semi_bold,
+                  a.leading_snug,
+                ]}>
                 {record.text}
               </Text>
             )}
           </Link>
-          <View style={[a.flex_row, a.gap_xs, a.align_center, a.pt_sm]}>
-            <PreviewableUserAvatar
-              size={24}
-              profile={post.author}
-              moderation={moderation.ui('avatar')}
-            />
-            <View style={[a.flex_1, {minWidth: 0}]}>
-              <PostMeta
-                author={post.author}
-                moderation={moderation}
-                timestamp={post.indexedAt}
-                postHref={href}
-              />
+          {isPics ? (
+            <View style={[a.flex_row, a.align_center, a.gap_sm, a.pt_xs]}>
+              <Text
+                numberOfLines={1}
+                style={[a.flex_1, a.text_xs, {color: t.palette.contrast_600}]}>
+                {authorName}
+              </Text>
+              <Text style={[a.text_sm, {color: t.palette.contrast_600}]}>
+                ...
+              </Text>
             </View>
-          </View>
-          <PostControls
-            style={{flexDirection: 'column', alignItems: 'stretch', gap: 6}}
-            post={post}
-            record={record}
-            richText={richText}
-            logContext="FeedItem"
-            variant="compact"
-            onPressReply={() =>
-              openComposer({
-                replyTo: {
-                  uri: post.uri,
-                  cid: post.cid,
-                  text: record.text,
-                  author: post.author,
-                },
-                onPost: () => {},
-              })
-            }
-          />
+          ) : (
+            <>
+              <View style={[a.flex_row, a.gap_xs, a.align_center, a.pt_sm]}>
+                <PreviewableUserAvatar
+                  size={24}
+                  profile={post.author}
+                  moderation={moderation.ui('avatar')}
+                />
+                <View style={[a.flex_1, {minWidth: 0}]}>
+                  <PostMeta
+                    author={post.author}
+                    moderation={moderation}
+                    timestamp={post.indexedAt}
+                    postHref={href}
+                  />
+                </View>
+              </View>
+              <PostControls
+                style={{
+                  flexDirection: 'column',
+                  alignItems: 'stretch',
+                  gap: 6,
+                }}
+                post={post}
+                record={record}
+                richText={richText}
+                logContext="FeedItem"
+                variant="compact"
+                onPressReply={() =>
+                  openComposer({
+                    replyTo: {
+                      uri: post.uri,
+                      cid: post.cid,
+                      text: record.text,
+                      author: post.author,
+                    },
+                    onPost: () => {},
+                  })
+                }
+              />
+            </>
+          )}
         </Hider.Content>
       </Hider.Outer>
     </View>
