@@ -44,7 +44,6 @@ import {
   SettingsGear2_Stroke2_Corner0_Rounded as Settings,
 } from '#/components/icons/SettingsGear2'
 import {UserCircle_Stroke2_Corner0_Rounded as UserCircle} from '#/components/icons/UserCircle'
-import {Window_Stroke2_Corner2_Rounded as WindowIcon} from '#/components/icons/Window'
 import {CENTER_COLUMN_OFFSET} from '#/components/Layout'
 import * as Menu from '#/components/Menu'
 import * as Prompt from '#/components/Prompt'
@@ -54,6 +53,7 @@ import {router} from '../../../routes'
 
 const NAV_ICON_WIDTH = 28
 const newsConventionsIcon = require('../../../../assets/icons/news-conventions.png')
+const portalsIcon = require('../../../../assets/icons/portals.png')
 const uiAiIcon = require('../../../../assets/icons/ui-ai.png')
 const videoStreamIcon = require('../../../../assets/icons/video-stream.png')
 
@@ -737,10 +737,14 @@ export function DesktopLeftNav() {
           />
           <PlaceholderNavItem
             icon={
-              <WindowIcon
-                aria-hidden={true}
-                width={NAV_ICON_WIDTH}
-                style={pal.text}
+              <Image
+                accessibilityIgnoresInvertColors
+                source={portalsIcon}
+                style={{
+                  width: NAV_ICON_WIDTH,
+                  height: NAV_ICON_WIDTH,
+                  tintColor: pal.text.color,
+                }}
               />
             }
             label="Portals"
