@@ -31,6 +31,7 @@ import {NavSignupCard} from '#/view/shell/NavSignupCard'
 import {atoms as a, tokens, useLayoutBreakpoints, useTheme, web} from '#/alf'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
 import {type DialogControlProps} from '#/components/Dialog'
+import {FeedViewSwitcher} from '#/components/feeds/FeedViewSwitcher'
 import {ArrowBoxLeft_Stroke2_Corner0_Rounded as LeaveIcon} from '#/components/icons/ArrowBoxLeft'
 import {Book_Stroke2_Corner2_Rounded as Book} from '#/components/icons/Book'
 import {DotGrid_Stroke2_Corner0_Rounded as EllipsisIcon} from '#/components/icons/DotGrid'
@@ -583,7 +584,7 @@ function ComposeBtn() {
   }
 
   return (
-    <View style={[a.flex_row, a.pl_md, a.pt_xl]}>
+    <View style={[a.flex_row, a.align_center, a.gap_sm, a.pl_md, a.pt_xl]}>
       <Button
         disabled={isFetchingHandle}
         label={_(msg`Compose new post`)}
@@ -597,6 +598,7 @@ function ComposeBtn() {
           <Trans context="action">New Post</Trans>
         </ButtonText>
       </Button>
+      <FeedViewSwitcher placement="compose" />
     </View>
   )
 }

@@ -9,6 +9,7 @@ import {
 } from '#/state/shell/feed-experience'
 import {useTheme} from '#/alf'
 import {ChevronBottom_Stroke2_Corner0_Rounded as Chevron} from '#/components/icons/Chevron'
+import {DotGrid_Stroke2_Corner0_Rounded as DotGrid} from '#/components/icons/DotGrid'
 import {HomeOpen_Stoke2_Corner0_Rounded as Social} from '#/components/icons/HomeOpen'
 import {Image_Stroke2_Corner0_Rounded as Images} from '#/components/icons/Image'
 import {Message_Stroke2_Corner0_Rounded as Streams} from '#/components/icons/Message'
@@ -37,7 +38,7 @@ const labels = {
 export function FeedViewSwitcher({
   placement = 'page',
 }: {
-  placement?: 'page' | 'header'
+  placement?: 'page' | 'header' | 'compose'
 }) {
   const mode = useFeedExperience()
   const setMode = useSetFeedExperience()
@@ -64,9 +65,11 @@ export function FeedViewSwitcher({
     <div
       ref={root}
       className={
-        placement === 'header'
-          ? 'feed-view-switcher feed-view-switcher--header'
-          : 'feed-view-switcher'
+        placement === 'compose'
+          ? 'feed-view-switcher feed-view-switcher--compose'
+          : placement === 'header'
+            ? 'feed-view-switcher feed-view-switcher--header'
+            : 'feed-view-switcher'
       }
       data-theme={theme.name}
       onBlur={event => {
@@ -112,8 +115,14 @@ export function FeedViewSwitcher({
         aria-expanded={open}
         aria-controls={open ? id : undefined}
         onClick={() => setOpen(value => !value)}>
-        <CurrentIcon width={18} fill="currentColor" aria-hidden />
-        <Chevron width={14} fill="currentColor" aria-hidden />
+        {placement === 'compose' ? (
+          <DotGrid width={24} fill="currentColor" aria-hidden />
+        ) : (
+          <>
+            <CurrentIcon width={18} fill="currentColor" aria-hidden />
+            <Chevron width={14} fill="currentColor" aria-hidden />
+          </>
+        )}
       </button>
       {open && (
         <div
@@ -121,7 +130,7 @@ export function FeedViewSwitcher({
           role="menu"
           aria-label="Feed view"
           className={
-            placement === 'header'
+            placement === 'header' || placement === 'compose'
               ? 'feed-view-menu feed-view-menu--end'
               : 'feed-view-menu'
           }>

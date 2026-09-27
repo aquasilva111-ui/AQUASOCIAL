@@ -39,7 +39,9 @@ const experienceLabels = {
  * header. Web has a richer dropdown version in FeedViewSwitcher.web.tsx.
  * `placement` is web-only (header row vs below the tab bar) and ignored here.
  */
-export function FeedViewSwitcher(_props: {placement?: 'page' | 'header'}) {
+export function FeedViewSwitcher(_props: {
+  placement?: 'page' | 'header' | 'compose'
+}) {
   const mode = useFeedExperience()
   const setMode = useSetFeedExperience()
   const t = useTheme()

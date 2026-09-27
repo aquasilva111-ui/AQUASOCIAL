@@ -13,6 +13,10 @@
   align-self: center;
   padding: 0 8px;
 }
+.feed-view-switcher--compose {
+  align-self: center;
+  padding: 0;
+}
 .feed-view-trigger {
   height: 30px;
   min-width: 54px;
@@ -33,6 +37,23 @@
   font: inherit;
   font-size: 13px;
   cursor: pointer;
+}
+.feed-view-switcher--compose .feed-view-trigger {
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  padding: 0;
+  justify-content: center;
+  gap: 0;
+  border: 0;
+  color: #fff;
+  background: #002bef;
+  box-shadow: 0 10px 22px rgba(0, 43, 239, 0.22);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.feed-view-switcher--compose .feed-view-trigger:hover {
+  background: #0057ff;
 }
 .feed-view-menu {
   position: absolute;
