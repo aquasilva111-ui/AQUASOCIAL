@@ -1,5 +1,6 @@
 .feed-view-switcher {
   position: relative;
+  z-index: 30;
   align-self: stretch;
   display: flex;
   align-items: center;
@@ -35,20 +36,20 @@
 }
 .feed-view-menu {
   position: absolute;
-  top: calc(100% - 2px);
+  top: calc(100% + 8px);
   left: 50%;
   transform: translateX(-50%);
-  z-index: 20;
+  z-index: 100;
   width: min(320px, calc(100vw - 24px));
   padding: 6px;
   box-sizing: border-box;
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 4px;
-  background: rgba(249, 252, 255, 0.72);
+  background: rgba(249, 252, 255, 0.96);
   -webkit-backdrop-filter: blur(18px) saturate(1.6);
   backdrop-filter: blur(18px) saturate(1.6);
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(136, 153, 170, 0.28);
   border-radius: 18px;
   box-shadow: 0 12px 32px rgba(15, 23, 42, 0.16);
   animation: feed-view-open 150ms ease-out;
@@ -120,7 +121,7 @@
 }
 .feed-view-switcher[data-theme='dark'] .feed-view-menu,
 .feed-view-switcher[data-theme='dim'] .feed-view-menu {
-  background: rgba(32, 39, 43, 0.72);
+  background: rgba(32, 39, 43, 0.96);
   border-color: rgba(255, 255, 255, 0.12);
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
 }
