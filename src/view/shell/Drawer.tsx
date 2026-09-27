@@ -26,10 +26,6 @@ import {atoms as a, tokens, useTheme, web} from '#/alf'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
 import {Divider} from '#/components/Divider'
 import {
-  Hashtag_Filled_Corner0_Rounded as HashtagFilled,
-  Hashtag_Stroke2_Corner0_Rounded as Hashtag,
-} from '#/components/icons/Hashtag'
-import {
   HomeOpen_Filled_Corner0_Rounded as HomeFilled,
   HomeOpen_Stoke2_Corner0_Rounded as Home,
 } from '#/components/icons/HomeOpen'
@@ -39,6 +35,7 @@ import {MagnifyingGlass_Filled_Stroke2_Corner0_Rounded as MagnifyingGlassFilled}
 import {MagnifyingGlass2_Stroke2_Corner0_Rounded as MagnifyingGlass} from '#/components/icons/MagnifyingGlass2'
 import {Message_Stroke2_Corner0_Rounded as Message} from '#/components/icons/Message'
 import {SettingsGear2_Stroke2_Corner0_Rounded as Settings} from '#/components/icons/SettingsGear2'
+import {Sparkle_Stroke2_Corner0_Rounded as Sparkle} from '#/components/icons/Sparkle'
 import {InlineLinkText} from '#/components/Link'
 import {Text} from '#/components/Typography'
 import {useSimpleVerificationState} from '#/components/verification'
@@ -135,7 +132,7 @@ let DrawerContent = ({}: React.PropsWithoutRef<{}>): React.ReactNode => {
   const insets = useSafeAreaInsets()
   const setDrawerOpen = useSetDrawerOpen()
   const navigation = useNavigation<NavigationProp>()
-  const {isAtHome, isAtSearch, isAtFeeds} = useNavigationTabState()
+  const {isAtHome, isAtSearch} = useNavigationTabState()
   const {hasSession, currentAccount} = useSession()
 
   // events
@@ -193,11 +190,6 @@ let DrawerContent = ({}: React.PropsWithoutRef<{}>): React.ReactNode => {
     onPressTab('MyProfile')
   }, [onPressTab])
 
-  const onPressMyFeeds = React.useCallback(() => {
-    navigation.navigate('Feeds')
-    setDrawerOpen(false)
-  }, [navigation, setDrawerOpen])
-
   const onPressSettings = React.useCallback(() => {
     navigation.navigate('Settings')
     setDrawerOpen(false)
@@ -249,6 +241,13 @@ let DrawerContent = ({}: React.PropsWithoutRef<{}>): React.ReactNode => {
         </View>
 
         <MenuItem
+          icon={<Sparkle width={iconWidth} style={t.atoms.text} />}
+          label="UI & AI"
+          onPress={() => {
+            setDrawerOpen(false)
+          }}
+        />
+        <MenuItem
           icon={<ImagesIcon width={iconWidth} style={t.atoms.text} />}
           label="Pics"
           onPress={() => {
@@ -266,13 +265,11 @@ let DrawerContent = ({}: React.PropsWithoutRef<{}>): React.ReactNode => {
         />
         {hasSession ? (
           <>
-            <FeedsMenuItem isActive={isAtFeeds} onPress={onPressMyFeeds} />
             <SettingsMenuItem onPress={onPressSettings} />
           </>
         ) : (
           <>
             <HomeMenuItem isActive={isAtHome} onPress={onPressHome} />
-            <FeedsMenuItem isActive={isAtFeeds} onPress={onPressMyFeeds} />
             <SearchMenuItem isActive={isAtSearch} onPress={onPressSearch} />
           </>
         )}
@@ -404,32 +401,6 @@ let HomeMenuItem = ({
   )
 }
 HomeMenuItem = React.memo(HomeMenuItem)
-
-let FeedsMenuItem = ({
-  isActive,
-  onPress,
-}: {
-  isActive: boolean
-  onPress: () => void
-}): React.ReactNode => {
-  const {_} = useLingui()
-  const t = useTheme()
-  return (
-    <MenuItem
-      icon={
-        isActive ? (
-          <HashtagFilled width={iconWidth} style={[t.atoms.text]} />
-        ) : (
-          <Hashtag width={iconWidth} style={[t.atoms.text]} />
-        )
-      }
-      label={_(msg`Feeds`)}
-      bold={isActive}
-      onPress={onPress}
-    />
-  )
-}
-FeedsMenuItem = React.memo(FeedsMenuItem)
 
 let SettingsMenuItem = ({onPress}: {onPress: () => void}): React.ReactNode => {
   const {_} = useLingui()

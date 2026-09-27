@@ -35,17 +35,15 @@ import {ArrowBoxLeft_Stroke2_Corner0_Rounded as LeaveIcon} from '#/components/ic
 import {Book_Stroke2_Corner2_Rounded as Book} from '#/components/icons/Book'
 import {DotGrid_Stroke2_Corner0_Rounded as EllipsisIcon} from '#/components/icons/DotGrid'
 import {EditBig_Stroke2_Corner0_Rounded as EditBig} from '#/components/icons/EditBig'
-import {
-  Hashtag_Filled_Corner0_Rounded as HashtagFilled,
-  Hashtag_Stroke2_Corner0_Rounded as Hashtag,
-} from '#/components/icons/Hashtag'
 import {Image_Stroke2_Corner0_Rounded as ImagesIcon} from '#/components/icons/Image'
 import {LiveVideo_Stroke2_Corner0_Rounded as VideosIcon} from '#/components/icons/LiveVideo'
+import {Newspaper_Stroke2_Corner2_Rounded as Newspaper} from '#/components/icons/Newspaper'
 import {PlusLarge_Stroke2_Corner0_Rounded as PlusIcon} from '#/components/icons/Plus'
 import {
   SettingsGear2_Filled_Corner0_Rounded as SettingsFilled,
   SettingsGear2_Stroke2_Corner0_Rounded as Settings,
 } from '#/components/icons/SettingsGear2'
+import {Sparkle_Stroke2_Corner0_Rounded as Sparkle} from '#/components/icons/Sparkle'
 import {UserCircle_Stroke2_Corner0_Rounded as UserCircle} from '#/components/icons/UserCircle'
 import {Window_Stroke2_Corner2_Rounded as WindowIcon} from '#/components/icons/Window'
 import {CENTER_COLUMN_OFFSET} from '#/components/Layout'
@@ -640,6 +638,12 @@ export function DesktopLeftNav() {
         </View>
       ) : null}
 
+      <PlaceholderNavItem
+        icon={
+          <Sparkle aria-hidden={true} width={NAV_ICON_WIDTH} style={pal.text} />
+        }
+        label="UI & AI"
+      />
       <NavItem
         href="/images"
         icon={<ImagesIcon style={pal.text} width={NAV_ICON_WIDTH} />}
@@ -654,24 +658,6 @@ export function DesktopLeftNav() {
       />
       {hasSession && (
         <>
-          <NavItem
-            href="/feeds"
-            icon={
-              <Hashtag
-                style={pal.text}
-                aria-hidden={true}
-                width={NAV_ICON_WIDTH}
-              />
-            }
-            iconFilled={
-              <HashtagFilled
-                style={pal.text}
-                aria-hidden={true}
-                width={NAV_ICON_WIDTH}
-              />
-            }
-            label={_(msg`Feeds`)}
-          />
           <PlaceholderNavItem
             icon={
               <Book
@@ -691,6 +677,16 @@ export function DesktopLeftNav() {
               />
             }
             label="Wiki"
+          />
+          <PlaceholderNavItem
+            icon={
+              <Newspaper
+                aria-hidden={true}
+                width={NAV_ICON_WIDTH}
+                style={pal.text}
+              />
+            }
+            label="News & Conventions"
           />
           <PlaceholderNavItem
             icon={
