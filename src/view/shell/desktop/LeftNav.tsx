@@ -39,7 +39,6 @@ import {EditBig_Stroke2_Corner0_Rounded as EditBig} from '#/components/icons/Edi
 import {Gift1_Stroke2_Corner0_Rounded as GiftIcon} from '#/components/icons/Gift1'
 import {Image_Stroke2_Corner0_Rounded as ImagesIcon} from '#/components/icons/Image'
 import {LiveVideo_Stroke2_Corner0_Rounded as VideosIcon} from '#/components/icons/LiveVideo'
-import {Newspaper_Stroke2_Corner2_Rounded as Newspaper} from '#/components/icons/Newspaper'
 import {PlusLarge_Stroke2_Corner0_Rounded as PlusIcon} from '#/components/icons/Plus'
 import {
   SettingsGear2_Filled_Corner0_Rounded as SettingsFilled,
@@ -55,6 +54,7 @@ import {PlatformInfo} from '../../../../modules/expo-bluesky-swiss-army'
 import {router} from '../../../routes'
 
 const NAV_ICON_WIDTH = 28
+const newsConventionsIcon = require('../../../../assets/icons/news-conventions.png')
 const uiAiIcon = require('../../../../assets/icons/ui-ai.png')
 
 function ProfileCard() {
@@ -703,10 +703,14 @@ export function DesktopLeftNav() {
           />
           <PlaceholderNavItem
             icon={
-              <Newspaper
-                aria-hidden={true}
-                width={NAV_ICON_WIDTH}
-                style={pal.text}
+              <Image
+                accessibilityIgnoresInvertColors
+                source={newsConventionsIcon}
+                style={{
+                  width: NAV_ICON_WIDTH,
+                  height: NAV_ICON_WIDTH,
+                  tintColor: pal.text.color,
+                }}
               />
             }
             label="News & Conventions"
