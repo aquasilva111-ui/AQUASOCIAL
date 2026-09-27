@@ -34,6 +34,7 @@ import {type DialogControlProps} from '#/components/Dialog'
 import {FeedViewSwitcher} from '#/components/feeds/FeedViewSwitcher'
 import {ArrowBoxLeft_Stroke2_Corner0_Rounded as LeaveIcon} from '#/components/icons/ArrowBoxLeft'
 import {Book_Stroke2_Corner2_Rounded as Book} from '#/components/icons/Book'
+import {CirclePlus_Stroke2_Corner0_Rounded as CirclePlusIcon} from '#/components/icons/CirclePlus'
 import {DotGrid_Stroke2_Corner0_Rounded as EllipsisIcon} from '#/components/icons/DotGrid'
 import {EditBig_Stroke2_Corner0_Rounded as EditBig} from '#/components/icons/EditBig'
 import {Image_Stroke2_Corner0_Rounded as ImagesIcon} from '#/components/icons/Image'
@@ -42,6 +43,7 @@ import {
   SettingsGear2_Filled_Corner0_Rounded as SettingsFilled,
   SettingsGear2_Stroke2_Corner0_Rounded as Settings,
 } from '#/components/icons/SettingsGear2'
+import {Ticket_Stroke2_Corner0_Rounded as TicketIcon} from '#/components/icons/Ticket'
 import {UserCircle_Stroke2_Corner0_Rounded as UserCircle} from '#/components/icons/UserCircle'
 import {CENTER_COLUMN_OFFSET} from '#/components/Layout'
 import * as Menu from '#/components/Menu'
@@ -762,6 +764,26 @@ export function DesktopLeftNav() {
               />
             }
             label="Communities"
+          />
+          <PlaceholderNavItem
+            icon={
+              <CirclePlusIcon
+                aria-hidden={true}
+                width={NAV_ICON_WIDTH}
+                style={pal.text}
+              />
+            }
+            label="Fund"
+          />
+          <PlaceholderNavItem
+            icon={
+              <TicketIcon
+                aria-hidden={true}
+                width={NAV_ICON_WIDTH}
+                style={pal.text}
+              />
+            }
+            label="Wallet"
           />
           <NavItem
             href="/settings"
