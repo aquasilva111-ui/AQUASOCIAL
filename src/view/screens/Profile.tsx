@@ -42,7 +42,6 @@ import {FAB} from '#/view/com/util/fab/FAB'
 import {type ListRef} from '#/view/com/util/List'
 import {ProfileHeader, ProfileHeaderLoading} from '#/screens/Profile/Header'
 import {ProfileFeedSection} from '#/screens/Profile/Sections/Feed'
-import {ProfileImageFoldersSection} from '#/screens/Profile/Sections/ImageFolders'
 import {ProfileLabelsSection} from '#/screens/Profile/Sections/Labels'
 import {atoms as a} from '#/alf'
 import {Circle_And_Square_Stroke1_Corner0_Rounded_Filled as CircleAndSquareIcon} from '#/components/icons/CircleAndSquare'
@@ -195,7 +194,6 @@ function ProfileScreenLoaded({
   const postsSectionRef = React.useRef<SectionRef>(null)
   const repliesSectionRef = React.useRef<SectionRef>(null)
   const mediaSectionRef = React.useRef<SectionRef>(null)
-  const foldersSectionRef = React.useRef<SectionRef>(null)
   const videosSectionRef = React.useRef<SectionRef>(null)
   const likesSectionRef = React.useRef<SectionRef>(null)
   const feedsSectionRef = React.useRef<SectionRef>(null)
@@ -220,7 +218,6 @@ function ProfileScreenLoaded({
   const showPostsTab = true
   const showRepliesTab = hasSession
   const showMediaTab = !hasLabeler
-  const showFoldersTab = isMe && !hasLabeler
   const showVideosTab = !hasLabeler
   const showLikesTab = isMe
   const feedGenCount = profile.associated?.feedgens || 0
@@ -237,7 +234,6 @@ function ProfileScreenLoaded({
     showPostsTab ? _(msg`Posts`) : undefined,
     showRepliesTab ? _(msg`Replies`) : undefined,
     showMediaTab ? _(msg`Media`) : undefined,
-    showFoldersTab ? _(msg`Folders`) : undefined,
     showVideosTab ? _(msg`Videos`) : undefined,
     showLikesTab ? _(msg`Likes`) : undefined,
     showFeedsTab ? _(msg`Feeds`) : undefined,
@@ -250,7 +246,6 @@ function ProfileScreenLoaded({
   let postsIndex: number | null = null
   let repliesIndex: number | null = null
   let mediaIndex: number | null = null
-  let foldersIndex: number | null = null
   let videosIndex: number | null = null
   let likesIndex: number | null = null
   let feedsIndex: number | null = null
@@ -267,9 +262,6 @@ function ProfileScreenLoaded({
   }
   if (showMediaTab) {
     mediaIndex = nextIndex++
-  }
-  if (showFoldersTab) {
-    foldersIndex = nextIndex++
   }
   if (showVideosTab) {
     videosIndex = nextIndex++
@@ -297,8 +289,6 @@ function ProfileScreenLoaded({
         repliesSectionRef.current?.scrollToTop()
       } else if (index === mediaIndex) {
         mediaSectionRef.current?.scrollToTop()
-      } else if (index === foldersIndex) {
-        foldersSectionRef.current?.scrollToTop()
       } else if (index === videosIndex) {
         videosSectionRef.current?.scrollToTop()
       } else if (index === likesIndex) {
@@ -316,7 +306,6 @@ function ProfileScreenLoaded({
       postsIndex,
       repliesIndex,
       mediaIndex,
-      foldersIndex,
       videosIndex,
       likesIndex,
       feedsIndex,
@@ -484,15 +473,6 @@ function ProfileScreenLoaded({
                   color: 'primary',
                 }}
                 emptyStateIcon={ImageIcon}
-              />
-            )
-          : null}
-        {showFoldersTab
-          ? ({headerHeight, scrollElRef}) => (
-              <ProfileImageFoldersSection
-                ref={foldersSectionRef}
-                headerHeight={headerHeight}
-                scrollElRef={scrollElRef as ListRef}
               />
             )
           : null}
