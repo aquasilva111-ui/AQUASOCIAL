@@ -57,7 +57,7 @@ function MediaDetail({
     <Layout.Screen testID={`aqua-detail-${mode}`}>
       <PostThread
         uri={uri}
-        title={mode === 'video' ? 'AQUA Videos' : 'AQUA Pics'}
+        title={mode === 'video' ? 'AQUA Video+Stream' : 'AQUA Pics'}
         related={<RelatedMedia uri={uri} mode={mode} />}
       />
     </Layout.Screen>

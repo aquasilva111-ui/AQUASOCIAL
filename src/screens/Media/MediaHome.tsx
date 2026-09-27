@@ -164,7 +164,7 @@ function MediaHome({mode}: {mode: MediaExperience}) {
         <Layout.Header.BackButton />
         <Layout.Header.Content>
           <Layout.Header.TitleText>
-            {mode === 'images' ? 'AQUA Pics' : 'AQUA Videos'}
+            {mode === 'images' ? 'AQUA Pics' : 'AQUA Video+Stream'}
           </Layout.Header.TitleText>
         </Layout.Header.Content>
       </Layout.Header.Outer>

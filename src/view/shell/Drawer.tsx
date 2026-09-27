@@ -271,7 +271,7 @@ let DrawerContent = ({}: React.PropsWithoutRef<{}>): React.ReactNode => {
         />
         <MenuItem
           icon={<VideosIcon width={iconWidth} style={t.atoms.text} />}
-          label="Videos"
+          label="Video+Stream"
           onPress={() => {
             navigation.navigate('Videos')
             setDrawerOpen(false)

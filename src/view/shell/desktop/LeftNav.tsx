@@ -655,7 +655,7 @@ export function DesktopLeftNav() {
         href="/videos"
         icon={<VideosIcon style={pal.text} width={NAV_ICON_WIDTH} />}
         iconFilled={<VideosIcon style={pal.text} width={NAV_ICON_WIDTH} />}
-        label="Videos"
+        label="Video+Stream"
       />
       {hasSession && (
         <>

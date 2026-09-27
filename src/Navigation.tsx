@@ -611,7 +611,7 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
       <Stack.Screen
         name="Videos"
         component={VideosScreen}
-        options={{title: 'AQUA Videos'}}
+        options={{title: 'AQUA Video+Stream'}}
       />
       <Stack.Screen
         name="ImageDetail"
@@ -621,7 +621,7 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
       <Stack.Screen
         name="VideoWatch"
         component={VideoWatchScreen}
-        options={{title: 'AQUA Videos'}}
+        options={{title: 'AQUA Video+Stream'}}
       />
       <Stack.Screen
         name="Bookmarks"
