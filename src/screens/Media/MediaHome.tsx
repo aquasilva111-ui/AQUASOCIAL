@@ -200,13 +200,16 @@ function MediaHome({mode}: {mode: MediaExperience}) {
   const wideContent = isVideoWeb
     ? {maxWidth: 1200, width: '100%' as const}
     : undefined
+  const visibleSources = isVideoWeb
+    ? sources.filter(value => value !== 'search')
+    : sources
   const controls = (
     <>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={[a.gap_xs, a.p_md]}>
-        {sources.map(value => (
+        {visibleSources.map(value => (
           <Button
             key={value}
             label={labels[value]}
@@ -221,7 +224,7 @@ function MediaHome({mode}: {mode: MediaExperience}) {
           </Button>
         ))}
       </ScrollView>
-      {source === 'search' && (
+      {source === 'search' && !isVideoWeb && (
         <View style={[a.flex_row, a.gap_sm, a.px_md, a.pb_sm]}>
           <TextInput
             value={draft}
