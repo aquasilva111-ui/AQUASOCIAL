@@ -38,7 +38,6 @@ import {DotGrid_Stroke2_Corner0_Rounded as EllipsisIcon} from '#/components/icon
 import {EditBig_Stroke2_Corner0_Rounded as EditBig} from '#/components/icons/EditBig'
 import {Gift1_Stroke2_Corner0_Rounded as GiftIcon} from '#/components/icons/Gift1'
 import {Image_Stroke2_Corner0_Rounded as ImagesIcon} from '#/components/icons/Image'
-import {LiveVideo_Stroke2_Corner0_Rounded as VideosIcon} from '#/components/icons/LiveVideo'
 import {PlusLarge_Stroke2_Corner0_Rounded as PlusIcon} from '#/components/icons/Plus'
 import {
   SettingsGear2_Filled_Corner0_Rounded as SettingsFilled,
@@ -56,6 +55,7 @@ import {router} from '../../../routes'
 const NAV_ICON_WIDTH = 28
 const newsConventionsIcon = require('../../../../assets/icons/news-conventions.png')
 const uiAiIcon = require('../../../../assets/icons/ui-ai.png')
+const videoStreamIcon = require('../../../../assets/icons/video-stream.png')
 
 function ProfileCard() {
   const {currentAccount, accounts} = useSession()
@@ -665,8 +665,28 @@ export function DesktopLeftNav() {
       />
       <NavItem
         href="/videos"
-        icon={<VideosIcon style={pal.text} width={NAV_ICON_WIDTH} />}
-        iconFilled={<VideosIcon style={pal.text} width={NAV_ICON_WIDTH} />}
+        icon={
+          <Image
+            accessibilityIgnoresInvertColors
+            source={videoStreamIcon}
+            style={{
+              width: NAV_ICON_WIDTH,
+              height: NAV_ICON_WIDTH,
+              tintColor: pal.text.color,
+            }}
+          />
+        }
+        iconFilled={
+          <Image
+            accessibilityIgnoresInvertColors
+            source={videoStreamIcon}
+            style={{
+              width: NAV_ICON_WIDTH,
+              height: NAV_ICON_WIDTH,
+              tintColor: pal.text.color,
+            }}
+          />
+        }
         label="Video+Stream"
       />
       {hasSession && (
