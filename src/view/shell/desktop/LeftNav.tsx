@@ -1,5 +1,5 @@
 import {type JSX, useCallback, useMemo, useState} from 'react'
-import {StyleSheet, View} from 'react-native'
+import {Image, StyleSheet, View} from 'react-native'
 import {type AppBskyActorDefs} from '@atproto/api'
 import {msg, plural, Trans} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
@@ -44,7 +44,6 @@ import {
   SettingsGear2_Filled_Corner0_Rounded as SettingsFilled,
   SettingsGear2_Stroke2_Corner0_Rounded as Settings,
 } from '#/components/icons/SettingsGear2'
-import {Sparkle_Stroke2_Corner0_Rounded as Sparkle} from '#/components/icons/Sparkle'
 import {UserCircle_Stroke2_Corner0_Rounded as UserCircle} from '#/components/icons/UserCircle'
 import {Window_Stroke2_Corner2_Rounded as WindowIcon} from '#/components/icons/Window'
 import {CENTER_COLUMN_OFFSET} from '#/components/Layout'
@@ -55,6 +54,7 @@ import {PlatformInfo} from '../../../../modules/expo-bluesky-swiss-army'
 import {router} from '../../../routes'
 
 const NAV_ICON_WIDTH = 28
+const uiAiIcon = require('../../../../assets/icons/ui-ai.png')
 
 function ProfileCard() {
   const {currentAccount, accounts} = useSession()
@@ -642,9 +642,19 @@ export function DesktopLeftNav() {
 
       <PlaceholderNavItem
         icon={
-          <Sparkle aria-hidden={true} width={NAV_ICON_WIDTH} style={pal.text} />
+          <Image
+            accessibilityIgnoresInvertColors
+            source={uiAiIcon}
+            style={[
+              {
+                width: NAV_ICON_WIDTH,
+                height: NAV_ICON_WIDTH,
+                tintColor: pal.text.color,
+              },
+            ]}
+          />
         }
-        label="UI & AI"
+        label="IU & AI"
       />
       <NavItem
         href="/images"
@@ -699,6 +709,16 @@ export function DesktopLeftNav() {
               />
             }
             label="Portals"
+          />
+          <PlaceholderNavItem
+            icon={
+              <UserCircle
+                aria-hidden={true}
+                width={NAV_ICON_WIDTH}
+                style={pal.text}
+              />
+            }
+            label="Communities"
           />
           <NavItem
             href="/settings"

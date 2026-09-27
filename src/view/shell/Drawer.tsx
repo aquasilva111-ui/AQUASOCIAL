@@ -1,5 +1,5 @@
 import React, {type ComponentProps, type JSX} from 'react'
-import {Linking, ScrollView, TouchableOpacity, View} from 'react-native'
+import {Image, Linking, ScrollView, TouchableOpacity, View} from 'react-native'
 import {useSafeAreaInsets} from 'react-native-safe-area-context'
 import {msg, Plural, Trans} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
@@ -35,13 +35,13 @@ import {MagnifyingGlass_Filled_Stroke2_Corner0_Rounded as MagnifyingGlassFilled}
 import {MagnifyingGlass2_Stroke2_Corner0_Rounded as MagnifyingGlass} from '#/components/icons/MagnifyingGlass2'
 import {Message_Stroke2_Corner0_Rounded as Message} from '#/components/icons/Message'
 import {SettingsGear2_Stroke2_Corner0_Rounded as Settings} from '#/components/icons/SettingsGear2'
-import {Sparkle_Stroke2_Corner0_Rounded as Sparkle} from '#/components/icons/Sparkle'
 import {InlineLinkText} from '#/components/Link'
 import {Text} from '#/components/Typography'
 import {useSimpleVerificationState} from '#/components/verification'
 import {VerificationCheck} from '#/components/verification/VerificationCheck'
 
 const iconWidth = 26
+const uiAiIcon = require('../../../assets/icons/ui-ai.png')
 
 let DrawerProfileCard = ({
   account,
@@ -241,8 +241,20 @@ let DrawerContent = ({}: React.PropsWithoutRef<{}>): React.ReactNode => {
         </View>
 
         <MenuItem
-          icon={<Sparkle width={iconWidth} style={t.atoms.text} />}
-          label="UI & AI"
+          icon={
+            <Image
+              accessibilityIgnoresInvertColors
+              source={uiAiIcon}
+              style={[
+                {
+                  width: iconWidth,
+                  height: iconWidth,
+                  tintColor: t.atoms.text.color,
+                },
+              ]}
+            />
+          }
+          label="IU & AI"
           onPress={() => {
             setDrawerOpen(false)
           }}
