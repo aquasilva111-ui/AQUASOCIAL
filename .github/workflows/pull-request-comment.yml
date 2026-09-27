@@ -32,7 +32,7 @@ jobs:
           fi
 
 
-          if [[ "${{ github.event.comment.body }}" == *"ota"* ]]; then
+          if [[ "$COMMENT" == *"ota"* ]]; then
             has_ota=true
           else
             has_ota=false
@@ -40,9 +40,9 @@ jobs:
 
 
           if [[ "$bot_mentioned" == "true" ]] && [[ "$has_ota" == "true" ]]; then
-            echo "mentioned=true" >> $GITHUB_OUTPUT
+            echo "mentioned=true" >> "$GITHUB_OUTPUT"
           else
-            echo "mentioned=false" >> $GITHUB_OUTPUT
+            echo "mentioned=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Check organization membership
