@@ -131,7 +131,7 @@ function MediaCardInner({
             </View>
           </View>
           <PostControls
-            style={{flexDirection: 'column', alignItems: 'stretch', gap: 6}}
+            style={{paddingTop: 6}}
             post={post}
             record={record}
             richText={richText}

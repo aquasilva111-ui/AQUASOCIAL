@@ -1,7 +1,7 @@
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
 import {ScrollView, TextInput, View} from 'react-native'
 import {AppBskyFeedDefs, AppBskyFeedPost, moderatePost} from '@atproto/api'
-import {useIsFocused} from '@react-navigation/native'
+import {useIsFocused, useRoute} from '@react-navigation/native'
 
 import {DISCOVER_FEED_URI} from '#/lib/constants'
 import {usePostViewTracking} from '#/lib/hooks/usePostViewTracking'
@@ -10,7 +10,7 @@ import {
   isMediaPost,
   type MediaExperience,
 } from '#/lib/media/experiences'
-import {isNative} from '#/platform/detection'
+import {isNative, isWeb} from '#/platform/detection'
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {useBookmarksQuery} from '#/state/queries/bookmarks/useBookmarksQuery'
 import {
@@ -21,9 +21,11 @@ import {
 import {useSearchPostsQuery} from '#/state/queries/search-posts'
 import {useSession} from '#/state/session'
 import {useSelectedFeed} from '#/state/shell/selected-feed'
+import {Logo} from '#/view/icons/Logo'
 import {atoms as a, useTheme} from '#/alf'
 import {Button, ButtonText} from '#/components/Button'
 import {MediaGallery} from '#/components/feeds/MediaGallery'
+import {SearchInput} from '#/components/forms/SearchInput'
 import * as Layout from '#/components/Layout'
 import {Text} from '#/components/Typography'
 import * as bsky from '#/types/bsky'
@@ -61,6 +63,8 @@ function MediaHome({mode}: {mode: MediaExperience}) {
   const [draft, setDraft] = useState('')
   const [query, setQuery] = useState('')
   const [topic, setTopic] = useState<string | undefined>()
+  const route = useRoute()
+  const routeParams = route.params as {source?: Source; q?: string} | undefined
   const trackView = usePostViewTracking('FeedItem')
   const descriptor: FeedDescriptor =
     source === 'following'
@@ -158,17 +162,67 @@ function MediaHome({mode}: {mode: MediaExperience}) {
   const sources: Source[] = hasSession
     ? ['current', 'discover', 'following', 'created', 'saved', 'search']
     : ['current', 'discover', 'search']
+  useEffect(() => {
+    const next = routeParams?.source
+    if (next && sources.includes(next) && next !== source) {
+      setSource(next)
+      setTopic(undefined)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [routeParams?.source, hasSession])
+  useEffect(() => {
+    const q = routeParams?.q
+    if (q) {
+      setDraft(q)
+      setQuery(q)
+      setSource('search')
+    }
+  }, [routeParams?.q])
+  const submitSearch = useCallback(() => {
+    setQuery(draft.trim())
+    setSource('search')
+    setTopic(undefined)
+  }, [draft])
+  const clearSearch = useCallback(() => {
+    setDraft('')
+    setQuery('')
+    setSource('current')
+  }, [])
+  const wideContent =
+    isWeb && mode === 'video'
+      ? {maxWidth: 1200, width: '100%' as const}
+      : undefined
   return (
     <Layout.Screen testID={`aqua-${mode}`}>
       <Layout.Header.Outer>
         <Layout.Header.BackButton />
-        <Layout.Header.Content>
-          <Layout.Header.TitleText>
-            {mode === 'images' ? 'AQUA Pics' : 'AQUA Video+Stream'}
-          </Layout.Header.TitleText>
-        </Layout.Header.Content>
+        {mode === 'video' && isWeb ? (
+          <Layout.Header.Content>
+            <View style={[a.flex_row, a.align_center, a.gap_sm, a.w_full]}>
+              <Logo width={26} />
+              <Text style={[a.text_lg, a.font_bold, t.atoms.text]}>
+                Aqua Videos
+              </Text>
+              <View style={[a.flex_1, a.ml_auto, {maxWidth: 380}]}>
+                <SearchInput
+                  value={draft}
+                  onChangeText={setDraft}
+                  onSubmitEditing={submitSearch}
+                  onClearText={clearSearch}
+                  placeholder="Pesquisar vídeos"
+                />
+              </View>
+            </View>
+          </Layout.Header.Content>
+        ) : (
+          <Layout.Header.Content>
+            <Layout.Header.TitleText>
+              {mode === 'images' ? 'AQUA Pics' : 'Aqua Videos'}
+            </Layout.Header.TitleText>
+          </Layout.Header.Content>
+        )}
       </Layout.Header.Outer>
-      <Layout.Center>
+      <Layout.Center style={wideContent}>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -267,12 +321,15 @@ function MediaHome({mode}: {mode: MediaExperience}) {
           </Text>
         )}
         {active.hasNextPage && (
-          <Button label="Carregar mais" size="small" onPress={loadMore}>
-            <ButtonText>Carregar mais</ButtonText>
-          </Button>
+          <View style={[a.align_center, a.pb_sm]}>
+            <Button label="Carregar mais" size="small" onPress={loadMore}>
+              <ButtonText>Carregar mais</ButtonText>
+            </Button>
+          </View>
         )}
       </Layout.Center>
-      <Layout.Center style={isNative ? {flex: 1} : undefined}>
+      <Layout.Center
+        style={[isNative ? {flex: 1} : undefined, wideContent ?? undefined]}>
         <MediaGallery
           items={items}
           mode={mode}

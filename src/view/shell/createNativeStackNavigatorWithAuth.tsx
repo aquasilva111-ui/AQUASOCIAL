@@ -36,6 +36,7 @@ import {
 } from '#/state/shell/logged-out'
 import {LoggedOut} from '#/view/com/auth/LoggedOut'
 import {Deactivated} from '#/screens/Deactivated'
+import {VideosNavSidebar} from '#/screens/Media/VideosNavSidebar'
 import {Onboarding} from '#/screens/Onboarding'
 import {SignupQueued} from '#/screens/SignupQueued'
 import {Takendown} from '#/screens/Takendown'
@@ -165,9 +166,16 @@ function NativeStackNavigator({
       </View>
       {isWeb && (
         <>
-          {showLeftNav && <DesktopLeftNav />}
+          {showLeftNav &&
+            (activeRoute.name === 'Videos' ? (
+              <VideosNavSidebar />
+            ) : (
+              <DesktopLeftNav />
+            ))}
           {showBottomBar && <BottomBarWeb />}
-          {!isMobile && <DesktopRightNav routeName={activeRoute.name} />}
+          {!isMobile && activeRoute.name !== 'Videos' && (
+            <DesktopRightNav routeName={activeRoute.name} />
+          )}
         </>
       )}
 

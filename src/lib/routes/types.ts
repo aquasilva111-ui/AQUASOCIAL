@@ -88,7 +88,7 @@ export type CommonNavigatorParams = {
   VideoFeed: VideoFeedSourceContext
   Bookmarks: undefined
   Images: undefined
-  Videos: undefined
+  Videos: {source?: string; q?: string} | undefined
   ImageDetail: {name: string; rkey: string}
   VideoWatch: {name: string; rkey: string}
 }

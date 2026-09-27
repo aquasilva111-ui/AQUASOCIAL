@@ -44,6 +44,30 @@ Routes: `/images`, `/images/view/:name/:rkey`, `/videos`,
 cards use author DID plus record key. Social URLs and existing routes remain.
 Sidebar/drawer expose Images and Videos alongside existing navigation.
 
+### Aqua Videos (Streamplace-backed video page)
+
+The `/videos` screen follows the "Aqua Videos" design (YouTube-style home for
+video on AQUA, powered by the Streamplace infrastructure vendored under
+`streamplace/` plus its Go dependencies `atmoq/`, `glex/`, `muxl/`,
+`RTCAudioDevice/`, `oatproxy/`, `atproto-oauth-golang/`, `cobalt/`):
+
+- On web desktop the regular left nav is replaced by `VideosNavSidebar`
+  (`src/screens/Media/VideosNavSidebar.tsx`): video sections (Paid
+  Subscriptions, Subscriptions, Channels, History, Playlist, Watch Later,
+  Collections), a Donate link, Trending Channels (suggested actors) and
+  Trending videos (`useTrendingTopics`) with a country selector, plus footer
+  links. The desktop right rail is hidden on the Videos route
+  (`src/view/shell/createNativeStackNavigatorWithAuth.tsx`).
+- The web header shows the Aqua logo, "Aqua Videos" title and a centered
+  `SearchInput`; submitting switches to the search context.
+- Sidebar links drive the screen through route params (`/videos?source=…`,
+  `/videos?q=…`); `MediaHome` syncs `source`/`q` params into its local state.
+- The video gallery is a 3-column grid on desktop web (2 below 1000px, 1 below
+  480px) inside a widened center column (max 1200px); images mode keeps the
+  previous 2-column masonry and 600px column.
+- `MediaCard` renders the standard horizontal `PostControls` row under the
+  author line, matching the design.
+
 The Home selector uses the existing FeedExperienceProvider state. Its compact
 30px trigger shows the current mode and chevron, now as a glassmorphism capsule
 (fully rounded, translucent blur) placed beside the hashtag (feeds) button in
