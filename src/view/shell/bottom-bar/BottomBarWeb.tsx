@@ -98,7 +98,7 @@ export function BottomBarWeb() {
           <NavItem
             routeName="Home"
             href="/"
-            label={_(msg`Home`)}
+            label="Home"
             showLabel={showLabels}>
             {({isActive}) => {
               const Icon = isActive ? HomeFilled : Home
@@ -114,7 +114,7 @@ export function BottomBarWeb() {
           <NavItem
             routeName="Search"
             href="/search"
-            label={_(msg`Search`)}
+            label="Search"
             showLabel={showLabels}>
             {({isActive}) => {
               const Icon = isActive ? MagnifyingGlassFilled : MagnifyingGlass
@@ -131,7 +131,7 @@ export function BottomBarWeb() {
           <View style={styles.createCtrl}>
             <Button
               onPress={() => openComposer({})}
-              label={_(msg`Create`)}
+              label="Create"
               style={[
                 styles.createBtn,
                 {backgroundColor: t.palette.primary_500},
@@ -176,7 +176,7 @@ export function BottomBarWeb() {
           <NavItem
             routeName="Notifications"
             href="/notifications"
-            label={_(msg`Notificações`)}
+            label="Notifications"
             notificationCount={notificationCountStr}
             showLabel={showLabels}>
             {({isActive}) => {
@@ -200,7 +200,7 @@ export function BottomBarWeb() {
                   })
                 : '/'
             }
-            label={_(msg`Perfil`)}
+            label="Profile"
             showLabel={showLabels}>
             {({isActive}) => {
               const Icon = isActive ? UserCircleFilled : UserCircle

@@ -6,6 +6,7 @@ import {type AppBskyEmbedImages} from '@atproto/api'
 import {atoms as a, useBreakpoints} from '#/alf'
 import {PostEmbedViewContext} from '#/components/Post/Embed/types'
 import {type Dimensions} from '../../lightbox/ImageViewing/@types'
+import {IMAGE_BORDER_RADIUS} from './constants'
 import {GalleryItem} from './Gallery'
 
 interface ImageLayoutGridProps {
@@ -32,7 +33,8 @@ export function ImageLayoutGrid({style, ...props}: ImageLayoutGridProps) {
 
   return (
     <View style={style}>
-      <View style={[gap, a.rounded_md, a.overflow_hidden]}>
+      <View
+        style={[gap, a.overflow_hidden, {borderRadius: IMAGE_BORDER_RADIUS}]}>
         <ImageLayoutGridInner {...props} gap={gap} />
       </View>
     </View>

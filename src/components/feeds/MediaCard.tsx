@@ -15,6 +15,7 @@ import {
   usePostShadow,
 } from '#/state/cache/post-shadow'
 import {type FeedPostSliceItem} from '#/state/queries/post-feed'
+import {IMAGE_BORDER_RADIUS} from '#/view/com/util/images/constants'
 import {PostMeta} from '#/view/com/util/PostMeta'
 import {PreviewableUserAvatar} from '#/view/com/util/UserAvatar'
 import {atoms as a, useTheme} from '#/alf'
@@ -75,7 +76,7 @@ function MediaCardInner({
   const href = `/${mode === 'video' ? 'videos/watch' : 'images/view'}/${post.author.did}/${rkey}`
   return (
     <View
-      style={[a.overflow_hidden, a.rounded_sm, a.pb_sm]}
+      style={[a.overflow_hidden, a.pb_sm, {borderRadius: IMAGE_BORDER_RADIUS}]}
       testID={`media-card-${mode}`}>
       <Hider.Outer modui={modui}>
         <Hider.Mask>
@@ -92,9 +93,8 @@ function MediaCardInner({
               style={[
                 a.w_full,
                 a.overflow_hidden,
-                a.rounded_sm,
                 t.atoms.bg_contrast_25,
-                {aspectRatio},
+                {aspectRatio, borderRadius: IMAGE_BORDER_RADIUS},
               ]}>
               <Image
                 accessibilityIgnoresInvertColors

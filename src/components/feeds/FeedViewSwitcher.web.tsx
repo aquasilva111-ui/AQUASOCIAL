@@ -30,7 +30,7 @@ const labels = {
   streams: 'Streams',
   drops: 'Drops',
   video: 'Video',
-  images: 'Images',
+  images: 'Pics',
   editorial: 'Editorial',
 }
 
@@ -46,6 +46,7 @@ export function FeedViewSwitcher({
   const root = useRef<HTMLDivElement>(null)
   const trigger = useRef<HTMLButtonElement>(null)
   const id = useId()
+  const CurrentIcon = icons[mode]
 
   useEffect(() => {
     if (!open) return
@@ -111,7 +112,7 @@ export function FeedViewSwitcher({
         aria-expanded={open}
         aria-controls={open ? id : undefined}
         onClick={() => setOpen(value => !value)}>
-        <span>{labels[mode]}</span>
+        <CurrentIcon width={18} fill="currentColor" aria-hidden />
         <Chevron width={14} fill="currentColor" aria-hidden />
       </button>
       {open && (
@@ -129,8 +130,10 @@ export function FeedViewSwitcher({
               key={value}
               type="button"
               role="menuitemradio"
+              aria-label={labels[value]}
               aria-checked={mode === value}
               tabIndex={mode === value ? 0 : -1}
+              title={labels[value]}
               onClick={() => {
                 setMode(value)
                 setOpen(false)
@@ -140,7 +143,6 @@ export function FeedViewSwitcher({
                 const Icon = icons[value]
                 return <Icon width={20} fill="currentColor" aria-hidden />
               })()}
-              {labels[value]}
             </button>
           ))}
         </div>

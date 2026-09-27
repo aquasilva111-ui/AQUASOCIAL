@@ -263,7 +263,7 @@ let DrawerContent = ({}: React.PropsWithoutRef<{}>): React.ReactNode => {
 
         <MenuItem
           icon={<ImagesIcon width={iconWidth} style={t.atoms.text} />}
-          label="Images"
+          label="Pics"
           onPress={() => {
             navigation.navigate('Images')
             setDrawerOpen(false)

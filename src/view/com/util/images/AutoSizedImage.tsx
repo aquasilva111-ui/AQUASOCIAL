@@ -17,6 +17,7 @@ import {atoms as a, useTheme} from '#/alf'
 import {ArrowsDiagonalOut_Stroke2_Corner0_Rounded as Fullscreen} from '#/components/icons/ArrowsDiagonal'
 import {MediaInsetBorder} from '#/components/MediaInsetBorder'
 import {Text} from '#/components/Typography'
+import {IMAGE_BORDER_RADIUS} from './constants'
 
 export function ConstrainedImage({
   aspectRatio,
@@ -48,9 +49,9 @@ export function ConstrainedImage({
           <View
             style={[
               a.h_full,
-              a.rounded_md,
               a.overflow_hidden,
               t.atoms.bg_contrast_25,
+              {borderRadius: IMAGE_BORDER_RADIUS},
               fullBleed ? a.w_full : {aspectRatio},
             ]}>
             {children}
@@ -128,7 +129,7 @@ export function AutoSizedImage({
           }
         }}
       />
-      <MediaInsetBorder />
+      <MediaInsetBorder style={{borderRadius: IMAGE_BORDER_RADIUS}} />
 
       {(hasAlt || isCropped) && !hideBadge ? (
         <View
@@ -210,10 +211,9 @@ export function AutoSizedImage({
         }}
         style={[
           a.w_full,
-          a.rounded_md,
           a.overflow_hidden,
           t.atoms.bg_contrast_25,
-          {aspectRatio: max ?? 1},
+          {aspectRatio: max ?? 1, borderRadius: IMAGE_BORDER_RADIUS},
         ]}>
         {contents}
       </Pressable>

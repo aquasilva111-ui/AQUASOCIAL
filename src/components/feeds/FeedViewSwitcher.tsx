@@ -6,7 +6,7 @@ import {
   useSetFeedExperience,
 } from '#/state/shell/feed-experience'
 import {atoms as a, useTheme} from '#/alf'
-import {Button, ButtonText} from '#/components/Button'
+import {Button} from '#/components/Button'
 import {ChevronBottom_Stroke2_Corner0_Rounded as Chevron} from '#/components/icons/Chevron'
 import {HomeOpen_Stoke2_Corner0_Rounded as Social} from '#/components/icons/HomeOpen'
 import {Image_Stroke2_Corner0_Rounded as Images} from '#/components/icons/Image'
@@ -25,6 +25,15 @@ export const experienceIcons = {
   editorial: Editorial,
 } as const
 
+const experienceLabels = {
+  social: 'Social',
+  streams: 'Streams',
+  drops: 'Drops',
+  video: 'Video',
+  images: 'Pics',
+  editorial: 'Editorial',
+} as const
+
 /**
  * Native feed view switcher: a compact row of mode icons shown in the home
  * header. Web has a richer dropdown version in FeedViewSwitcher.web.tsx.
@@ -34,11 +43,12 @@ export function FeedViewSwitcher(_props: {placement?: 'page' | 'header'}) {
   const mode = useFeedExperience()
   const setMode = useSetFeedExperience()
   const t = useTheme()
+  const CurrentIcon = experienceIcons[mode]
 
   return (
     <View style={[a.flex_row, a.justify_center, {paddingVertical: 8}]}>
       <Menu.Root>
-        <Menu.Trigger label={`Feed view: ${mode}`}>
+        <Menu.Trigger label={`Feed view: ${experienceLabels[mode]}`}>
           {({props}) => (
             <Button
               {...props}
@@ -53,9 +63,7 @@ export function FeedViewSwitcher(_props: {placement?: 'page' | 'header'}) {
                 a.gap_xs,
                 {height: 30},
               ]}>
-              <ButtonText>
-                {mode.charAt(0).toUpperCase() + mode.slice(1)}
-              </ButtonText>
+              <CurrentIcon width={18} fill={t.atoms.text.color} />
               <Chevron width={14} fill={t.atoms.text.color} />
             </Button>
           )}
@@ -63,16 +71,12 @@ export function FeedViewSwitcher(_props: {placement?: 'page' | 'header'}) {
         <Menu.Outer>
           {FEED_EXPERIENCE_MODES.map(value => {
             const Icon = experienceIcons[value]
-            const active = value === mode
             return (
               <Menu.Item
                 key={value}
-                label={`Feed view: ${value}`}
+                label={`Feed view: ${experienceLabels[value]}`}
                 onPress={() => setMode(value)}>
                 <Menu.ItemIcon icon={Icon} />
-                <Menu.ItemText style={active ? a.font_bold : undefined}>
-                  {value.charAt(0).toUpperCase() + value.slice(1)}
-                </Menu.ItemText>
               </Menu.Item>
             )
           })}

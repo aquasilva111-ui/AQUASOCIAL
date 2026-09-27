@@ -191,7 +191,7 @@ export function BottomBar({navigation}: BottomTabBarProps) {
               hasNew={hasHomeBadge && gate('remove_show_latest_button')}
               onPress={onPressHome}
               accessibilityRole="tab"
-              accessibilityLabel={_(msg`Home`)}
+              accessibilityLabel="Home"
               accessibilityHint=""
             />
             <Btn
@@ -211,7 +211,7 @@ export function BottomBar({navigation}: BottomTabBarProps) {
               }
               onPress={onPressSearch}
               accessibilityRole="search"
-              accessibilityLabel={_(msg`Search`)}
+              accessibilityLabel="Search"
               accessibilityHint=""
             />
             <Btn
@@ -227,7 +227,7 @@ export function BottomBar({navigation}: BottomTabBarProps) {
               }
               onPress={() => openComposer({})}
               accessibilityRole="button"
-              accessibilityLabel={_(msg`Create`)}
+              accessibilityLabel="Create"
               accessibilityHint=""
             />
             <Btn
@@ -281,7 +281,7 @@ export function BottomBar({navigation}: BottomTabBarProps) {
               notificationCount={numUnreadNotifications}
               accessible={true}
               accessibilityRole="tab"
-              accessibilityLabel={_(msg`Notificações`)}
+              accessibilityLabel="Notifications"
               accessibilityHint={
                 numUnreadNotifications === ''
                   ? ''
@@ -345,7 +345,7 @@ export function BottomBar({navigation}: BottomTabBarProps) {
               onPress={onPressProfile}
               onLongPress={onLongPressProfile}
               accessibilityRole="tab"
-              accessibilityLabel={_(msg`Perfil`)}
+              accessibilityLabel="Profile"
               accessibilityHint=""
             />
           </View>

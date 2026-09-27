@@ -649,7 +649,7 @@ export function DesktopLeftNav() {
         href="/images"
         icon={<ImagesIcon style={pal.text} width={NAV_ICON_WIDTH} />}
         iconFilled={<ImagesIcon style={pal.text} width={NAV_ICON_WIDTH} />}
-        label="Images"
+        label="Pics"
       />
       <NavItem
         href="/videos"

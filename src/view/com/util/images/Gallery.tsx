@@ -12,6 +12,7 @@ import {atoms as a, useTheme} from '#/alf'
 import {MediaInsetBorder} from '#/components/MediaInsetBorder'
 import {PostEmbedViewContext} from '#/components/Post/Embed/types'
 import {Text} from '#/components/Typography'
+import {IMAGE_BORDER_RADIUS} from './constants'
 
 type EventFunction = (index: number) => void
 
@@ -69,6 +70,7 @@ export function GalleryItem({
           a.flex_1,
           a.overflow_hidden,
           t.atoms.bg_contrast_25,
+          {borderRadius: IMAGE_BORDER_RADIUS},
           imageStyle,
         ]}
         accessibilityRole="button"
@@ -88,7 +90,9 @@ export function GalleryItem({
             }
           }}
         />
-        <MediaInsetBorder style={insetBorderStyle} />
+        <MediaInsetBorder
+          style={[{borderRadius: IMAGE_BORDER_RADIUS}, insetBorderStyle]}
+        />
       </Pressable>
       {hasAlt && !hideBadges ? (
         <View
