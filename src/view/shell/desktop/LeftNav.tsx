@@ -36,7 +36,6 @@ import {ArrowBoxLeft_Stroke2_Corner0_Rounded as LeaveIcon} from '#/components/ic
 import {Book_Stroke2_Corner2_Rounded as Book} from '#/components/icons/Book'
 import {DotGrid_Stroke2_Corner0_Rounded as EllipsisIcon} from '#/components/icons/DotGrid'
 import {EditBig_Stroke2_Corner0_Rounded as EditBig} from '#/components/icons/EditBig'
-import {Gift1_Stroke2_Corner0_Rounded as GiftIcon} from '#/components/icons/Gift1'
 import {Image_Stroke2_Corner0_Rounded as ImagesIcon} from '#/components/icons/Image'
 import {PlusLarge_Stroke2_Corner0_Rounded as PlusIcon} from '#/components/icons/Plus'
 import {
@@ -54,6 +53,7 @@ import {router} from '../../../routes'
 const NAV_ICON_WIDTH = 28
 const newsConventionsIcon = require('../../../../assets/icons/news-conventions.png')
 const portalsIcon = require('../../../../assets/icons/portals.png')
+const shopIcon = require('../../../../assets/icons/shop.png')
 const uiAiIcon = require('../../../../assets/icons/ui-ai.png')
 const videoStreamIcon = require('../../../../assets/icons/video-stream.png')
 
@@ -703,10 +703,14 @@ export function DesktopLeftNav() {
           />
           <PlaceholderNavItem
             icon={
-              <GiftIcon
-                aria-hidden={true}
-                width={NAV_ICON_WIDTH}
-                style={pal.text}
+              <Image
+                accessibilityIgnoresInvertColors
+                source={shopIcon}
+                style={{
+                  width: NAV_ICON_WIDTH,
+                  height: NAV_ICON_WIDTH,
+                  tintColor: pal.text.color,
+                }}
               />
             }
             label="Shop"
