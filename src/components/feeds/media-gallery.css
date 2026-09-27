@@ -18,7 +18,16 @@
 }
 .aqua-media-gallery-video {
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 20px 16px;
+  gap: 28px 18px;
+  padding-inline: 16px;
+}
+.aqua-media-gallery-video .aqua-media-tile {
+  transition:
+    transform 160ms ease,
+    opacity 160ms ease;
+}
+.aqua-media-gallery-video .aqua-media-tile:hover {
+  transform: translateY(-2px);
 }
 @media (max-width: 1000px) {
   .aqua-media-gallery-video {

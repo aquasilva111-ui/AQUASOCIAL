@@ -22,13 +22,14 @@ import {useSearchPostsQuery} from '#/state/queries/search-posts'
 import {useSession} from '#/state/session'
 import {useSelectedFeed} from '#/state/shell/selected-feed'
 import {Logo} from '#/view/icons/Logo'
-import {atoms as a, useTheme} from '#/alf'
+import {atoms as a, useTheme, web} from '#/alf'
 import {Button, ButtonText} from '#/components/Button'
 import {MediaGallery} from '#/components/feeds/MediaGallery'
 import {SearchInput} from '#/components/forms/SearchInput'
 import * as Layout from '#/components/Layout'
 import {Text} from '#/components/Typography'
 import * as bsky from '#/types/bsky'
+import {VideosNavSidebar} from './VideosNavSidebar'
 
 type Source =
   | 'current'
@@ -188,12 +189,126 @@ function MediaHome({mode}: {mode: MediaExperience}) {
     setQuery('')
     setSource('current')
   }, [])
-  const wideContent =
-    isWeb && mode === 'video'
-      ? {maxWidth: 1200, width: '100%' as const}
-      : undefined
+  const isVideoWeb = isWeb && mode === 'video'
+  const wideContent = isVideoWeb
+    ? {maxWidth: 1200, width: '100%' as const}
+    : undefined
+  const controls = (
+    <>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={[a.gap_xs, a.p_md]}>
+        {sources.map(value => (
+          <Button
+            key={value}
+            label={labels[value]}
+            size="small"
+            variant={source === value ? 'solid' : 'ghost'}
+            color="secondary"
+            onPress={() => {
+              setSource(value)
+              setTopic(undefined)
+            }}>
+            <ButtonText>{labels[value]}</ButtonText>
+          </Button>
+        ))}
+      </ScrollView>
+      {source === 'search' && (
+        <View style={[a.flex_row, a.gap_sm, a.px_md, a.pb_sm]}>
+          <TextInput
+            value={draft}
+            onChangeText={setDraft}
+            onSubmitEditing={() => setQuery(draft.trim())}
+            placeholder={mode === 'images' ? 'Buscar imagens' : 'Buscar vídeos'}
+            accessibilityLabel="Buscar publicações"
+            accessibilityHint="Digite um tema ou criador e confirme a busca"
+            returnKeyType="search"
+            style={[
+              a.flex_1,
+              a.border,
+              a.rounded_sm,
+              a.p_sm,
+              t.atoms.text,
+              t.atoms.border_contrast_low,
+            ]}
+          />
+          <Button
+            label="Buscar"
+            size="small"
+            variant="solid"
+            color="primary"
+            onPress={() => setQuery(draft.trim())}>
+            <ButtonText>Buscar</ButtonText>
+          </Button>
+        </View>
+      )}
+      {topics.length > 0 && (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={[a.gap_xs, a.px_md, a.pb_sm]}>
+          <Button
+            label="Todos os temas"
+            size="small"
+            variant={!topic ? 'solid' : 'ghost'}
+            color="secondary"
+            onPress={() => setTopic(undefined)}>
+            <ButtonText>Todos</ButtonText>
+          </Button>
+          {topics.map(value => (
+            <Button
+              key={value}
+              label={`#${value}`}
+              size="small"
+              variant={topic === value ? 'solid' : 'ghost'}
+              color="secondary"
+              onPress={() => setTopic(value)}>
+              <ButtonText>{`#${value}`}</ButtonText>
+            </Button>
+          ))}
+        </ScrollView>
+      )}
+      {active.isError && (
+        <Button
+          label="Tentar novamente"
+          onPress={() => {
+            active.refetch()
+          }}>
+          <ButtonText>Tentar novamente</ButtonText>
+        </Button>
+      )}
+      {active.isFetching && (
+        <Text style={[a.p_md]} accessibilityRole="progressbar">
+          Carregando...
+        </Text>
+      )}
+      {!active.isFetching && !active.isError && !items.length && (
+        <Text style={[a.p_md, t.atoms.text_contrast_medium]}>
+          {source === 'search' && !query
+            ? 'Busque por um tema ou criador.'
+            : 'Nenhuma publicação compatível nas páginas carregadas.'}
+        </Text>
+      )}
+      {active.hasNextPage && (
+        <View style={[a.align_center, a.pb_sm]}>
+          <Button label="Carregar mais" size="small" onPress={loadMore}>
+            <ButtonText>Carregar mais</ButtonText>
+          </Button>
+        </View>
+      )}
+    </>
+  )
+  const gallery = (
+    <MediaGallery
+      items={items}
+      mode={mode}
+      onLoadMore={items.length ? loadMore : undefined}
+      onItemSeen={item => trackView(item.post)}
+    />
+  )
   return (
-    <Layout.Screen testID={`aqua-${mode}`}>
+    <Layout.Screen testID={`aqua-${mode}`} hideCenterBorders={isVideoWeb}>
       <Layout.Header.Outer>
         <Layout.Header.BackButton />
         {mode === 'video' && isWeb ? (
@@ -222,121 +337,36 @@ function MediaHome({mode}: {mode: MediaExperience}) {
           </Layout.Header.Content>
         )}
       </Layout.Header.Outer>
-      <Layout.Center style={wideContent}>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={[a.gap_xs, a.p_md]}>
-          {sources.map(value => (
-            <Button
-              key={value}
-              label={labels[value]}
-              size="small"
-              variant={source === value ? 'solid' : 'ghost'}
-              color="secondary"
-              onPress={() => {
-                setSource(value)
-                setTopic(undefined)
-              }}>
-              <ButtonText>{labels[value]}</ButtonText>
-            </Button>
-          ))}
-        </ScrollView>
-        {source === 'search' && (
-          <View style={[a.flex_row, a.gap_sm, a.px_md, a.pb_sm]}>
-            <TextInput
-              value={draft}
-              onChangeText={setDraft}
-              onSubmitEditing={() => setQuery(draft.trim())}
-              placeholder={
-                mode === 'images' ? 'Buscar imagens' : 'Buscar vídeos'
-              }
-              accessibilityLabel="Buscar publicações"
-              accessibilityHint="Digite um tema ou criador e confirme a busca"
-              returnKeyType="search"
-              style={[
-                a.flex_1,
-                a.border,
-                a.rounded_sm,
-                a.p_sm,
-                t.atoms.text,
-                t.atoms.border_contrast_low,
-              ]}
-            />
-            <Button
-              label="Buscar"
-              size="small"
-              variant="solid"
-              color="primary"
-              onPress={() => setQuery(draft.trim())}>
-              <ButtonText>Buscar</ButtonText>
-            </Button>
+      {isVideoWeb ? (
+        <View
+          style={[
+            a.flex_row,
+            a.w_full,
+            web({
+              alignItems: 'flex-start',
+              alignSelf: 'center',
+              maxWidth: 1500,
+              minHeight: '100vh',
+            }),
+          ]}>
+          <VideosNavSidebar />
+          <View style={[a.flex_1, {minWidth: 0}]}>
+            {controls}
+            {gallery}
           </View>
-        )}
-        {topics.length > 0 && (
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={[a.gap_xs, a.px_md, a.pb_sm]}>
-            <Button
-              label="Todos os temas"
-              size="small"
-              variant={!topic ? 'solid' : 'ghost'}
-              color="secondary"
-              onPress={() => setTopic(undefined)}>
-              <ButtonText>Todos</ButtonText>
-            </Button>
-            {topics.map(value => (
-              <Button
-                key={value}
-                label={`#${value}`}
-                size="small"
-                variant={topic === value ? 'solid' : 'ghost'}
-                color="secondary"
-                onPress={() => setTopic(value)}>
-                <ButtonText>{`#${value}`}</ButtonText>
-              </Button>
-            ))}
-          </ScrollView>
-        )}
-        {active.isError && (
-          <Button
-            label="Tentar novamente"
-            onPress={() => {
-              active.refetch()
-            }}>
-            <ButtonText>Tentar novamente</ButtonText>
-          </Button>
-        )}
-        {active.isFetching && (
-          <Text style={[a.p_md]} accessibilityRole="progressbar">
-            Carregando...
-          </Text>
-        )}
-        {!active.isFetching && !active.isError && !items.length && (
-          <Text style={[a.p_md, t.atoms.text_contrast_medium]}>
-            {source === 'search' && !query
-              ? 'Busque por um tema ou criador.'
-              : 'Nenhuma publicação compatível nas páginas carregadas.'}
-          </Text>
-        )}
-        {active.hasNextPage && (
-          <View style={[a.align_center, a.pb_sm]}>
-            <Button label="Carregar mais" size="small" onPress={loadMore}>
-              <ButtonText>Carregar mais</ButtonText>
-            </Button>
-          </View>
-        )}
-      </Layout.Center>
-      <Layout.Center
-        style={[isNative ? {flex: 1} : undefined, wideContent ?? undefined]}>
-        <MediaGallery
-          items={items}
-          mode={mode}
-          onLoadMore={items.length ? loadMore : undefined}
-          onItemSeen={item => trackView(item.post)}
-        />
-      </Layout.Center>
+        </View>
+      ) : (
+        <>
+          <Layout.Center style={wideContent}>{controls}</Layout.Center>
+          <Layout.Center
+            style={[
+              isNative ? {flex: 1} : undefined,
+              wideContent ?? undefined,
+            ]}>
+            {gallery}
+          </Layout.Center>
+        </>
+      )}
     </Layout.Screen>
   )
 }

@@ -9,11 +9,11 @@ import {sanitizeHandle} from '#/lib/strings/handles'
 import {useSuggestedFollowsQuery} from '#/state/queries/suggested-follows'
 import {useTrendingTopics} from '#/state/queries/trending/useTrendingTopics'
 import {PreviewableUserAvatar} from '#/view/com/util/UserAvatar'
-import {atoms as a, useLayoutBreakpoints, useTheme, web} from '#/alf'
+import {Logo} from '#/view/icons/Logo'
+import {atoms as a, useTheme, web} from '#/alf'
 import {Button, ButtonText} from '#/components/Button'
 import {Divider} from '#/components/Divider'
 import {Trending2_Stroke2_Corner2_Rounded as Graph} from '#/components/icons/Trending'
-import {CENTER_COLUMN_OFFSET} from '#/components/Layout/const'
 import {InlineLinkText, Link} from '#/components/Link'
 import {Text} from '#/components/Typography'
 
@@ -33,11 +33,10 @@ const COUNTRIES = ['Worldwide', 'Brazil', 'United States', 'Portugal']
 
 /**
  * Video-specific left sidebar for the "Aqua Videos" page (web, desktop).
- * Replaces the regular DesktopLeftNav on the Videos route.
+ * Rendered in-flow as the left column of the Videos screen layout.
  */
 export function VideosNavSidebar() {
   const t = useTheme()
-  const {centerColumnOffset} = useLayoutBreakpoints()
 
   return (
     <View
@@ -45,26 +44,21 @@ export function VideosNavSidebar() {
       style={[
         a.px_lg,
         web({
-          position: 'fixed',
+          position: 'sticky',
           top: 0,
+          alignSelf: 'flex-start',
+          width: 250,
+          flexShrink: 0,
           paddingTop: 16,
           paddingBottom: 110,
-          left: '50%',
-          width: 260,
           maxHeight: '100vh',
           overflowY: 'auto',
         }),
-        {
-          transform: [
-            {
-              translateX:
-                -300 + (centerColumnOffset ? CENTER_COLUMN_OFFSET : 0),
-            },
-            {translateX: '-100%'},
-            ...a.scrollbar_offset.transform,
-          ],
-        },
       ]}>
+      <View style={[a.flex_row, a.align_center, a.gap_sm, a.px_sm, a.pb_lg]}>
+        <Logo width={22} />
+        <Text style={[a.text_sm, a.font_bold, t.atoms.text]}>Aqua Videos</Text>
+      </View>
       <View style={[a.pb_sm]}>
         {NAV_ITEMS.map(item => (
           <Link
@@ -81,8 +75,8 @@ export function VideosNavSidebar() {
         ))}
         <View style={[a.px_sm, a.pt_sm]}>
           <Link
-            to="https://aquaapp.systems/donate"
-            label="Donate to AQUA"
+            to="/videos"
+            label="Create video"
             style={{alignSelf: 'flex-start'}}>
             {({hovered}) => (
               <View
@@ -95,7 +89,7 @@ export function VideosNavSidebar() {
                   hovered && {opacity: 0.9},
                 ]}>
                 <Text style={[a.text_sm, a.font_bold, {color: '#fff'}]}>
-                  Donate
+                  + Create
                 </Text>
               </View>
             )}

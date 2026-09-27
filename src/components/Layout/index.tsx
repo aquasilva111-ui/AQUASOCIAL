@@ -30,6 +30,7 @@ export * as Header from '#/components/Layout/Header'
 export type ScreenProps = React.ComponentProps<typeof View> & {
   style?: StyleProp<ViewStyle>
   noInsetTop?: boolean
+  hideCenterBorders?: boolean
 }
 
 /**
@@ -38,12 +39,13 @@ export type ScreenProps = React.ComponentProps<typeof View> & {
 export const Screen = memo(function Screen({
   style,
   noInsetTop,
+  hideCenterBorders,
   ...props
 }: ScreenProps) {
   const {top} = useSafeAreaInsets()
   return (
     <>
-      {isWeb && <WebCenterBorders />}
+      {isWeb && !hideCenterBorders && <WebCenterBorders />}
       <View
         style={[a.util_screen_outer, {paddingTop: noInsetTop ? 0 : top}, style]}
         {...props}
