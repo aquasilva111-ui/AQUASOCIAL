@@ -33,6 +33,7 @@ import {
 import {truncateAndInvalidate} from '#/state/queries/util'
 import {useSession} from '#/state/session'
 import {useSetMinimalShellMode} from '#/state/shell'
+import {useFeedExperience} from '#/state/shell/feed-experience'
 import {useHeaderOffset} from '#/components/hooks/useHeaderOffset'
 import {PostFeed} from '../posts/PostFeed'
 import {FAB} from '../util/fab/FAB'
@@ -70,7 +71,9 @@ export function FeedPage({
   const {openComposer} = useOpenComposer()
   const [isScrolledDown, setIsScrolledDown] = useState(false)
   const setMinimalShellMode = useSetMinimalShellMode()
-  const headerOffset = useHeaderOffset()
+  const baseHeaderOffset = useHeaderOffset()
+  const headerOffset = baseHeaderOffset > 0 ? baseHeaderOffset + 46 : 0
+  const experienceMode = useFeedExperience()
   const feedFeedback = useFeedFeedback(feedInfo, hasSession)
   const scrollElRef = useRef<ListMethods>(null)
   const [hasNew, setHasNew] = useState(false)
@@ -149,6 +152,7 @@ export function FeedPage({
             testID={testID ? `${testID}-feed` : undefined}
             enabled={isPageFocused || shouldPrefetch}
             feed={feed}
+            experienceMode={experienceMode}
             feedParams={feedParams}
             pollInterval={POLL_FREQ}
             disablePoll={hasNew || !isPageFocused}

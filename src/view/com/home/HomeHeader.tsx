@@ -5,6 +5,7 @@ import {type NavigationProp} from '#/lib/routes/types'
 import {type FeedSourceInfo} from '#/state/queries/feed'
 import {useSession} from '#/state/session'
 import {type RenderTabBarFnProps} from '#/view/com/pager/Pager'
+import {FeedViewSwitcher} from '#/components/feeds/FeedViewSwitcher'
 import {TabBar} from '../pager/TabBar'
 import {HomeHeaderLayout} from './HomeHeaderLayout'
 
@@ -63,6 +64,7 @@ export function HomeHeader(
         dragState={props.dragState}
         transparent
       />
+      <FeedViewSwitcher />
     </HomeHeaderLayout>
   )
 }

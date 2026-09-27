@@ -29,6 +29,7 @@ import {
 import {useFeedFeedbackContext} from '#/state/feed-feedback'
 import {unstableCacheProfileView} from '#/state/queries/profile'
 import {useSession} from '#/state/session'
+import {type FeedExperienceMode} from '#/state/shell/feed-experience'
 import {useMergedThreadgateHiddenReplies} from '#/state/threadgate-hidden-replies'
 import {
   buildPostSourceKey,
@@ -92,10 +93,12 @@ export function PostFeedItem({
   isParentNotFound,
   rootPost,
   onShowLess,
+  presentation = 'social',
 }: FeedItemProps & {
   post: AppBskyFeedDefs.PostView
   rootPost: AppBskyFeedDefs.PostView
   onShowLess?: (interaction: AppBskyFeedDefs.Interaction) => void
+  presentation?: FeedExperienceMode
 }): React.ReactNode {
   const postShadowed = usePostShadow(post)
   const richText = useMemo(
@@ -131,6 +134,7 @@ export function PostFeedItem({
         isParentNotFound={isParentNotFound}
         rootPost={rootPost}
         onShowLess={onShowLess}
+        presentation={presentation}
       />
     )
   }
@@ -155,11 +159,13 @@ let FeedItemInner = ({
   isParentNotFound,
   rootPost,
   onShowLess,
+  presentation = 'social',
 }: FeedItemProps & {
   richText: RichTextAPI
   post: Shadow<AppBskyFeedDefs.PostView>
   rootPost: AppBskyFeedDefs.PostView
   onShowLess?: (interaction: AppBskyFeedDefs.Interaction) => void
+  presentation?: FeedExperienceMode
 }): React.ReactNode => {
   const queryClient = useQueryClient()
   const {openComposer} = useOpenComposer()
@@ -274,6 +280,8 @@ let FeedItemInner = ({
 
   const {isActive: live} = useActorStatus(post.author)
 
+  const mediaFirst = ['images', 'drops', 'video'].includes(presentation)
+
   const viaRepost = useMemo(() => {
     if (AppBskyFeedDefs.isReasonRepost(reason) && reason.uri && reason.cid) {
       return {
@@ -358,6 +366,7 @@ let FeedItemInner = ({
             onOpenAuthor={onOpenAuthor}
           />
           {showReplyTo &&
+            !mediaFirst &&
             (parentAuthor || isParentBlocked || isParentNotFound) && (
               <PostRepliedTo
                 parentAuthor={parentAuthor}
@@ -374,6 +383,7 @@ let FeedItemInner = ({
             onOpenEmbed={onOpenEmbed}
             post={post}
             threadgateRecord={threadgateRecord}
+            presentation={presentation}
           />
           <PostControls
             post={post}
@@ -386,6 +396,7 @@ let FeedItemInner = ({
             threadgateRecord={threadgateRecord}
             onShowLess={onShowLess}
             viaRepost={viaRepost}
+            variant={presentation === 'images' ? 'compact' : undefined}
           />
         </View>
 
@@ -404,6 +415,7 @@ let PostContent = ({
   postAuthor,
   onOpenEmbed,
   threadgateRecord,
+  presentation = 'social',
 }: {
   moderation: ModerationDecision
   richText: RichTextAPI
@@ -412,6 +424,7 @@ let PostContent = ({
   onOpenEmbed: () => void
   post: AppBskyFeedDefs.PostView
   threadgateRecord?: AppBskyFeedThreadgate.Record
+  presentation?: FeedExperienceMode
 }): React.ReactNode => {
   const {currentAccount} = useSession()
   const [limitLines, setLimitLines] = useState(
@@ -445,6 +458,22 @@ let PostContent = ({
     setLimitLines(false)
   }, [setLimitLines])
 
+  const mediaFirst = ['images', 'drops', 'video'].includes(presentation)
+  const embedBlock = postEmbed ? (
+    <View style={[a.pb_xs]}>
+      <Embed
+        embed={postEmbed}
+        moderation={moderation}
+        onOpen={onOpenEmbed}
+        viewContext={
+          presentation === 'images'
+            ? PostEmbedViewContext.FeedImages
+            : PostEmbedViewContext.Feed
+        }
+      />
+    </View>
+  ) : null
+
   return (
     <ContentHider
       testID="contentHider-post"
@@ -456,6 +485,7 @@ let PostContent = ({
         style={[a.pb_xs]}
         additionalCauses={additionalPostAlerts}
       />
+      {mediaFirst && embedBlock}
       {richText.text ? (
         <>
           <RichText
@@ -472,16 +502,7 @@ let PostContent = ({
           )}
         </>
       ) : undefined}
-      {postEmbed ? (
-        <View style={[a.pb_xs]}>
-          <Embed
-            embed={postEmbed}
-            moderation={moderation}
-            onOpen={onOpenEmbed}
-            viewContext={PostEmbedViewContext.Feed}
-          />
-        </View>
-      ) : null}
+      {!mediaFirst && embedBlock}
     </ContentHider>
   )
 }

@@ -48,7 +48,15 @@ import {ListFooter} from '#/components/Lists'
 const PARENT_CHUNK_SIZE = 5
 const CHILDREN_CHUNK_SIZE = 50
 
-export function PostThread({uri}: {uri: string}) {
+export function PostThread({
+  uri,
+  title,
+  related,
+}: {
+  uri: string
+  title?: string
+  related?: React.ReactNode
+}) {
   const {gtMobile} = useBreakpoints()
   const {hasSession} = useSession()
   const initialNumToRender = useInitialNumToRender()
@@ -193,11 +201,11 @@ export function PostThread({uri}: {uri: string}) {
    */
   const onContentSizeChangeWebOnly = web(() => {
     const list = listRef.current
-    const anchor = anchorRef.current as any as Element
+    const anchorEl = anchorRef.current as any as Element
     const header = headerRef.current as any as Element
 
-    if (list && anchor && header && shouldHandleScroll.current) {
-      const anchorOffsetTop = anchor.getBoundingClientRect().top
+    if (list && anchorEl && header && shouldHandleScroll.current) {
+      const anchorOffsetTop = anchorEl.getBoundingClientRect().top
       const headerHeight = header.getBoundingClientRect().height
 
       /*
@@ -251,9 +259,9 @@ export function PostThread({uri}: {uri: string}) {
    */
   const onContentSizeChangeNativeOnly = native(() => {
     const list = listRef.current
-    const anchor = anchorRef.current
+    const anchorEl = anchorRef.current
 
-    if (list && anchor && shouldHandleScroll.current) {
+    if (list && anchorEl && shouldHandleScroll.current) {
       /*
        * `prepareForParamsUpdate` is called any time the user changes thread params like
        * `view` or `sort`, which sets `deferParents(true)` and resets the
@@ -436,6 +444,7 @@ export function PostThread({uri}: {uri: string}) {
                 onLayout={() => setDeferParents(false)}
               />
               <ThreadItemAnchor
+                mediaFirst={!!title}
                 item={item}
                 threadgateRecord={thread.data.threadgate?.record ?? undefined}
                 onPostSuccess={optimisticOnPostReply}
@@ -518,6 +527,7 @@ export function PostThread({uri}: {uri: string}) {
       onReplyToAnchor,
       gtMobile,
       anchorPostSource,
+      title,
     ],
   )
 
@@ -529,7 +539,7 @@ export function PostThread({uri}: {uri: string}) {
         <Layout.Header.BackButton />
         <Layout.Header.Content>
           <Layout.Header.TitleText>
-            <Trans context="description">Post</Trans>
+            {title || <Trans context="description">Post</Trans>}
           </Layout.Header.TitleText>
         </Layout.Header.Content>
         <Layout.Header.Slot>
@@ -575,24 +585,27 @@ export function PostThread({uri}: {uri: string}) {
           desktopFixedHeight
           sideBorders={false}
           ListFooterComponent={
-            <ListFooter
-              /*
-               * On native, if `deferParents` is true, we need some extra buffer to
-               * account for the `on*ReachedThreshold` values.
-               *
-               * Otherwise, and on web, this value needs to be the height of
-               * the viewport _minus_ a sensible min-post height e.g. 200, so
-               * that there's enough scroll remaining to get the anchor post
-               * back to the top of the screen when handling scroll.
-               */
-              height={platform({
-                web: defaultListFooterHeight,
-                default: deferParents
-                  ? windowHeight * 2
-                  : defaultListFooterHeight,
-              })}
-              style={isTombstoneView ? {borderTopWidth: 0} : undefined}
-            />
+            <>
+              {related}
+              <ListFooter
+                /*
+                 * On native, if `deferParents` is true, we need some extra buffer to
+                 * account for the `on*ReachedThreshold` values.
+                 *
+                 * Otherwise, and on web, this value needs to be the height of
+                 * the viewport _minus_ a sensible min-post height e.g. 200, so
+                 * that there's enough scroll remaining to get the anchor post
+                 * back to the top of the screen when handling scroll.
+                 */
+                height={platform({
+                  web: defaultListFooterHeight,
+                  default: deferParents
+                    ? windowHeight * 2
+                    : defaultListFooterHeight,
+                })}
+                style={isTombstoneView ? {borderTopWidth: 0} : undefined}
+              />
+            </>
           }
           initialNumToRender={initialNumToRender}
           /**

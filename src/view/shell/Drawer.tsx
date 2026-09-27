@@ -1,7 +1,7 @@
 import React, {type ComponentProps, type JSX} from 'react'
 import {Linking, ScrollView, TouchableOpacity, View} from 'react-native'
 import {useSafeAreaInsets} from 'react-native-safe-area-context'
-import {msg, Plural, plural, Trans} from '@lingui/macro'
+import {msg, Plural, Trans} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 import {StackActions, useNavigation} from '@react-navigation/native'
 
@@ -16,7 +16,6 @@ import {colors} from '#/lib/styles'
 import {isWeb} from '#/platform/detection'
 import {emitSoftReset} from '#/state/events'
 import {useKawaiiMode} from '#/state/preferences/kawaii'
-import {useUnreadNotifications} from '#/state/queries/notifications/unread'
 import {useProfileQuery} from '#/state/queries/profile'
 import {type SessionAccount, useSession} from '#/state/session'
 import {useSetDrawerOpen} from '#/state/shell'
@@ -26,10 +25,6 @@ import {NavSignupCard} from '#/view/shell/NavSignupCard'
 import {atoms as a, tokens, useTheme, web} from '#/alf'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
 import {Divider} from '#/components/Divider'
-import {
-  Bell_Filled_Corner0_Rounded as BellFilled,
-  Bell_Stroke2_Corner0_Rounded as Bell,
-} from '#/components/icons/Bell'
 import {Bookmark, BookmarkFilled} from '#/components/icons/Bookmark'
 import {BulletList_Stroke2_Corner0_Rounded as List} from '#/components/icons/BulletList'
 import {
@@ -40,17 +35,12 @@ import {
   HomeOpen_Filled_Corner0_Rounded as HomeFilled,
   HomeOpen_Stoke2_Corner0_Rounded as Home,
 } from '#/components/icons/HomeOpen'
+import {Image_Stroke2_Corner0_Rounded as ImagesIcon} from '#/components/icons/Image'
 import {MagnifyingGlass_Filled_Stroke2_Corner0_Rounded as MagnifyingGlassFilled} from '#/components/icons/MagnifyingGlass'
 import {MagnifyingGlass2_Stroke2_Corner0_Rounded as MagnifyingGlass} from '#/components/icons/MagnifyingGlass2'
-import {
-  Message_Stroke2_Corner0_Rounded as Message,
-  Message_Stroke2_Corner0_Rounded_Filled as MessageFilled,
-} from '#/components/icons/Message'
+import {Message_Stroke2_Corner0_Rounded as Message} from '#/components/icons/Message'
 import {SettingsGear2_Stroke2_Corner0_Rounded as Settings} from '#/components/icons/SettingsGear2'
-import {
-  UserCircle_Filled_Corner0_Rounded as UserCircleFilled,
-  UserCircle_Stroke2_Corner0_Rounded as UserCircle,
-} from '#/components/icons/UserCircle'
+import {VideoClip_Stroke2_Corner0_Rounded as VideosIcon} from '#/components/icons/VideoClip'
 import {InlineLinkText} from '#/components/Link'
 import {Text} from '#/components/Typography'
 import {useSimpleVerificationState} from '#/components/verification'
@@ -147,12 +137,8 @@ let DrawerContent = ({}: React.PropsWithoutRef<{}>): React.ReactNode => {
   const insets = useSafeAreaInsets()
   const setDrawerOpen = useSetDrawerOpen()
   const navigation = useNavigation<NavigationProp>()
-  const {
-    isAtHome,
-    isAtSearch,
-    isAtFeeds,
-    isAtBookmarks,
-  } = useNavigationTabState()
+  const {isAtHome, isAtSearch, isAtFeeds, isAtBookmarks} =
+    useNavigationTabState()
   const {hasSession, currentAccount} = useSession()
 
   // events
@@ -275,6 +261,22 @@ let DrawerContent = ({}: React.PropsWithoutRef<{}>): React.ReactNode => {
           <Divider style={[a.mt_xl, a.mb_sm]} />
         </View>
 
+        <MenuItem
+          icon={<ImagesIcon width={iconWidth} style={t.atoms.text} />}
+          label="Images"
+          onPress={() => {
+            navigation.navigate('Images')
+            setDrawerOpen(false)
+          }}
+        />
+        <MenuItem
+          icon={<VideosIcon width={iconWidth} style={t.atoms.text} />}
+          label="Videos"
+          onPress={() => {
+            navigation.navigate('Videos')
+            setDrawerOpen(false)
+          }}
+        />
         {hasSession ? (
           <>
             <FeedsMenuItem isActive={isAtFeeds} onPress={onPressMyFeeds} />
@@ -421,70 +423,6 @@ let HomeMenuItem = ({
 }
 HomeMenuItem = React.memo(HomeMenuItem)
 
-let ChatMenuItem = ({
-  isActive,
-  onPress,
-}: {
-  isActive: boolean
-  onPress: () => void
-}): React.ReactNode => {
-  const {_} = useLingui()
-  const t = useTheme()
-  return (
-    <MenuItem
-      icon={
-        isActive ? (
-          <MessageFilled style={[t.atoms.text]} width={iconWidth} />
-        ) : (
-          <Message style={[t.atoms.text]} width={iconWidth} />
-        )
-      }
-      label={_(msg`Chat`)}
-      bold={isActive}
-      onPress={onPress}
-    />
-  )
-}
-ChatMenuItem = React.memo(ChatMenuItem)
-
-let NotificationsMenuItem = ({
-  isActive,
-  onPress,
-}: {
-  isActive: boolean
-  onPress: () => void
-}): React.ReactNode => {
-  const {_} = useLingui()
-  const t = useTheme()
-  const numUnreadNotifications = useUnreadNotifications()
-  return (
-    <MenuItem
-      icon={
-        isActive ? (
-          <BellFilled style={[t.atoms.text]} width={iconWidth} />
-        ) : (
-          <Bell style={[t.atoms.text]} width={iconWidth} />
-        )
-      }
-      label={_(msg`Notifications`)}
-      accessibilityHint={
-        numUnreadNotifications === ''
-          ? ''
-          : _(
-              msg`${plural(numUnreadNotifications ?? 0, {
-                one: '# unread item',
-                other: '# unread items',
-              })}` || '',
-            )
-      }
-      count={numUnreadNotifications}
-      bold={isActive}
-      onPress={onPress}
-    />
-  )
-}
-NotificationsMenuItem = React.memo(NotificationsMenuItem)
-
 let FeedsMenuItem = ({
   isActive,
   onPress,
@@ -550,31 +488,6 @@ let BookmarksMenuItem = ({
   )
 }
 BookmarksMenuItem = React.memo(BookmarksMenuItem)
-
-let ProfileMenuItem = ({
-  isActive,
-  onPress,
-}: {
-  isActive: boolean
-  onPress: () => void
-}): React.ReactNode => {
-  const {_} = useLingui()
-  const t = useTheme()
-  return (
-    <MenuItem
-      icon={
-        isActive ? (
-          <UserCircleFilled style={[t.atoms.text]} width={iconWidth} />
-        ) : (
-          <UserCircle style={[t.atoms.text]} width={iconWidth} />
-        )
-      }
-      label={_(msg`Profile`)}
-      onPress={onPress}
-    />
-  )
-}
-ProfileMenuItem = React.memo(ProfileMenuItem)
 
 let SettingsMenuItem = ({onPress}: {onPress: () => void}): React.ReactNode => {
   const {_} = useLingui()

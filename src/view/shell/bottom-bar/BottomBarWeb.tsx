@@ -18,7 +18,7 @@ import {useCloseAllActiveElements} from '#/state/util'
 import {Link} from '#/view/com/util/Link'
 import {Logo} from '#/view/icons/Logo'
 import {Logotype} from '#/view/icons/Logotype'
-import {atoms as a, useTheme} from '#/alf'
+import {atoms as a, useTheme, web} from '#/alf'
 import {Button, ButtonText} from '#/components/Button'
 import {
   Bell_Filled_Corner0_Rounded as BellFilled,
@@ -85,15 +85,15 @@ export function BottomBarWeb() {
             {
               backgroundColor: dockSurface,
               borderColor: dockBorder,
-              // @ts-expect-error web only
-              backdropFilter: 'blur(18px)',
-              // @ts-expect-error web only
-              WebkitBackdropFilter: 'blur(18px)',
               boxShadow:
                 t.scheme === 'dark'
                   ? '0 8px 28px rgba(0, 0, 0, 0.35)'
                   : '0 8px 28px rgba(15, 23, 42, 0.10)',
             },
+            web({
+              backdropFilter: 'blur(18px)',
+              WebkitBackdropFilter: 'blur(18px)',
+            }),
           ]}>
           <NavItem
             routeName="Home"
@@ -221,11 +221,11 @@ export function BottomBarWeb() {
             {
               backgroundColor: dockSurface,
               borderColor: dockBorder,
-              // @ts-expect-error web only
-              backdropFilter: 'blur(18px)',
-              // @ts-expect-error web only
-              WebkitBackdropFilter: 'blur(18px)',
             },
+            web({
+              backdropFilter: 'blur(18px)',
+              WebkitBackdropFilter: 'blur(18px)',
+            }),
           ]}>
           <View
             style={{

@@ -44,12 +44,14 @@ import {
   Hashtag_Filled_Corner0_Rounded as HashtagFilled,
   Hashtag_Stroke2_Corner0_Rounded as Hashtag,
 } from '#/components/icons/Hashtag'
+import {Image_Stroke2_Corner0_Rounded as ImagesIcon} from '#/components/icons/Image'
 import {PlusLarge_Stroke2_Corner0_Rounded as PlusIcon} from '#/components/icons/Plus'
 import {
   SettingsGear2_Filled_Corner0_Rounded as SettingsFilled,
   SettingsGear2_Stroke2_Corner0_Rounded as Settings,
 } from '#/components/icons/SettingsGear2'
 import {UserCircle_Stroke2_Corner0_Rounded as UserCircle} from '#/components/icons/UserCircle'
+import {VideoClip_Stroke2_Corner0_Rounded as VideosIcon} from '#/components/icons/VideoClip'
 import {CENTER_COLUMN_OFFSET} from '#/components/Layout'
 import * as Menu from '#/components/Menu'
 import * as Prompt from '#/components/Prompt'
@@ -603,6 +605,18 @@ export function DesktopLeftNav() {
         </View>
       ) : null}
 
+      <NavItem
+        href="/images"
+        icon={<ImagesIcon style={pal.text} width={NAV_ICON_WIDTH} />}
+        iconFilled={<ImagesIcon style={pal.text} width={NAV_ICON_WIDTH} />}
+        label="Images"
+      />
+      <NavItem
+        href="/videos"
+        icon={<VideosIcon style={pal.text} width={NAV_ICON_WIDTH} />}
+        iconFilled={<VideosIcon style={pal.text} width={NAV_ICON_WIDTH} />}
+        label="Videos"
+      />
       {hasSession && (
         <>
           <NavItem

@@ -54,7 +54,11 @@ export function DesktopRightNav({routeName}: {routeName: string}) {
   const {rightNavVisible, centerColumnOffset, leftNavMinimal} =
     useLayoutBreakpoints()
 
-  if (!rightNavVisible) {
+  if (
+    !rightNavVisible ||
+    routeName === 'VideoWatch' ||
+    routeName === 'ImageDetail'
+  ) {
     return null
   }
 

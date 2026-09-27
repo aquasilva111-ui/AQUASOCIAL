@@ -77,7 +77,8 @@ export function ImageEmbed({
         <View style={[a.mt_sm, rest.style]}>
           <AutoSizedImage
             crop={
-              rest.viewContext === PostEmbedViewContext.ThreadHighlighted
+              rest.viewContext === PostEmbedViewContext.ThreadHighlighted ||
+              rest.viewContext === PostEmbedViewContext.FeedImages
                 ? 'none'
                 : rest.viewContext ===
                     PostEmbedViewContext.FeedEmbedRecordWithMedia

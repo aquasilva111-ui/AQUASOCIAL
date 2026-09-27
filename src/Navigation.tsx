@@ -73,6 +73,8 @@ import {BookmarksScreen} from '#/screens/Bookmarks'
 import {SharedPreferencesTesterScreen} from '#/screens/E2E/SharedPreferencesTesterScreen'
 import HashtagScreen from '#/screens/Hashtag'
 import {LogScreen} from '#/screens/Log'
+import {ImageDetailScreen, VideoWatchScreen} from '#/screens/Media/MediaDetail'
+import {ImagesScreen, VideosScreen} from '#/screens/Media/MediaHome'
 import {MessagesScreen} from '#/screens/Messages/ChatList'
 import {MessagesConversationScreen} from '#/screens/Messages/Conversation'
 import {MessagesInboxScreen} from '#/screens/Messages/Inbox'
@@ -600,6 +602,26 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
           title: title(msg`Video Feed`),
           requireAuth: true,
         }}
+      />
+      <Stack.Screen
+        name="Images"
+        component={ImagesScreen}
+        options={{title: 'AQUA Images'}}
+      />
+      <Stack.Screen
+        name="Videos"
+        component={VideosScreen}
+        options={{title: 'AQUA Videos'}}
+      />
+      <Stack.Screen
+        name="ImageDetail"
+        component={ImageDetailScreen}
+        options={{title: 'AQUA Images'}}
+      />
+      <Stack.Screen
+        name="VideoWatch"
+        component={VideoWatchScreen}
+        options={{title: 'AQUA Videos'}}
       />
       <Stack.Screen
         name="Bookmarks"

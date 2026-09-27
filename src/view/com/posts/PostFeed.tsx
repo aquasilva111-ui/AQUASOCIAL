@@ -29,8 +29,10 @@ import {useQueryClient} from '@tanstack/react-query'
 
 import {isStatusStillActive, validateStatus} from '#/lib/actor-status'
 import {DISCOVER_FEED_URI, KNOWN_SHUTDOWN_FEEDS} from '#/lib/constants'
+import {isCompatibleWithExperience} from '#/lib/feed-experience'
 import {useInitialNumToRender} from '#/lib/hooks/useInitialNumToRender'
 import {useNonReactiveCallback} from '#/lib/hooks/useNonReactiveCallback'
+import {isMediaPost} from '#/lib/media/experiences'
 import {logEvent, useGate} from '#/lib/statsig/statsig'
 import {isNetworkError} from '#/lib/strings/errors'
 import {logger} from '#/logger'
@@ -52,6 +54,7 @@ import {
 } from '#/state/queries/post-feed'
 import {useLiveNowConfig} from '#/state/service-config'
 import {useSession} from '#/state/session'
+import {type FeedExperienceMode} from '#/state/shell/feed-experience'
 import {useProgressGuide} from '#/state/shell/progress-guide'
 import {useSelectedFeed} from '#/state/shell/selected-feed'
 import {List, type ListRef} from '#/view/com/util/List'
@@ -64,12 +67,15 @@ import {
   useInternalState as useAgeAssuranceBannerState,
 } from '#/components/ageAssurance/AgeAssuranceDismissibleFeedBanner'
 import {ProgressGuide, SuggestedFollows} from '#/components/FeedInterstitials'
+import {FeedExperienceRenderer} from '#/components/feeds/FeedExperienceRenderer'
+import {MediaGallery} from '#/components/feeds/MediaGallery'
 import {
   PostFeedVideoGridRow,
   PostFeedVideoGridRowPlaceholder,
 } from '#/components/feeds/PostFeedVideoGridRow'
 import {TrendingInterstitial} from '#/components/interstitials/Trending'
 import {TrendingVideos as TrendingVideosInterstitial} from '#/components/interstitials/TrendingVideos'
+import * as Layout from '#/components/Layout'
 import {ComposerPrompt} from '../feeds/ComposerPrompt'
 import {DiscoverFallbackHeader} from './DiscoverFallbackHeader'
 import {FeedShutdownMsg} from './FeedShutdownMsg'
@@ -78,7 +84,7 @@ import {PostFeedItem} from './PostFeedItem'
 import {ShowLessFollowup} from './ShowLessFollowup'
 import {ViewFullThread} from './ViewFullThread'
 
-type FeedRow =
+export type FeedRow =
   | {
       type: 'loading'
       key: string
@@ -204,6 +210,7 @@ let PostFeed = ({
   savedFeedConfig,
   initialNumToRender: initialNumToRenderOverride,
   isVideoFeed = false,
+  experienceMode = 'social',
 }: {
   feed: FeedDescriptor
   feedParams?: FeedParams
@@ -226,6 +233,7 @@ let PostFeed = ({
   savedFeedConfig?: AppBskyActorDefs.SavedFeed
   initialNumToRender?: number
   isVideoFeed?: boolean
+  experienceMode?: FeedExperienceMode
 }): React.ReactNode => {
   const {_} = useLingui()
   const queryClient = useQueryClient()
@@ -789,6 +797,7 @@ let PostFeed = ({
         const item = slice.items[indexInSlice]
         return (
           <PostFeedItem
+            presentation={experienceMode}
             post={item.post}
             record={item.record}
             reason={indexInSlice === 0 ? slice.reason : undefined}
@@ -861,6 +870,7 @@ let PostFeed = ({
       feedTab,
       feedCacheKey,
       onPressShowLess,
+      experienceMode,
     ],
   )
 
@@ -995,6 +1005,76 @@ let PostFeed = ({
     },
     [feedFeedback, feed, liveNowConfig, getPostPosition],
   )
+
+  if (experienceMode === 'images' || experienceMode === 'video') {
+    const seen = new Set<string>()
+    const items = feedItems
+      .flatMap(row =>
+        row.type === 'sliceItem'
+          ? [row.slice.items[row.indexInSlice]]
+          : row.type === 'videoGridRow'
+            ? row.items
+            : [],
+      )
+      .filter(item => {
+        if (seen.has(item.uri) || !isMediaPost(item, experienceMode))
+          return false
+        seen.add(item.uri)
+        return true
+      })
+    return (
+      <Layout.Center
+        style={{paddingTop: headerOffset, ...(isNative ? {flex: 1} : {})}}>
+        <MediaGallery
+          scrollElRef={scrollElRef}
+          onScrolledDownChange={onScrolledDownChange}
+          items={items}
+          mode={experienceMode}
+          onLoadMore={enabled ? onEndReached : undefined}
+          onItemSeen={item => {
+            const row = feedItems.find(
+              value =>
+                value.type === 'sliceItem' &&
+                value.slice.items[value.indexInSlice].uri === item.uri,
+            )
+            if (row) onItemSeen(row)
+          }}
+        />
+        <FeedFooter />
+      </Layout.Center>
+    )
+  }
+
+  if (experienceMode !== 'social') {
+    const rows = feedItems.filter(row =>
+      row.type === 'sliceItem'
+        ? isCompatibleWithExperience(
+            row.slice.items[row.indexInSlice],
+            experienceMode,
+            row.slice.items.length > 1,
+          )
+        : row.type === 'sliceViewFullThread'
+          ? experienceMode === 'streams'
+          : !row.type.startsWith('interstitial'),
+    )
+    return (
+      <FeedExperienceRenderer
+        mode={experienceMode}
+        rows={rows}
+        renderItem={renderItem}
+        scrollElRef={scrollElRef}
+        enabled={enabled}
+        hasNextPage={!!hasNextPage}
+        isFetching={isFetching}
+        isError={isError}
+        loadedPages={data?.pages.length ?? 0}
+        onLoadMore={onEndReached}
+        onItemSeen={onItemSeen}
+        headerOffset={headerOffset}
+        onScrolledDownChange={onScrolledDownChange}
+      />
+    )
+  }
 
   return (
     <View testID={testID} style={style}>

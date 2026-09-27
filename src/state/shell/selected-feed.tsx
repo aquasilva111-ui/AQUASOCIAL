@@ -3,6 +3,7 @@ import React from 'react'
 import {isWeb} from '#/platform/detection'
 import * as persisted from '#/state/persisted'
 import {type FeedDescriptor} from '#/state/queries/post-feed'
+import {FeedExperienceProvider} from './feed-experience'
 
 type StateContext = FeedDescriptor | null
 type SetContext = (v: FeedDescriptor) => void
@@ -54,7 +55,9 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
 
   return (
     <stateContext.Provider value={state}>
-      <setContext.Provider value={saveState}>{children}</setContext.Provider>
+      <setContext.Provider value={saveState}>
+        <FeedExperienceProvider>{children}</FeedExperienceProvider>
+      </setContext.Provider>
     </stateContext.Provider>
   )
 }

@@ -87,6 +87,10 @@ export type CommonNavigatorParams = {
   StarterPackEdit: {rkey?: string}
   VideoFeed: VideoFeedSourceContext
   Bookmarks: undefined
+  Images: undefined
+  Videos: undefined
+  ImageDetail: {name: string; rkey: string}
+  VideoWatch: {name: string; rkey: string}
 }
 
 export type BottomTabNavigatorParams = CommonNavigatorParams & {

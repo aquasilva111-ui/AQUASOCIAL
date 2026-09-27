@@ -22,7 +22,7 @@ import * as bsky from '#/types/bsky'
 export const bookmarksQueryKeyRoot = 'bookmarks'
 export const createBookmarksQueryKey = () => [bookmarksQueryKeyRoot]
 
-export function useBookmarksQuery() {
+export function useBookmarksQuery(options?: {enabled?: boolean}) {
   const agent = useAgent()
 
   return useInfiniteQuery<
@@ -33,6 +33,7 @@ export function useBookmarksQuery() {
     string | undefined
   >({
     queryKey: createBookmarksQueryKey(),
+    enabled: options?.enabled,
     async queryFn({pageParam}) {
       const res = await agent.app.bsky.bookmark.getBookmarks({
         cursor: pageParam,

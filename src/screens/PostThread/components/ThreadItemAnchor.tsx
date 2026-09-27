@@ -67,11 +67,13 @@ export function ThreadItemAnchor({
   onPostSuccess,
   threadgateRecord,
   postSource,
+  mediaFirst,
 }: {
   item: Extract<ThreadItem, {type: 'threadPost'}>
   onPostSuccess?: (data: OnPostSuccessData) => void
   threadgateRecord?: AppBskyFeedThreadgate.Record
   postSource?: PostSource
+  mediaFirst?: boolean
 }) {
   const postShadow = usePostShadow(item.value.post)
   const threadRootUri = item.value.post.record.reply?.root?.uri || item.uri
@@ -91,6 +93,7 @@ export function ThreadItemAnchor({
       onPostSuccess={onPostSuccess}
       threadgateRecord={threadgateRecord}
       postSource={postSource}
+      mediaFirst={mediaFirst}
     />
   )
 }
@@ -168,6 +171,7 @@ const ThreadItemAnchorInner = memo(function ThreadItemAnchorInner({
   onPostSuccess,
   threadgateRecord,
   postSource,
+  mediaFirst,
 }: {
   item: Extract<ThreadItem, {type: 'threadPost'}>
   isRoot: boolean
@@ -175,6 +179,7 @@ const ThreadItemAnchorInner = memo(function ThreadItemAnchorInner({
   onPostSuccess?: (data: OnPostSuccessData) => void
   threadgateRecord?: AppBskyFeedThreadgate.Record
   postSource?: PostSource
+  mediaFirst?: boolean
 }) {
   const t = useTheme()
   const {_} = useLingui()
@@ -387,6 +392,16 @@ const ThreadItemAnchorInner = memo(function ThreadItemAnchorInner({
               style={[a.pb_sm]}
               additionalCauses={additionalPostAlerts}
             />
+            {mediaFirst && post.embed && (
+              <View style={[a.py_xs]}>
+                <Embed
+                  embed={post.embed}
+                  moderation={moderation}
+                  viewContext={PostEmbedViewContext.ThreadHighlighted}
+                  onOpen={onOpenEmbed}
+                />
+              </View>
+            )}
             {richText?.text ? (
               <RichText
                 enableTags
@@ -397,7 +412,7 @@ const ThreadItemAnchorInner = memo(function ThreadItemAnchorInner({
                 shouldProxyLinks={true}
               />
             ) : undefined}
-            {post.embed && (
+            {!mediaFirst && post.embed && (
               <View style={[a.py_xs]}>
                 <Embed
                   embed={post.embed}
