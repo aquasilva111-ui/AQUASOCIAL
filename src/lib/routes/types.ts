@@ -89,6 +89,8 @@ export type CommonNavigatorParams = {
   Bookmarks: undefined
   Images: undefined
   Videos: {source?: string; q?: string} | undefined
+  VideoLive: {name: string}
+  VideoGoLive: undefined
   ImageDetail: {name: string; rkey: string}
   VideoWatch: {name: string; rkey: string}
 }

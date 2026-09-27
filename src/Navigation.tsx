@@ -73,8 +73,10 @@ import {BookmarksScreen} from '#/screens/Bookmarks'
 import {SharedPreferencesTesterScreen} from '#/screens/E2E/SharedPreferencesTesterScreen'
 import HashtagScreen from '#/screens/Hashtag'
 import {LogScreen} from '#/screens/Log'
+import {VideoGoLiveScreen} from '#/screens/Media/GoLive'
 import {ImageDetailScreen, VideoWatchScreen} from '#/screens/Media/MediaDetail'
 import {ImagesScreen, VideosScreen} from '#/screens/Media/MediaHome'
+import {VideoLiveScreen} from '#/screens/Media/VideoLive'
 import {MessagesScreen} from '#/screens/Messages/ChatList'
 import {MessagesConversationScreen} from '#/screens/Messages/Conversation'
 import {MessagesInboxScreen} from '#/screens/Messages/Inbox'
@@ -622,6 +624,16 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
         name="VideoWatch"
         component={VideoWatchScreen}
         options={{title: 'Aqua Videos'}}
+      />
+      <Stack.Screen
+        name="VideoLive"
+        component={VideoLiveScreen}
+        options={{title: 'Aqua Live'}}
+      />
+      <Stack.Screen
+        name="VideoGoLive"
+        component={VideoGoLiveScreen}
+        options={{title: 'Transmitir ao vivo', requireAuth: true}}
       />
       <Stack.Screen
         name="Bookmarks"

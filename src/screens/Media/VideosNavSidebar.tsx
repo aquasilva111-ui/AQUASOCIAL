@@ -26,7 +26,9 @@ const NAV_ITEMS: {label: string; to: string}[] = [
   {label: 'History', to: '/videos'},
   {label: 'Playlist', to: '/videos'},
   {label: 'Watch Later', to: '/videos?source=saved'},
+  {label: 'My Videos', to: '/videos?source=created'},
   {label: 'Collections', to: '/videos'},
+  {label: 'Live streaming', to: '/videos/golive'},
 ]
 
 const COUNTRIES = ['Worldwide', 'Brazil', 'United States', 'Portugal']
@@ -75,8 +77,8 @@ export function VideosNavSidebar() {
         ))}
         <View style={[a.px_sm, a.pt_sm]}>
           <Link
-            to="/videos"
-            label="Create video"
+            to="/videos/golive"
+            label="Transmitir ao vivo"
             style={{alignSelf: 'flex-start'}}>
             {({hovered}) => (
               <View

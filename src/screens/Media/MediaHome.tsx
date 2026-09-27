@@ -1,7 +1,7 @@
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
 import {ScrollView, TextInput, View} from 'react-native'
 import {AppBskyFeedDefs, AppBskyFeedPost, moderatePost} from '@atproto/api'
-import {useIsFocused, useRoute} from '@react-navigation/native'
+import {useIsFocused, useNavigation, useRoute} from '@react-navigation/native'
 
 import {DISCOVER_FEED_URI} from '#/lib/constants'
 import {usePostViewTracking} from '#/lib/hooks/usePostViewTracking'
@@ -10,6 +10,7 @@ import {
   isMediaPost,
   type MediaExperience,
 } from '#/lib/media/experiences'
+import {type NavigationProp} from '#/lib/routes/types'
 import {isNative, isWeb} from '#/platform/detection'
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {useBookmarksQuery} from '#/state/queries/bookmarks/useBookmarksQuery'
@@ -23,9 +24,11 @@ import {useSession} from '#/state/session'
 import {useSelectedFeed} from '#/state/shell/selected-feed'
 import {Logo} from '#/view/icons/Logo'
 import {atoms as a, useTheme, web} from '#/alf'
-import {Button, ButtonText} from '#/components/Button'
+import {Button, ButtonIcon, ButtonText} from '#/components/Button'
+import {LiveNowSection} from '#/components/feeds/LiveNowSection'
 import {MediaGallery} from '#/components/feeds/MediaGallery'
 import {SearchInput} from '#/components/forms/SearchInput'
+import {LiveVideo_Stroke2_Corner0_Rounded as LiveIcon} from '#/components/icons/LiveVideo'
 import * as Layout from '#/components/Layout'
 import {Text} from '#/components/Typography'
 import * as bsky from '#/types/bsky'
@@ -66,6 +69,7 @@ function MediaHome({mode}: {mode: MediaExperience}) {
   const [topic, setTopic] = useState<string | undefined>()
   const route = useRoute()
   const routeParams = route.params as {source?: Source; q?: string} | undefined
+  const navigation = useNavigation<NavigationProp>()
   const trackView = usePostViewTracking('FeedItem')
   const descriptor: FeedDescriptor =
     source === 'following'
@@ -160,17 +164,20 @@ function MediaHome({mode}: {mode: MediaExperience}) {
       loadMore()
     }
   }, [items.length, hasNextPage, isFetching, isError, loadMore])
-  const sources: Source[] = hasSession
-    ? ['current', 'discover', 'following', 'created', 'saved', 'search']
-    : ['current', 'discover', 'search']
+  const sources: Source[] = useMemo(
+    () =>
+      hasSession
+        ? ['current', 'discover', 'following', 'created', 'saved', 'search']
+        : ['current', 'discover', 'search'],
+    [hasSession],
+  )
   useEffect(() => {
     const next = routeParams?.source
     if (next && sources.includes(next) && next !== source) {
       setSource(next)
       setTopic(undefined)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [routeParams?.source, hasSession])
+  }, [routeParams?.source, sources, source])
   useEffect(() => {
     const q = routeParams?.q
     if (q) {
@@ -300,12 +307,19 @@ function MediaHome({mode}: {mode: MediaExperience}) {
     </>
   )
   const gallery = (
-    <MediaGallery
-      items={items}
-      mode={mode}
-      onLoadMore={items.length ? loadMore : undefined}
-      onItemSeen={item => trackView(item.post)}
-    />
+    <>
+      {mode === 'video' &&
+        !topic &&
+        (source === 'current' || source === 'discover') && (
+          <LiveNowSection enabled={focused} />
+        )}
+      <MediaGallery
+        items={items}
+        mode={mode}
+        onLoadMore={items.length ? loadMore : undefined}
+        onItemSeen={item => trackView(item.post)}
+      />
+    </>
   )
   return (
     <Layout.Screen testID={`aqua-${mode}`} hideCenterBorders={isVideoWeb}>
@@ -327,6 +341,18 @@ function MediaHome({mode}: {mode: MediaExperience}) {
                   placeholder="Pesquisar vídeos"
                 />
               </View>
+              {hasSession && (
+                <Button
+                  label="Transmitir ao vivo"
+                  size="small"
+                  variant="solid"
+                  color="primary"
+                  style={[a.rounded_full]}
+                  onPress={() => navigation.navigate('VideoGoLive')}>
+                  <ButtonIcon icon={LiveIcon} position="left" />
+                  <ButtonText>Transmitir</ButtonText>
+                </Button>
+              )}
             </View>
           </Layout.Header.Content>
         ) : (

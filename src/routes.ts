@@ -14,6 +14,8 @@ export const router = new Router<AllNavigatableRoutes>({
   Videos: '/videos',
   ImageDetail: '/images/view/:name/:rkey',
   VideoWatch: '/videos/watch/:name/:rkey',
+  VideoLive: '/videos/live/:name',
+  VideoGoLive: '/videos/golive',
   Notifications: '/notifications',
   NotificationsActivityList: '/notifications/activity',
   LegacyNotificationSettings: '/notifications/settings',

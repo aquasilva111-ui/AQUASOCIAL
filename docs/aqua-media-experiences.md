@@ -68,6 +68,24 @@ video on AQUA, powered by the Streamplace infrastructure vendored under
 - `MediaCard` renders the standard horizontal `PostControls` row under the
   author line, matching the design.
 
+Streamplace-powered features (node URL configurable via
+`EXPO_PUBLIC_STREAMPLACE_NODE`, default `https://stream.place`; helpers in
+`src/lib/streamplace.ts`):
+
+- "Ao vivo agora" (`src/components/feeds/LiveNowSection.tsx`): live broadcasts
+  from `place.stream.live.getLiveUsers` with thumbnails
+  (`/api/playback/{did}/stream.jpg`), LIVE badge and viewer counts; shown above
+  the video grid on the default/discover contexts.
+- `/videos/live/:name` (`src/screens/Media/VideoLive.tsx`): live watch page —
+  Streamplace embed player (iframe on web via `src/components/feeds/LiveEmbed`
+  `.web.tsx`, WebView on native) with author row and external node link.
+- `/videos/golive` (`src/screens/Media/GoLive.tsx`, auth-required): go-live
+  flow based on the Streamplace dashboard — stream key via creator dashboard,
+  OBS/WHIP/RTMP ingest instructions fed by `place.stream.ingest.getIngestUrls`.
+- "Transmitir" button in the Aqua Videos header (logged-in) and "Live
+  streaming"/"My Videos" entries in the videos sidebar route there.
+
+
 The Home selector uses the existing FeedExperienceProvider state. Its compact
 30px trigger shows the current mode and chevron, now as a glassmorphism capsule
 (fully rounded, translucent blur) placed beside the hashtag (feeds) button in
