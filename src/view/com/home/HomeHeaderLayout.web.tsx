@@ -47,7 +47,14 @@ function HomeHeaderLayoutDesktopAndTablet({
       {hasSession && (
         <Layout.Center>
           <View
-            style={[a.flex_row, a.align_center, gutters, a.pt_md, t.atoms.bg]}>
+            style={[
+              a.flex_row,
+              a.align_center,
+              gutters,
+              a.pt_md,
+              t.atoms.bg,
+              {paddingBottom: 10},
+            ]}>
             <View style={a.flex_1} />
             <Logo width={kawaii ? 60 : 28} />
             <View style={[a.flex_1, a.flex_row, a.align_center, a.justify_end]}>
