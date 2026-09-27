@@ -25,8 +25,6 @@ import {NavSignupCard} from '#/view/shell/NavSignupCard'
 import {atoms as a, tokens, useTheme, web} from '#/alf'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
 import {Divider} from '#/components/Divider'
-import {Bookmark, BookmarkFilled} from '#/components/icons/Bookmark'
-import {BulletList_Stroke2_Corner0_Rounded as List} from '#/components/icons/BulletList'
 import {
   Hashtag_Filled_Corner0_Rounded as HashtagFilled,
   Hashtag_Stroke2_Corner0_Rounded as Hashtag,
@@ -137,8 +135,7 @@ let DrawerContent = ({}: React.PropsWithoutRef<{}>): React.ReactNode => {
   const insets = useSafeAreaInsets()
   const setDrawerOpen = useSetDrawerOpen()
   const navigation = useNavigation<NavigationProp>()
-  const {isAtHome, isAtSearch, isAtFeeds, isAtBookmarks} =
-    useNavigationTabState()
+  const {isAtHome, isAtSearch, isAtFeeds} = useNavigationTabState()
   const {hasSession, currentAccount} = useSession()
 
   // events
@@ -198,16 +195,6 @@ let DrawerContent = ({}: React.PropsWithoutRef<{}>): React.ReactNode => {
 
   const onPressMyFeeds = React.useCallback(() => {
     navigation.navigate('Feeds')
-    setDrawerOpen(false)
-  }, [navigation, setDrawerOpen])
-
-  const onPressLists = React.useCallback(() => {
-    navigation.navigate('Lists')
-    setDrawerOpen(false)
-  }, [navigation, setDrawerOpen])
-
-  const onPressBookmarks = React.useCallback(() => {
-    navigation.navigate('Bookmarks')
     setDrawerOpen(false)
   }, [navigation, setDrawerOpen])
 
@@ -280,11 +267,6 @@ let DrawerContent = ({}: React.PropsWithoutRef<{}>): React.ReactNode => {
         {hasSession ? (
           <>
             <FeedsMenuItem isActive={isAtFeeds} onPress={onPressMyFeeds} />
-            <ListsMenuItem onPress={onPressLists} />
-            <BookmarksMenuItem
-              isActive={isAtBookmarks}
-              onPress={onPressBookmarks}
-            />
             <SettingsMenuItem onPress={onPressSettings} />
           </>
         ) : (
@@ -448,46 +430,6 @@ let FeedsMenuItem = ({
   )
 }
 FeedsMenuItem = React.memo(FeedsMenuItem)
-
-let ListsMenuItem = ({onPress}: {onPress: () => void}): React.ReactNode => {
-  const {_} = useLingui()
-  const t = useTheme()
-
-  return (
-    <MenuItem
-      icon={<List style={[t.atoms.text]} width={iconWidth} />}
-      label={_(msg`Lists`)}
-      onPress={onPress}
-    />
-  )
-}
-ListsMenuItem = React.memo(ListsMenuItem)
-
-let BookmarksMenuItem = ({
-  isActive,
-  onPress,
-}: {
-  isActive: boolean
-  onPress: () => void
-}): React.ReactNode => {
-  const {_} = useLingui()
-  const t = useTheme()
-
-  return (
-    <MenuItem
-      icon={
-        isActive ? (
-          <BookmarkFilled style={[t.atoms.text]} width={iconWidth} />
-        ) : (
-          <Bookmark style={[t.atoms.text]} width={iconWidth} />
-        )
-      }
-      label={_(msg({message: 'Saved', context: 'link to bookmarks screen'}))}
-      onPress={onPress}
-    />
-  )
-}
-BookmarksMenuItem = React.memo(BookmarksMenuItem)
 
 let SettingsMenuItem = ({onPress}: {onPress: () => void}): React.ReactNode => {
   const {_} = useLingui()

@@ -27,7 +27,7 @@ export const SearchInput = React.forwardRef<TextInput, SearchInputProps>(
 
     return (
       <View style={[a.w_full, a.relative]}>
-        <TextField.Root>
+        <TextField.Root style={{borderRadius: 18}}>
           <TextField.Icon icon={MagnifyingGlassIcon} />
           <TextField.Input
             inputRef={ref}

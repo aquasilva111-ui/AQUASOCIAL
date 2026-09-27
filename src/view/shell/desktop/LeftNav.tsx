@@ -33,11 +33,6 @@ import {Button, ButtonIcon, ButtonText} from '#/components/Button'
 import {type DialogControlProps} from '#/components/Dialog'
 import {ArrowBoxLeft_Stroke2_Corner0_Rounded as LeaveIcon} from '#/components/icons/ArrowBoxLeft'
 import {Book_Stroke2_Corner2_Rounded as Book} from '#/components/icons/Book'
-import {Bookmark, BookmarkFilled} from '#/components/icons/Bookmark'
-import {
-  BulletList_Filled_Corner0_Rounded as ListFilled,
-  BulletList_Stroke2_Corner0_Rounded as List,
-} from '#/components/icons/BulletList'
 import {DotGrid_Stroke2_Corner0_Rounded as EllipsisIcon} from '#/components/icons/DotGrid'
 import {EditBig_Stroke2_Corner0_Rounded as EditBig} from '#/components/icons/EditBig'
 import {
@@ -706,47 +701,6 @@ export function DesktopLeftNav() {
               />
             }
             label="Portals"
-          />
-          <NavItem
-            href="/lists"
-            icon={
-              <List
-                style={pal.text}
-                aria-hidden={true}
-                width={NAV_ICON_WIDTH}
-              />
-            }
-            iconFilled={
-              <ListFilled
-                style={pal.text}
-                aria-hidden={true}
-                width={NAV_ICON_WIDTH}
-              />
-            }
-            label={_(msg`Lists`)}
-          />
-          <NavItem
-            href="/saved"
-            icon={
-              <Bookmark
-                style={pal.text}
-                aria-hidden={true}
-                width={NAV_ICON_WIDTH}
-              />
-            }
-            iconFilled={
-              <BookmarkFilled
-                style={pal.text}
-                aria-hidden={true}
-                width={NAV_ICON_WIDTH}
-              />
-            }
-            label={_(
-              msg({
-                message: 'Saved',
-                context: 'link to bookmarks screen',
-              }),
-            )}
           />
           <NavItem
             href="/settings"
