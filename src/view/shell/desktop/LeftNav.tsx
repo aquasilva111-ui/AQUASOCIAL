@@ -52,6 +52,7 @@ import {
 } from '#/components/icons/SettingsGear2'
 import {UserCircle_Stroke2_Corner0_Rounded as UserCircle} from '#/components/icons/UserCircle'
 import {VideoClip_Stroke2_Corner0_Rounded as VideosIcon} from '#/components/icons/VideoClip'
+import {Window_Stroke2_Corner2_Rounded as WindowIcon} from '#/components/icons/Window'
 import {CENTER_COLUMN_OFFSET} from '#/components/Layout'
 import * as Menu from '#/components/Menu'
 import * as Prompt from '#/components/Prompt'
@@ -499,6 +500,46 @@ function NavItem({count, hasNew, href, icon, iconFilled, label}: NavItemProps) {
   )
 }
 
+function PlaceholderNavItem({icon, label}: {icon: JSX.Element; label: string}) {
+  const t = useTheme()
+  const {leftNavMinimal} = useLayoutBreakpoints()
+
+  return (
+    <PressableWithHover
+      style={[
+        a.flex_row,
+        a.align_center,
+        a.p_md,
+        a.rounded_sm,
+        a.gap_sm,
+        a.outline_inset_1,
+        a.transition_color,
+      ]}
+      hoverStyle={t.atoms.bg_contrast_25}
+      accessibilityLabel={label}
+      accessibilityHint="">
+      <View
+        style={[
+          a.align_center,
+          a.justify_center,
+          {
+            width: 24,
+            height: 24,
+          },
+          leftNavMinimal && {
+            width: 40,
+            height: 40,
+          },
+        ]}>
+        {icon}
+      </View>
+      {!leftNavMinimal && (
+        <Text style={[a.text_xl, a.font_normal]}>{label}</Text>
+      )}
+    </PressableWithHover>
+  )
+}
+
 function ComposeBtn() {
   const {currentAccount} = useSession()
   const {getState} = useNavigation()
@@ -573,7 +614,6 @@ export function DesktopLeftNav() {
   const {_} = useLingui()
   const {isDesktop} = useWebMediaQueries()
   const {leftNavMinimal, centerColumnOffset} = useLayoutBreakpoints()
-  const t = useTheme()
 
   if (!hasSession && !isDesktop) {
     return null
@@ -637,43 +677,36 @@ export function DesktopLeftNav() {
             }
             label={_(msg`Feeds`)}
           />
-          {/* Wiki — placeholder sem destino por enquanto */}
-          <PressableWithHover
-            style={[
-              a.flex_row,
-              a.align_center,
-              a.p_md,
-              a.rounded_sm,
-              a.gap_sm,
-              a.outline_inset_1,
-              a.transition_color,
-            ]}
-            hoverStyle={t.atoms.bg_contrast_25}
-            accessibilityLabel="Wiki"
-            accessibilityHint="">
-            <View
-              style={[
-                a.align_center,
-                a.justify_center,
-                {
-                  width: 24,
-                  height: 24,
-                },
-                leftNavMinimal && {
-                  width: 40,
-                  height: 40,
-                },
-              ]}>
+          <PlaceholderNavItem
+            icon={
               <Book
                 aria-hidden={true}
                 width={NAV_ICON_WIDTH}
                 style={pal.text}
               />
-            </View>
-            {!leftNavMinimal && (
-              <Text style={[a.text_xl, a.font_normal]}>Wiki</Text>
-            )}
-          </PressableWithHover>
+            }
+            label="Books"
+          />
+          <PlaceholderNavItem
+            icon={
+              <Book
+                aria-hidden={true}
+                width={NAV_ICON_WIDTH}
+                style={pal.text}
+              />
+            }
+            label="Wiki"
+          />
+          <PlaceholderNavItem
+            icon={
+              <WindowIcon
+                aria-hidden={true}
+                width={NAV_ICON_WIDTH}
+                style={pal.text}
+              />
+            }
+            label="Portals"
+          />
           <NavItem
             href="/lists"
             icon={
