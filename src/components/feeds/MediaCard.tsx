@@ -9,6 +9,7 @@ import {
 
 import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
 import {getPostMedia, type MediaExperience} from '#/lib/media/experiences'
+import {formatViewCount, useViewCount} from '#/lib/media/views'
 import {
   POST_TOMBSTONE,
   type Shadow,
@@ -48,6 +49,7 @@ function MediaCardInner({
   const t = useTheme()
   const {openComposer} = useOpenComposer()
   const media = getPostMedia(post)
+  const viewCount = useViewCount(post.uri)
   const richText = useMemo(
     () => new RichTextAPI({text: record.text, facets: record.facets}),
     [record],
@@ -107,9 +109,9 @@ function MediaCardInner({
                 recyclingKey={post.uri}
               />
             </View>
-            {!!record.text && (
+            {!!record.text && mode !== 'video' && (
               <Text
-                numberOfLines={mode === 'video' ? 2 : 3}
+                numberOfLines={3}
                 style={[a.pt_sm, a.text_sm, a.font_semi_bold, a.leading_snug]}>
                 {record.text}
               </Text>
@@ -128,6 +130,11 @@ function MediaCardInner({
                 timestamp={post.indexedAt}
                 postHref={href}
               />
+              {mode === 'video' && (
+                <Text style={[a.text_xs, t.atoms.text_contrast_medium]}>
+                  {formatViewCount(viewCount)} visualizações
+                </Text>
+              )}
             </View>
           </View>
           <PostControls

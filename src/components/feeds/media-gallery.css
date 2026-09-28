@@ -17,10 +17,9 @@
   height: 1px;
 }
 .aqua-media-gallery-video {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 28px 18px;
-  padding-left: 16px;
-  padding-right: 0;
+  padding: 12px 16px 120px;
 }
 .aqua-media-gallery-video .aqua-media-tile {
   transition:
@@ -29,6 +28,11 @@
 }
 .aqua-media-gallery-video .aqua-media-tile:hover {
   transform: translateY(-2px);
+}
+@media (max-width: 1400px) {
+  .aqua-media-gallery-video {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 @media (max-width: 1000px) {
   .aqua-media-gallery-video {

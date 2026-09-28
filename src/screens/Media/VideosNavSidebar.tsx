@@ -105,12 +105,15 @@ export function VideosNavSidebar() {
           <ButtonIcon icon={MenuIcon} />
         </Button>
         {!collapsed && (
-          <>
+          <Link
+            to="/"
+            label="Ir para o início do Aqua"
+            style={[a.flex_row, a.align_center, a.gap_sm]}>
             <Logo width={22} />
             <Text style={[a.text_md, a.font_bold, t.atoms.text]}>
               Aqua Views
             </Text>
-          </>
+          </Link>
         )}
       </View>
 

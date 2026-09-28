@@ -1,8 +1,9 @@
-import {useMemo} from 'react'
+import {useEffect, useMemo} from 'react'
 import {View} from 'react-native'
 
 import {DISCOVER_FEED_URI} from '#/lib/constants'
 import {getRelatedMedia, type MediaExperience} from '#/lib/media/experiences'
+import {recordView} from '#/lib/media/views'
 import {
   type CommonNavigatorParams,
   type NativeStackScreenProps,
@@ -53,6 +54,9 @@ function MediaDetail({
   mode: MediaExperience
 }) {
   const uri = makeRecordUri(name, 'app.bsky.feed.post', rkey)
+  useEffect(() => {
+    if (mode === 'video') recordView(uri)
+  }, [uri, mode])
   return (
     <Layout.Screen testID={`aqua-detail-${mode}`}>
       <PostThread

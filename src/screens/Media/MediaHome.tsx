@@ -22,15 +22,13 @@ import {useSearchPostsQuery} from '#/state/queries/search-posts'
 import {useSession} from '#/state/session'
 import {useSelectedFeed} from '#/state/shell/selected-feed'
 import {atoms as a, useTheme, web} from '#/alf'
-import {Button, ButtonIcon, ButtonText} from '#/components/Button'
+import {Button, ButtonText} from '#/components/Button'
 import {LiveNowSection} from '#/components/feeds/LiveNowSection'
 import {MediaGallery} from '#/components/feeds/MediaGallery'
 import {SearchInput} from '#/components/forms/SearchInput'
-import {PlusLarge_Stroke2_Corner0_Rounded as PlusIcon} from '#/components/icons/Plus'
 import * as Layout from '#/components/Layout'
 import {Text} from '#/components/Typography'
 import * as bsky from '#/types/bsky'
-import {CreateMenu} from './CreateMenu'
 import {VideosNavSidebar} from './VideosNavSidebar'
 
 type Source =
@@ -203,25 +201,47 @@ function MediaHome({mode}: {mode: MediaExperience}) {
     : sources
   const controls = (
     <>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={[a.gap_xs, a.p_md]}>
-        {visibleSources.map(value => (
-          <Button
-            key={value}
-            label={labels[value]}
-            size="small"
-            variant={source === value ? 'solid' : 'ghost'}
-            color="secondary"
-            onPress={() => {
-              setSource(value)
-              setTopic(undefined)
-            }}>
-            <ButtonText>{labels[value]}</ButtonText>
-          </Button>
-        ))}
-      </ScrollView>
+      {isVideoWeb ? (
+        <View
+          style={[
+            a.flex_row,
+            a.align_center,
+            a.gap_sm,
+            a.px_lg,
+            a.pt_md,
+            a.pb_md,
+          ]}>
+          <View style={[a.flex_1]}>
+            <SearchInput
+              value={draft}
+              onChangeText={setDraft}
+              onSubmitEditing={submitSearch}
+              onClearText={clearSearch}
+              placeholder="Pesquisar vídeos"
+            />
+          </View>
+        </View>
+      ) : (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={[a.gap_xs, a.p_md]}>
+          {visibleSources.map(value => (
+            <Button
+              key={value}
+              label={labels[value]}
+              size="small"
+              variant={source === value ? 'solid' : 'ghost'}
+              color="secondary"
+              onPress={() => {
+                setSource(value)
+                setTopic(undefined)
+              }}>
+              <ButtonText>{labels[value]}</ButtonText>
+            </Button>
+          ))}
+        </ScrollView>
+      )}
       {source === 'search' && !isVideoWeb && (
         <View style={[a.flex_row, a.gap_sm, a.px_md, a.pb_sm]}>
           <TextInput
@@ -324,61 +344,7 @@ function MediaHome({mode}: {mode: MediaExperience}) {
   )
   return (
     <Layout.Screen testID={`aqua-${mode}`} hideCenterBorders={isVideoWeb}>
-      {isVideoWeb ? (
-        <View
-          style={[
-            a.w_full,
-            a.border_b,
-            a.flex_row,
-            a.align_center,
-            a.gap_sm,
-            a.px_lg,
-            a.py_xs,
-            t.atoms.bg,
-            t.atoms.border_contrast_low,
-            web([a.sticky, {top: 0, minHeight: 52}, a.z_10]),
-          ]}>
-          <Layout.Header.BackButton />
-          <View style={[a.flex_1, a.justify_center, {minHeight: 40}]}>
-            <View
-              style={[
-                a.flex_row,
-                a.align_center,
-                a.gap_sm,
-                a.w_full,
-                web({
-                  maxWidth: '100%',
-                }),
-              ]}>
-              <View style={[a.flex_1, {maxWidth: 480}]}>
-                <SearchInput
-                  value={draft}
-                  onChangeText={setDraft}
-                  onSubmitEditing={submitSearch}
-                  onClearText={clearSearch}
-                  placeholder="Pesquisar vídeos"
-                />
-              </View>
-              {hasSession && (
-                <CreateMenu>
-                  {({props}) => (
-                    <Button
-                      label={props.accessibilityLabel}
-                      size="small"
-                      variant="solid"
-                      color="primary"
-                      style={[a.rounded_full]}
-                      {...props}>
-                      <ButtonIcon icon={PlusIcon} position="left" />
-                      <ButtonText>Criar</ButtonText>
-                    </Button>
-                  )}
-                </CreateMenu>
-              )}
-            </View>
-          </View>
-        </View>
-      ) : (
+      {!isVideoWeb && (
         <Layout.Header.Outer>
           <Layout.Header.BackButton />
           <Layout.Header.Content>
