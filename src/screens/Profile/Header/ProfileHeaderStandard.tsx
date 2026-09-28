@@ -36,9 +36,11 @@ import {
 } from '#/components/KnownFollowers'
 import * as Prompt from '#/components/Prompt'
 import {RichText} from '#/components/RichText'
+import {StoriesRow} from '#/components/stories/StoriesRow'
 import * as Toast from '#/components/Toast'
 import {Text} from '#/components/Typography'
 import {VerificationCheckButton} from '#/components/verification/VerificationCheckButton'
+import {ZodiacBadge} from '#/components/ZodiacBadge'
 import {EditProfileDialog} from './EditProfileDialog'
 import {ProfileHeaderHandle} from './Handle'
 import {ProfileHeaderMetrics} from './Metrics'
@@ -143,6 +145,9 @@ let ProfileHeaderStandard = ({
                 <View style={[a.pl_xs, {marginTop: platform({ios: 2})}]}>
                   <VerificationCheckButton profile={profile} size="lg" />
                 </View>
+                <View style={[a.pl_xs, {marginTop: platform({ios: 2})}]}>
+                  <ZodiacBadge did={profile.did} size="lg" />
+                </View>
               </Text>
             </View>
             <ProfileHeaderHandle profile={profile} />
@@ -162,6 +167,8 @@ let ProfileHeaderStandard = ({
                   />
                 </View>
               ) : undefined}
+
+              {!isBlockedUser && <StoriesRow profile={profile} isMe={isMe} />}
 
               {!isMe &&
                 !isBlockedUser &&

@@ -17,11 +17,11 @@ import {Bell_Stroke2_Corner0_Rounded as SubscriptionsIcon} from '#/components/ic
 import {Bookmark as WatchLaterIcon} from '#/components/icons/Bookmark'
 import {Clock_Stroke2_Corner0_Rounded as HistoryIcon} from '#/components/icons/Clock'
 import {type Props as SVGIconProps} from '#/components/icons/common'
+import {DotGrid_Stroke2_Corner0_Rounded as GridIcon} from '#/components/icons/DotGrid'
+import {EditBig_Stroke2_Corner0_Rounded as EditIcon} from '#/components/icons/EditBig'
 import {Group3_Stroke2_Corner0_Rounded as ChannelsIcon} from '#/components/icons/Group'
 import {ListPlus_Stroke2_Corner0_Rounded as PlaylistIcon} from '#/components/icons/ListPlus'
 import {LiveVideo_Stroke2_Corner0_Rounded as LiveIcon} from '#/components/icons/LiveVideo'
-import {Menu_Stroke2_Corner0_Rounded as MenuIcon} from '#/components/icons/Menu'
-import {PlusLarge_Stroke2_Corner0_Rounded as PlusIcon} from '#/components/icons/Plus'
 import {SquareBehindSquare4_Stroke2_Corner0_Rounded as CollectionsIcon} from '#/components/icons/SquareBehindSquare4'
 import {Star_Stroke2_Corner0_Rounded as PaidIcon} from '#/components/icons/Star'
 import {Trending2_Stroke2_Corner2_Rounded as Graph} from '#/components/icons/Trending'
@@ -60,11 +60,45 @@ const NAV_ITEMS: {
 
 const COUNTRIES = ['Mundial', 'Brasil', 'Estados Unidos', 'Portugal']
 
+const EASE = 'cubic-bezier(0.4, 0, 0.2, 1)'
+
+/**
+ * Fades and width-collapses a label in sync with the sidebar's own
+ * width transition, instead of hard-unmounting it on collapse.
+ */
+function AnimatedLabel({
+  collapsed,
+  width,
+  children,
+  style,
+}: {
+  collapsed: boolean
+  width: number
+  children: React.ReactNode
+  style?: Parameters<typeof Text>[0]['style']
+}) {
+  return (
+    <View
+      style={[
+        {overflow: 'hidden'},
+        web({
+          maxWidth: collapsed ? 0 : width,
+          opacity: collapsed ? 0 : 1,
+          transition: `max-width 220ms ${EASE}, opacity 150ms ease`,
+        }),
+      ]}>
+      <Text numberOfLines={1} style={[web({whiteSpace: 'nowrap'}), style]}>
+        {children}
+      </Text>
+    </View>
+  )
+}
+
 /**
  * Video-specific left sidebar for the "Aqua Views" page (web, desktop).
  * Rendered in-flow as the left column of the Videos screen layout.
  * Collapsible: expanded shows the Aqua Views brand + labels, collapsed
- * shrinks to an icon rail (Streamplace-style).
+ * shrinks to an icon rail (Streamplace-style) with an animated transition.
  */
 export function VideosNavSidebar() {
   const t = useTheme()
@@ -87,7 +121,7 @@ export function VideosNavSidebar() {
           maxHeight: '100vh',
           overflowY: 'auto',
           overflowX: 'hidden',
-          transition: 'width 150ms ease',
+          transition: `width 240ms ${EASE}`,
         }),
       ]}>
       <View
@@ -106,19 +140,37 @@ export function VideosNavSidebar() {
           color="secondary"
           shape="round"
           onPress={() => setCollapsed(v => !v)}>
-          <ButtonIcon icon={MenuIcon} />
+          <ButtonIcon icon={GridIcon} />
         </Button>
-        {!collapsed && (
-          <Link
-            to="/"
-            label="Ir para o início do Aqua"
-            style={[a.flex_row, a.align_center, a.gap_sm]}>
+        <Link
+          to="/"
+          label="Ir para o início do Aqua"
+          style={[a.flex_row, a.align_center, a.gap_sm]}>
+          <View
+            style={[
+              {overflow: 'hidden'},
+              web({
+                maxWidth: collapsed ? 0 : 200,
+                opacity: collapsed ? 0 : 1,
+                transition: `max-width 220ms ${EASE}, opacity 150ms ease`,
+              }),
+              a.flex_row,
+              a.align_center,
+              a.gap_sm,
+            ]}>
             <Logo width={22} />
-            <Text style={[a.text_md, a.font_bold, t.atoms.text]}>
+            <Text
+              numberOfLines={1}
+              style={[
+                a.text_md,
+                a.font_bold,
+                t.atoms.text,
+                web({whiteSpace: 'nowrap'}),
+              ]}>
               Aqua Views
             </Text>
-          </Link>
-        )}
+          </View>
+        </Link>
       </View>
 
       <View style={[hPad]}>
@@ -144,13 +196,12 @@ export function VideosNavSidebar() {
                       hovered ? t.atoms.text : t.atoms.text_contrast_medium,
                     ]}
                   />
-                  {!collapsed && (
-                    <Text
-                      numberOfLines={1}
-                      style={[a.text_md, t.atoms.text, hovered && a.underline]}>
-                      {item.label}
-                    </Text>
-                  )}
+                  <AnimatedLabel
+                    collapsed={collapsed}
+                    width={180}
+                    style={[a.text_md, t.atoms.text, hovered && a.underline]}>
+                    {item.label}
+                  </AnimatedLabel>
                 </>
               )}
             </Link>
@@ -164,21 +215,35 @@ export function VideosNavSidebar() {
               {({props}) => (
                 <Button
                   label={props.accessibilityLabel}
-                  size="small"
+                  size="large"
                   variant="solid"
                   color="primary"
                   shape={collapsed ? 'round' : 'default'}
-                  style={[a.rounded_full, !collapsed && a.px_lg]}
+                  style={[
+                    a.rounded_full,
+                    !collapsed && [a.px_lg, {paddingVertical: 12}],
+                    web({transition: `all 220ms ${EASE}`}),
+                  ]}
                   {...props}>
-                  <ButtonIcon icon={PlusIcon} />
-                  {!collapsed && <ButtonText>Criar</ButtonText>}
+                  <ButtonIcon icon={EditIcon} />
+                  <AnimatedLabel collapsed={collapsed} width={100}>
+                    <ButtonText style={[a.font_bold]}>Criar</ButtonText>
+                  </AnimatedLabel>
                 </Button>
               )}
             </CreateMenu>
           </View>
         </View>
 
-        {!collapsed && (
+        <View
+          style={[
+            {overflow: 'hidden'},
+            web({
+              maxHeight: collapsed ? 0 : 900,
+              opacity: collapsed ? 0 : 1,
+              transition: `max-height 280ms ${EASE}, opacity 200ms ease`,
+            }),
+          ]}>
           <>
             <Divider />
             <TrendingChannels />
@@ -203,7 +268,7 @@ export function VideosNavSidebar() {
               </InlineLinkText>
             </Text>
           </>
-        )}
+        </View>
       </View>
     </View>
   )

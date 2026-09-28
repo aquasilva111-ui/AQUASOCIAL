@@ -7,9 +7,11 @@ import {useLingui} from '@lingui/react'
 import {urls} from '#/lib/constants'
 import {cleanError} from '#/lib/strings/errors'
 import {useWarnMaxGraphemeCount} from '#/lib/strings/helpers'
+import {ZODIAC_SIGNS, type ZodiacSign} from '#/lib/zodiac'
 import {logger} from '#/logger'
 import {type ImageMeta} from '#/state/gallery'
 import {useProfileUpdateMutation} from '#/state/queries/profile'
+import {useSetZodiacMutation, useZodiacQuery} from '#/state/queries/zodiac'
 import {ErrorMessage} from '#/view/com/util/error/ErrorMessage'
 import * as Toast from '#/view/com/util/Toast'
 import {EditableUserAvatar} from '#/view/com/util/UserAvatar'
@@ -24,6 +26,7 @@ import {Loader} from '#/components/Loader'
 import * as Prompt from '#/components/Prompt'
 import {Text} from '#/components/Typography'
 import {useSimpleVerificationState} from '#/components/verification'
+import {ZodiacBadgeInner} from '#/components/ZodiacBadge'
 
 const DISPLAY_NAME_MAX_GRAPHEMES = 64
 const DESCRIPTION_MAX_GRAPHEMES = 256
@@ -127,11 +130,18 @@ function DialogInner({
     ImageMeta | undefined | null
   >()
 
+  const {data: initialZodiac} = useZodiacQuery(profile.did)
+  const [zodiac, setZodiac] = useState<ZodiacSign | null | undefined>(undefined)
+  const {mutateAsync: setZodiacMutation} = useSetZodiacMutation()
+  const effectiveZodiac =
+    zodiac === undefined ? (initialZodiac ?? null) : zodiac
+
   const dirty =
     displayName !== initialDisplayName ||
     description !== initialDescription ||
     userAvatar !== profile.avatar ||
-    userBanner !== profile.banner
+    userBanner !== profile.banner ||
+    (zodiac !== undefined && zodiac !== (initialZodiac ?? null))
 
   useEffect(() => {
     setDirty(dirty)
@@ -185,6 +195,9 @@ function DialogInner({
         newUserAvatar,
         newUserBanner,
       })
+      if (zodiac !== undefined && zodiac !== (initialZodiac ?? null)) {
+        await setZodiacMutation(zodiac)
+      }
       control.close(() => onUpdate?.())
       Toast.show(_(msg({message: 'Profile updated', context: 'toast'})))
     } catch (e: any) {
@@ -200,6 +213,9 @@ function DialogInner({
     newUserAvatar,
     newUserBanner,
     setImageError,
+    zodiac,
+    initialZodiac,
+    setZodiacMutation,
     _,
   ])
 
@@ -386,6 +402,37 @@ function DialogInner({
               />
             </Text>
           )}
+        </View>
+
+        <View>
+          <TextField.LabelText>Selo de signo</TextField.LabelText>
+          <Text style={[a.text_sm, a.pb_sm, t.atoms.text_contrast_medium]}>
+            Mostra um selo com seu signo ao lado do seu nome, como o selo de
+            verificado.
+          </Text>
+          <View style={[a.flex_row, a.flex_wrap, a.gap_sm]}>
+            <Button
+              label="Nenhum selo"
+              size="small"
+              variant={effectiveZodiac === null ? 'solid' : 'outline'}
+              color="secondary"
+              onPress={() => setZodiac(null)}>
+              <ButtonText>Nenhum</ButtonText>
+            </Button>
+            {ZODIAC_SIGNS.map(sign => (
+              <Button
+                key={sign.id}
+                label={sign.label}
+                size="small"
+                variant={effectiveZodiac === sign.id ? 'solid' : 'outline'}
+                color="secondary"
+                onPress={() => setZodiac(sign.id)}
+                style={[a.flex_row, a.align_center, a.gap_xs]}>
+                <ZodiacBadgeInner sign={sign.id} size="sm" />
+                <ButtonText>{sign.label}</ButtonText>
+              </Button>
+            ))}
+          </View>
         </View>
       </View>
     </Dialog.ScrollableInner>

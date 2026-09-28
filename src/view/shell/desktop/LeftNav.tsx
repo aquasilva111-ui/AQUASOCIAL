@@ -21,6 +21,7 @@ import {isInvalidHandle, sanitizeHandle} from '#/lib/strings/handles'
 import {emitSoftReset} from '#/state/events'
 import {useFetchHandle} from '#/state/queries/handle'
 import {useProfilesQuery} from '#/state/queries/profile'
+import {useLiveUsersQuery} from '#/state/queries/streamplace'
 import {type SessionAccount, useSession, useSessionApi} from '#/state/session'
 import {useLoggedOutViewControls} from '#/state/shell/logged-out'
 import {useCloseAllActiveElements} from '#/state/util'
@@ -47,6 +48,7 @@ import {Ticket_Stroke2_Corner0_Rounded as TicketIcon} from '#/components/icons/T
 import {UserCircle_Stroke2_Corner0_Rounded as UserCircle} from '#/components/icons/UserCircle'
 import {Warning_Stroke2_Corner0_Rounded as WarningIcon} from '#/components/icons/Warning'
 import {CENTER_COLUMN_OFFSET} from '#/components/Layout'
+import {ViewIcon} from '#/components/media/ViewIcon'
 import * as Menu from '#/components/Menu'
 import * as Prompt from '#/components/Prompt'
 import {Text} from '#/components/Typography'
@@ -58,7 +60,6 @@ const newsConventionsIcon = require('../../../../assets/icons/news-conventions.p
 const portalsIcon = require('../../../../assets/icons/portals.png')
 const shopIcon = require('../../../../assets/icons/shop.png')
 const uiAiIcon = require('../../../../assets/icons/ui-ai.png')
-const videoStreamIcon = require('../../../../assets/icons/video-stream.png')
 const wikiIcon = require('../../../../assets/icons/wiki.png')
 
 function ProfileCard() {
@@ -614,6 +615,8 @@ export function DesktopLeftNav() {
   const {_} = useLingui()
   const {isDesktop} = useWebMediaQueries()
   const {leftNavMinimal, centerColumnOffset} = useLayoutBreakpoints()
+  const {data: liveStreams} = useLiveUsersQuery()
+  const hasLiveNow = !!liveStreams?.length
 
   if (!hasSession && !isDesktop) {
     return null
@@ -670,25 +673,19 @@ export function DesktopLeftNav() {
       <NavItem
         href="/videos"
         icon={
-          <Image
-            accessibilityIgnoresInvertColors
-            source={videoStreamIcon}
-            style={{
-              width: NAV_ICON_WIDTH,
-              height: NAV_ICON_WIDTH,
-              tintColor: pal.text.color,
-            }}
+          <ViewIcon
+            introOnMount
+            state={hasLiveNow ? 'live' : 'idle'}
+            fill={pal.text.color}
+            width={NAV_ICON_WIDTH}
           />
         }
         iconFilled={
-          <Image
-            accessibilityIgnoresInvertColors
-            source={videoStreamIcon}
-            style={{
-              width: NAV_ICON_WIDTH,
-              height: NAV_ICON_WIDTH,
-              tintColor: pal.text.color,
-            }}
+          <ViewIcon
+            introOnMount
+            state={hasLiveNow ? 'live' : 'video'}
+            fill={pal.text.color}
+            width={NAV_ICON_WIDTH}
           />
         }
         label="Video+Stream"
