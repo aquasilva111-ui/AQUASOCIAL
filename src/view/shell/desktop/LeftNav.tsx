@@ -33,6 +33,7 @@ import {atoms as a, tokens, useLayoutBreakpoints, useTheme, web} from '#/alf'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
 import {type DialogControlProps} from '#/components/Dialog'
 import {FeedViewSwitcher} from '#/components/feeds/FeedViewSwitcher'
+import {AquaLogo} from '#/components/icons/AquaLogo'
 import {ArrowBoxLeft_Stroke2_Corner0_Rounded as LeaveIcon} from '#/components/icons/ArrowBoxLeft'
 import {Book_Stroke2_Corner2_Rounded as Book} from '#/components/icons/Book'
 import {CirclePlus_Stroke2_Corner0_Rounded as CirclePlusIcon} from '#/components/icons/CirclePlus'
@@ -45,11 +46,11 @@ import {
 } from '#/components/icons/SettingsGear2'
 import {Ticket_Stroke2_Corner0_Rounded as TicketIcon} from '#/components/icons/Ticket'
 import {UserCircle_Stroke2_Corner0_Rounded as UserCircle} from '#/components/icons/UserCircle'
-import {Warning_Stroke2_Corner0_Rounded as WarningIcon} from '#/components/icons/Warning'
 import {
   CENTER_COLUMN_HALF_WIDTH,
   CENTER_COLUMN_OFFSET,
   getNavEdgeInset,
+  LEFT_NAV_WIDTH,
 } from '#/components/Layout'
 import {ViewIcon} from '#/components/media/ViewIcon'
 import * as Menu from '#/components/Menu'
@@ -59,7 +60,6 @@ import {PlatformInfo} from '../../../../modules/expo-bluesky-swiss-army'
 import {router} from '../../../routes'
 
 const NAV_ICON_WIDTH = 28
-const LEFT_NAV_WIDTH = 240
 const newsConventionsIcon = require('../../../../assets/icons/news-conventions.png')
 const portalsIcon = require('../../../../assets/icons/portals.png')
 const shopIcon = require('../../../../assets/icons/shop.png')
@@ -825,7 +825,7 @@ export function DesktopLeftNav() {
           />
           <PlaceholderNavItem
             icon={
-              <WarningIcon
+              <AquaLogo
                 aria-hidden={true}
                 width={NAV_ICON_WIDTH}
                 style={pal.text}
