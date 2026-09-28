@@ -1,5 +1,5 @@
 import {type JSX, useCallback, useMemo, useState} from 'react'
-import {Image, StyleSheet, View} from 'react-native'
+import {Image, StyleSheet, useWindowDimensions, View} from 'react-native'
 import {type AppBskyActorDefs} from '@atproto/api'
 import {msg, plural, Trans} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
@@ -49,6 +49,7 @@ import {Warning_Stroke2_Corner0_Rounded as WarningIcon} from '#/components/icons
 import {
   CENTER_COLUMN_HALF_WIDTH,
   CENTER_COLUMN_OFFSET,
+  getNavEdgeInset,
 } from '#/components/Layout'
 import {ViewIcon} from '#/components/media/ViewIcon'
 import * as Menu from '#/components/Menu'
@@ -58,6 +59,7 @@ import {PlatformInfo} from '../../../../modules/expo-bluesky-swiss-army'
 import {router} from '../../../routes'
 
 const NAV_ICON_WIDTH = 28
+const LEFT_NAV_WIDTH = 240
 const newsConventionsIcon = require('../../../../assets/icons/news-conventions.png')
 const portalsIcon = require('../../../../assets/icons/portals.png')
 const shopIcon = require('../../../../assets/icons/shop.png')
@@ -618,6 +620,7 @@ export function DesktopLeftNav() {
   const {_} = useLingui()
   const {isDesktop} = useWebMediaQueries()
   const {leftNavMinimal, centerColumnOffset} = useLayoutBreakpoints()
+  const {width: windowWidth} = useWindowDimensions()
   const {data: liveStreams} = useLiveUsersQuery()
   const hasLiveNow = !!liveStreams?.length
 
@@ -645,9 +648,12 @@ export function DesktopLeftNav() {
               ],
             }
           : // Plenty of guaranteed room in this (already-wide) breakpoint,
-            // so anchor to the true left edge instead of the feed-relative
+            // so anchor near the true left edge instead of the feed-relative
             // offset — avoids a growing dead margin on wide screens.
-            {left: 0, transform: a.scrollbar_offset.transform},
+            {
+              left: getNavEdgeInset(windowWidth, LEFT_NAV_WIDTH),
+              transform: a.scrollbar_offset.transform,
+            },
       ]}>
       {hasSession ? (
         <ProfileCard />
@@ -860,7 +866,7 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     paddingBottom: 110,
     left: '50%',
-    width: 240,
+    width: LEFT_NAV_WIDTH,
     // @ts-expect-error web only
     maxHeight: '100vh',
     overflowY: 'auto',

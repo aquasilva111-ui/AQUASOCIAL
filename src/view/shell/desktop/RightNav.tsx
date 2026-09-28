@@ -1,5 +1,5 @@
 import {useEffect, useState} from 'react'
-import {View} from 'react-native'
+import {useWindowDimensions, View} from 'react-native'
 import {msg, Trans} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 import {useNavigation} from '@react-navigation/core'
@@ -22,6 +22,8 @@ import {Divider} from '#/components/Divider'
 import {
   CENTER_COLUMN_HALF_WIDTH,
   CENTER_COLUMN_OFFSET,
+  CENTER_COLUMN_WIDTH,
+  getNavEdgeInset,
 } from '#/components/Layout'
 import {InlineLinkText} from '#/components/Link'
 import {ProgressGuideList} from '#/components/ProgressGuide/List'
@@ -56,6 +58,7 @@ export function DesktopRightNav({routeName}: {routeName: string}) {
   const showTrending = !isSearchScreen || (isSearchScreen && !!searchQuery)
   const {rightNavVisible, centerColumnOffset, leftNavMinimal} =
     useLayoutBreakpoints()
+  const {width: windowWidth} = useWindowDimensions()
 
   if (
     !rightNavVisible ||
@@ -66,6 +69,13 @@ export function DesktopRightNav({routeName}: {routeName: string}) {
   }
 
   const width = centerColumnOffset ? 250 : 300
+  const navWidth = width + gutters.paddingLeft + 2
+  // Just above the 1300px breakpoint the space beside the centered feed is
+  // narrower than the nav, so shrink it rather than overlap the feed.
+  const wideNavWidth = Math.min(
+    navWidth,
+    (windowWidth - CENTER_COLUMN_WIDTH) / 2,
+  )
 
   return (
     <View
@@ -82,20 +92,20 @@ export function DesktopRightNav({routeName}: {routeName: string}) {
                   {translateX: CENTER_COLUMN_HALF_WIDTH + CENTER_COLUMN_OFFSET},
                   ...a.scrollbar_offset.transform,
                 ],
-                width: width + gutters.paddingLeft + 2,
+                width: navWidth,
                 maxHeight: '100vh',
               }
             : // Plenty of guaranteed room in this (already-wide) breakpoint,
-              // so anchor to the true right edge instead of the feed-relative
+              // so anchor near the true right edge instead of the feed-relative
               // offset — avoids a growing dead margin on wide screens.
               {
                 position: 'fixed',
-                right: 0,
+                right: getNavEdgeInset(windowWidth, wideNavWidth),
                 transform: a.scrollbar_offset.transform,
                 /**
                  * Compensate for the right padding above (2px) to retain intended width.
                  */
-                width: width + gutters.paddingLeft + 2,
+                width: wideNavWidth,
                 maxHeight: '100vh',
               },
         ),

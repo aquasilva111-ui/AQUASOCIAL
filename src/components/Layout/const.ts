@@ -27,3 +27,15 @@ export const CENTER_COLUMN_OFFSET = -105
  */
 export const CENTER_COLUMN_WIDTH = 700
 export const CENTER_COLUMN_HALF_WIDTH = CENTER_COLUMN_WIDTH / 2
+
+/**
+ * Gap between the edge-pinned nav columns and the viewport edge on wide
+ * screens (half a CSS inch). Shrinks toward 0 when there isn't enough
+ * room beside the center column, so the navs never overlap the feed.
+ */
+export const NAV_EDGE_INSET = 48
+
+export function getNavEdgeInset(windowWidth: number, navWidth: number) {
+  const slack = (windowWidth - CENTER_COLUMN_WIDTH) / 2 - navWidth
+  return Math.max(0, Math.min(NAV_EDGE_INSET, slack))
+}
