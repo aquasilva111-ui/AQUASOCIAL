@@ -218,6 +218,7 @@ function MediaHome({mode}: {mode: MediaExperience}) {
               onSubmitEditing={submitSearch}
               onClearText={clearSearch}
               placeholder="Pesquisar vídeos"
+              radius={20}
             />
           </View>
         </View>

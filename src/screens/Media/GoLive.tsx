@@ -320,7 +320,7 @@ export function VideoGoLiveScreen() {
           <View
             style={[a.gap_md, gtMobile ? {flex: 2, minWidth: 0} : a.w_full]}>
             <Card>
-              <CardHeading icon={HealthIcon} title="Stream Health" />
+              <CardHeading icon={HealthIcon} title="Saúde da transmissão" />
               <View style={[a.flex_row, a.gap_md]}>
                 <View style={[a.flex_1, a.gap_2xs]}>
                   <Text style={[a.text_xs, t.atoms.text_contrast_medium]}>
@@ -380,7 +380,10 @@ export function VideoGoLiveScreen() {
             </Card>
 
             <Card>
-              <CardHeading icon={SettingsIcon} title="Stream Settings" />
+              <CardHeading
+                icon={SettingsIcon}
+                title="Configurações da transmissão"
+              />
               <Text
                 style={[
                   a.text_sm,

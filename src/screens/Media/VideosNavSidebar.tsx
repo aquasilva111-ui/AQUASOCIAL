@@ -39,22 +39,26 @@ const NAV_ITEMS: {
   to: string
   icon: React.ComponentType<SVGIconProps>
 }[] = [
-  {label: 'Paid Subscriptions', to: '/videos', icon: PaidIcon},
+  {label: 'Assinaturas pagas', to: '/videos', icon: PaidIcon},
   {
-    label: 'Subscriptions',
+    label: 'Inscrições',
     to: '/videos?source=following',
     icon: SubscriptionsIcon,
   },
-  {label: 'Channels', to: '/videos', icon: ChannelsIcon},
-  {label: 'History', to: '/videos', icon: HistoryIcon},
+  {label: 'Canais', to: '/videos', icon: ChannelsIcon},
+  {label: 'Histórico', to: '/videos', icon: HistoryIcon},
   {label: 'Playlist', to: '/videos', icon: PlaylistIcon},
-  {label: 'Watch Later', to: '/videos?source=saved', icon: WatchLaterIcon},
-  {label: 'My Videos', to: '/videos?source=created', icon: MyVideosIcon},
-  {label: 'Collections', to: '/videos', icon: CollectionsIcon},
-  {label: 'Live streaming', to: '/videos/golive', icon: LiveIcon},
+  {
+    label: 'Assistir mais tarde',
+    to: '/videos?source=saved',
+    icon: WatchLaterIcon,
+  },
+  {label: 'Meus vídeos', to: '/videos?source=created', icon: MyVideosIcon},
+  {label: 'Coleções', to: '/videos', icon: CollectionsIcon},
+  {label: 'Transmissões ao vivo', to: '/videos/golive', icon: LiveIcon},
 ]
 
-const COUNTRIES = ['Worldwide', 'Brazil', 'United States', 'Portugal']
+const COUNTRIES = ['Mundial', 'Brasil', 'Estados Unidos', 'Portugal']
 
 /**
  * Video-specific left sidebar for the "Aqua Views" page (web, desktop).
@@ -167,7 +171,7 @@ export function VideosNavSidebar() {
                   style={[a.rounded_full, !collapsed && a.px_lg]}
                   {...props}>
                   <ButtonIcon icon={PlusIcon} />
-                  {!collapsed && <ButtonText>Create</ButtonText>}
+                  {!collapsed && <ButtonText>Criar</ButtonText>}
                 </Button>
               )}
             </CreateMenu>
@@ -184,18 +188,18 @@ export function VideosNavSidebar() {
             <Text style={[a.leading_snug, a.pt_md, t.atoms.text_contrast_low]}>
               <InlineLinkText
                 to="https://bsky.social/about/support/privacy-policy"
-                label="Privacy">
-                Privacy
+                label="Privacidade">
+                Privacidade
               </InlineLinkText>
               {' · '}
               <InlineLinkText
                 to="https://bsky.social/about/support/tos"
-                label="Terms">
-                Terms
+                label="Termos">
+                Termos
               </InlineLinkText>
               {' · '}
-              <InlineLinkText label="Help" to={HELP_DESK_URL}>
-                Help
+              <InlineLinkText label="Ajuda" to={HELP_DESK_URL}>
+                Ajuda
               </InlineLinkText>
             </Text>
           </>
@@ -221,7 +225,7 @@ function SectionHeader({title}: {title: string}) {
         {title}
       </Text>
       <Button
-        label={`Country: ${COUNTRIES[country]}`}
+        label={`País: ${COUNTRIES[country]}`}
         size="tiny"
         variant="ghost"
         color="secondary"
@@ -248,13 +252,13 @@ function TrendingChannels() {
 
   return (
     <View>
-      <SectionHeader title="Trending Channels" />
+      <SectionHeader title="Canais em alta" />
       <View style={[a.gap_sm]}>
         {profiles.map(profile => (
           <Link
             key={profile.did}
             to={makeProfileLink(profile)}
-            label={`View ${profile.handle}`}
+            label={`Ver ${profile.handle}`}
             style={[a.flex_row, a.align_center, a.gap_sm, a.rounded_sm]}>
             {({hovered}) => (
               <>
@@ -296,7 +300,7 @@ function TrendingVideos() {
 
   return (
     <View>
-      <SectionHeader title="Trending videos" />
+      <SectionHeader title="Vídeos em alta" />
       <View style={[a.gap_xs]}>
         {topics.map((topic: AppBskyUnspeccedDefs.TrendingTopic) => {
           const name = topic.displayName ?? topic.link

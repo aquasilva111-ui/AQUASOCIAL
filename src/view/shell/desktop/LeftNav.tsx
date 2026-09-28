@@ -45,6 +45,7 @@ import {
 } from '#/components/icons/SettingsGear2'
 import {Ticket_Stroke2_Corner0_Rounded as TicketIcon} from '#/components/icons/Ticket'
 import {UserCircle_Stroke2_Corner0_Rounded as UserCircle} from '#/components/icons/UserCircle'
+import {Warning_Stroke2_Corner0_Rounded as WarningIcon} from '#/components/icons/Warning'
 import {CENTER_COLUMN_OFFSET} from '#/components/Layout'
 import * as Menu from '#/components/Menu'
 import * as Prompt from '#/components/Prompt'
@@ -58,6 +59,7 @@ const portalsIcon = require('../../../../assets/icons/portals.png')
 const shopIcon = require('../../../../assets/icons/shop.png')
 const uiAiIcon = require('../../../../assets/icons/ui-ai.png')
 const videoStreamIcon = require('../../../../assets/icons/video-stream.png')
+const wikiIcon = require('../../../../assets/icons/wiki.png')
 
 function ProfileCard() {
   const {currentAccount, accounts} = useSession()
@@ -719,10 +721,14 @@ export function DesktopLeftNav() {
           />
           <PlaceholderNavItem
             icon={
-              <Book
-                aria-hidden={true}
-                width={NAV_ICON_WIDTH}
-                style={pal.text}
+              <Image
+                accessibilityIgnoresInvertColors
+                source={wikiIcon}
+                style={{
+                  width: NAV_ICON_WIDTH,
+                  height: NAV_ICON_WIDTH,
+                  tintColor: pal.text.color,
+                }}
               />
             }
             label="Wiki"
@@ -784,6 +790,16 @@ export function DesktopLeftNav() {
               />
             }
             label="Wallet"
+          />
+          <PlaceholderNavItem
+            icon={
+              <WarningIcon
+                aria-hidden={true}
+                width={NAV_ICON_WIDTH}
+                style={pal.text}
+              />
+            }
+            label="+18 Content"
           />
           <NavItem
             href="/settings"
