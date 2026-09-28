@@ -124,3 +124,26 @@ bskyogcard/src/assets/fonts/noto-*
 bskyweb/static/media/*.webp
 bskyweb/static/media/*.jpg
 bskyweb/static/media/*.png
+
+# Reference copies of external repos (not part of the app)
+/Aqua Video & Live Mode/
+/RTCAudioDevice/
+/atmoq/
+/atproto-oauth-golang/
+/cobalt/
+/glex/
+/muxl/
+/oatproxy/
+/obs-studio/
+/streamplace/
+/aqua-pins/
+
+# Clones of external atproto/bsky repos
+/atproto/
+/atproto-website/
+/bsky/
+/feed-generator/
+/indigo/
+/jetstream/
+/ozone/
+/statusphere-example-app/
