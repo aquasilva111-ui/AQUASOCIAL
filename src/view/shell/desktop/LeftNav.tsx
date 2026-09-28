@@ -47,7 +47,10 @@ import {
 import {Ticket_Stroke2_Corner0_Rounded as TicketIcon} from '#/components/icons/Ticket'
 import {UserCircle_Stroke2_Corner0_Rounded as UserCircle} from '#/components/icons/UserCircle'
 import {Warning_Stroke2_Corner0_Rounded as WarningIcon} from '#/components/icons/Warning'
-import {CENTER_COLUMN_OFFSET} from '#/components/Layout'
+import {
+  CENTER_COLUMN_HALF_WIDTH,
+  CENTER_COLUMN_OFFSET,
+} from '#/components/Layout'
 import {ViewIcon} from '#/components/media/ViewIcon'
 import * as Menu from '#/components/Menu'
 import * as Prompt from '#/components/Prompt'
@@ -633,7 +636,8 @@ export function DesktopLeftNav() {
           transform: [
             {
               translateX:
-                -300 + (centerColumnOffset ? CENTER_COLUMN_OFFSET : 0),
+                -CENTER_COLUMN_HALF_WIDTH +
+                (centerColumnOffset ? CENTER_COLUMN_OFFSET : 0),
             },
             {translateX: '-100%'},
             ...a.scrollbar_offset.transform,
