@@ -38,7 +38,6 @@ import {Book_Stroke2_Corner2_Rounded as Book} from '#/components/icons/Book'
 import {CirclePlus_Stroke2_Corner0_Rounded as CirclePlusIcon} from '#/components/icons/CirclePlus'
 import {DotGrid_Stroke2_Corner0_Rounded as EllipsisIcon} from '#/components/icons/DotGrid'
 import {EditBig_Stroke2_Corner0_Rounded as EditBig} from '#/components/icons/EditBig'
-import {Image_Stroke2_Corner0_Rounded as ImagesIcon} from '#/components/icons/Image'
 import {PlusLarge_Stroke2_Corner0_Rounded as PlusIcon} from '#/components/icons/Plus'
 import {
   SettingsGear2_Filled_Corner0_Rounded as SettingsFilled,
@@ -63,6 +62,7 @@ const newsConventionsIcon = require('../../../../assets/icons/news-conventions.p
 const portalsIcon = require('../../../../assets/icons/portals.png')
 const shopIcon = require('../../../../assets/icons/shop.png')
 const uiAiIcon = require('../../../../assets/icons/ui-ai.png')
+const visionboardIcon = require('../../../../assets/icons/visionboard.png')
 const wikiIcon = require('../../../../assets/icons/wiki.png')
 
 function ProfileCard() {
@@ -632,17 +632,22 @@ export function DesktopLeftNav() {
         a.px_xl,
         styles.leftNav,
         leftNavMinimal && styles.leftNavMinimal,
-        {
-          transform: [
-            {
-              translateX:
-                -CENTER_COLUMN_HALF_WIDTH +
-                (centerColumnOffset ? CENTER_COLUMN_OFFSET : 0),
-            },
-            {translateX: '-100%'},
-            ...a.scrollbar_offset.transform,
-          ],
-        },
+        leftNavMinimal
+          ? {
+              transform: [
+                {
+                  translateX:
+                    -CENTER_COLUMN_HALF_WIDTH +
+                    (centerColumnOffset ? CENTER_COLUMN_OFFSET : 0),
+                },
+                {translateX: '-100%'},
+                ...a.scrollbar_offset.transform,
+              ],
+            }
+          : // Plenty of guaranteed room in this (already-wide) breakpoint,
+            // so anchor to the true left edge instead of the feed-relative
+            // offset — avoids a growing dead margin on wide screens.
+            {left: 0, transform: a.scrollbar_offset.transform},
       ]}>
       {hasSession ? (
         <ProfileCard />
@@ -670,9 +675,29 @@ export function DesktopLeftNav() {
       />
       <NavItem
         href="/images"
-        icon={<ImagesIcon style={pal.text} width={NAV_ICON_WIDTH} />}
-        iconFilled={<ImagesIcon style={pal.text} width={NAV_ICON_WIDTH} />}
-        label="Pics"
+        icon={
+          <Image
+            accessibilityIgnoresInvertColors
+            source={visionboardIcon}
+            style={{
+              width: NAV_ICON_WIDTH,
+              height: NAV_ICON_WIDTH,
+              tintColor: pal.text.color,
+            }}
+          />
+        }
+        iconFilled={
+          <Image
+            accessibilityIgnoresInvertColors
+            source={visionboardIcon}
+            style={{
+              width: NAV_ICON_WIDTH,
+              height: NAV_ICON_WIDTH,
+              tintColor: pal.text.color,
+            }}
+          />
+        }
+        label="Visionboard"
       />
       <NavItem
         href="/videos"

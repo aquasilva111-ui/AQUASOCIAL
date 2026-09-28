@@ -14,7 +14,7 @@ import {
 import {AppBskyRichtextFacet, RichText} from '@atproto/api'
 import PasteInput, {
   type PastedFile,
-  type PasteInputRef, // @ts-expect-error no types when installing from github
+  type PasteTextInputInstance,
 } from '@mattermost/react-native-paste-input'
 
 import {POST_IMG_MAX} from '#/lib/constants'
@@ -50,7 +50,7 @@ export function TextInput({
   ...props
 }: TextInputProps) {
   const {theme: t, fonts} = useAlf()
-  const textInput = useRef<PasteInputRef>(null)
+  const textInput = useRef<PasteTextInputInstance>(null)
   const textInputSelection = useRef<Selection>({start: 0, end: 0})
   const theme = useTheme()
   const [autocompletePrefix, setAutocompletePrefix] = useState('')

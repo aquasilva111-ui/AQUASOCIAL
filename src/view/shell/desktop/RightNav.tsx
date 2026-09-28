@@ -73,23 +73,32 @@ export function DesktopRightNav({routeName}: {routeName: string}) {
         gutters,
         a.gap_lg,
         a.pr_2xs,
-        web({
-          position: 'fixed',
-          left: '50%',
-          transform: [
-            {
-              translateX:
-                CENTER_COLUMN_HALF_WIDTH +
-                (centerColumnOffset ? CENTER_COLUMN_OFFSET : 0),
-            },
-            ...a.scrollbar_offset.transform,
-          ],
-          /**
-           * Compensate for the right padding above (2px) to retain intended width.
-           */
-          width: width + gutters.paddingLeft + 2,
-          maxHeight: '100vh',
-        }),
+        web(
+          centerColumnOffset
+            ? {
+                position: 'fixed',
+                left: '50%',
+                transform: [
+                  {translateX: CENTER_COLUMN_HALF_WIDTH + CENTER_COLUMN_OFFSET},
+                  ...a.scrollbar_offset.transform,
+                ],
+                width: width + gutters.paddingLeft + 2,
+                maxHeight: '100vh',
+              }
+            : // Plenty of guaranteed room in this (already-wide) breakpoint,
+              // so anchor to the true right edge instead of the feed-relative
+              // offset — avoids a growing dead margin on wide screens.
+              {
+                position: 'fixed',
+                right: 0,
+                transform: a.scrollbar_offset.transform,
+                /**
+                 * Compensate for the right padding above (2px) to retain intended width.
+                 */
+                width: width + gutters.paddingLeft + 2,
+                maxHeight: '100vh',
+              },
+        ),
       ]}>
       {!isSearchScreen && <DesktopSearch />}
 
