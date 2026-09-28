@@ -19,7 +19,8 @@
 .aqua-media-gallery-video {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 28px 18px;
-  padding-inline: 16px;
+  padding-left: 16px;
+  padding-right: 0;
 }
 .aqua-media-gallery-video .aqua-media-tile {
   transition:

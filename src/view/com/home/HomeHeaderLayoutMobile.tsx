@@ -5,7 +5,6 @@ import {msg} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 
 import {HITSLOP_10} from '#/lib/constants'
-import {PressableScale} from '#/lib/custom-animations/PressableScale'
 import {useHaptics} from '#/lib/haptics'
 import {useMinimalShellHeaderTransform} from '#/lib/hooks/useMinimalShellTransform'
 import {emitSoftReset} from '#/state/events'
@@ -53,14 +52,22 @@ export function HomeHeaderLayoutMobile({
         </Layout.Header.Slot>
 
         <View style={[a.flex_1, a.align_center]}>
-          <PressableScale
-            targetScale={0.9}
+          <Link
+            to="/"
+            action="navigate"
+            hitSlop={HITSLOP_10}
+            label={_(msg`Aqua - Home`)}
+            size="small"
+            variant="ghost"
+            color="secondary"
+            shape="square"
+            style={[a.justify_center, a.bg_transparent]}
             onPress={() => {
               playHaptic('Light')
               emitSoftReset()
             }}>
             <Logo width={30} />
-          </PressableScale>
+          </Link>
         </View>
 
         <Layout.Header.Slot>

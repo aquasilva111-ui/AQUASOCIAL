@@ -1,7 +1,7 @@
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
 import {ScrollView, TextInput, View} from 'react-native'
 import {AppBskyFeedDefs, AppBskyFeedPost, moderatePost} from '@atproto/api'
-import {useIsFocused, useNavigation, useRoute} from '@react-navigation/native'
+import {useIsFocused, useRoute} from '@react-navigation/native'
 
 import {DISCOVER_FEED_URI} from '#/lib/constants'
 import {usePostViewTracking} from '#/lib/hooks/usePostViewTracking'
@@ -10,7 +10,6 @@ import {
   isMediaPost,
   type MediaExperience,
 } from '#/lib/media/experiences'
-import {type NavigationProp} from '#/lib/routes/types'
 import {isNative, isWeb} from '#/platform/detection'
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {useBookmarksQuery} from '#/state/queries/bookmarks/useBookmarksQuery'
@@ -22,16 +21,16 @@ import {
 import {useSearchPostsQuery} from '#/state/queries/search-posts'
 import {useSession} from '#/state/session'
 import {useSelectedFeed} from '#/state/shell/selected-feed'
-import {Logo} from '#/view/icons/Logo'
 import {atoms as a, useTheme, web} from '#/alf'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
 import {LiveNowSection} from '#/components/feeds/LiveNowSection'
 import {MediaGallery} from '#/components/feeds/MediaGallery'
 import {SearchInput} from '#/components/forms/SearchInput'
-import {LiveVideo_Stroke2_Corner0_Rounded as LiveIcon} from '#/components/icons/LiveVideo'
+import {PlusLarge_Stroke2_Corner0_Rounded as PlusIcon} from '#/components/icons/Plus'
 import * as Layout from '#/components/Layout'
 import {Text} from '#/components/Typography'
 import * as bsky from '#/types/bsky'
+import {CreateMenu} from './CreateMenu'
 import {VideosNavSidebar} from './VideosNavSidebar'
 
 type Source =
@@ -69,7 +68,6 @@ function MediaHome({mode}: {mode: MediaExperience}) {
   const [topic, setTopic] = useState<string | undefined>()
   const route = useRoute()
   const routeParams = route.params as {source?: Source; q?: string} | undefined
-  const navigation = useNavigation<NavigationProp>()
   const trackView = usePostViewTracking('FeedItem')
   const descriptor: FeedDescriptor =
     source === 'following'
@@ -326,16 +324,33 @@ function MediaHome({mode}: {mode: MediaExperience}) {
   )
   return (
     <Layout.Screen testID={`aqua-${mode}`} hideCenterBorders={isVideoWeb}>
-      <Layout.Header.Outer>
-        <Layout.Header.BackButton />
-        {mode === 'video' && isWeb ? (
-          <Layout.Header.Content>
-            <View style={[a.flex_row, a.align_center, a.gap_sm, a.w_full]}>
-              <Logo width={26} />
-              <Text style={[a.text_lg, a.font_bold, t.atoms.text]}>
-                Aqua Videos
-              </Text>
-              <View style={[a.flex_1, a.ml_auto, {maxWidth: 380}]}>
+      {isVideoWeb ? (
+        <View
+          style={[
+            a.w_full,
+            a.border_b,
+            a.flex_row,
+            a.align_center,
+            a.gap_sm,
+            a.px_lg,
+            a.py_xs,
+            t.atoms.bg,
+            t.atoms.border_contrast_low,
+            web([a.sticky, {top: 0, minHeight: 52}, a.z_10]),
+          ]}>
+          <Layout.Header.BackButton />
+          <View style={[a.flex_1, a.justify_center, {minHeight: 40}]}>
+            <View
+              style={[
+                a.flex_row,
+                a.align_center,
+                a.gap_sm,
+                a.w_full,
+                web({
+                  maxWidth: '100%',
+                }),
+              ]}>
+              <View style={[a.flex_1, {maxWidth: 480}]}>
                 <SearchInput
                   value={draft}
                   onChangeText={setDraft}
@@ -345,27 +360,34 @@ function MediaHome({mode}: {mode: MediaExperience}) {
                 />
               </View>
               {hasSession && (
-                <Button
-                  label="Transmitir ao vivo"
-                  size="small"
-                  variant="solid"
-                  color="primary"
-                  style={[a.rounded_full]}
-                  onPress={() => navigation.navigate('VideoGoLive')}>
-                  <ButtonIcon icon={LiveIcon} position="left" />
-                  <ButtonText>Transmitir</ButtonText>
-                </Button>
+                <CreateMenu>
+                  {({props}) => (
+                    <Button
+                      label={props.accessibilityLabel}
+                      size="small"
+                      variant="solid"
+                      color="primary"
+                      style={[a.rounded_full]}
+                      {...props}>
+                      <ButtonIcon icon={PlusIcon} position="left" />
+                      <ButtonText>Criar</ButtonText>
+                    </Button>
+                  )}
+                </CreateMenu>
               )}
             </View>
-          </Layout.Header.Content>
-        ) : (
+          </View>
+        </View>
+      ) : (
+        <Layout.Header.Outer>
+          <Layout.Header.BackButton />
           <Layout.Header.Content>
             <Layout.Header.TitleText>
-              {mode === 'images' ? 'AQUA Pics' : 'Aqua Videos'}
+              {mode === 'images' ? 'AQUA Pics' : 'Aqua Views'}
             </Layout.Header.TitleText>
           </Layout.Header.Content>
-        )}
-      </Layout.Header.Outer>
+        </Layout.Header.Outer>
+      )}
       {isVideoWeb ? (
         <View
           style={[
@@ -373,9 +395,9 @@ function MediaHome({mode}: {mode: MediaExperience}) {
             a.w_full,
             web({
               alignItems: 'flex-start',
-              alignSelf: 'center',
-              maxWidth: 1500,
+              alignSelf: 'stretch',
               minHeight: '100vh',
+              width: '100%',
             }),
           ]}>
           <VideosNavSidebar />

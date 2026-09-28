@@ -55,7 +55,18 @@ function HomeHeaderLayoutDesktopAndTablet({
               {paddingBottom: 10},
             ]}>
             <View style={a.flex_1} />
-            <Logo width={kawaii ? 60 : 28} />
+            <Link
+              to="/"
+              action="navigate"
+              hitSlop={10}
+              label={_(msg`Aqua - Home`)}
+              size="small"
+              variant="ghost"
+              color="secondary"
+              shape="square"
+              style={[a.justify_center, a.bg_transparent]}>
+              <Logo width={kawaii ? 60 : 28} />
+            </Link>
             <View style={[a.flex_1, a.flex_row, a.align_center, a.justify_end]}>
               <Link
                 to="/feeds"

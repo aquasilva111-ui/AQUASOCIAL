@@ -5,7 +5,7 @@ import {liveThumbUrl, type StreamplaceLivestreamView} from '#/lib/streamplace'
 import {sanitizeDisplayName} from '#/lib/strings/display-names'
 import {sanitizeHandle} from '#/lib/strings/handles'
 import {useLiveUsersQuery} from '#/state/queries/streamplace'
-import {atoms as a, useTheme} from '#/alf'
+import {atoms as a, useTheme, web} from '#/alf'
 import {Link} from '#/components/Link'
 import {Text} from '#/components/Typography'
 
@@ -17,7 +17,7 @@ function formatViewers(n: number) {
 
 /**
  * "Ao vivo agora" — live broadcasts from the Streamplace node
- * (place.stream.live.getLiveUsers), shown on top of the Aqua Videos page.
+ * (place.stream.live.getLiveUsers), shown on top of the Aqua Views page.
  */
 export function LiveNowSection({enabled}: {enabled: boolean}) {
   const t = useTheme()
@@ -49,7 +49,11 @@ export function LiveNowSection({enabled}: {enabled: boolean}) {
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={[a.gap_md, a.px_md]}>
+        contentContainerStyle={[
+          a.gap_md,
+          a.pl_md,
+          web({paddingRight: 0, minWidth: '100%'}) ?? a.pr_md,
+        ]}>
         {streams.map(stream => (
           <LiveCard key={stream.uri} stream={stream} />
         ))}
