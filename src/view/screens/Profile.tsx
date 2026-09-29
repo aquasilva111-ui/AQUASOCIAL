@@ -43,11 +43,14 @@ import {type ListRef} from '#/view/com/util/List'
 import {ProfileHeader, ProfileHeaderLoading} from '#/screens/Profile/Header'
 import {ProfileFeedSection} from '#/screens/Profile/Sections/Feed'
 import {ProfileLabelsSection} from '#/screens/Profile/Sections/Labels'
+import {ProfilePlaceholderSection} from '#/screens/Profile/Sections/Placeholder'
 import {atoms as a} from '#/alf'
 import {Circle_And_Square_Stroke1_Corner0_Rounded_Filled as CircleAndSquareIcon} from '#/components/icons/CircleAndSquare'
 import {Heart2_Stroke1_Corner0_Rounded as HeartIcon} from '#/components/icons/Heart2'
 import {Image_Stroke1_Corner0_Rounded as ImageIcon} from '#/components/icons/Image'
+import {ListSparkle_Stroke2_Corner0_Rounded as MarketplaceIcon} from '#/components/icons/ListSparkle'
 import {Message_Stroke1_Corner0_Rounded_Filled as MessageIcon} from '#/components/icons/Message'
+import {UserCircle_Stroke2_Corner0_Rounded as BrandIcon} from '#/components/icons/UserCircle'
 import {VideoClip_Stroke1_Corner0_Rounded as VideoIcon} from '#/components/icons/VideoClip'
 import * as Layout from '#/components/Layout'
 import {ScreenHider} from '#/components/moderation/ScreenHider'
@@ -195,6 +198,8 @@ function ProfileScreenLoaded({
   const repliesSectionRef = React.useRef<SectionRef>(null)
   const mediaSectionRef = React.useRef<SectionRef>(null)
   const videosSectionRef = React.useRef<SectionRef>(null)
+  const marketplaceSectionRef = React.useRef<SectionRef>(null)
+  const brandsSectionRef = React.useRef<SectionRef>(null)
   const likesSectionRef = React.useRef<SectionRef>(null)
   const feedsSectionRef = React.useRef<SectionRef>(null)
   const listsSectionRef = React.useRef<SectionRef>(null)
@@ -219,6 +224,8 @@ function ProfileScreenLoaded({
   const showRepliesTab = hasSession
   const showMediaTab = !hasLabeler
   const showVideosTab = !hasLabeler
+  const showMarketplaceTab = !hasLabeler
+  const showBrandsTab = !hasLabeler
   const showLikesTab = isMe
   const feedGenCount = profile.associated?.feedgens || 0
   const showFeedsTab = isMe || feedGenCount > 0
@@ -235,6 +242,8 @@ function ProfileScreenLoaded({
     showRepliesTab ? _(msg`Replies`) : undefined,
     showMediaTab ? _(msg`Media`) : undefined,
     showVideosTab ? _(msg`Videos`) : undefined,
+    showMarketplaceTab ? 'Marketplace' : undefined,
+    showBrandsTab ? 'Brands' : undefined,
     showLikesTab ? _(msg`Likes`) : undefined,
     showFeedsTab ? _(msg`Feeds`) : undefined,
     showStarterPacksTab ? _(msg`Starter Packs`) : undefined,
@@ -247,6 +256,8 @@ function ProfileScreenLoaded({
   let repliesIndex: number | null = null
   let mediaIndex: number | null = null
   let videosIndex: number | null = null
+  let marketplaceIndex: number | null = null
+  let brandsIndex: number | null = null
   let likesIndex: number | null = null
   let feedsIndex: number | null = null
   let starterPacksIndex: number | null = null
@@ -265,6 +276,12 @@ function ProfileScreenLoaded({
   }
   if (showVideosTab) {
     videosIndex = nextIndex++
+  }
+  if (showMarketplaceTab) {
+    marketplaceIndex = nextIndex++
+  }
+  if (showBrandsTab) {
+    brandsIndex = nextIndex++
   }
   if (showLikesTab) {
     likesIndex = nextIndex++
@@ -291,6 +308,10 @@ function ProfileScreenLoaded({
         mediaSectionRef.current?.scrollToTop()
       } else if (index === videosIndex) {
         videosSectionRef.current?.scrollToTop()
+      } else if (index === marketplaceIndex) {
+        marketplaceSectionRef.current?.scrollToTop()
+      } else if (index === brandsIndex) {
+        brandsSectionRef.current?.scrollToTop()
       } else if (index === likesIndex) {
         likesSectionRef.current?.scrollToTop()
       } else if (index === feedsIndex) {
@@ -307,6 +328,8 @@ function ProfileScreenLoaded({
       repliesIndex,
       mediaIndex,
       videosIndex,
+      marketplaceIndex,
+      brandsIndex,
       likesIndex,
       feedsIndex,
       listsIndex,
@@ -495,6 +518,34 @@ function ProfileScreenLoaded({
                   color: 'primary',
                 }}
                 emptyStateIcon={VideoIcon}
+              />
+            )
+          : null}
+        {showMarketplaceTab
+          ? ({headerHeight, isFocused, scrollElRef}) => (
+              <ProfilePlaceholderSection
+                ref={marketplaceSectionRef}
+                scrollElRef={scrollElRef as ListRef}
+                headerHeight={headerHeight}
+                isFocused={isFocused}
+                setScrollViewTag={setScrollViewTag}
+                message="Nenhum item no Marketplace ainda."
+                icon={MarketplaceIcon}
+                testID="profileMarketplaceSection"
+              />
+            )
+          : null}
+        {showBrandsTab
+          ? ({headerHeight, isFocused, scrollElRef}) => (
+              <ProfilePlaceholderSection
+                ref={brandsSectionRef}
+                scrollElRef={scrollElRef as ListRef}
+                headerHeight={headerHeight}
+                isFocused={isFocused}
+                setScrollViewTag={setScrollViewTag}
+                message="Nenhuma marca neste perfil ainda."
+                icon={BrandIcon}
+                testID="profileBrandsSection"
               />
             )
           : null}

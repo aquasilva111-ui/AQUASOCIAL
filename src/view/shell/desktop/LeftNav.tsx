@@ -42,6 +42,7 @@ import {
   SettingsGear2_Stroke2_Corner0_Rounded as Settings,
 } from '#/components/icons/SettingsGear2'
 import {Ticket_Stroke2_Corner0_Rounded as TicketIcon} from '#/components/icons/Ticket'
+import {Trending3_Stroke2_Corner1_Rounded as ChartsIcon} from '#/components/icons/Trending'
 import {UserCircle_Stroke2_Corner0_Rounded as UserCircle} from '#/components/icons/UserCircle'
 import {
   CENTER_COLUMN_HALF_WIDTH,
@@ -714,6 +715,16 @@ export function DesktopLeftNav() {
               />
             }
             label="Docs"
+          />
+          <PlaceholderNavItem
+            icon={
+              <ChartsIcon
+                aria-hidden={true}
+                width={NAV_ICON_WIDTH}
+                style={pal.text}
+              />
+            }
+            label="Charts"
           />
           <PlaceholderNavItem
             icon={
