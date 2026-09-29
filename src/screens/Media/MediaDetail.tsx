@@ -9,6 +9,7 @@ import {
   type NativeStackScreenProps,
 } from '#/lib/routes/types'
 import {makeRecordUri} from '#/lib/strings/url-helpers'
+import {getRelatedVisionboardItems} from '#/lib/visionboard/model'
 import {isNative} from '#/platform/detection'
 import {usePostQuery} from '#/state/queries/post'
 import {usePostFeedQuery} from '#/state/queries/post-feed'
@@ -19,6 +20,8 @@ import {MediaCard} from '#/components/feeds/MediaCard'
 import {MediaGallery} from '#/components/feeds/MediaGallery'
 import * as Layout from '#/components/Layout'
 import {Text} from '#/components/Typography'
+import {VisionboardCard} from '#/components/visionboard/VisionboardCard'
+import {VisionboardMasonry} from '#/components/visionboard/VisionboardMasonry'
 import {RelatedLayout} from './RelatedLayout'
 
 export function VideoWatchScreen({
@@ -85,13 +88,44 @@ function RelatedMedia({uri, mode}: {uri: string; mode: MediaExperience}) {
         : [],
     [post.data, feed.data, mode],
   )
+  const visionboardItems = useMemo(
+    () =>
+      mode === 'images' && post.data
+        ? getRelatedVisionboardItems(
+            post.data,
+            feed.data?.pages.flatMap(page =>
+              page.slices.flatMap(slice => slice.items),
+            ) ?? [],
+          ).slice(0, 12)
+        : [],
+    [post.data, feed.data, mode],
+  )
+  if (mode === 'images') {
+    if (!visionboardItems.length) return null
+    return (
+      <RelatedLayout>
+        <View>
+          <Text style={[a.text_lg, a.font_bold, a.p_md]}>
+            Imagens relacionadas
+          </Text>
+          {isNative ? (
+            visionboardItems.slice(0, 6).map(item => (
+              <View key={item.id} style={a.p_md}>
+                <VisionboardCard item={item} />
+              </View>
+            ))
+          ) : (
+            <VisionboardMasonry items={visionboardItems} />
+          )}
+        </View>
+      </RelatedLayout>
+    )
+  }
   if (!items.length) return null
   return (
     <RelatedLayout>
       <View>
-        <Text style={[a.text_lg, a.font_bold, a.p_md]}>
-          {mode === 'images' ? 'Imagens relacionadas' : 'Mais vídeos'}
-        </Text>
+        <Text style={[a.text_lg, a.font_bold, a.p_md]}>Mais vídeos</Text>
         {isNative ? (
           items.slice(0, 6).map(item => (
             <View key={item.uri} style={a.p_md}>

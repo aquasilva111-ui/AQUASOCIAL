@@ -10,6 +10,7 @@ import {
   isMediaPost,
   type MediaExperience,
 } from '#/lib/media/experiences'
+import {toVisionboardItems} from '#/lib/visionboard/model'
 import {isNative, isWeb} from '#/platform/detection'
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {useBookmarksQuery} from '#/state/queries/bookmarks/useBookmarksQuery'
@@ -28,16 +29,12 @@ import {MediaGallery} from '#/components/feeds/MediaGallery'
 import {SearchInput} from '#/components/forms/SearchInput'
 import * as Layout from '#/components/Layout'
 import {Text} from '#/components/Typography'
+import {VisionboardMasonry} from '#/components/visionboard/VisionboardMasonry'
 import * as bsky from '#/types/bsky'
 import {VideosNavSidebar} from './VideosNavSidebar'
 
 type Source =
-  | 'current'
-  | 'discover'
-  | 'following'
-  | 'created'
-  | 'saved'
-  | 'search'
+  'current' | 'discover' | 'following' | 'created' | 'saved' | 'search'
 const labels: Record<Source, string> = {
   current: 'Feed atual',
   discover: 'Para você',
@@ -328,6 +325,10 @@ function MediaHome({mode}: {mode: MediaExperience}) {
       )}
     </>
   )
+  const visionboardItems = useMemo(
+    () => (mode === 'images' ? toVisionboardItems(items) : []),
+    [items, mode],
+  )
   const gallery = (
     <>
       {mode === 'video' &&
@@ -335,12 +336,20 @@ function MediaHome({mode}: {mode: MediaExperience}) {
         (source === 'current' || source === 'discover') && (
           <LiveNowSection enabled={focused} />
         )}
-      <MediaGallery
-        items={items}
-        mode={mode}
-        onLoadMore={items.length ? loadMore : undefined}
-        onItemSeen={item => trackView(item.post)}
-      />
+      {mode === 'images' ? (
+        <VisionboardMasonry
+          items={visionboardItems}
+          onLoadMore={items.length ? loadMore : undefined}
+          onItemSeen={item => trackView(item.post)}
+        />
+      ) : (
+        <MediaGallery
+          items={items}
+          mode={mode}
+          onLoadMore={items.length ? loadMore : undefined}
+          onItemSeen={item => trackView(item.post)}
+        />
+      )}
     </>
   )
   return (

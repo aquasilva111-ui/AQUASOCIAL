@@ -8,79 +8,62 @@ import {
 } from '@atproto/api'
 
 import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
-import {getPostMedia, type MediaExperience} from '#/lib/media/experiences'
-import {formatViewCount, useViewCount} from '#/lib/media/views'
 import {getPostTextAndFacets} from '#/lib/strings/long-post'
+import {type VisionboardItem} from '#/lib/visionboard/model'
 import {
   POST_TOMBSTONE,
   type Shadow,
   usePostShadow,
 } from '#/state/cache/post-shadow'
-import {type FeedPostSliceItem} from '#/state/queries/post-feed'
 import {IMAGE_BORDER_RADIUS} from '#/view/com/util/images/constants'
 import {PostMeta} from '#/view/com/util/PostMeta'
 import {PreviewableUserAvatar} from '#/view/com/util/UserAvatar'
 import {atoms as a, useTheme} from '#/alf'
-import {Button, ButtonText} from '#/components/Button'
+import {MediaMask} from '#/components/feeds/MediaCard'
 import {Link} from '#/components/Link'
 import * as Hider from '#/components/moderation/Hider'
 import {PostControls} from '#/components/PostControls'
 import {Text} from '#/components/Typography'
 
-export function MediaCard({
-  item,
-  mode,
-}: {
-  item: FeedPostSliceItem
-  mode: MediaExperience
-}) {
-  const post = usePostShadow(item.post)
+export function VisionboardCard({item}: {item: VisionboardItem}) {
+  const post = usePostShadow(item.item.post)
   if (post === POST_TOMBSTONE) return null
-  return <MediaCardInner item={{...item, post}} mode={mode} />
+  return <VisionboardCardInner item={item} post={post} />
 }
 
-function MediaCardInner({
+function VisionboardCardInner({
   item,
-  mode,
+  post,
 }: {
-  item: FeedPostSliceItem & {post: Shadow<AppBskyFeedDefs.PostView>}
-  mode: MediaExperience
+  item: VisionboardItem
+  post: Shadow<AppBskyFeedDefs.PostView>
 }) {
-  const {post, record, moderation} = item
   const t = useTheme()
   const {openComposer} = useOpenComposer()
-  const media = getPostMedia(post)
-  const viewCount = useViewCount(post.uri)
+  const record = item.item.record
   const richText = useMemo(
     () => new RichTextAPI(getPostTextAndFacets(record)),
     [record],
   )
   const modui = useMemo(() => {
-    const list = moderation.ui('contentList')
-    const image = moderation.ui('contentMedia')
+    const list = item.moderation.ui('contentList')
+    const image = item.moderation.ui('contentMedia')
     list.blurs = [...list.blurs, ...image.blurs]
     list.alerts = [...list.alerts, ...image.alerts]
     list.filters = [...list.filters, ...image.filters]
     return list
-  }, [moderation])
-  if (modui.filter || (media.type !== 'images' && media.type !== 'video'))
-    return null
-  const image = media.type === 'images' ? media.view.images[0] : undefined
-  const thumbnail =
-    image?.thumb ?? (media.type === 'video' ? media.view.thumbnail : undefined)
-  const ratio = image?.aspectRatio
+  }, [item.moderation])
+  if (modui.filter) return null
   const aspectRatio =
-    mode === 'video'
-      ? 16 / 9
-      : ratio && ratio.width > 0 && ratio.height > 0
-        ? ratio.width / ratio.height
-        : 1
-  const rkey = new AtUri(post.uri).rkey
-  const href = `/${mode === 'video' ? 'videos/watch' : 'images/view'}/${post.author.did}/${rkey}`
+    item.width && item.height && item.width > 0 && item.height > 0
+      ? item.width / item.height
+      : 1
+  const rkey = new AtUri(item.uri).rkey
+  const href = `/images/view/${post.author.did}/${rkey}`
   return (
     <View
       style={[a.overflow_hidden, a.pb_sm, {borderRadius: IMAGE_BORDER_RADIUS}]}
-      testID={`media-card-${mode}`}>
+      testID="visionboard-card">
       <Hider.Outer modui={modui}>
         <Hider.Mask>
           <MediaMask aspectRatio={aspectRatio} />
@@ -88,9 +71,7 @@ function MediaCardInner({
         <Hider.Content>
           <Link
             to={href}
-            label={
-              record.text || (mode === 'video' ? 'Watch video' : 'View image')
-            }
+            label={item.title || item.altText || 'View image'}
             style={[a.w_full, {display: 'flex', flexDirection: 'column'}]}>
             <View
               style={[
@@ -102,19 +83,19 @@ function MediaCardInner({
               <Image
                 accessibilityIgnoresInvertColors
                 accessibilityHint="Abre a publicação original"
-                source={thumbnail ? {uri: thumbnail} : undefined}
+                source={{uri: item.thumbnailUrl}}
                 style={[a.w_full, a.h_full]}
-                contentFit={mode === 'images' ? 'contain' : 'cover'}
-                accessibilityLabel={image?.alt || record.text}
+                contentFit="cover"
+                accessibilityLabel={item.altText || item.title}
                 transition={150}
-                recyclingKey={post.uri}
+                recyclingKey={item.id}
               />
             </View>
-            {!!record.text && mode !== 'video' && (
+            {!!item.title && (
               <Text
                 numberOfLines={3}
                 style={[a.pt_sm, a.text_sm, a.font_semi_bold, a.leading_snug]}>
-                {record.text}
+                {item.title}
               </Text>
             )}
           </Link>
@@ -122,20 +103,15 @@ function MediaCardInner({
             <PreviewableUserAvatar
               size={24}
               profile={post.author}
-              moderation={moderation.ui('avatar')}
+              moderation={item.moderation.ui('avatar')}
             />
             <View style={[a.flex_1, {minWidth: 0}]}>
               <PostMeta
                 author={post.author}
-                moderation={moderation}
+                moderation={item.moderation}
                 timestamp={post.indexedAt}
                 postHref={href}
               />
-              {mode === 'video' && (
-                <Text style={[a.text_xs, t.atoms.text_contrast_medium]}>
-                  {formatViewCount(viewCount)} visualizações
-                </Text>
-              )}
             </View>
           </View>
           <PostControls
@@ -159,33 +135,6 @@ function MediaCardInner({
           />
         </Hider.Content>
       </Hider.Outer>
-    </View>
-  )
-}
-
-export function MediaMask({aspectRatio}: {aspectRatio: number}) {
-  const hider = Hider.useHider()
-  const t = useTheme()
-  return (
-    <View
-      style={[
-        a.p_sm,
-        a.justify_center,
-        a.gap_sm,
-        t.atoms.bg_contrast_50,
-        {aspectRatio},
-      ]}>
-      <Text style={a.text_sm}>{hider.info.name}</Text>
-      <Button label="Ver detalhes da moderação" onPress={hider.showInfoDialog}>
-        <ButtonText>Detalhes</ButtonText>
-      </Button>
-      {hider.meta.allowOverride && (
-        <Button
-          label="Mostrar conteúdo"
-          onPress={() => hider.setIsContentVisible(true)}>
-          <ButtonText>Mostrar</ButtonText>
-        </Button>
-      )}
     </View>
   )
 }
