@@ -1,13 +1,18 @@
+import {type AdultEntryMethod} from '#/state/adult/gate'
+
 /**
  * In-memory record of the deliberate entry into the +18 environment.
  *
  * Intentionally NOT persisted: every fresh app start begins outside the +18
  * context, and the record is bound to the account DID so switching accounts
- * or logging out can never leave an orphaned adult session behind.
+ * or logging out can never leave an orphaned adult session behind. (The
+ * self-declaration audit record is a separate, minimal account-scoped entry
+ * — see `adultAgeDeclaration` in '#/storage/schema'.)
  */
 type EnteredRecord = {
   did: string
   at: string
+  method: AdultEntryMethod
 }
 
 let current: EnteredRecord | null = null
@@ -21,8 +26,8 @@ export function getAdultEntry(): EnteredRecord | null {
   return current
 }
 
-export function markAdultEntered(did: string) {
-  current = {did, at: new Date().toISOString()}
+export function markAdultEntered(did: string, method: AdultEntryMethod) {
+  current = {did, at: new Date().toISOString(), method}
   emit()
 }
 

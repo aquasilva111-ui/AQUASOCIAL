@@ -7,9 +7,10 @@ import {
 /**
  * Explicit age-gate states for the AQUA +18 environment.
  *
- * Fail-closed contract: only `verified` may ever grant access. Any absence
- * of information (`unknown`, `required`, `pending`) denies entry — being
- * logged in is never treated as proof of adulthood.
+ * Fail-closed contract for VERIFIED access: only `verified` may ever grant
+ * access through the age-assurance pipeline. Any absence of information
+ * (`unknown`, `required`, `pending`) denies entry — being logged in is never
+ * treated as proof of adulthood.
  */
 export type AdultAgeGateStatus =
   | 'unknown'
@@ -18,6 +19,23 @@ export type AdultAgeGateStatus =
   | 'verified'
   | 'denied'
   | 'restricted'
+
+/**
+ * How the current adult entry was established.
+ *
+ * `verified` — the age-assurance pipeline completed (AGE_VERIFIED).
+ * `self_declared` — the user only declared majority at the entry gate
+ * (SELF_DECLARED_ADULT). This is a TEMPORARY product gate and must never be
+ * treated as, or persisted as, an age verification.
+ */
+export type AdultEntryMethod = 'verified' | 'self_declared'
+
+/**
+ * Version of the +18 entry policy text the user agreed to when
+ * self-declaring. Bump when the gate copy changes materially so stored
+ * declarations can be invalidated later if needed.
+ */
+export const ADULT_SELF_DECLARATION_POLICY_VERSION = '2026-09-29'
 
 /**
  * Maps the platform age-assurance state onto the +18 gate.
@@ -48,12 +66,36 @@ export function resolveAdultAgeGate(
 }
 
 /**
- * The only path that opens the +18 environment: a verified age gate AND a
- * deliberate, in-session entry action. Everything else is closed.
+ * Which entry method (if any) the gate currently allows.
+ *
+ * With the age-verification pipeline enabled (`adult_age_verification`
+ * gate), only `verified` opens the +18 environment — the original
+ * fail-closed contract. While it is disabled (default), the temporary
+ * self-declaration gate applies: every non-blocked state may enter by
+ * declaring majority. Hard blocks (`denied`, `restricted`) always fail
+ * closed regardless of the flag.
+ */
+export function resolveAdultEntryMethod(
+  ageGateStatus: AdultAgeGateStatus,
+  ageVerificationEnabled: boolean,
+): AdultEntryMethod | null {
+  if (ageGateStatus === 'verified') return 'verified'
+  if (ageVerificationEnabled) return null
+  if (ageGateStatus === 'denied' || ageGateStatus === 'restricted') return null
+  return 'self_declared'
+}
+
+/**
+ * The only paths that open the +18 environment: an allowed entry method AND
+ * a deliberate, in-session entry action. Everything else is closed.
  */
 export function isAdultAccessGranted(
   ageGateStatus: AdultAgeGateStatus,
   entered: boolean,
+  ageVerificationEnabled: boolean,
 ): boolean {
-  return ageGateStatus === 'verified' && entered
+  return (
+    entered &&
+    resolveAdultEntryMethod(ageGateStatus, ageVerificationEnabled) !== null
+  )
 }

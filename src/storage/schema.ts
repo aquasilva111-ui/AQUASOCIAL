@@ -86,4 +86,17 @@ export type Account = {
    * (FASE 2) owns documents server-side.
    */
   aquaDocs?: DocMeta[]
+
+  /**
+   * Minimal audit record of the +18 self-declaration of majority. This is
+   * NOT an age verification (see AdultEntryMethod in '#/state/adult/gate')
+   * and must never be read as AGE_VERIFIED. Access itself still requires a
+   * deliberate per-session entry; this only records that the declaration
+   * happened.
+   */
+  adultAgeDeclaration?: {
+    status: 'self_declared'
+    at: string
+    policyVersion: string
+  }
 }

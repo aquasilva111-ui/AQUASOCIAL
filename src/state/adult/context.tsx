@@ -4,6 +4,7 @@ import {useQueryClient} from '@tanstack/react-query'
 
 import {clearAdultApiToken} from '#/lib/adult/api'
 import {ADULT_QUERY_NAMESPACE} from '#/lib/adult/isolation'
+import {useGate} from '#/lib/statsig/statsig'
 import {clearAdultActionHistory} from '#/state/adult/actionHistory'
 import {
   clearAdultEntered,
@@ -12,13 +13,17 @@ import {
   subscribeAdultEntry,
 } from '#/state/adult/entered'
 import {
+  ADULT_SELF_DECLARATION_POLICY_VERSION,
   type AdultAgeGateStatus,
+  type AdultEntryMethod,
   isAdultAccessGranted,
   resolveAdultAgeGate,
+  resolveAdultEntryMethod,
 } from '#/state/adult/gate'
 import {clearAdultRelationships} from '#/state/adult/relationships'
 import {useSession} from '#/state/session'
 import {useAgeAssurance} from '#/ageAssurance'
+import {account} from '#/storage'
 
 /**
  * Minimal identity projection exposed to the +18 environment. The adult
@@ -41,10 +46,20 @@ export type AdultCreatorStatus = 'viewer' | 'creator' | 'studio' | 'moderator'
 export type AdultContextValue = {
   identity: AdultIdentity | null
   ageGateStatus: AdultAgeGateStatus
-  /** True only when the gate is verified AND the user deliberately entered. */
+  /**
+   * True only when the gate allows an entry method AND the user deliberately
+   * entered.
+   */
   adultAccessEnabled: boolean
   /** Whether the gate alone would allow entry (pre-confirmation). */
   canEnter: boolean
+  /**
+   * How the current entry was established. `self_declared` is NOT an age
+   * verification — surfaces must not treat it as AGE_VERIFIED.
+   */
+  entryMethod: AdultEntryMethod | null
+  /** Whether the real age-verification pipeline is the active gate. */
+  ageVerificationEnabled: boolean
   creatorStatus: AdultCreatorStatus
   enteredAt: string | null
   enter: () => void
@@ -64,6 +79,12 @@ export function useAdultContext(): AdultContextValue {
   const {state: ageAssuranceState} = useAgeAssurance()
   const queryClient = useQueryClient()
   const entry = useSyncExternalStore(subscribeAdultEntry, getAdultEntry)
+  const gate = useGate()
+  // ADULT_AGE_VERIFICATION flag (Statsig gate, default off): when off, the
+  // temporary self-declaration gate applies. When on, only the real
+  // age-assurance pipeline opens +18. Reserved for the future Age
+  // Assurance / Age Verification integration.
+  const ageVerificationEnabled = gate('adult_age_verification')
 
   const identity = useMemo<AdultIdentity | null>(
     () =>
@@ -77,16 +98,35 @@ export function useAdultContext(): AdultContextValue {
   )
 
   const ageGateStatus = resolveAdultAgeGate(hasSession, ageAssuranceState)
+  const allowedMethod = resolveAdultEntryMethod(
+    ageGateStatus,
+    ageVerificationEnabled,
+  )
   const entered = identity !== null && entry?.did === identity.did
-  const canEnter = ageGateStatus === 'verified' && identity !== null
+  const canEnter = identity !== null && allowedMethod !== null
   const adultAccessEnabled =
-    identity !== null && isAdultAccessGranted(ageGateStatus, entered)
+    identity !== null &&
+    isAdultAccessGranted(ageGateStatus, entered, ageVerificationEnabled)
 
   const enter = useCallback(() => {
-    // Fail closed: refuse to mark entry unless the gate is verified right now.
-    if (!identity || ageGateStatus !== 'verified') return
-    markAdultEntered(identity.did)
-  }, [identity, ageGateStatus])
+    // Fail closed: refuse to mark entry unless the gate allows a method now.
+    if (!identity) return
+    const method = resolveAdultEntryMethod(
+      ageGateStatus,
+      ageVerificationEnabled,
+    )
+    if (!method) return
+    markAdultEntered(identity.did, method)
+    if (method === 'self_declared') {
+      // Minimal audit record of the declaration only — never an
+      // AGE_VERIFIED marker.
+      account.set([identity.did, 'adultAgeDeclaration'], {
+        status: 'self_declared',
+        at: new Date().toISOString(),
+        policyVersion: ADULT_SELF_DECLARATION_POLICY_VERSION,
+      })
+    }
+  }, [identity, ageGateStatus, ageVerificationEnabled])
 
   const exit = useCallback(() => {
     clearAdultEntered()
@@ -103,6 +143,8 @@ export function useAdultContext(): AdultContextValue {
     ageGateStatus,
     adultAccessEnabled,
     canEnter,
+    entryMethod: entered ? (entry?.method ?? null) : null,
+    ageVerificationEnabled,
     creatorStatus: 'viewer',
     enteredAt: entered ? (entry?.at ?? null) : null,
     enter,

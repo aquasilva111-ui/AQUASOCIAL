@@ -1,4 +1,8 @@
-import {isAdultAccessGranted, resolveAdultAgeGate} from '#/state/adult/gate'
+import {
+  isAdultAccessGranted,
+  resolveAdultAgeGate,
+  resolveAdultEntryMethod,
+} from '#/state/adult/gate'
 import {
   AgeAssuranceAccess,
   type AgeAssuranceState,
@@ -50,6 +54,7 @@ describe('resolveAdultAgeGate', () => {
           aa(AgeAssuranceStatus.Unknown, AgeAssuranceAccess.Full),
         ),
         true,
+        true,
       ),
     ).toBe(false)
   })
@@ -97,19 +102,62 @@ describe('resolveAdultAgeGate', () => {
   })
 })
 
-describe('isAdultAccessGranted (fail closed)', () => {
+describe('isAdultAccessGranted with age verification enabled (fail closed)', () => {
   it('grants only verified + deliberate entry', () => {
-    expect(isAdultAccessGranted('verified', true)).toBe(true)
+    expect(isAdultAccessGranted('verified', true, true)).toBe(true)
   })
 
   it('never grants without deliberate entry', () => {
-    expect(isAdultAccessGranted('verified', false)).toBe(false)
+    expect(isAdultAccessGranted('verified', false, true)).toBe(false)
   })
 
   it.each(['unknown', 'required', 'pending', 'denied', 'restricted'] as const)(
     'never grants in the %s state, even after entry',
     status => {
-      expect(isAdultAccessGranted(status, true)).toBe(false)
+      expect(isAdultAccessGranted(status, true, true)).toBe(false)
+    },
+  )
+})
+
+describe('resolveAdultEntryMethod', () => {
+  it('verified always resolves to the verified method', () => {
+    expect(resolveAdultEntryMethod('verified', true)).toBe('verified')
+    expect(resolveAdultEntryMethod('verified', false)).toBe('verified')
+  })
+
+  it('denied and restricted never resolve, flag on or off', () => {
+    for (const status of ['denied', 'restricted'] as const) {
+      expect(resolveAdultEntryMethod(status, true)).toBe(null)
+      expect(resolveAdultEntryMethod(status, false)).toBe(null)
+    }
+  })
+
+  it.each(['unknown', 'required', 'pending'] as const)(
+    'resolves %s to self_declared only while verification is disabled',
+    status => {
+      expect(resolveAdultEntryMethod(status, false)).toBe('self_declared')
+      expect(resolveAdultEntryMethod(status, true)).toBe(null)
+    },
+  )
+})
+
+describe('isAdultAccessGranted with the temporary self-declaration gate', () => {
+  it.each(['unknown', 'required', 'pending'] as const)(
+    'grants %s after a deliberate entry',
+    status => {
+      expect(isAdultAccessGranted(status, true, false)).toBe(true)
+    },
+  )
+
+  it('still never grants without deliberate entry', () => {
+    expect(isAdultAccessGranted('unknown', false, false)).toBe(false)
+    expect(isAdultAccessGranted('required', false, false)).toBe(false)
+  })
+
+  it.each(['denied', 'restricted'] as const)(
+    'still fails closed in the %s state, even after entry',
+    status => {
+      expect(isAdultAccessGranted(status, true, false)).toBe(false)
     },
   )
 })
