@@ -10,7 +10,7 @@ import {
 } from '#/lib/routes/types'
 import {makeRecordUri} from '#/lib/strings/url-helpers'
 import {getRelatedVisionboardItems} from '#/lib/visionboard/model'
-import {isNative} from '#/platform/detection'
+import {isNative, isWeb} from '#/platform/detection'
 import {usePostQuery} from '#/state/queries/post'
 import {usePostFeedQuery} from '#/state/queries/post-feed'
 import {useSelectedFeed} from '#/state/shell/selected-feed'
@@ -23,6 +23,7 @@ import {Text} from '#/components/Typography'
 import {VisionboardCard} from '#/components/visionboard/VisionboardCard'
 import {VisionboardMasonry} from '#/components/visionboard/VisionboardMasonry'
 import {RelatedLayout} from './RelatedLayout'
+import {VisionboardDetail} from './VisionboardDetail'
 
 export function VideoWatchScreen({
   route,
@@ -38,6 +39,17 @@ export function VideoWatchScreen({
 export function ImageDetailScreen({
   route,
 }: NativeStackScreenProps<CommonNavigatorParams, 'ImageDetail'>) {
+  if (isWeb) {
+    return (
+      <VisionboardDetail
+        uri={makeRecordUri(
+          route.params.name,
+          'app.bsky.feed.post',
+          route.params.rkey,
+        )}
+      />
+    )
+  }
   return (
     <MediaDetail
       name={route.params.name}

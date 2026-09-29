@@ -46,7 +46,7 @@ import {DesktopLeftNav} from './desktop/LeftNav'
 import {DesktopRightNav} from './desktop/RightNav'
 
 /** Pages that bring their own header and navigation instead of the side navs. */
-const FULL_PAGE_ROUTES = ['Videos', 'Images']
+const FULL_PAGE_ROUTES = ['Videos', 'Images', 'ImageDetail']
 
 type NativeStackNavigationOptionsWithAuth = NativeStackNavigationOptions & {
   requireAuth?: boolean

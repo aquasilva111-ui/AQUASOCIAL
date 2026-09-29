@@ -87,7 +87,7 @@ export type CommonNavigatorParams = {
   StarterPackEdit: {rkey?: string}
   VideoFeed: VideoFeedSourceContext
   Bookmarks: undefined
-  Images: undefined
+  Images: {source?: string; q?: string} | undefined
   ImagesLegacy: undefined
   Videos: {source?: string; q?: string} | undefined
   VideoLive: {name: string}
