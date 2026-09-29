@@ -15,6 +15,7 @@ import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
 import {usePalette} from '#/lib/hooks/usePalette'
 import {makeProfileLink} from '#/lib/routes/links'
 import {countLines} from '#/lib/strings/helpers'
+import {getPostTextAndFacets} from '#/lib/strings/long-post'
 import {colors} from '#/lib/styles'
 import {
   POST_TOMBSTONE,
@@ -61,13 +62,7 @@ export function Post({
   )
   const postShadowed = usePostShadow(post)
   const richText = useMemo(
-    () =>
-      record
-        ? new RichTextAPI({
-            text: record.text,
-            facets: record.facets,
-          })
-        : undefined,
+    () => (record ? new RichTextAPI(getPostTextAndFacets(record)) : undefined),
     [record],
   )
   const moderation = useMemo(

@@ -16,6 +16,7 @@ import {
   type ValidationIssue,
 } from '#/lib/launch-hub/types'
 import {compressIfNeeded} from '#/lib/media/manip'
+import {LONG_TEXT_FIELD, splitLongPost} from '#/lib/strings/long-post'
 import {
   type AdapterContext,
   type ProviderAdapter,
@@ -189,10 +190,12 @@ export const atprotoAdapter: ProviderAdapter = {
       }
     }
 
+    const {text, facets, longText} = splitLongPost(rt)
     const record: $Typed<AppBskyFeedPost.Record> = {
       $type: POST_COLLECTION,
-      text: rt.text,
-      facets: rt.facets,
+      text,
+      facets,
+      ...(longText && {[LONG_TEXT_FIELD]: longText}),
       embed,
       createdAt: new Date().toISOString(),
     }

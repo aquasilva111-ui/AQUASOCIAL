@@ -40,7 +40,7 @@ const experienceLabels = {
  * `placement` is web-only (header row vs below the tab bar) and ignored here.
  */
 export function FeedViewSwitcher(_props: {
-  placement?: 'page' | 'header' | 'compose'
+  placement?: 'page' | 'header' | 'compose' | 'icon'
 }) {
   const mode = useFeedExperience()
   const setMode = useSetFeedExperience()

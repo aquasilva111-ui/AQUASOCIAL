@@ -40,6 +40,23 @@ import * as Layout from '#/components/Layout'
 import {useDemoMode} from '#/storage/hooks/demo-mode'
 
 type Props = NativeStackScreenProps<HomeTabNavigatorParams, 'Home' | 'Start'>
+
+const FOR_YOU_FEED = `feedgen|${PROD_DEFAULT_FEED('whats-hot')}`
+
+/**
+ * The home tabs are just Following and For You (Discover). Other pinned
+ * feeds are reached from the Feeds dialog. Falls back to every pinned feed
+ * if neither is pinned, so the home never ends up empty.
+ */
+function getHomeTabs(pinned: SavedFeedSourceInfo[]): SavedFeedSourceInfo[] {
+  const following = pinned.find(f => f.feedDescriptor === 'following')
+  const forYou = pinned.find(f => f.feedDescriptor === FOR_YOU_FEED)
+  const tabs = [
+    following,
+    forYou && {...forYou, displayName: 'For You'},
+  ].filter(f => !!f)
+  return tabs.length ? tabs : pinned
+}
 export function HomeScreen(props: Props) {
   const {setShowLoggedOut} = useLoggedOutViewControls()
   const {data: preferences} = usePreferencesQuery()
@@ -77,13 +94,18 @@ export function HomeScreen(props: Props) {
     setShowLoggedOut,
   ])
 
-  if (preferences && pinnedFeedInfos && !isPinnedFeedsLoading) {
+  const homeFeedInfos = React.useMemo(
+    () => pinnedFeedInfos && getHomeTabs(pinnedFeedInfos),
+    [pinnedFeedInfos],
+  )
+
+  if (preferences && homeFeedInfos && !isPinnedFeedsLoading) {
     return (
       <Layout.Screen testID="HomeScreen">
         <HomeScreenReady
           {...props}
           preferences={preferences}
-          pinnedFeedInfos={pinnedFeedInfos}
+          pinnedFeedInfos={homeFeedInfos}
         />
       </Layout.Screen>
     )

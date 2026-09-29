@@ -21,6 +21,7 @@ import {makeProfileLink} from '#/lib/routes/links'
 import {type NavigationProp} from '#/lib/routes/types'
 import {useGate} from '#/lib/statsig/statsig'
 import {countLines} from '#/lib/strings/helpers'
+import {getPostTextAndFacets} from '#/lib/strings/long-post'
 import {
   POST_TOMBSTONE,
   type Shadow,
@@ -102,11 +103,7 @@ export function PostFeedItem({
 }): React.ReactNode {
   const postShadowed = usePostShadow(post)
   const richText = useMemo(
-    () =>
-      new RichTextAPI({
-        text: record.text,
-        facets: record.facets,
-      }),
+    () => new RichTextAPI(getPostTextAndFacets(record)),
     [record],
   )
   if (postShadowed === POST_TOMBSTONE) {

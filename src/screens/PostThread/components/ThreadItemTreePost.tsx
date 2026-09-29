@@ -12,6 +12,7 @@ import {MAX_POST_LINES} from '#/lib/constants'
 import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
 import {makeProfileLink} from '#/lib/routes/links'
 import {countLines} from '#/lib/strings/helpers'
+import {getPostTextAndFacets} from '#/lib/strings/long-post'
 import {
   POST_TOMBSTONE,
   type Shadow,
@@ -257,11 +258,7 @@ const ThreadItemTreePostInner = memo(function ThreadItemTreePostInner({
   const record = item.value.post.record
   const moderation = item.moderation
   const richText = useMemo(
-    () =>
-      new RichTextAPI({
-        text: record.text,
-        facets: record.facets,
-      }),
+    () => new RichTextAPI(getPostTextAndFacets(record)),
     [record],
   )
   const [limitLines, setLimitLines] = useState(

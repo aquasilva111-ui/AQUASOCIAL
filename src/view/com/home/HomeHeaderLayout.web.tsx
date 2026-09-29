@@ -11,6 +11,7 @@ import {HomeHeaderLayoutMobile} from '#/view/com/home/HomeHeaderLayoutMobile'
 import {Logo} from '#/view/icons/Logo'
 import {atoms as a, useBreakpoints, useGutters, useTheme} from '#/alf'
 import {ButtonIcon} from '#/components/Button'
+import {FeedViewSwitcher} from '#/components/feeds/FeedViewSwitcher'
 import {Hashtag_Stroke2_Corner0_Rounded as FeedsIcon} from '#/components/icons/Hashtag'
 import * as Layout from '#/components/Layout'
 import {Link} from '#/components/Link'
@@ -44,7 +45,8 @@ function HomeHeaderLayoutDesktopAndTablet({
   return (
     <>
       {hasSession && (
-        <Layout.Center>
+        // Above the sticky tab row, so the mode switcher menu can open over it.
+        <Layout.Center style={[a.z_20]}>
           <View
             style={[
               a.flex_row,
@@ -67,7 +69,15 @@ function HomeHeaderLayoutDesktopAndTablet({
               style={[a.justify_center, a.bg_transparent]}>
               <Logo width={kawaii ? 60 : 28} />
             </Link>
-            <View style={[a.flex_1, a.flex_row, a.align_center, a.justify_end]}>
+            <View
+              style={[
+                a.flex_1,
+                a.flex_row,
+                a.align_center,
+                a.justify_end,
+                a.gap_xs,
+              ]}>
+              <FeedViewSwitcher placement="icon" />
               <Link
                 to="/feeds"
                 hitSlop={10}

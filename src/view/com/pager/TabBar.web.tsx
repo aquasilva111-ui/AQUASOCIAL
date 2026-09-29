@@ -2,6 +2,7 @@ import {useCallback, useEffect, useRef} from 'react'
 import {type ScrollView, StyleSheet, View} from 'react-native'
 
 import {atoms as a, useBreakpoints, useTheme, web} from '#/alf'
+import {CENTER_COLUMN_WIDTH} from '#/components/Layout/const'
 import {Text} from '#/components/Typography'
 import {PressableWithHover} from '../util/PressableWithHover'
 import {DraggableScrollView} from './DraggableScrollView'
@@ -147,7 +148,7 @@ export function TabBar({
 const desktopStyles = StyleSheet.create({
   outer: {
     flexDirection: 'row',
-    width: 600,
+    width: CENTER_COLUMN_WIDTH,
   },
   contentContainer: {
     flexGrow: 1,

@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
     maxWidth: 600,
     width: '100%',
     paddingVertical: 0,
-    borderRadius: 8,
+    borderRadius: 24,
     marginBottom: 0,
     borderWidth: 1,
     // @ts-expect-error web only

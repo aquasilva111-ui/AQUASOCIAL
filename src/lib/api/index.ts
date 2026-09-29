@@ -23,6 +23,7 @@ import {CID} from 'multiformats/cid'
 import * as Hasher from 'multiformats/hashes/hasher'
 
 import {isNetworkError} from '#/lib/strings/errors'
+import {LONG_TEXT_FIELD, splitLongPost} from '#/lib/strings/long-post'
 import {shortenLinks, stripInvalidMentions} from '#/lib/strings/rich-text-manip'
 import {logger} from '#/logger'
 import {compressImage} from '#/state/gallery'
@@ -111,13 +112,15 @@ export async function post(
     const rt = await rtPromise
     const embed = await embedPromise
     const reply = await replyPromise
+    const {text, facets, longText} = splitLongPost(rt)
     const record: AppBskyFeedPost.Record = {
       // IMPORTANT: $type has to exist, CID is calculated with the `$type` field
       // present and will produce the wrong CID if you omit it.
       $type: 'app.bsky.feed.post',
       createdAt: now.toISOString(),
-      text: rt.text,
-      facets: rt.facets,
+      text,
+      facets,
+      ...(longText && {[LONG_TEXT_FIELD]: longText}),
       reply,
       embed,
       langs,

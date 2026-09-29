@@ -17,6 +17,10 @@
   align-self: center;
   padding: 0;
 }
+.feed-view-switcher--icon {
+  align-self: center;
+  padding: 0;
+}
 .feed-view-trigger {
   height: 30px;
   min-width: 54px;
@@ -211,4 +215,24 @@
     gap: 8px;
     padding: 0 8px;
   }
+}
+
+/* Icon-only trigger in the home header, next to the hashtag button. */
+.feed-view-switcher.feed-view-switcher--icon .feed-view-trigger {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  padding: 0;
+  justify-content: center;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.feed-view-switcher.feed-view-switcher--icon .feed-view-trigger:hover,
+.feed-view-switcher.feed-view-switcher--icon
+  .feed-view-trigger[aria-expanded='true'] {
+  background: rgba(136, 153, 170, 0.16);
 }

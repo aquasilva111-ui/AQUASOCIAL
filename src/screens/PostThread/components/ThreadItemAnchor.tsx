@@ -16,6 +16,7 @@ import {useTranslate} from '#/lib/hooks/useTranslate'
 import {makeProfileLink} from '#/lib/routes/links'
 import {sanitizeDisplayName} from '#/lib/strings/display-names'
 import {sanitizeHandle} from '#/lib/strings/handles'
+import {getPostTextAndFacets} from '#/lib/strings/long-post'
 import {niceDate} from '#/lib/strings/time'
 import {getTranslatorLink, isPostInLanguage} from '#/locale/helpers'
 import {logger} from '#/logger'
@@ -194,11 +195,7 @@ const ThreadItemAnchorInner = memo(function ThreadItemAnchorInner({
   const authorShadow = useProfileShadow(post.author)
   const {isActive: live} = useActorStatus(post.author)
   const richText = useMemo(
-    () =>
-      new RichTextAPI({
-        text: record.text,
-        facets: record.facets,
-      }),
+    () => new RichTextAPI(getPostTextAndFacets(record)),
     [record],
   )
 

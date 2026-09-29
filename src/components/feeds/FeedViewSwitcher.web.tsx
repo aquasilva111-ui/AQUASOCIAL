@@ -10,6 +10,7 @@ import {
 import {useTheme} from '#/alf'
 import {ChevronBottom_Stroke2_Corner0_Rounded as Chevron} from '#/components/icons/Chevron'
 import {DotGrid_Stroke2_Corner0_Rounded as DotGrid} from '#/components/icons/DotGrid'
+import {Grid_Stroke2_Corner0_Rounded as Grid} from '#/components/icons/Grid'
 import {HomeOpen_Stoke2_Corner0_Rounded as Social} from '#/components/icons/HomeOpen'
 import {Image_Stroke2_Corner0_Rounded as Images} from '#/components/icons/Image'
 import {Message_Stroke2_Corner0_Rounded as Streams} from '#/components/icons/Message'
@@ -38,7 +39,7 @@ const labels = {
 export function FeedViewSwitcher({
   placement = 'page',
 }: {
-  placement?: 'page' | 'header' | 'compose'
+  placement?: 'page' | 'header' | 'compose' | 'icon'
 }) {
   const mode = useFeedExperience()
   const setMode = useSetFeedExperience()
@@ -67,9 +68,11 @@ export function FeedViewSwitcher({
       className={
         placement === 'compose'
           ? 'feed-view-switcher feed-view-switcher--compose'
-          : placement === 'header'
-            ? 'feed-view-switcher feed-view-switcher--header'
-            : 'feed-view-switcher'
+          : placement === 'icon'
+            ? 'feed-view-switcher feed-view-switcher--icon'
+            : placement === 'header'
+              ? 'feed-view-switcher feed-view-switcher--header'
+              : 'feed-view-switcher'
       }
       data-theme={theme.name}
       onBlur={event => {
@@ -115,7 +118,9 @@ export function FeedViewSwitcher({
         aria-expanded={open}
         aria-controls={open ? id : undefined}
         onClick={() => setOpen(value => !value)}>
-        {placement === 'compose' ? (
+        {placement === 'icon' ? (
+          <Grid width={22} fill="currentColor" aria-hidden />
+        ) : placement === 'compose' ? (
           <DotGrid width={24} fill="currentColor" aria-hidden />
         ) : (
           <>
@@ -130,7 +135,7 @@ export function FeedViewSwitcher({
           role="menu"
           aria-label="Feed view"
           className={
-            placement === 'header' || placement === 'compose'
+            placement !== 'page'
               ? 'feed-view-menu feed-view-menu--end'
               : 'feed-view-menu'
           }>

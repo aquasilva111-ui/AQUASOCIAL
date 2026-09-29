@@ -5,8 +5,14 @@ import {type NavigationProp} from '#/lib/routes/types'
 import {type FeedSourceInfo} from '#/state/queries/feed'
 import {useSession} from '#/state/session'
 import {type RenderTabBarFnProps} from '#/view/com/pager/Pager'
+import {useBreakpoints} from '#/alf'
+import {
+  FeedsDialog,
+  useFeedsDialogControl,
+} from '#/components/dialogs/FeedsDialog'
 import {FeedViewSwitcher} from '#/components/feeds/FeedViewSwitcher'
 import {TabBar} from '../pager/TabBar'
+import {HomeFeedTabs} from './HomeFeedTabs'
 import {HomeHeaderLayout} from './HomeHeaderLayout'
 
 export function HomeHeader(
@@ -18,7 +24,9 @@ export function HomeHeader(
 ) {
   const {feeds, onSelect: onSelectProp} = props
   const {hasSession} = useSession()
+  const {gtMobile} = useBreakpoints()
   const navigation = useNavigation<NavigationProp>()
+  const feedsDialog = useFeedsDialogControl()
 
   const hasPinnedCustom = React.useMemo<boolean>(() => {
     if (!hasSession) return false
@@ -53,18 +61,36 @@ export function HomeHeader(
 
   return (
     <HomeHeaderLayout tabBarAnchor={props.tabBarAnchor}>
-      <TabBar
-        key={items.join(',')}
-        onPressSelected={props.onPressSelected}
-        selectedPage={props.selectedPage}
-        onSelect={onSelect}
-        testID={props.testID}
-        items={items}
-        dragProgress={props.dragProgress}
-        dragState={props.dragState}
-        transparent
-      />
-      <FeedViewSwitcher />
+      {hasSession ? (
+        <>
+          <HomeFeedTabs
+            testID={props.testID}
+            items={feeds.map(f => f.displayName)}
+            selectedPage={props.selectedPage}
+            onSelect={onSelectProp}
+            onPressSelected={props.onPressSelected}
+            onPressAdd={feedsDialog.open}
+          />
+          <FeedsDialog control={feedsDialog} />
+        </>
+      ) : (
+        <TabBar
+          key={items.join(',')}
+          onPressSelected={props.onPressSelected}
+          selectedPage={props.selectedPage}
+          onSelect={onSelect}
+          testID={props.testID}
+          items={items}
+          dragProgress={props.dragProgress}
+          dragState={props.dragState}
+          transparent
+        />
+      )}
+      {/*
+        On desktop web with a session the mode switcher is an icon in the top
+        header row, next to the hashtag (see HomeHeaderLayout.web.tsx).
+      */}
+      {(!gtMobile || !hasSession) && <FeedViewSwitcher />}
     </HomeHeaderLayout>
   )
 }

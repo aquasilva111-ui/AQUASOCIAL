@@ -60,7 +60,8 @@ export function FEEDBACK_FORM_URL({
 export const MAX_DISPLAY_NAME = 64
 export const MAX_DESCRIPTION = 256
 
-export const MAX_GRAPHEME_LENGTH = 300
+/** AQUA post limit; over 300 is stored via src/lib/strings/long-post.ts */
+export const MAX_GRAPHEME_LENGTH = 800
 
 export const MAX_DM_GRAPHEME_LENGTH = 1000
 
