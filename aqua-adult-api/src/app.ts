@@ -33,6 +33,7 @@ import {audit} from './lib/audit.js'
 import {ApiError, badRequest, forbidden, notFound} from './lib/errors.js'
 import {newId} from './lib/ids.js'
 import {MoneyError} from './lib/money.js'
+import {enforce, RateLimiter} from './lib/rateLimit.js'
 import {MediaEngine} from './media/engine.js'
 import {LocalPrivateStorage} from './media/storage.js'
 import {installRoutes} from './registry.js'
@@ -54,6 +55,34 @@ declare module 'fastify' {
   }
 }
 
+const MIN = 60_000
+const HOUR = 3600_000
+/** [METHOD route, max requests, window] per client address. */
+const RATE_LIMITS: [string, number, number][] = [
+  ['POST /checkout', 30, MIN],
+  ['POST /views/videos/:id/playback', 120, MIN],
+  ['POST /views/videos/:id/preview', 120, MIN],
+  ['POST /studio-titles/:type/:id/playback', 120, MIN],
+  ['POST /studio-titles/:type/:id/preview', 120, MIN],
+  ['POST /live/:id/playback', 120, MIN],
+  ['POST /live/:id/chat', 60, MIN],
+  ['POST /media/uploads', 60, HOUR],
+  ['POST /reports', 60, HOUR],
+  ['GET /studios/search', 120, MIN],
+  ['POST /me/adult/self-declaration', 30, HOUR],
+  ['POST /creator/applications', 20, HOUR],
+  ['POST /dashboard/creator/payout-requests', 30, HOUR],
+  ['* /admin/*', 600, MIN],
+]
+
+/** Masks bearer-like path segments (signed media tokens, stream keys). */
+export function redactUrl(url: string) {
+  return url.replace(
+    /\/(stream|live-stream|media\/upload|live\/ingest)\/[^/?]+/g,
+    '/$1/[redacted]',
+  )
+}
+
 const resourceRef = z.object({
   resourceType: z.string().min(1).max(40),
   resourceId: z.string().min(1).max(500),
@@ -65,7 +94,23 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
     ageVerificationRequired: config.ageVerificationRequired,
   })
   const app = Fastify({
-    logger: false,
+    // Structured JSON logs. Never bodies, never auth headers, and signed
+    // tokens / stream keys in URLs are masked before anything is written.
+    logger:
+      config.logLevel === 'silent'
+        ? false
+        : {
+            level: config.logLevel,
+            serializers: {
+              req: req => ({
+                method: req.method,
+                url: redactUrl(req.url),
+                reqId: req.id,
+              }),
+              res: res => ({statusCode: res.statusCode}),
+            },
+          },
+    trustProxy: config.trustProxy,
     bodyLimit: 1024 * 1024,
     routerOptions: {maxParamLength: 1024},
   })
@@ -125,6 +170,20 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
     reply.header('x-content-type-options', 'nosniff')
   })
 
+  // Generous per-client limits on abuse-prone routes; normal use never hits them.
+  const limiters = new Map<string, RateLimiter>()
+  for (const [route, limit, windowMs] of RATE_LIMITS)
+    limiters.set(route, new RateLimiter(limit, windowMs))
+  app.addHook('onRequest', async req => {
+    const pattern = req.routeOptions?.url
+    if (!pattern) return
+    const key = `${req.method} ${pattern}`
+    const limiter =
+      limiters.get(key) ??
+      (pattern.startsWith('/admin/') ? limiters.get('* /admin/*') : undefined)
+    if (limiter) enforce(limiter, `${key}|${req.ip}`)
+  })
+
   app.setErrorHandler((err, _req, reply) => {
     if (err instanceof ApiError)
       return reply.status(err.status).send({error: err.code})
@@ -135,6 +194,8 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
     const status = (err as {statusCode?: number}).statusCode
     if (status && status >= 400 && status < 500)
       return reply.status(status).send({error: 'bad_request'})
+    // Logged server-side only (message + stack, no request body).
+    _req.log.error({err}, 'unhandled_error')
     return reply.status(500).send({error: 'internal_error'})
   })
 
@@ -144,7 +205,15 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
     if (config.env === 'production' || !config.devAuth) throw notFound()
   }
 
-  app.get('/health', async () => ({ok: true}))
+  /** Liveness + database reachability. No details for anonymous callers. */
+  app.get('/health', async (_req, reply) => {
+    try {
+      await db.query('select 1')
+      return {ok: true}
+    } catch {
+      return reply.status(503).send({ok: false})
+    }
+  })
 
   // ------------------------------------------------------------ dev helpers
   /** Simulated age assurance result — the real provider replaces this. */

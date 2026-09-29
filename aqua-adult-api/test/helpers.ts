@@ -69,10 +69,10 @@ export async function createTestApp(overrides: Partial<Config> = {}) {
     config,
     call,
     /** Registers a real keypair for a DID and signs a service token for it. */
-    async serviceToken(did: string, aud = config.serviceDid) {
+    async serviceToken(did: string, aud = config.serviceDid, exp?: number) {
       const keypair = await Secp256k1Keypair.create()
       keys.set(did, keypair.did())
-      return createServiceJwt({iss: did, aud, lxm: null, keypair})
+      return createServiceJwt({iss: did, aud, lxm: null, keypair, exp})
     },
     async verifiedUser(did: string) {
       const r = await call('POST', '/dev/age-verification', did, {})

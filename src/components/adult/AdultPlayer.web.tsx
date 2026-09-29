@@ -63,6 +63,7 @@ export function AdultPlayer({
   return (
     <video
       ref={video}
+      aria-label="Player de vídeo do AQUA +18"
       controls
       playsInline
       controlsList="nodownload"

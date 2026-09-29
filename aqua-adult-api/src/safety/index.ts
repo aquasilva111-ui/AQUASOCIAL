@@ -1388,6 +1388,56 @@ registerRoutes(ctx => {
     }
   })
 
+  // ------------------------------------------------------------ staff: operations health
+
+  /**
+   * Media processing, payments, verification and moderation queue health.
+   * Counts only — no content, titles or user identifiers.
+   */
+  app.get('/admin/health', async req => {
+    await staff(req, 'viewAudit')
+    const [mediaRows, stuck, payments, verifications, cases, live] =
+      await Promise.all([
+        db.query(
+          `select status, count(*)::int as n from media_assets group by status`,
+        ),
+        db.query(
+          `select count(*)::int as n from media_assets
+            where status in ('QUEUED', 'PROCESSING') and updated_at < now() - interval '30 minutes'`,
+        ),
+        db.query(
+          `select count(*)::int as n, max(received_at) as last from payment_events
+            where received_at > now() - interval '24 hours'`,
+        ),
+        db.query(
+          `select count(*)::int as n from verification_events where received_at > now() - interval '24 hours'`,
+        ),
+        db.query(
+          `select priority, count(*)::int as n from moderation_cases
+            where status = any($1) group by priority`,
+          [OPEN_STATUSES],
+        ),
+        db.query(
+          `select count(*)::int as n from live_streams where status in ('LIVE', 'INTERRUPTED')`,
+        ),
+      ])
+    return {
+      media: {
+        byStatus: Object.fromEntries(mediaRows.map(r => [r.status, r.n])),
+        stuckOver30Min: stuck[0].n,
+      },
+      payments: {eventsLast24h: payments[0].n, lastEventAt: payments[0].last},
+      verification: {eventsLast24h: verifications[0].n},
+      moderation: {
+        openByPriority: Object.fromEntries(
+          cases.map(r => [`P${r.priority}`, r.n]),
+        ),
+      },
+      live: {broadcasting: live[0].n},
+      database: 'ok',
+    }
+  })
+
   // ------------------------------------------------------------ staff: roles
 
   app.get('/admin/staff', async req => {

@@ -35,6 +35,10 @@ export type Config = {
    * other staff role is granted through the audited staff API.
    */
   superadminDids: string[]
+  /** pino level; 'silent' disables logging (tests). */
+  logLevel: string
+  /** Behind a reverse proxy/CDN, trust X-Forwarded-For for client IPs. */
+  trustProxy: boolean
 }
 
 function parseEnv(value: string | undefined, nodeEnv?: string): AquaEnv {
@@ -82,6 +86,8 @@ export function loadConfig(
     ageVerificationRequired:
       env.AQUA_ADULT_AGE_VERIFICATION_ENABLED === '1' ||
       (isProd && env.AQUA_ADULT_AGE_VERIFICATION_ENABLED !== '0'),
+    logLevel: env.AQUA_LOG_LEVEL ?? (aquaEnv === 'test' ? 'silent' : 'info'),
+    trustProxy: env.AQUA_TRUST_PROXY === '1',
     superadminDids: (env.AQUA_SUPERADMIN_DIDS ?? '')
       .split(',')
       .map(d => d.trim())

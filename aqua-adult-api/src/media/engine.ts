@@ -216,7 +216,7 @@ export class MediaEngine {
           (await hook({id: asset.id, kind: asset.kind}, source)) ===
           'quarantine'
         ) {
-          await this.setStatus(asset.id, 'QUARANTINED', 'scan_hook')
+          await this.finish(asset.id, 'QUARANTINED', 'scan_hook')
           return
         }
       }
@@ -235,12 +235,24 @@ export class MediaEngine {
         [asset.id],
       )
     } catch (e) {
-      await this.setStatus(
+      await this.finish(
         asset.id,
         'FAILED',
         e instanceof Error ? e.message.slice(0, 500) : 'processing_failed',
       )
     }
+  }
+
+  /**
+   * Ends processing without clobbering a moderation decision taken while the
+   * worker ran (an asset removed mid-processing stays REMOVED).
+   */
+  private async finish(assetId: string, status: AssetStatus, error: string) {
+    await this.db.query(
+      `update media_assets set status = $2, error = $3, updated_at = now()
+        where id = $1 and status = 'PROCESSING'`,
+      [assetId, status, error],
+    )
   }
 
   private async processVideo(asset: any, source: string) {
