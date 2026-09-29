@@ -62,6 +62,10 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
     routerOptions: {maxParamLength: 1024},
   })
 
+  // Encoders (ffmpeg HTTP PUT) half-close the socket right after the body;
+  // without this Node treats a complete upload as aborted.
+  ;(app.server as {httpAllowHalfOpen?: boolean}).httpAllowHalfOpen = true
+
   const providers = new Map<string, PaymentProvider>()
   for (const p of deps.providers ?? []) providers.set(p.name, p)
   if (
@@ -82,6 +86,8 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
   )
   app.decorate('aquaMedia', media)
   // Upload bodies are streamed, never buffered in memory.
+  // Encoders push live HLS with assorted media types; hand routes the stream.
+  app.addContentTypeParser('*', (_req, payload, done) => done(null, payload))
   app.addContentTypeParser('application/octet-stream', (_req, payload, done) =>
     done(null, payload),
   )

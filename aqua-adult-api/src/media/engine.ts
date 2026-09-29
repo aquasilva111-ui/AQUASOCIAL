@@ -63,7 +63,7 @@ export class MediaEngine {
 
   constructor(
     private db: Db,
-    private storage: PrivateStorage,
+    readonly storage: PrivateStorage,
     private config: Config,
   ) {}
 
@@ -460,9 +460,7 @@ function run(args: string[]): Promise<string> {
 }
 
 /** Reads duration and dimensions from ffmpeg's stream report. */
-function probe(
-  file: string,
-): Promise<{
+function probe(file: string): Promise<{
   durationMs: number | null
   width: number | null
   height: number | null

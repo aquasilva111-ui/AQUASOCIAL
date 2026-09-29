@@ -13,6 +13,8 @@ export type PlaybackClaims = {
   entitlementId: string
   /** Unix seconds. */
   exp: number
+  /** Viewer DID, when the authorization is personal (live bans). */
+  sub?: string
 }
 
 function b64(s: string) {

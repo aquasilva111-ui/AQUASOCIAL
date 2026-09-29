@@ -10,7 +10,11 @@ import {type Readable, type Writable} from 'node:stream'
  * (e.g. Cloudflare R2) behind the same interface.
  */
 export interface PrivateStorage {
-  createWriteStream(key: string): Promise<Writable>
+  /** `overwrite` is for rolling files such as live playlists. */
+  createWriteStream(
+    key: string,
+    opts?: {overwrite?: boolean},
+  ): Promise<Writable>
   createReadStream(key: string): Readable
   size(key: string): Promise<number | undefined>
   /** Absolute local path for processing workers (local adapter only). */
@@ -38,10 +42,10 @@ export class LocalPrivateStorage implements PrivateStorage {
     return path
   }
 
-  async createWriteStream(key: string) {
+  async createWriteStream(key: string, opts?: {overwrite?: boolean}) {
     const path = this.localPath(key)
     await mkdir(dirname(path), {recursive: true})
-    return createWriteStream(path, {flags: 'wx'})
+    return createWriteStream(path, {flags: opts?.overwrite ? 'w' : 'wx'})
   }
 
   createReadStream(key: string) {
