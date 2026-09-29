@@ -25,13 +25,6 @@ function AdultPlaceholder({title, testID}: {title: string; testID: string}) {
   )
 }
 
-export function AdultViewsScreen() {
-  const {_} = useLingui()
-  return (
-    <AdultPlaceholder title={_(msg`Views +18`)} testID="adultViewsScreen" />
-  )
-}
-
 export function AdultLiveScreen() {
   const {_} = useLingui()
   return <AdultPlaceholder title={_(msg`Live +18`)} testID="adultLiveScreen" />

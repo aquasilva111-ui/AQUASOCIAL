@@ -1,5 +1,6 @@
-import './resources/posts.js'
+import './modules.js'
 
+import cors from '@fastify/cors'
 import Fastify, {type FastifyInstance, type FastifyRequest} from 'fastify'
 import {z, ZodError} from 'zod'
 
@@ -27,6 +28,9 @@ import {audit} from './lib/audit.js'
 import {ApiError, badRequest, forbidden, notFound} from './lib/errors.js'
 import {newId} from './lib/ids.js'
 import {MoneyError} from './lib/money.js'
+import {MediaEngine} from './media/engine.js'
+import {LocalPrivateStorage} from './media/storage.js'
+import {installRoutes} from './registry.js'
 
 export type AppDeps = {
   config: Config
@@ -35,26 +39,13 @@ export type AppDeps = {
   providers?: PaymentProvider[]
 }
 
-export type RouteContext = Omit<AppDeps, 'providers'> & {
-  app: FastifyInstance
-  providers: Map<string, PaymentProvider>
-  user: (req: FastifyRequest) => Promise<string>
-  devOnly: () => void
-}
-
-type RoutePlugin = (ctx: RouteContext) => void
-const plugins: RoutePlugin[] = []
-/** Later phases (media, views, studios) add their routes here. */
-export function registerRoutes(plugin: RoutePlugin) {
-  plugins.push(plugin)
-}
-
 declare module 'fastify' {
   interface FastifyRequest {
     rawBody?: string
   }
   interface FastifyInstance {
     aquaProviders: Map<string, PaymentProvider>
+    aquaMedia: MediaEngine
   }
 }
 
@@ -65,7 +56,11 @@ const resourceRef = z.object({
 
 export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
   const {config, db} = deps
-  const app = Fastify({logger: false, bodyLimit: 1024 * 1024})
+  const app = Fastify({
+    logger: false,
+    bodyLimit: 1024 * 1024,
+    maxParamLength: 1024,
+  })
 
   const providers = new Map<string, PaymentProvider>()
   for (const p of deps.providers ?? []) providers.set(p.name, p)
@@ -75,7 +70,21 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
     !providers.has('mock')
   )
     providers.set('mock', new MockPaymentProvider(config))
+  await app.register(cors, {
+    origin: config.corsOrigins,
+    methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'],
+  })
   app.decorate('aquaProviders', providers)
+  const media = new MediaEngine(
+    db,
+    new LocalPrivateStorage(config.mediaDir),
+    config,
+  )
+  app.decorate('aquaMedia', media)
+  // Upload bodies are streamed, never buffered in memory.
+  app.addContentTypeParser('application/octet-stream', (_req, payload, done) =>
+    done(null, payload),
+  )
   const defaultProvider = () => {
     const p = [...providers.values()][0]
     if (!p) throw new ApiError(503, 'payments_unavailable')
@@ -97,7 +106,8 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
 
   // Personalized responses must never be stored by shared caches.
   app.addHook('onSend', async (_req, reply) => {
-    reply.header('cache-control', 'private, no-store')
+    if (!reply.getHeader('cache-control'))
+      reply.header('cache-control', 'private, no-store')
     reply.header('x-content-type-options', 'nosniff')
   })
 
@@ -446,8 +456,16 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
     return {balances: await ledgerSummary(db, 'creator', creator.id)}
   })
 
-  const ctx: RouteContext = {...deps, app, providers, user, devOnly}
-  for (const plugin of plugins) plugin(ctx)
+  installRoutes({
+    config,
+    db,
+    getSigningKey: deps.getSigningKey,
+    app,
+    providers,
+    media,
+    user,
+    devOnly,
+  })
 
   return app
 }

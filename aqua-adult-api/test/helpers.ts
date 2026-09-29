@@ -112,6 +112,52 @@ export async function createTestApp(overrides: Partial<Config> = {}) {
       )
       return {order: order.body, ref, result: done.body}
     },
+    /** Upload through a one-time token, then wait for processing. */
+    async upload(
+      owner: string,
+      kind: 'video' | 'image' | 'captions',
+      purpose: string,
+      mimeType: string,
+      data: Buffer,
+      declared = data.length,
+    ) {
+      const r = await call('POST', '/media/uploads', owner, {
+        kind,
+        purpose,
+        mimeType,
+        sizeBytes: declared,
+      })
+      if (r.status !== 200)
+        return {
+          status: r.status,
+          body: r.body,
+          assetId: undefined,
+          uploadUrl: undefined,
+        }
+      const put = await app.inject({
+        method: 'PUT',
+        url: r.body.uploadUrl,
+        headers: {'content-type': 'application/octet-stream'},
+        payload: data,
+      })
+      await app.aquaMedia.drain()
+      return {
+        status: put.statusCode,
+        body: safeJson(put.body),
+        assetId: r.body.assetId as string,
+        uploadUrl: r.body.uploadUrl as string,
+      }
+    },
+    /** Unauthenticated GET (media delivery relies only on the signed URL). */
+    async fetch(url: string) {
+      const res = await app.inject({method: 'GET', url})
+      return {
+        status: res.statusCode,
+        body: res.body,
+        headers: res.headers,
+        raw: res.rawPayload,
+      }
+    },
     async deliver(event: Parameters<MockPaymentProvider['signEvent']>[0]) {
       const signed = getMock(app).signEvent(event)
       return app.inject({

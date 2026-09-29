@@ -31,6 +31,7 @@ export const router = new Router<AllNavigatableRoutes>({
   AdultCreatorDashboard: '/adult/creator/dashboard',
   AdultCreator: '/adult/creator/:name',
   AdultViews: '/adult/views',
+  AdultVideo: '/adult/views/:videoId',
   AdultLive: '/adult/live',
   AdultStudios: '/adult/studios',
   AdultLibrary: '/adult/library',

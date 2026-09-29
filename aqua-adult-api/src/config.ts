@@ -22,6 +22,8 @@ export type Config = {
   /** Private media root (dev storage adapter). */
   mediaDir: string
   maxUploadBytes: number
+  /** Browser origins allowed to call the API (the AQUA web app). */
+  corsOrigins: string[]
 }
 
 function parseEnv(value: string | undefined, nodeEnv?: string): AquaEnv {
@@ -59,6 +61,12 @@ export function loadConfig(
     playbackTtlSeconds: Number(env.AQUA_PLAYBACK_TTL_SECONDS ?? 300),
     mediaDir: env.AQUA_MEDIA_DIR ?? '.data/media',
     maxUploadBytes: Number(env.AQUA_MAX_UPLOAD_BYTES ?? 2 * 1024 ** 3),
+    corsOrigins: (
+      env.AQUA_CORS_ORIGINS ??
+      (isProd ? '' : 'http://localhost:19006,http://127.0.0.1:19006')
+    )
+      .split(',')
+      .filter(Boolean),
     ...overrides,
   }
 

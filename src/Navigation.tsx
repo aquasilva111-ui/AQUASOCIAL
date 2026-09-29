@@ -80,6 +80,7 @@ import {
   AdultMessagesScreen,
   AdultSettingsScreen,
   AdultStudiosScreen,
+  AdultVideoScreen,
   AdultViewsScreen,
 } from '#/screens/Adult'
 import {BookmarksScreen} from '#/screens/Bookmarks'
@@ -714,6 +715,11 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
       <Stack.Screen
         name="AdultViews"
         component={AdultViewsScreen}
+        options={{title: 'Views +18', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="AdultVideo"
+        component={AdultVideoScreen}
         options={{title: 'Views +18', requireAuth: true}}
       />
       <Stack.Screen
