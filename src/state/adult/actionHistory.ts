@@ -12,6 +12,7 @@ const WINDOW = 100
 
 export type AdultActionHistory = {
   likes: string[]
+  saves: string[]
   seen: string[]
   searches: string[]
   watched: string[]
@@ -19,6 +20,7 @@ export type AdultActionHistory = {
 
 const adultActionHistory: AdultActionHistory = {
   likes: [],
+  saves: [],
   seen: [],
   searches: [],
   watched: [],
@@ -42,6 +44,16 @@ export function unlikeAdult(uris: string[]) {
   )
 }
 
+export function saveAdult(uris: string[]) {
+  adultActionHistory.saves = push(adultActionHistory.saves, uris)
+}
+
+export function unsaveAdult(uris: string[]) {
+  adultActionHistory.saves = adultActionHistory.saves.filter(
+    uri => !uris.includes(uri),
+  )
+}
+
 export function seenAdult(uris: string[]) {
   adultActionHistory.seen = push(adultActionHistory.seen, uris)
 }
@@ -56,6 +68,7 @@ export function watchedAdult(uris: string[]) {
 
 export function clearAdultActionHistory() {
   adultActionHistory.likes = []
+  adultActionHistory.saves = []
   adultActionHistory.seen = []
   adultActionHistory.searches = []
   adultActionHistory.watched = []

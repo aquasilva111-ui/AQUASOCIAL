@@ -71,6 +71,7 @@ import {BottomBar} from '#/view/shell/bottom-bar/BottomBar'
 import {createNativeStackNavigatorWithAuth} from '#/view/shell/createNativeStackNavigatorWithAuth'
 import {
   AdultCreatorDashboardScreen,
+  AdultCreatorScreen,
   AdultCreatorsScreen,
   AdultFeedScreen,
   AdultHomeScreen,
@@ -704,6 +705,11 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
         name="AdultCreators"
         component={AdultCreatorsScreen}
         options={{title: 'Creators +18', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="AdultCreator"
+        component={AdultCreatorScreen}
+        options={{title: 'Creator +18', requireAuth: true}}
       />
       <Stack.Screen
         name="AdultViews"

@@ -13,6 +13,7 @@ import {
   isAdultAccessGranted,
   resolveAdultAgeGate,
 } from '#/state/adult/gate'
+import {clearAdultRelationships} from '#/state/adult/relationships'
 import {useSession} from '#/state/session'
 import {useAgeAssurance} from '#/ageAssurance'
 
@@ -87,6 +88,7 @@ export function useAdultContext(): AdultContextValue {
     clearAdultEntered()
     // Remove transient adult state from the interface; nothing +18 lingers.
     clearAdultActionHistory()
+    clearAdultRelationships()
   }, [])
 
   return {

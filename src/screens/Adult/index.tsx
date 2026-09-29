@@ -1,8 +1,9 @@
+export {AdultCreatorScreen} from './AdultCreator'
+export {AdultCreatorsScreen} from './AdultCreators'
+export {AdultFeedScreen} from './AdultFeed'
 export {AdultHomeScreen} from './AdultHome'
 export {
   AdultCreatorDashboardScreen,
-  AdultCreatorsScreen,
-  AdultFeedScreen,
   AdultLibraryScreen,
   AdultLiveScreen,
   AdultMessagesScreen,

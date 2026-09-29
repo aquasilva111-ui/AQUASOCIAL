@@ -100,6 +100,7 @@ export type CommonNavigatorParams = {
   AdultHome: undefined
   AdultFeed: undefined
   AdultCreators: undefined
+  AdultCreator: {name: string}
   AdultViews: undefined
   AdultLive: undefined
   AdultStudios: undefined

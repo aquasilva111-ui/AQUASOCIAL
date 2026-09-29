@@ -27,6 +27,7 @@ export const router = new Router<AllNavigatableRoutes>({
   AdultHome: '/adult',
   AdultFeed: '/adult/feed',
   AdultCreators: '/adult/creators',
+  AdultCreator: '/adult/creator/:name',
   AdultViews: '/adult/views',
   AdultLive: '/adult/live',
   AdultStudios: '/adult/studios',
