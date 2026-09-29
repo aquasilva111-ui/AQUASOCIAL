@@ -4,11 +4,10 @@ import {makeProfileLink} from '#/lib/routes/links'
 import {useProfileQuery} from '#/state/queries/profile'
 import {useSession} from '#/state/session'
 import {useSetThemePrefs} from '#/state/shell/color-mode'
-import {useLoggedOutViewControls} from '#/state/shell/logged-out'
 import {UserAvatar} from '#/view/com/util/UserAvatar'
 import {Logo} from '#/view/icons/Logo'
 import {atoms as a, useBreakpoints, useTheme, web} from '#/alf'
-import {Button, ButtonIcon, ButtonText} from '#/components/Button'
+import {Button, ButtonIcon} from '#/components/Button'
 import {SearchInput} from '#/components/forms/SearchInput'
 import {Moon_Stroke2_Corner0_Rounded as MoonIcon} from '#/components/icons/Moon'
 import {Sun_Stroke2_Corner0_Rounded as SunIcon} from '#/components/icons/Sun'
@@ -140,20 +139,9 @@ function ThemeToggle() {
 function Account() {
   const t = useTheme()
   const {currentAccount} = useSession()
-  const {setShowLoggedOut} = useLoggedOutViewControls()
   const {data: profile} = useProfileQuery({did: currentAccount?.did})
 
-  if (!currentAccount) {
-    return (
-      <Button
-        label="Entrar"
-        size="small"
-        color="primary"
-        onPress={() => setShowLoggedOut(true)}>
-        <ButtonText>Entrar</ButtonText>
-      </Button>
-    )
-  }
+  if (!currentAccount) return null
   return (
     <Link
       to={makeProfileLink(currentAccount)}

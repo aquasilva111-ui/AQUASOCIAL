@@ -18,7 +18,14 @@ export type VisionboardMasonryProps = {
   header?: ReactElement
 }
 
-function columnCount(width: number) {
+function columnCount(width: number, variant: VisionboardCardVariant) {
+  if (variant === 'board') {
+    // full-page board: one column more than the in-app grid
+    if (width >= 1200) return 5
+    if (width >= 900) return 4
+    if (width >= 600) return 3
+    return 2
+  }
   if (width >= 1200) return 4
   if (width >= 768) return 3
   return 2
@@ -57,7 +64,7 @@ export function VisionboardMasonry({
 }: VisionboardMasonryProps) {
   const gap = variant === 'board' ? 18 : 8
   const {width} = useWindowDimensions()
-  const columns = columnCount(width)
+  const columns = columnCount(width, variant)
   const blocks = useMemo(() => {
     const perBlock = columns * 6
     const result: MasonryBlock[] = []

@@ -86,8 +86,9 @@ export function VisionboardDetail({uri}: {uri: string}) {
       <View
         style={[
           a.w_full,
-          a.px_xl,
-          web({maxWidth: 1480, marginLeft: 'auto', marginRight: 'auto'}),
+          a.pl_xl,
+          // runs to half an inch (48px) from the right edge of the page
+          {paddingRight: 48},
         ]}>
         <View style={[a.flex_row, {paddingTop: 24, paddingBottom: 20}]}>
           <Button
