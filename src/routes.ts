@@ -27,6 +27,8 @@ export const router = new Router<AllNavigatableRoutes>({
   AdultHome: '/adult',
   AdultFeed: '/adult/feed',
   AdultCreators: '/adult/creators',
+  // before AdultCreator: the router takes the first matching pattern
+  AdultCreatorDashboard: '/adult/creator/dashboard',
   AdultCreator: '/adult/creator/:name',
   AdultViews: '/adult/views',
   AdultLive: '/adult/live',
@@ -34,7 +36,6 @@ export const router = new Router<AllNavigatableRoutes>({
   AdultLibrary: '/adult/library',
   AdultMessages: '/adult/messages',
   AdultSettings: '/adult/settings',
-  AdultCreatorDashboard: '/adult/creator/dashboard',
   Notifications: '/notifications',
   NotificationsActivityList: '/notifications/activity',
   LegacyNotificationSettings: '/notifications/settings',
