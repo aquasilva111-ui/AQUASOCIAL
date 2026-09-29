@@ -198,7 +198,7 @@ export function Outer({
         className="dropdown-menu-transform-origin dropdown-menu-constrain-size">
         <View
           style={[
-            a.rounded_sm,
+            a.rounded_md,
             a.p_xs,
             a.border,
             t.name === 'light' ? t.atoms.bg : t.atoms.bg_contrast_25,
@@ -261,7 +261,7 @@ export function Item({children, label, onPress, style, ...rest}: ItemProps) {
           a.align_center,
           a.gap_lg,
           a.py_sm,
-          a.rounded_xs,
+          a.rounded_sm,
           {minHeight: 32, paddingHorizontal: 10},
           web({outline: 0}),
           (hovered || focused) &&
