@@ -5,7 +5,6 @@ import {type NavigationProp} from '#/lib/routes/types'
 import {type FeedSourceInfo} from '#/state/queries/feed'
 import {useSession} from '#/state/session'
 import {type RenderTabBarFnProps} from '#/view/com/pager/Pager'
-import {useBreakpoints} from '#/alf'
 import {FeedViewSwitcher} from '#/components/feeds/FeedViewSwitcher'
 import {TabBar} from '../pager/TabBar'
 import {HomeHeaderLayout} from './HomeHeaderLayout'
@@ -19,7 +18,6 @@ export function HomeHeader(
 ) {
   const {feeds, onSelect: onSelectProp} = props
   const {hasSession} = useSession()
-  const {gtMobile} = useBreakpoints()
   const navigation = useNavigation<NavigationProp>()
 
   const hasPinnedCustom = React.useMemo<boolean>(() => {
@@ -66,11 +64,7 @@ export function HomeHeader(
         dragState={props.dragState}
         transparent
       />
-      {/*
-        On desktop web with a session the switcher lives in the top header row
-        next to the hashtag button (see HomeHeaderLayout.web.tsx).
-      */}
-      {(!gtMobile || !hasSession) && <FeedViewSwitcher />}
+      <FeedViewSwitcher />
     </HomeHeaderLayout>
   )
 }

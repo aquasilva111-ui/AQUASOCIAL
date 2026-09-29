@@ -1,4 +1,4 @@
-import {type JSX, useCallback, useMemo, useState} from 'react'
+import {type JSX, useCallback, useMemo} from 'react'
 import {Image, StyleSheet, useWindowDimensions, View} from 'react-native'
 import {type AppBskyActorDefs} from '@atproto/api'
 import {msg, plural, Trans} from '@lingui/macro'
@@ -7,7 +7,6 @@ import {useNavigation, useNavigationState} from '@react-navigation/native'
 
 import {useActorStatus} from '#/lib/actor-status'
 import {useAccountSwitcher} from '#/lib/hooks/useAccountSwitcher'
-import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
 import {usePalette} from '#/lib/hooks/usePalette'
 import {useWebMediaQueries} from '#/lib/hooks/useWebMediaQueries'
 import {getCurrentRoute, isTab} from '#/lib/routes/helpers'
@@ -17,9 +16,8 @@ import {
   type NavigationProp,
 } from '#/lib/routes/types'
 import {sanitizeDisplayName} from '#/lib/strings/display-names'
-import {isInvalidHandle, sanitizeHandle} from '#/lib/strings/handles'
+import {sanitizeHandle} from '#/lib/strings/handles'
 import {emitSoftReset} from '#/state/events'
-import {useFetchHandle} from '#/state/queries/handle'
 import {useProfilesQuery} from '#/state/queries/profile'
 import {useLiveUsersQuery} from '#/state/queries/streamplace'
 import {type SessionAccount, useSession, useSessionApi} from '#/state/session'
@@ -28,17 +26,16 @@ import {useCloseAllActiveElements} from '#/state/util'
 import {LoadingPlaceholder} from '#/view/com/util/LoadingPlaceholder'
 import {PressableWithHover} from '#/view/com/util/PressableWithHover'
 import {UserAvatar} from '#/view/com/util/UserAvatar'
+import {HubButtons} from '#/view/shell/desktop/HubButtons'
 import {NavSignupCard} from '#/view/shell/NavSignupCard'
 import {atoms as a, tokens, useLayoutBreakpoints, useTheme, web} from '#/alf'
-import {Button, ButtonIcon, ButtonText} from '#/components/Button'
+import {Button} from '#/components/Button'
 import {type DialogControlProps} from '#/components/Dialog'
-import {FeedViewSwitcher} from '#/components/feeds/FeedViewSwitcher'
 import {AquaLogo} from '#/components/icons/AquaLogo'
 import {ArrowBoxLeft_Stroke2_Corner0_Rounded as LeaveIcon} from '#/components/icons/ArrowBoxLeft'
 import {Book_Stroke2_Corner2_Rounded as Book} from '#/components/icons/Book'
 import {CirclePlus_Stroke2_Corner0_Rounded as CirclePlusIcon} from '#/components/icons/CirclePlus'
 import {DotGrid_Stroke2_Corner0_Rounded as EllipsisIcon} from '#/components/icons/DotGrid'
-import {EditBig_Stroke2_Corner0_Rounded as EditBig} from '#/components/icons/EditBig'
 import {PlusLarge_Stroke2_Corner0_Rounded as PlusIcon} from '#/components/icons/Plus'
 import {
   SettingsGear2_Filled_Corner0_Rounded as SettingsFilled,
@@ -545,75 +542,6 @@ function PlaceholderNavItem({icon, label}: {icon: JSX.Element; label: string}) {
   )
 }
 
-function ComposeBtn() {
-  const {currentAccount} = useSession()
-  const {getState} = useNavigation()
-  const {openComposer} = useOpenComposer()
-  const {_} = useLingui()
-  const {leftNavMinimal} = useLayoutBreakpoints()
-  const [isFetchingHandle, setIsFetchingHandle] = useState(false)
-  const fetchHandle = useFetchHandle()
-
-  const getProfileHandle = async () => {
-    const routes = getState()?.routes
-    const currentRoute = routes?.[routes?.length - 1]
-
-    if (currentRoute?.name === 'Profile') {
-      let handle: string | undefined = (
-        currentRoute.params as CommonNavigatorParams['Profile']
-      ).name
-
-      if (handle.startsWith('did:')) {
-        try {
-          setIsFetchingHandle(true)
-          handle = await fetchHandle(handle)
-        } catch (e) {
-          handle = undefined
-        } finally {
-          setIsFetchingHandle(false)
-        }
-      }
-
-      if (
-        !handle ||
-        handle === currentAccount?.handle ||
-        isInvalidHandle(handle)
-      )
-        return undefined
-
-      return handle
-    }
-
-    return undefined
-  }
-
-  const onPressCompose = async () =>
-    openComposer({mention: await getProfileHandle()})
-
-  if (leftNavMinimal) {
-    return null
-  }
-
-  return (
-    <View style={[a.flex_row, a.align_center, a.gap_sm, a.pl_md, a.pt_xl]}>
-      <Button
-        disabled={isFetchingHandle}
-        label={_(msg`Compose new post`)}
-        onPress={onPressCompose}
-        size="large"
-        variant="solid"
-        color="primary"
-        style={[a.rounded_full]}>
-        <ButtonIcon icon={EditBig} position="left" />
-        <ButtonText>
-          <Trans context="action">New Post</Trans>
-        </ButtonText>
-      </Button>
-      <FeedViewSwitcher placement="compose" />
-    </View>
-  )
-}
-
 export function DesktopLeftNav() {
   const {hasSession} = useSession()
   const pal = usePalette('default')
@@ -663,18 +591,28 @@ export function DesktopLeftNav() {
         </View>
       ) : null}
 
-      <PlaceholderNavItem
+      <NavItem
+        href="/ui-ai"
         icon={
           <Image
             accessibilityIgnoresInvertColors
             source={uiAiIcon}
-            style={[
-              {
-                width: NAV_ICON_WIDTH,
-                height: NAV_ICON_WIDTH,
-                tintColor: pal.text.color,
-              },
-            ]}
+            style={{
+              width: NAV_ICON_WIDTH,
+              height: NAV_ICON_WIDTH,
+              tintColor: pal.text.color,
+            }}
+          />
+        }
+        iconFilled={
+          <Image
+            accessibilityIgnoresInvertColors
+            source={uiAiIcon}
+            style={{
+              width: NAV_ICON_WIDTH,
+              height: NAV_ICON_WIDTH,
+              tintColor: pal.text.color,
+            }}
           />
         }
         label="IU & AI"
@@ -852,7 +790,7 @@ export function DesktopLeftNav() {
             label={_(msg`Settings`)}
           />
 
-          <ComposeBtn />
+          <HubButtons />
         </>
       )}
     </View>

@@ -91,6 +91,11 @@ export type CommonNavigatorParams = {
   Videos: {source?: string; q?: string} | undefined
   VideoLive: {name: string}
   VideoGoLive: undefined
+  LaunchHub: undefined
+  LaunchNew: {id?: string} | undefined
+  LaunchDetail: {id: string}
+  CreativeHub: undefined
+  UIAI: undefined
   ImageDetail: {name: string; rkey: string}
   VideoWatch: {name: string; rkey: string}
 }

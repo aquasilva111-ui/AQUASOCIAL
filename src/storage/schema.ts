@@ -1,3 +1,8 @@
+import {
+  type IdentityGroup,
+  type Launch,
+  type ProfileType,
+} from '#/lib/launch-hub/types'
 import {type ID as PolicyUpdate202508} from '#/components/PolicyUpdateOverlay/updates/202508/config'
 import {type Geolocation} from '#/geolocation/types'
 
@@ -66,4 +71,12 @@ export type Account = {
    * this device.
    */
   birthdateLastUpdatedAt?: string
+
+  /**
+   * Launch Hub records, kept on this device until the AQUA Integration API
+   * exists to own them server-side.
+   */
+  launchHubLaunches?: Launch[]
+  launchHubIdentityGroups?: IdentityGroup[]
+  launchHubProfileTypes?: Record<string, ProfileType>
 }

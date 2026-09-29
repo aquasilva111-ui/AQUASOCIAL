@@ -35,6 +35,12 @@ export const CENTER_COLUMN_HALF_WIDTH = CENTER_COLUMN_WIDTH / 2
  */
 export const NAV_EDGE_INSET = 48
 
+/**
+ * Width of the full (non-minimal) desktop left nav. Sized so the Creative
+ * Hub and Launch pills fit on one row.
+ */
+export const LEFT_NAV_WIDTH = 260
+
 export function getNavEdgeInset(windowWidth: number, navWidth: number) {
   const slack = (windowWidth - CENTER_COLUMN_WIDTH) / 2 - navWidth
   return Math.max(0, Math.min(NAV_EDGE_INSET, slack))

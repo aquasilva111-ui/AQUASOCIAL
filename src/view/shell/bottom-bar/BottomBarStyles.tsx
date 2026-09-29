@@ -5,6 +5,8 @@ import {atoms as a} from '#/alf'
 
 export const DOCK_INSET = 12
 export const DOCK_MAX_WIDTH = 720
+/** Tallest dock variant: 48px create button + label, padding and border. */
+export const DOCK_HEIGHT = 82
 
 export const styles = StyleSheet.create({
   bottomBar: {

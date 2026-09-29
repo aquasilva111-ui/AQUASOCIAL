@@ -70,8 +70,12 @@ import {TermsOfServiceScreen} from '#/view/screens/TermsOfService'
 import {BottomBar} from '#/view/shell/bottom-bar/BottomBar'
 import {createNativeStackNavigatorWithAuth} from '#/view/shell/createNativeStackNavigatorWithAuth'
 import {BookmarksScreen} from '#/screens/Bookmarks'
+import {CreativeHubScreen, UIAIScreen} from '#/screens/ComingSoon'
 import {SharedPreferencesTesterScreen} from '#/screens/E2E/SharedPreferencesTesterScreen'
 import HashtagScreen from '#/screens/Hashtag'
+import {LaunchHubScreen} from '#/screens/LaunchHub'
+import {LaunchDetailScreen} from '#/screens/LaunchHub/LaunchDetail'
+import {NewLaunchScreen} from '#/screens/LaunchHub/NewLaunch'
 import {LogScreen} from '#/screens/Log'
 import {VideoGoLiveScreen} from '#/screens/Media/GoLive'
 import {ImageDetailScreen, VideoWatchScreen} from '#/screens/Media/MediaDetail'
@@ -634,6 +638,31 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
         name="VideoGoLive"
         component={VideoGoLiveScreen}
         options={{title: 'Transmitir ao vivo', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="LaunchHub"
+        component={LaunchHubScreen}
+        options={{title: 'Launch Hub', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="LaunchNew"
+        component={NewLaunchScreen}
+        options={{title: 'Novo lançamento', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="LaunchDetail"
+        component={LaunchDetailScreen}
+        options={{title: 'Lançamento', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="CreativeHub"
+        component={CreativeHubScreen}
+        options={{title: 'Creative Hub'}}
+      />
+      <Stack.Screen
+        name="UIAI"
+        component={UIAIScreen}
+        options={{title: 'UI & AI'}}
       />
       <Stack.Screen
         name="Bookmarks"
