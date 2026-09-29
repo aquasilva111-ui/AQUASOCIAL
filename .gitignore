@@ -147,6 +147,9 @@ bskyweb/static/media/*.png
 # Reference donor repos for AQUA CREATE (design editor)
 /aqua-create/
 
+# Work in progress, managed separately
+/I.U-A.I/
+
 # Clones of external atproto/bsky repos
 /atproto/
 /atproto-website/
