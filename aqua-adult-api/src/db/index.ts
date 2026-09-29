@@ -1,4 +1,4 @@
-import {readdir, readFile} from 'node:fs/promises'
+import {mkdir, readdir, readFile} from 'node:fs/promises'
 import {dirname, join} from 'node:path'
 import {fileURLToPath} from 'node:url'
 
@@ -17,6 +17,7 @@ export interface Db extends Queryable {
 /** Embedded Postgres (PGlite) for development and tests. */
 export async function createPgliteDb(dataDir?: string): Promise<Db> {
   const {PGlite} = await import('@electric-sql/pglite')
+  if (dataDir) await mkdir(dataDir, {recursive: true})
   const pg = new PGlite(dataDir)
   await pg.waitReady
   const wrap = (q: {

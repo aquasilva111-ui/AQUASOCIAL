@@ -10,7 +10,12 @@ registerRoutes(ctx => {
   /** Temporary upload authorization for an approved creator. */
   app.post('/media/uploads', async req => {
     const did = await ctx.user(req)
-    await getApprovedCreatorForDid(db, did)
+    // Approved creators, or studio staff allowed to edit titles.
+    const [staff] = await db.query(
+      `select 1 from studio_members where member_did = $1 and role in ('OWNER', 'ADMIN', 'EDITOR') limit 1`,
+      [did],
+    )
+    if (!staff) await getApprovedCreatorForDid(db, did)
     const body = z
       .object({
         kind: z.enum(['video', 'image', 'captions']),

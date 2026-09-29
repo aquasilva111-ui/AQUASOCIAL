@@ -35,6 +35,8 @@ export type ProtectedResource = ResourceRef & {
   /** Availability window (studio releases). */
   availableFrom?: Date | null
   availableUntil?: Date | null
+  /** Non-empty = only these ISO regions. Unknown viewer region is denied. */
+  allowedRegions?: string[]
   /**
    * Containers whose grants also cover this resource: the creator/studio
    * (subscriptions), series/season (episodes), collections.
@@ -64,6 +66,7 @@ export type DenialReason =
   | 'wrong_tier'
   | 'purchase_required'
   | 'rental_expired'
+  | 'region_restricted'
   | 'unknown'
 
 export type AccessDecision =
@@ -144,12 +147,14 @@ export function evaluateAccess({
   resource,
   grants,
   now = new Date(),
+  viewerRegion,
 }: {
   userDid: string | undefined
   ageVerified: boolean
   resource: ProtectedResource | undefined
   grants: Grant[]
   now?: Date
+  viewerRegion?: string
 }): AccessDecision {
   try {
     if (!userDid) return {allowed: false, reason: 'not_authenticated'}
@@ -187,6 +192,11 @@ export function evaluateAccess({
       (resource.availableUntil && resource.availableUntil.getTime() <= t)
     )
       return {allowed: false, reason: 'content_unavailable'}
+    if (
+      resource.allowedRegions?.length &&
+      (!viewerRegion || !resource.allowedRegions.includes(viewerRegion))
+    )
+      return {allowed: false, reason: 'region_restricted'}
 
     if (resource.policy === 'free')
       return {allowed: true, reason: 'ok', via: 'free'}

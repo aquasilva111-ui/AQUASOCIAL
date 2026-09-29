@@ -59,7 +59,7 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
   const app = Fastify({
     logger: false,
     bodyLimit: 1024 * 1024,
-    maxParamLength: 1024,
+    routerOptions: {maxParamLength: 1024},
   })
 
   const providers = new Map<string, PaymentProvider>()

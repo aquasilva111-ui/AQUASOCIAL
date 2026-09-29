@@ -105,6 +105,8 @@ export type CommonNavigatorParams = {
   AdultVideo: {videoId: string}
   AdultLive: undefined
   AdultStudios: undefined
+  AdultStudio: {handle: string}
+  AdultTitle: {type: 'movie' | 'series'; id: string}
   AdultLibrary: undefined
   AdultMessages: undefined
   AdultSettings: undefined

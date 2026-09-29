@@ -30,13 +30,6 @@ export function AdultLiveScreen() {
   return <AdultPlaceholder title={_(msg`Live +18`)} testID="adultLiveScreen" />
 }
 
-export function AdultStudiosScreen() {
-  const {_} = useLingui()
-  return (
-    <AdultPlaceholder title={_(msg`Studios +18`)} testID="adultStudiosScreen" />
-  )
-}
-
 export function AdultLibraryScreen() {
   const {_} = useLingui()
   return (
