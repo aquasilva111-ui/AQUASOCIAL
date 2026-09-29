@@ -8,7 +8,9 @@ import {z} from 'zod'
 import {type Queryable} from '../db/index.js'
 import {
   assertAdultAccess,
+  blockedDids,
   checkAccess,
+  notRestrictedSql,
   type ProtectedResource,
   registerResourceResolver,
 } from '../entitlements/index.js'
@@ -23,6 +25,7 @@ import {newId} from '../lib/ids.js'
 import {signPlayback, verifyPlayback} from '../media/signing.js'
 import {assertSafeKey} from '../media/storage.js'
 import {registerRoutes} from '../registry.js'
+import {fileReport} from '../safety/moderation.js'
 import {studioRole} from '../studios/index.js'
 
 export type LiveStatus =
@@ -443,29 +446,33 @@ registerRoutes(ctx => {
     const did = await requireAdult(req)
     const rows = await db.query(
       `select l.id, l.title, l.status, l.access_policy, l.scheduled_at, l.started_at, l.last_segment_at,
-              c.handle as creator_handle, st.name as studio_name
+              c.handle as creator_handle, c.did as creator_did, st.name as studio_name
          from live_streams l left join creators c on c.id = l.creator_id left join studios st on st.id = l.studio_id
         where l.status in ('SCHEDULED', 'STARTING', 'LIVE', 'INTERRUPTED')
           and (c.status = 'approved' or st.verification_status = 'verified')
+          and ${notRestrictedSql('live', 'l.id')}
           and not exists (select 1 from live_bans b where b.stream_id = l.id and b.user_did = $1
                            and b.kind = 'block' and (b.until is null or b.until > now()))
         order by l.started_at desc nulls last, l.scheduled_at asc nulls last limit 100`,
       [did],
     )
+    const blocked = await blockedDids(db, did)
     const streams = await Promise.all(
-      rows.map(async r => {
-        const current = await refresh(db, r)
-        return {
-          id: r.id,
-          title: r.title,
-          status: current.status,
-          accessPolicy: r.access_policy,
-          scheduledAt: r.scheduled_at,
-          startedAt: r.started_at,
-          host: r.creator_handle ? `@${r.creator_handle}` : r.studio_name,
-          viewerCount: await viewerCount(db, r.id),
-        }
-      }),
+      rows
+        .filter(r => !r.creator_did || !blocked.has(r.creator_did))
+        .map(async r => {
+          const current = await refresh(db, r)
+          return {
+            id: r.id,
+            title: r.title,
+            status: current.status,
+            accessPolicy: r.access_policy,
+            scheduledAt: r.scheduled_at,
+            startedAt: r.started_at,
+            host: r.creator_handle ? `@${r.creator_handle}` : r.studio_name,
+            viewerCount: await viewerCount(db, r.id),
+          }
+        }),
     )
     return {
       live: streams.filter(
@@ -628,7 +635,11 @@ registerRoutes(ctx => {
         order by created_at desc limit 100`,
       [id, after ?? null],
     )
-    return {messages: rows.reverse()}
+    // Messages from people in a block relation with the viewer are hidden.
+    const blocked = await blockedDids(db, did)
+    return {
+      messages: rows.reverse().filter(m => !blocked.has(m.author_did)),
+    }
   })
 
   app.post('/live/:id/chat', async req => {
@@ -757,6 +768,14 @@ registerRoutes(ctx => {
       [id, did],
     )
     if (recent) throw new ApiError(429, 'already_reported')
+    // FASE 14: every live report also lands in a moderation case.
+    await fileReport(db, {
+      reporterDid: did,
+      target: 'live',
+      resource: {type: 'live', id},
+      reasonCode: body.reason,
+      details: body.details,
+    })
     await db.query(
       `insert into live_reports (id, stream_id, reporter_did, reason, details) values ($1, $2, $3, $4, $5)`,
       [newId('rep'), id, did, body.reason, body.details ?? null],

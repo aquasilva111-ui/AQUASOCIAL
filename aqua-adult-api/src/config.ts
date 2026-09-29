@@ -30,6 +30,11 @@ export type Config = {
    * recorded as `self_declared`, never as a verification.
    */
   ageVerificationRequired: boolean
+  /**
+   * Bootstrap SUPERADMIN DIDs (AQUA_SUPERADMIN_DIDS, comma-separated). Every
+   * other staff role is granted through the audited staff API.
+   */
+  superadminDids: string[]
 }
 
 function parseEnv(value: string | undefined, nodeEnv?: string): AquaEnv {
@@ -77,6 +82,10 @@ export function loadConfig(
     ageVerificationRequired:
       env.AQUA_ADULT_AGE_VERIFICATION_ENABLED === '1' ||
       (isProd && env.AQUA_ADULT_AGE_VERIFICATION_ENABLED !== '0'),
+    superadminDids: (env.AQUA_SUPERADMIN_DIDS ?? '')
+      .split(',')
+      .map(d => d.trim())
+      .filter(d => /^did:(plc|web):/.test(d)),
     ...overrides,
   }
 

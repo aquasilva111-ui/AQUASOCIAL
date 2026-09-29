@@ -6,6 +6,7 @@ import {ledgerSummary} from '../economy/index.js'
 import {
   assertAdultAccess,
   checkAccess,
+  notRestrictedSql,
   type ProtectedResource,
   registerResourceResolver,
   type ResourceRef,
@@ -849,10 +850,11 @@ registerRoutes(ctx => {
       join media_assets a on a.id = m.media_asset_id and a.status = 'READY'
      where m.status = 'published'
        and (m.availability_start is null or m.availability_start <= now())
-       and (m.availability_end is null or m.availability_end > now())`
+       and (m.availability_end is null or m.availability_end > now())
+       and ${notRestrictedSql('movie', 'm.id')}`
   const publishedSeries = `select s.*, st.handle as studio_handle, st.name as studio_name from series s
       join studios st on st.id = s.studio_id and st.verification_status = 'verified'
-     where s.status = 'published'`
+     where s.status = 'published' and ${notRestrictedSql('series', 's.id')}`
 
   const movieCard = async (m: any) => ({
     type: 'movie',

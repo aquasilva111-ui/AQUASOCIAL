@@ -52,7 +52,8 @@ export async function adultAccessStatus(
   now = new Date(),
 ) {
   const [row] = await db.query(
-    `select age_verified_at, age_verification_expires_at, self_declared_at, self_declaration_policy_version
+    `select age_verified_at, age_verification_expires_at, self_declared_at, self_declaration_policy_version,
+            banned_at
        from adult_accounts where did = $1`,
     [did],
   )
@@ -61,23 +62,30 @@ export async function adultAccessStatus(
     (!row.age_verification_expires_at ||
       new Date(row.age_verification_expires_at).getTime() > now.getTime())
   const selfDeclared = !!row?.self_declared_at
-  const basis: AdultAccessBasis | null = verified
-    ? 'verified'
-    : selfDeclared && !ageVerificationRequired
-      ? 'self_declared'
-      : null
+  const banned = !!row?.banned_at
+  const basis: AdultAccessBasis | null = banned
+    ? null
+    : verified
+      ? 'verified'
+      : selfDeclared && !ageVerificationRequired
+        ? 'self_declared'
+        : null
   return {
     verified,
     selfDeclared,
     selfDeclaredAt: row?.self_declared_at ?? null,
     policyVersion: row?.self_declaration_policy_version ?? null,
     ageVerificationRequired,
+    banned,
     basis,
-    denial: (ageVerificationRequired
-      ? 'age_verification_required'
-      : 'adult_declaration_required') as
+    denial: (banned
+      ? 'account_banned'
+      : ageVerificationRequired
+        ? 'age_verification_required'
+        : 'adult_declaration_required') as
       | 'age_verification_required'
-      | 'adult_declaration_required',
+      | 'adult_declaration_required'
+      | 'account_banned',
   }
 }
 
@@ -135,16 +143,19 @@ export async function checkAccess(
     if (!userDid)
       return {decision: {allowed: false, reason: 'not_authenticated'}}
     const resource = await resolveResource(db, ref)
-    const [adult, grants] = await Promise.all([
+    const [adult, grants, moderated, blocked] = await Promise.all([
       adultAccessStatus(db, userDid, now),
       resource ? listGrants(db, userDid, [ref, ...resource.scopes]) : [],
+      resource ? withRestrictions(db, resource) : undefined,
+      resource ? isBlockedByAny(db, resource.ownerDids, userDid) : false,
     ])
     return {
       decision: evaluateAccess({
         userDid,
         adultAccess: adult.basis,
         adultDenial: adult.denial,
-        resource,
+        blockedByOwner: blocked,
+        resource: moderated,
         grants,
         now,
       }),
@@ -154,6 +165,63 @@ export async function checkAccess(
     // An outage in any dependency is a denial, never an allow.
     return {decision: {allowed: false, reason: 'unknown'}}
   }
+}
+
+/**
+ * Applies active Trust & Safety restrictions on the item or any container
+ * (a restricted series restricts its episodes).
+ */
+async function withRestrictions(
+  db: Queryable,
+  resource: ProtectedResource,
+): Promise<ProtectedResource> {
+  const refs = [{type: resource.type, id: resource.id}, ...resource.scopes]
+  const rows = await db.query(
+    `select r.kind, r.regions from moderation_restrictions r
+       join unnest($1::text[], $2::text[]) as x(type, id)
+         on r.resource_type = x.type and r.resource_id = x.id
+      where r.active`,
+    [refs.map(r => r.type), refs.map(r => r.id)],
+  )
+  if (!rows.length) return resource
+  let regions: string[] | null = null
+  for (const r of rows.filter(x => x.kind === 'region_restrict'))
+    regions = regions
+      ? regions.filter(c => (r.regions as string[]).includes(c))
+      : [...(r.regions as string[])]
+  return {
+    ...resource,
+    moderationRestricted: rows.some(r => r.kind === 'restrict'),
+    ageRestricted: rows.some(r => r.kind === 'age_restrict'),
+    restrictedRegions: regions,
+  }
+}
+
+/** SQL: the item has no active Trust & Safety "restrict" (discovery filter). */
+export function notRestrictedSql(type: string, idExpr: string) {
+  if (!/^[a-z_]+$/.test(type) || !/^[a-z_.]+$/.test(idExpr))
+    throw new Error('unsafe identifier')
+  return `not exists (select 1 from moderation_restrictions mr where mr.active and mr.kind = 'restrict'
+            and mr.resource_type = '${type}' and mr.resource_id = ${idExpr})`
+}
+
+/** DIDs in a +18 block relation with `did`, in either direction. */
+export async function blockedDids(db: Queryable, did: string) {
+  const rows = await db.query(
+    `select blocked_did as d from adult_blocks where blocker_did = $1
+     union select blocker_did from adult_blocks where blocked_did = $1`,
+    [did],
+  )
+  return new Set(rows.map(r => r.d as string))
+}
+
+async function isBlockedByAny(db: Queryable, owners: string[], did: string) {
+  if (!owners.length) return false
+  const [row] = await db.query(
+    `select 1 from adult_blocks where blocked_did = $1 and blocker_did = any($2) limit 1`,
+    [did, owners],
+  )
+  return !!row
 }
 
 export async function grantEntitlement(

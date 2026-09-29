@@ -4,7 +4,9 @@ import {type Db, type Queryable} from '../db/index.js'
 import {createOffer, getApprovedCreatorForDid} from '../economy/index.js'
 import {
   assertAdultAccess,
+  blockedDids,
   checkAccess,
+  notRestrictedSql,
   PAID_POLICIES,
   type ProtectedResource,
   registerResourceResolver,
@@ -299,10 +301,17 @@ registerRoutes(ctx => {
       : null,
   })
 
-  const listSql = `select v.*, c.handle as creator_handle, a.duration_ms
+  const listSql = `select v.*, c.handle as creator_handle, c.did as creator_did, a.duration_ms
       from videos v join creators c on c.id = v.creator_id
       join media_assets a on a.id = v.media_asset_id
-     where ${VIDEO_IS_LIVE} and a.status = 'READY' and c.status = 'approved'`
+     where ${VIDEO_IS_LIVE} and a.status = 'READY' and c.status = 'approved'
+       and ${notRestrictedSql('video', 'v.id')}`
+
+  /** Blocks (either direction) hide creators from feeds and recommendations. */
+  const visible = async (viewer: string, rows: any[]) => {
+    const blocked = await blockedDids(db, viewer)
+    return blocked.size ? rows.filter(r => !blocked.has(r.creator_did)) : rows
+  }
 
   // ------------------------------------------------------------ creator
   app.post('/creator/videos', async req => {
@@ -433,7 +442,7 @@ registerRoutes(ctx => {
             )
           : await db.query(`${listSql} order by v.published_at desc limit 60`)
     }
-    return {videos: await Promise.all(rows.map(card))}
+    return {videos: await Promise.all((await visible(did, rows)).map(card))}
   })
 
   app.get('/views/videos/:id', async req => {
@@ -476,7 +485,7 @@ registerRoutes(ctx => {
   })
 
   app.get('/views/videos/:id/related', async req => {
-    await requireAdult(ctx, req)
+    const did = await requireAdult(ctx, req)
     const {id} = z.object({id: z.string()}).parse(req.params)
     const [v] = await db.query(
       `select creator_id, category from videos v where v.id = $1 and ${VIDEO_IS_LIVE}`,
@@ -489,7 +498,7 @@ registerRoutes(ctx => {
        order by (v.creator_id = $2) desc, v.published_at desc limit 12`,
       [id, v.creator_id, v.category],
     )
-    return {videos: await Promise.all(rows.map(card))}
+    return {videos: await Promise.all((await visible(did, rows)).map(card))}
   })
 
   // ------------------------------------------------------------ playback

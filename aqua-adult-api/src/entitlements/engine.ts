@@ -37,6 +37,12 @@ export type ProtectedResource = ResourceRef & {
   availableUntil?: Date | null
   /** Non-empty = only these ISO regions. Unknown viewer region is denied. */
   allowedRegions?: string[]
+  /** Trust & Safety: temporarily restricted pending review (owner still sees it). */
+  moderationRestricted?: boolean
+  /** Trust & Safety: only verified-age users (never self-declared). */
+  ageRestricted?: boolean
+  /** Trust & Safety region restriction (intersected with allowedRegions). */
+  restrictedRegions?: string[] | null
   /**
    * Containers whose grants also cover this resource: the creator/studio
    * (subscriptions), series/season (episodes), collections.
@@ -59,6 +65,9 @@ export type DenialReason =
   | 'not_authenticated'
   | 'age_verification_required'
   | 'adult_declaration_required'
+  | 'account_banned'
+  | 'content_restricted'
+  | 'blocked'
   | 'content_unavailable'
   | 'content_removed'
   | 'content_quarantined'
@@ -168,6 +177,7 @@ export function evaluateAccess({
   userDid,
   adultAccess,
   adultDenial = 'age_verification_required',
+  blockedByOwner = false,
   resource,
   grants,
   now = new Date(),
@@ -176,7 +186,12 @@ export function evaluateAccess({
   userDid: string | undefined
   adultAccess: AdultAccessBasis | null
   /** Denial reported when there is no basis (depends on the active gate). */
-  adultDenial?: 'age_verification_required' | 'adult_declaration_required'
+  adultDenial?:
+    | 'age_verification_required'
+    | 'adult_declaration_required'
+    | 'account_banned'
+  /** The owner blocked this viewer in the +18 context. */
+  blockedByOwner?: boolean
   resource: ProtectedResource | undefined
   grants: Grant[]
   now?: Date
@@ -209,6 +224,13 @@ export function evaluateAccess({
         ? {allowed: true, reason: 'ok', via: 'owner'}
         : {allowed: false, reason: 'content_unavailable'}
     if (isOwner) return {allowed: true, reason: 'ok', via: 'owner'}
+    if (blockedByOwner) return {allowed: false, reason: 'blocked'}
+    if (resource.moderationRestricted)
+      return admin
+        ? allow(admin)
+        : {allowed: false, reason: 'content_restricted'}
+    if (resource.ageRestricted && adultAccess !== 'verified')
+      return {allowed: false, reason: 'age_verification_required'}
     if (resource.creatorSuspended)
       return {allowed: false, reason: 'creator_suspended'}
     const t = now.getTime()
@@ -220,6 +242,11 @@ export function evaluateAccess({
     if (
       resource.allowedRegions?.length &&
       (!viewerRegion || !resource.allowedRegions.includes(viewerRegion))
+    )
+      return {allowed: false, reason: 'region_restricted'}
+    if (
+      resource.restrictedRegions &&
+      (!viewerRegion || !resource.restrictedRegions.includes(viewerRegion))
     )
       return {allowed: false, reason: 'region_restricted'}
 

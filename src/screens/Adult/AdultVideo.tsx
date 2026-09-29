@@ -19,6 +19,7 @@ import {
 import {useAgent} from '#/state/session'
 import {atoms as a, useTheme} from '#/alf'
 import {AdultPlayer} from '#/components/adult/AdultPlayer'
+import {AdultReportButton} from '#/components/adult/AdultReportButton'
 import {Button, ButtonText} from '#/components/Button'
 import {Text} from '#/components/Typography'
 import {LibraryButtons} from './AdultLibrary'
@@ -54,6 +55,13 @@ const DENIAL: Record<string, string> = {
   wrong_tier: 'Disponível em outro nível de assinatura.',
   creator_suspended: 'Indisponível no momento.',
   content_unavailable: 'Indisponível no momento.',
+  content_restricted: 'Conteúdo em análise pela moderação.',
+  content_quarantined: 'Conteúdo em análise pela moderação.',
+  content_removed: 'Conteúdo removido.',
+  region_restricted: 'Indisponível na sua região.',
+  age_verification_required:
+    'Este conteúdo exige verificação de idade concluída.',
+  blocked: 'Indisponível.',
 }
 
 export function AdultVideoScreen({
@@ -232,15 +240,11 @@ function VideoPage({videoId}: {videoId: string}) {
           <Text style={[a.text_md, a.leading_snug]}>{video.description}</Text>
         )}
         <LibraryButtons type="video" id={video.id} />
-        <Button
-          label="Denunciar"
-          size="tiny"
-          color="secondary"
-          variant="ghost"
-          disabled
-          style={[a.self_start]}>
-          <ButtonText>Denunciar (em breve)</ButtonText>
-        </Button>
+        <AdultReportButton
+          targetType="content"
+          resourceType="video"
+          resourceId={video.id}
+        />
       </View>
 
       {!!related.data?.videos.length && (

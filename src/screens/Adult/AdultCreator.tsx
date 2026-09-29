@@ -4,6 +4,7 @@ import {View} from 'react-native'
 import {Image} from 'expo-image'
 import {useIsFocused} from '@react-navigation/native'
 
+import {syncAdultBlock} from '#/lib/adult/api'
 import {toAdultPosts} from '#/lib/adult/content'
 import {toAdultCreatorProfile} from '#/lib/adult/creator'
 import {
@@ -24,9 +25,11 @@ import {
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {type FeedDescriptor, usePostFeedQuery} from '#/state/queries/post-feed'
 import {useProfileQuery} from '#/state/queries/profile'
+import {useAgent} from '#/state/session'
 import {List} from '#/view/com/util/List'
 import {atoms as a, useTheme} from '#/alf'
 import {AdultPostCard} from '#/components/adult/AdultPostCard'
+import {AdultReportButton} from '#/components/adult/AdultReportButton'
 import {Button, ButtonText} from '#/components/Button'
 import {Text} from '#/components/Typography'
 import {AdultShell} from './AdultShell'
@@ -53,6 +56,7 @@ function AdultCreatorInner({handle}: {handle: string}) {
   const t = useTheme()
   const focused = useIsFocused()
   const ctx = useAdultContext()
+  const agent = useAgent()
   const moderationOpts = useModerationOpts()
   const [tab, setTab] = useState<CreatorTab>('posts')
   useSyncExternalStore(
@@ -160,14 +164,18 @@ function AdultCreatorInner({handle}: {handle: string}) {
               size="small"
               variant="ghost"
               color="secondary"
-              onPress={() =>
-                blocked
-                  ? unblockAdultCreator(did, creator.userId)
-                  : blockAdultCreator(did, creator.userId)
-              }>
+              onPress={() => {
+                if (blocked) unblockAdultCreator(did, creator.userId)
+                else blockAdultCreator(did, creator.userId)
+                // Server-side block (feeds, recommendations, live chat).
+                syncAdultBlock(agent, creator.userId, !blocked).catch(() => {})
+              }}>
               <ButtonText>{blocked ? 'Desbloquear' : 'Bloquear'}</ButtonText>
             </Button>
           </View>
+        )}
+        {!isSelf && did && (
+          <AdultReportButton targetType="user" resourceId={creator.userId} />
         )}
         <View style={[a.flex_row, a.gap_xs, a.pt_sm]}>
           <Button

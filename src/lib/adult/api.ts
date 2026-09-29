@@ -83,6 +83,21 @@ export function recordAdultSelfDeclaration(agent: BskyAgent) {
   )
 }
 
+/**
+ * Mirrors a +18 block on aqua-adult-api so it applies to server-side feeds,
+ * recommendations, creator content and live chat. Best effort: the local
+ * block still hides the creator while the API is unreachable.
+ */
+export function syncAdultBlock(
+  agent: BskyAgent,
+  targetDid: string,
+  blocked: boolean,
+) {
+  return adultApi(agent, `/me/adult/blocks/${encodeURIComponent(targetDid)}`, {
+    method: blocked ? 'PUT' : 'DELETE',
+  })
+}
+
 /** Media URLs from the API are relative, signed and short-lived. */
 export function adultMediaUrl(path: string | null | undefined) {
   return path ? `${ADULT_API_URL}${path}` : undefined
