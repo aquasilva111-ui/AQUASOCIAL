@@ -1,4 +1,4 @@
-import {useState} from 'react'
+import {useMemo, useState} from 'react'
 import {View} from 'react-native'
 import {type AppBskyActorDefs, type AppBskyUnspeccedDefs} from '@atproto/api'
 
@@ -6,8 +6,10 @@ import {HELP_DESK_URL} from '#/lib/constants'
 import {makeProfileLink} from '#/lib/routes/links'
 import {sanitizeDisplayName} from '#/lib/strings/display-names'
 import {sanitizeHandle} from '#/lib/strings/handles'
+import {channelPath} from '#/lib/view-channel/model'
 import {useSuggestedFollowsQuery} from '#/state/queries/suggested-follows'
 import {useTrendingTopics} from '#/state/queries/trending/useTrendingTopics'
+import {useSession} from '#/state/session'
 import {PreviewableUserAvatar} from '#/view/com/util/UserAvatar'
 import {Logo} from '#/view/icons/Logo'
 import {atoms as a, useBreakpoints, useTheme, web} from '#/alf'
@@ -22,9 +24,11 @@ import {EditBig_Stroke2_Corner0_Rounded as EditIcon} from '#/components/icons/Ed
 import {Group3_Stroke2_Corner0_Rounded as ChannelsIcon} from '#/components/icons/Group'
 import {ListPlus_Stroke2_Corner0_Rounded as PlaylistIcon} from '#/components/icons/ListPlus'
 import {LiveVideo_Stroke2_Corner0_Rounded as LiveIcon} from '#/components/icons/LiveVideo'
+import {PaintRoller_Stroke2_Corner2_Rounded as StudioIcon} from '#/components/icons/PaintRoller'
 import {SquareBehindSquare4_Stroke2_Corner0_Rounded as CollectionsIcon} from '#/components/icons/SquareBehindSquare4'
 import {Star_Stroke2_Corner0_Rounded as PaidIcon} from '#/components/icons/Star'
 import {Trending2_Stroke2_Corner2_Rounded as Graph} from '#/components/icons/Trending'
+import {UserCircle_Stroke2_Corner0_Rounded as MyChannelIcon} from '#/components/icons/UserCircle'
 import {VideoClip_Stroke2_Corner0_Rounded as MyVideosIcon} from '#/components/icons/VideoClip'
 import {InlineLinkText, Link} from '#/components/Link'
 import {Text} from '#/components/Typography'
@@ -102,6 +106,23 @@ function AnimatedLabel({
  */
 export function VideosNavSidebar() {
   const t = useTheme()
+  const {currentAccount} = useSession()
+  // The channel is the signed-in AQUA profile's; no separate account.
+  const navItems = useMemo(
+    () =>
+      currentAccount
+        ? [
+            {
+              label: 'Seu canal',
+              to: channelPath(currentAccount.handle),
+              icon: MyChannelIcon,
+            },
+            {label: 'View Studio', to: '/videos/studio', icon: StudioIcon},
+            ...NAV_ITEMS,
+          ]
+        : NAV_ITEMS,
+    [currentAccount],
+  )
   const {gtMobile} = useBreakpoints()
   const [collapsed, setCollapsed] = useState(!gtMobile)
   const hPad = collapsed ? a.px_xs : a.px_lg
@@ -175,7 +196,7 @@ export function VideosNavSidebar() {
 
       <View style={[hPad]}>
         <View style={[a.pb_sm]}>
-          {NAV_ITEMS.map(item => (
+          {navItems.map(item => (
             <Link
               key={item.label}
               to={item.to}

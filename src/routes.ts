@@ -18,6 +18,11 @@ export const router = new Router<AllNavigatableRoutes>({
   VideoWatch: '/videos/watch/:name/:rkey',
   VideoLive: '/videos/live/:name',
   VideoGoLive: '/videos/golive',
+  // AQUA View channels — before ViewChannel: first matching pattern wins
+  ViewChannelCreate: '/videos/channel/new',
+  ViewChannel: '/videos/channel/:handle',
+  ViewStudio: '/videos/studio',
+  ViewStudioCustomize: '/videos/studio/customization',
   LaunchHub: '/launch',
   LaunchNew: '/launch/new',
   LaunchDetail: '/launch/view/:id',

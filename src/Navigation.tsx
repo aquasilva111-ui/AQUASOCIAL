@@ -157,6 +157,12 @@ import {
 import {Wizard} from '#/screens/StarterPack/Wizard'
 import TopicScreen from '#/screens/Topic'
 import {VideoFeed} from '#/screens/VideoFeed'
+import {ViewChannelScreen} from '#/screens/ViewChannel/ChannelScreen'
+import {ViewChannelCreateScreen} from '#/screens/ViewChannel/CreateChannelScreen'
+import {
+  ViewStudioCustomizeScreen,
+  ViewStudioScreen,
+} from '#/screens/ViewChannel/StudioScreen'
 import {type Theme, useTheme} from '#/alf'
 import {
   EmailDialogScreenID,
@@ -670,6 +676,26 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
         name="VideoGoLive"
         component={VideoGoLiveScreen}
         options={{title: 'Transmitir ao vivo', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="ViewChannelCreate"
+        component={ViewChannelCreateScreen}
+        options={{title: 'Criar canal', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="ViewChannel"
+        component={ViewChannelScreen}
+        options={{title: 'Canal'}}
+      />
+      <Stack.Screen
+        name="ViewStudio"
+        component={ViewStudioScreen}
+        options={{title: 'View Studio', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="ViewStudioCustomize"
+        component={ViewStudioCustomizeScreen}
+        options={{title: 'Personalizar canal', requireAuth: true}}
       />
       <Stack.Screen
         name="LaunchHub"

@@ -92,6 +92,10 @@ export type CommonNavigatorParams = {
   Videos: {source?: string; q?: string} | undefined
   VideoLive: {name: string}
   VideoGoLive: undefined
+  ViewChannelCreate: undefined
+  ViewChannel: {handle: string}
+  ViewStudio: undefined
+  ViewStudioCustomize: undefined
   LaunchHub: undefined
   LaunchNew: {id?: string} | undefined
   LaunchDetail: {id: string}
