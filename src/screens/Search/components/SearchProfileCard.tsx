@@ -41,6 +41,7 @@ export function SearchProfileCard({
             a.flex_1,
             a.px_md,
             a.py_sm,
+            a.rounded_sm,
             (hovered || pressed) && t.atoms.bg_contrast_25,
           ]}>
           <ProfileCard.Outer>

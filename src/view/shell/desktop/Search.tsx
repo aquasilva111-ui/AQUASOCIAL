@@ -162,6 +162,6 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     width: '100%',
     borderWidth: 1,
-    borderRadius: 6,
+    borderRadius: 16,
   },
 })
