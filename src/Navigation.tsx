@@ -100,7 +100,7 @@ import {
   LegacyImageDetailRedirect,
   LegacyImagesRedirect,
 } from '#/screens/Media/LegacyImagesRedirect'
-import {ImageDetailScreen, VideoWatchScreen} from '#/screens/Media/MediaDetail'
+import {ImageDetailScreen} from '#/screens/Media/MediaDetail'
 import {ImagesScreen, VideosScreen} from '#/screens/Media/MediaHome'
 import {VideoLiveScreen} from '#/screens/Media/VideoLive'
 import {MessagesScreen} from '#/screens/Messages/ChatList'
@@ -163,6 +163,7 @@ import {
   ViewStudioCustomizeScreen,
   ViewStudioScreen,
 } from '#/screens/ViewChannel/StudioScreen'
+import {ViewWatchScreen} from '#/screens/ViewWatch/WatchScreen'
 import {type Theme, useTheme} from '#/alf'
 import {
   EmailDialogScreenID,
@@ -664,7 +665,7 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
       />
       <Stack.Screen
         name="VideoWatch"
-        component={VideoWatchScreen}
+        component={ViewWatchScreen}
         options={{title: 'Aqua Views'}}
       />
       <Stack.Screen

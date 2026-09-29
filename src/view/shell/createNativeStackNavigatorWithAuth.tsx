@@ -50,6 +50,7 @@ const FULL_PAGE_ROUTES = [
   'Videos',
   'Images',
   'ImageDetail',
+  'VideoWatch',
   'ViewChannel',
   'ViewChannelCreate',
   'ViewStudio',

@@ -25,17 +25,6 @@ import {VisionboardMasonry} from '#/components/visionboard/VisionboardMasonry'
 import {RelatedLayout} from './RelatedLayout'
 import {VisionboardDetail} from './VisionboardDetail'
 
-export function VideoWatchScreen({
-  route,
-}: NativeStackScreenProps<CommonNavigatorParams, 'VideoWatch'>) {
-  return (
-    <MediaDetail
-      name={route.params.name}
-      rkey={route.params.rkey}
-      mode="video"
-    />
-  )
-}
 export function ImageDetailScreen({
   route,
 }: NativeStackScreenProps<CommonNavigatorParams, 'ImageDetail'>) {
