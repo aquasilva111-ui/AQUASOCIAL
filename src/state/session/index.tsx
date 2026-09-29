@@ -1,7 +1,9 @@
 import React from 'react'
 import {type AtpSessionEvent, type BskyAgent} from '@atproto/api'
 
+import {clearAdultApiToken} from '#/lib/adult/api'
 import {isWeb} from '#/platform/detection'
+import {clearAdultEntered} from '#/state/adult/entered'
 import * as persisted from '#/state/persisted'
 import {useCloseAllActiveElements} from '#/state/util'
 import {useGlobalDialogsControlContext} from '#/components/dialogs/Context'
@@ -74,8 +76,15 @@ class SessionStore {
   }
 
   dispatch = (action: Action) => {
+    const prevDid = this.state.currentAgentState.did
     const nextState = reducer(this.state, action)
     this.state = nextState
+    // Logout, expiry or account switch ends any +18 entry: coming back
+    // (even as the same account) always passes the entry gate again.
+    if (prevDid !== nextState.currentAgentState.did) {
+      clearAdultEntered()
+      clearAdultApiToken()
+    }
     // Persist synchronously without waiting for the React render cycle.
     if (nextState.needsPersist) {
       nextState.needsPersist = false

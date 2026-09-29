@@ -2,7 +2,7 @@ import {useCallback, useMemo} from 'react'
 import {useSyncExternalStore} from 'react'
 import {useQueryClient} from '@tanstack/react-query'
 
-import {clearAdultApiToken} from '#/lib/adult/api'
+import {clearAdultApiToken, recordAdultSelfDeclaration} from '#/lib/adult/api'
 import {ADULT_QUERY_NAMESPACE} from '#/lib/adult/isolation'
 import {useGate} from '#/lib/statsig/statsig'
 import {clearAdultActionHistory} from '#/state/adult/actionHistory'
@@ -21,7 +21,7 @@ import {
   resolveAdultEntryMethod,
 } from '#/state/adult/gate'
 import {clearAdultRelationships} from '#/state/adult/relationships'
-import {useSession} from '#/state/session'
+import {useAgent, useSession} from '#/state/session'
 import {useAgeAssurance} from '#/ageAssurance'
 import {account} from '#/storage'
 
@@ -78,6 +78,7 @@ export function useAdultContext(): AdultContextValue {
   const {currentAccount, hasSession} = useSession()
   const {state: ageAssuranceState} = useAgeAssurance()
   const queryClient = useQueryClient()
+  const agent = useAgent()
   const entry = useSyncExternalStore(subscribeAdultEntry, getAdultEntry)
   const gate = useGate()
   // ADULT_AGE_VERIFICATION flag (Statsig gate, default off): when off, the
@@ -125,8 +126,13 @@ export function useAdultContext(): AdultContextValue {
         at: new Date().toISOString(),
         policyVersion: ADULT_SELF_DECLARATION_POLICY_VERSION,
       })
+      // Server-side record so aqua-adult-api can tell `self_declared` from
+      // `verified`. Best effort: the in-session entry stands even while the
+      // +18 API is unreachable; its routes then answer
+      // `adult_declaration_required` and AdultApiNotice offers a retry.
+      recordAdultSelfDeclaration(agent).catch(() => {})
     }
-  }, [identity, ageGateStatus, ageVerificationEnabled])
+  }, [identity, ageGateStatus, ageVerificationEnabled, agent])
 
   const exit = useCallback(() => {
     clearAdultEntered()

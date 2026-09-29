@@ -23,7 +23,12 @@ import {
   type PaymentProvider,
   WebhookVerificationError,
 } from './economy/payments/provider.js'
-import {checkAccess, listUserEntitlements} from './entitlements/index.js'
+import {
+  adultAccessStatus,
+  checkAccess,
+  configureAdultAccess,
+  listUserEntitlements,
+} from './entitlements/index.js'
 import {audit} from './lib/audit.js'
 import {ApiError, badRequest, forbidden, notFound} from './lib/errors.js'
 import {newId} from './lib/ids.js'
@@ -56,6 +61,9 @@ const resourceRef = z.object({
 
 export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
   const {config, db} = deps
+  configureAdultAccess({
+    ageVerificationRequired: config.ageVerificationRequired,
+  })
   const app = Fastify({
     logger: false,
     bodyLimit: 1024 * 1024,
@@ -165,6 +173,52 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
       [newId('cr'), did, body.handle ?? null],
     )
     return {creatorId: row.id}
+  })
+
+  // ------------------------------------------------------------ adult entry
+  /** Which basis (if any) lets this user inside +18 right now. */
+  app.get('/me/adult/access', async req => {
+    const did = await user(req)
+    const s = await adultAccessStatus(db, did)
+    return {
+      allowed: !!s.basis,
+      basis: s.basis,
+      verified: s.verified,
+      selfDeclared: s.selfDeclared,
+      selfDeclaredAt: s.selfDeclaredAt,
+      policyVersion: s.policyVersion,
+      ageVerificationRequired: s.ageVerificationRequired,
+    }
+  })
+
+  /**
+   * Records the temporary self-declaration of majority. Never touches
+   * age_verified_at: a declaration is not a verification. While the
+   * verification gate is on, it is recorded but grants nothing.
+   */
+  app.post('/me/adult/self-declaration', async req => {
+    const did = await user(req)
+    const body = z
+      .object({
+        declaration: z.literal('adult'),
+        policyVersion: z.string().min(1).max(40),
+      })
+      .parse(req.body)
+    await db.query(
+      `insert into adult_accounts (did, self_declared_at, self_declaration_policy_version)
+       values ($1, now(), $2)
+       on conflict (did) do update
+         set self_declared_at = now(), self_declaration_policy_version = excluded.self_declaration_policy_version`,
+      [did, body.policyVersion],
+    )
+    await audit(db, {
+      actor: did,
+      action: 'adult.self_declaration',
+      reason: body.policyVersion,
+      result: 'ok',
+    })
+    const s = await adultAccessStatus(db, did)
+    return {allowed: !!s.basis, basis: s.basis}
   })
 
   // ------------------------------------------------------------ access

@@ -58,6 +58,7 @@ export type Grant = {
 export type DenialReason =
   | 'not_authenticated'
   | 'age_verification_required'
+  | 'adult_declaration_required'
   | 'content_unavailable'
   | 'content_removed'
   | 'content_quarantined'
@@ -157,16 +158,25 @@ export function isGrantActive(grant: Grant, now: Date): boolean {
   return true
 }
 
+/**
+ * Why the user may be inside +18 at all. `self_declared` is the temporary
+ * majority declaration — it is never an age verification.
+ */
+export type AdultAccessBasis = 'verified' | 'self_declared'
+
 export function evaluateAccess({
   userDid,
-  ageVerified,
+  adultAccess,
+  adultDenial = 'age_verification_required',
   resource,
   grants,
   now = new Date(),
   viewerRegion,
 }: {
   userDid: string | undefined
-  ageVerified: boolean
+  adultAccess: AdultAccessBasis | null
+  /** Denial reported when there is no basis (depends on the active gate). */
+  adultDenial?: 'age_verification_required' | 'adult_declaration_required'
   resource: ProtectedResource | undefined
   grants: Grant[]
   now?: Date
@@ -174,8 +184,7 @@ export function evaluateAccess({
 }): AccessDecision {
   try {
     if (!userDid) return {allowed: false, reason: 'not_authenticated'}
-    if (!ageVerified)
-      return {allowed: false, reason: 'age_verification_required'}
+    if (!adultAccess) return {allowed: false, reason: adultDenial}
     if (!resource || !resource.id || !(resource.policy in POLICY_ACCEPTS))
       return {allowed: false, reason: 'content_unavailable'}
 

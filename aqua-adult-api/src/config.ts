@@ -24,6 +24,12 @@ export type Config = {
   maxUploadBytes: number
   /** Browser origins allowed to call the API (the AQUA web app). */
   corsOrigins: string[]
+  /**
+   * ADULT_AGE_VERIFICATION_ENABLED. true = only a completed age verification
+   * opens +18. false = the temporary self-declaration gate also opens it —
+   * recorded as `self_declared`, never as a verification.
+   */
+  ageVerificationRequired: boolean
 }
 
 function parseEnv(value: string | undefined, nodeEnv?: string): AquaEnv {
@@ -67,6 +73,10 @@ export function loadConfig(
     )
       .split(',')
       .filter(Boolean),
+    // Production fails closed: self-declaration must be switched on explicitly.
+    ageVerificationRequired:
+      env.AQUA_ADULT_AGE_VERIFICATION_ENABLED === '1' ||
+      (isProd && env.AQUA_ADULT_AGE_VERIFICATION_ENABLED !== '0'),
     ...overrides,
   }
 

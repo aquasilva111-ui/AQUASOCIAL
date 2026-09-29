@@ -1,5 +1,7 @@
 import {type BskyAgent} from '@atproto/api'
 
+import {ADULT_SELF_DECLARATION_POLICY_VERSION} from '#/state/adult/gate'
+
 /**
  * Client for aqua-adult-api. The app never decides +18 access itself: every
  * call carries a short service-auth token minted by the user's own PDS
@@ -61,6 +63,24 @@ export async function adultApi<T = any>(
   if (!res.ok)
     throw new AdultApiError(res.status, json?.error ?? 'request_failed')
   return json as T
+}
+
+/**
+ * Records the temporary self-declaration of majority on aqua-adult-api.
+ * The server stores it apart from age verification — never AGE_VERIFIED.
+ */
+export function recordAdultSelfDeclaration(agent: BskyAgent) {
+  return adultApi<{allowed: boolean; basis: string | null}>(
+    agent,
+    '/me/adult/self-declaration',
+    {
+      method: 'POST',
+      body: {
+        declaration: 'adult',
+        policyVersion: ADULT_SELF_DECLARATION_POLICY_VERSION,
+      },
+    },
+  )
 }
 
 /** Media URLs from the API are relative, signed and short-lived. */

@@ -8,7 +8,7 @@ import {
   ledgerSummary,
   type SellerType,
 } from '../economy/index.js'
-import {isAgeVerified} from '../entitlements/index.js'
+import {assertAdultAccess} from '../entitlements/index.js'
 import {audit} from '../lib/audit.js'
 import {badRequest, conflict, forbidden, notFound} from '../lib/errors.js'
 import {newId} from '../lib/ids.js'
@@ -79,8 +79,7 @@ registerRoutes(ctx => {
 
   async function adult(req: FastifyRequest) {
     const did = await ctx.user(req)
-    if (!(await isAgeVerified(db, did)))
-      throw forbidden('age_verification_required')
+    await assertAdultAccess(db, did)
     return did
   }
 

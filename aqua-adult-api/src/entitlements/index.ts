@@ -1,7 +1,9 @@
 import {type Queryable} from '../db/index.js'
+import {forbidden} from '../lib/errors.js'
 import {newId} from '../lib/ids.js'
 import {
   type AccessDecision,
+  type AdultAccessBasis,
   evaluateAccess,
   type Grant,
   type ProtectedResource,
@@ -33,6 +35,60 @@ export async function resolveResource(
   return resolver ? resolver(db, ref.id) : undefined
 }
 
+let ageVerificationRequired = true
+
+/** Set once per process from Config (buildApp). Defaults to fail closed. */
+export function configureAdultAccess(opts: {ageVerificationRequired: boolean}) {
+  ageVerificationRequired = opts.ageVerificationRequired
+}
+
+/**
+ * The user's basis for being inside +18. A completed verification always
+ * counts; a self-declaration counts only while the verification gate is off.
+ */
+export async function adultAccessStatus(
+  db: Queryable,
+  did: string,
+  now = new Date(),
+) {
+  const [row] = await db.query(
+    `select age_verified_at, age_verification_expires_at, self_declared_at, self_declaration_policy_version
+       from adult_accounts where did = $1`,
+    [did],
+  )
+  const verified =
+    !!row?.age_verified_at &&
+    (!row.age_verification_expires_at ||
+      new Date(row.age_verification_expires_at).getTime() > now.getTime())
+  const selfDeclared = !!row?.self_declared_at
+  const basis: AdultAccessBasis | null = verified
+    ? 'verified'
+    : selfDeclared && !ageVerificationRequired
+      ? 'self_declared'
+      : null
+  return {
+    verified,
+    selfDeclared,
+    selfDeclaredAt: row?.self_declared_at ?? null,
+    policyVersion: row?.self_declaration_policy_version ?? null,
+    ageVerificationRequired,
+    basis,
+    denial: (ageVerificationRequired
+      ? 'age_verification_required'
+      : 'adult_declaration_required') as
+      | 'age_verification_required'
+      | 'adult_declaration_required',
+  }
+}
+
+/** Throws 403 unless the user may be inside +18; returns the basis. */
+export async function assertAdultAccess(db: Queryable, did: string) {
+  const status = await adultAccessStatus(db, did)
+  if (!status.basis) throw forbidden(status.denial)
+  return status.basis
+}
+
+/** Strict: a completed age verification only (never a self-declaration). */
 export async function isAgeVerified(
   db: Queryable,
   did: string,
@@ -79,12 +135,19 @@ export async function checkAccess(
     if (!userDid)
       return {decision: {allowed: false, reason: 'not_authenticated'}}
     const resource = await resolveResource(db, ref)
-    const [ageVerified, grants] = await Promise.all([
-      isAgeVerified(db, userDid, now),
+    const [adult, grants] = await Promise.all([
+      adultAccessStatus(db, userDid, now),
       resource ? listGrants(db, userDid, [ref, ...resource.scopes]) : [],
     ])
     return {
-      decision: evaluateAccess({userDid, ageVerified, resource, grants, now}),
+      decision: evaluateAccess({
+        userDid,
+        adultAccess: adult.basis,
+        adultDenial: adult.denial,
+        resource,
+        grants,
+        now,
+      }),
       resource,
     }
   } catch {

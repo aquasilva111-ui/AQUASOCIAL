@@ -4,8 +4,8 @@ import {type Queryable} from '../db/index.js'
 import {registerSellerAuthorizer} from '../economy/index.js'
 import {ledgerSummary} from '../economy/index.js'
 import {
+  assertAdultAccess,
   checkAccess,
-  isAgeVerified,
   type ProtectedResource,
   registerResourceResolver,
   type ResourceRef,
@@ -320,8 +320,7 @@ registerRoutes(ctx => {
 
   const requireAdult = async (req: Parameters<typeof ctx.user>[0]) => {
     const did = await ctx.user(req)
-    if (!(await isAgeVerified(db, did)))
-      throw forbidden('age_verification_required')
+    await assertAdultAccess(db, did)
     return did
   }
 

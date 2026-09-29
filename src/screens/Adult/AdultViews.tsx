@@ -8,8 +8,10 @@ import {
   AdultApiError,
   adultMediaUrl,
   type AdultVideoCard,
+  recordAdultSelfDeclaration,
 } from '#/lib/adult/api'
 import {adultQueryKey} from '#/lib/adult/isolation'
+import {useAdultContext} from '#/state/adult/context'
 import {useAgent} from '#/state/session'
 import {atoms as a, useBreakpoints, useTheme} from '#/alf'
 import {Button, ButtonText} from '#/components/Button'
@@ -162,13 +164,20 @@ export function AdultApiNotice({
   const t = useTheme()
   const agent = useAgent()
   const qc = useQueryClient()
+  const ctx = useAdultContext()
   const code = error instanceof AdultApiError ? error.code : 'unavailable'
+  // The declaration made at the entry gate did not reach the server yet
+  // (e.g. the +18 API was offline). Re-sending it is the same declaration.
+  const canResendDeclaration =
+    code === 'adult_declaration_required' && ctx.entryMethod === 'self_declared'
   const message =
     code === 'age_verification_required'
       ? 'Sua verificação de idade ainda não foi confirmada pelo servidor do AQUA +18.'
-      : code === 'unauthorized' || code === 'not_authenticated'
-        ? 'Não foi possível confirmar sua sessão.'
-        : 'O servidor do AQUA +18 está indisponível no momento.'
+      : code === 'adult_declaration_required'
+        ? 'O servidor do AQUA +18 ainda não recebeu sua declaração de maioridade.'
+        : code === 'unauthorized' || code === 'not_authenticated'
+          ? 'Não foi possível confirmar sua sessão.'
+          : 'O servidor do AQUA +18 está indisponível no momento.'
   return (
     <View style={[a.p_lg, a.gap_md, a.rounded_md, t.atoms.bg_contrast_25]}>
       <Text style={[a.text_md]}>{message}</Text>
@@ -180,6 +189,18 @@ export function AdultApiNotice({
           onPress={onRetry}>
           <ButtonText>Tentar novamente</ButtonText>
         </Button>
+        {canResendDeclaration && (
+          <Button
+            label="Enviar declaração de maioridade"
+            size="small"
+            color="primary"
+            onPress={async () => {
+              await recordAdultSelfDeclaration(agent).catch(() => {})
+              qc.invalidateQueries({queryKey: adultQueryKey()})
+            }}>
+            <ButtonText>Enviar declaração</ButtonText>
+          </Button>
+        )}
         {__DEV__ && code === 'age_verification_required' && (
           <Button
             label="Simular verificação (desenvolvimento)"

@@ -116,12 +116,13 @@ describe('production safety', () => {
 })
 
 describe('access basics', () => {
-  it('denies users without server-side age verification', async () => {
+  it('denies users with no server-side adult basis', async () => {
     await ppvPost('free')
     const r = await access(did('unverified'))
+    // Test config runs the self-declaration gate (verification flag off).
     expect(r.body).toEqual({
       allowed: false,
-      reason: 'age_verification_required',
+      reason: 'adult_declaration_required',
     })
   })
 

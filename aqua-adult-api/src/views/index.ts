@@ -3,8 +3,8 @@ import {z} from 'zod'
 import {type Db, type Queryable} from '../db/index.js'
 import {createOffer, getApprovedCreatorForDid} from '../economy/index.js'
 import {
+  assertAdultAccess,
   checkAccess,
-  isAgeVerified,
   PAID_POLICIES,
   type ProtectedResource,
   registerResourceResolver,
@@ -86,8 +86,7 @@ export async function requireAdult(
   req: Parameters<RouteContext['user']>[0],
 ) {
   const did = await ctx.user(req)
-  if (!(await isAgeVerified(ctx.db, did)))
-    throw forbidden('age_verification_required')
+  await assertAdultAccess(ctx.db, did)
   return did
 }
 

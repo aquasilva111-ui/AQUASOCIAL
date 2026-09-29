@@ -3,12 +3,12 @@ import {z} from 'zod'
 import {type Queryable} from '../db/index.js'
 import {
   type AccessDecision,
+  assertAdultAccess,
   checkAccess,
-  isAgeVerified,
   resolveResource,
   type ResourceRef,
 } from '../entitlements/index.js'
-import {badRequest, forbidden, notFound} from '../lib/errors.js'
+import {badRequest, notFound} from '../lib/errors.js'
 import {type MediaEngine} from '../media/engine.js'
 import {registerRoutes} from '../registry.js'
 
@@ -174,8 +174,7 @@ registerRoutes(ctx => {
 
   const requireAdult = async (req: Parameters<typeof ctx.user>[0]) => {
     const did = await ctx.user(req)
-    if (!(await isAgeVerified(db, did)))
-      throw forbidden('age_verification_required')
+    await assertAdultAccess(db, did)
     return did
   }
 

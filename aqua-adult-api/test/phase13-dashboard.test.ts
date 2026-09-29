@@ -97,7 +97,7 @@ describe('dashboard access', () => {
     expect((await t.call('GET', '/dashboard/creator')).status).toBe(401)
     const unverified = await t.call('GET', '/dashboard/creator', UNVERIFIED)
     expect(unverified.status).toBe(403)
-    expect(unverified.body.error).toBe('age_verification_required')
+    expect(unverified.body.error).toBe('adult_declaration_required')
     const viewer = await t.call('GET', '/dashboard/creator', VIEWER)
     expect(viewer.status).toBe(403)
     expect(viewer.body.error).toBe('creator_not_approved')
