@@ -69,6 +69,18 @@ import {SupportScreen} from '#/view/screens/Support'
 import {TermsOfServiceScreen} from '#/view/screens/TermsOfService'
 import {BottomBar} from '#/view/shell/bottom-bar/BottomBar'
 import {createNativeStackNavigatorWithAuth} from '#/view/shell/createNativeStackNavigatorWithAuth'
+import {
+  AdultCreatorDashboardScreen,
+  AdultCreatorsScreen,
+  AdultFeedScreen,
+  AdultHomeScreen,
+  AdultLibraryScreen,
+  AdultLiveScreen,
+  AdultMessagesScreen,
+  AdultSettingsScreen,
+  AdultStudiosScreen,
+  AdultViewsScreen,
+} from '#/screens/Adult'
 import {BookmarksScreen} from '#/screens/Bookmarks'
 import {CreativeHubScreen, UIAIScreen} from '#/screens/ComingSoon'
 import {SharedPreferencesTesterScreen} from '#/screens/E2E/SharedPreferencesTesterScreen'
@@ -677,6 +689,56 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
         name="UIAI"
         component={UIAIScreen}
         options={{title: 'UI & AI'}}
+      />
+      <Stack.Screen
+        name="AdultHome"
+        component={AdultHomeScreen}
+        options={{title: 'AQUA +18', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="AdultFeed"
+        component={AdultFeedScreen}
+        options={{title: 'Feed +18', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="AdultCreators"
+        component={AdultCreatorsScreen}
+        options={{title: 'Creators +18', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="AdultViews"
+        component={AdultViewsScreen}
+        options={{title: 'Views +18', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="AdultLive"
+        component={AdultLiveScreen}
+        options={{title: 'Live +18', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="AdultStudios"
+        component={AdultStudiosScreen}
+        options={{title: 'Studios +18', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="AdultLibrary"
+        component={AdultLibraryScreen}
+        options={{title: 'Biblioteca +18', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="AdultMessages"
+        component={AdultMessagesScreen}
+        options={{title: 'Mensagens +18', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="AdultSettings"
+        component={AdultSettingsScreen}
+        options={{title: 'Configurações +18', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="AdultCreatorDashboard"
+        component={AdultCreatorDashboardScreen}
+        options={{title: 'Creator Dashboard +18', requireAuth: true}}
       />
       <Stack.Screen
         name="Bookmarks"

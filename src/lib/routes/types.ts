@@ -97,6 +97,16 @@ export type CommonNavigatorParams = {
   LaunchDetail: {id: string}
   CreativeHub: undefined
   UIAI: undefined
+  AdultHome: undefined
+  AdultFeed: undefined
+  AdultCreators: undefined
+  AdultViews: undefined
+  AdultLive: undefined
+  AdultStudios: undefined
+  AdultLibrary: undefined
+  AdultMessages: undefined
+  AdultSettings: undefined
+  AdultCreatorDashboard: undefined
   ImageDetail: {name: string; rkey: string}
   ImageDetailLegacy: {name: string; rkey: string}
   VideoWatch: {name: string; rkey: string}

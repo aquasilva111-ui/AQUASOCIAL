@@ -761,8 +761,16 @@ export function DesktopLeftNav() {
             }
             label="Wallet"
           />
-          <PlaceholderNavItem
+          <NavItem
+            href="/adult"
             icon={
+              <AquaLogo
+                aria-hidden={true}
+                width={NAV_ICON_WIDTH}
+                style={pal.text}
+              />
+            }
+            iconFilled={
               <AquaLogo
                 aria-hidden={true}
                 width={NAV_ICON_WIDTH}
