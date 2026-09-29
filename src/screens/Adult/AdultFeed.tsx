@@ -1,8 +1,6 @@
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
 import {useSyncExternalStore} from 'react'
 import {View} from 'react-native'
-import {msg} from '@lingui/macro'
-import {useLingui} from '@lingui/react'
 import {useIsFocused} from '@react-navigation/native'
 
 import {toAdultPosts} from '#/lib/adult/content'
@@ -34,16 +32,14 @@ type AdultFeedSource = 'following' | 'discover'
  * here reads or writes the social action history.
  */
 export function AdultFeedScreen() {
-  const {_} = useLingui()
   return (
-    <AdultShell title={_(msg`Feed +18`)} testID="adultFeedScreen">
+    <AdultShell title="Feed +18" testID="adultFeedScreen">
       <AdultFeedInner />
     </AdultShell>
   )
 }
 
 function AdultFeedInner() {
-  const {_} = useLingui()
   const t = useTheme()
   const focused = useIsFocused()
   const ctx = useAdultContext()
@@ -102,20 +98,20 @@ function AdultFeedInner() {
     <View style={[a.flex_1]}>
       <View style={[a.flex_row, a.gap_xs, a.p_md]}>
         <Button
-          label={_(msg`Seguindo`)}
+          label="Seguindo"
           size="small"
           variant={source === 'following' ? 'solid' : 'ghost'}
           color="secondary"
           onPress={() => setSource('following')}>
-          <ButtonText>{_(msg`Seguindo`)}</ButtonText>
+          <ButtonText>Seguindo</ButtonText>
         </Button>
         <Button
-          label={_(msg`Descobrir`)}
+          label="Descobrir"
           size="small"
           variant={source === 'discover' ? 'solid' : 'ghost'}
           color="secondary"
           onPress={() => setSource('discover')}>
-          <ButtonText>{_(msg`Descobrir`)}</ButtonText>
+          <ButtonText>Descobrir</ButtonText>
         </Button>
       </View>
 
@@ -133,18 +129,18 @@ function AdultFeedInner() {
               <Text
                 style={[a.text_md, t.atoms.text_contrast_medium]}
                 accessibilityRole="progressbar">
-                {_(msg`Carregando…`)}
+                Carregando...
               </Text>
             ) : isError ? (
               <>
                 <Text style={[a.text_md, t.atoms.text_contrast_medium]}>
-                  {_(msg`Não foi possível carregar o feed.`)}
+                  Não foi possível carregar o feed.
                 </Text>
                 <Button
-                  label={_(msg`Tentar novamente`)}
+                  label="Tentar novamente"
                   size="small"
                   onPress={() => feed.refetch()}>
-                  <ButtonText>{_(msg`Tentar novamente`)}</ButtonText>
+                  <ButtonText>Tentar novamente</ButtonText>
                 </Button>
               </>
             ) : (
@@ -155,12 +151,8 @@ function AdultFeedInner() {
                   t.atoms.text_contrast_medium,
                 ]}>
                 {source === 'following'
-                  ? _(
-                      msg`Nenhum conteúdo +18 de criadores que você segue por aqui ainda.`,
-                    )
-                  : _(
-                      msg`Nenhum conteúdo +18 encontrado nas páginas carregadas.`,
-                    )}
+                  ? 'Nenhum conteúdo +18 de criadores que você segue por aqui ainda.'
+                  : 'Nenhum conteúdo +18 encontrado nas páginas carregadas.'}
               </Text>
             )}
           </View>
@@ -168,11 +160,8 @@ function AdultFeedInner() {
         ListFooterComponent={
           hasNextPage ? (
             <View style={[a.align_center, a.py_md]}>
-              <Button
-                label={_(msg`Carregar mais`)}
-                size="small"
-                onPress={loadMore}>
-                <ButtonText>{_(msg`Carregar mais`)}</ButtonText>
+              <Button label="Carregar mais" size="small" onPress={loadMore}>
+                <ButtonText>Carregar mais</ButtonText>
               </Button>
             </View>
           ) : null

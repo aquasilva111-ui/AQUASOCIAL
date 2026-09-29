@@ -1,6 +1,4 @@
 import {View} from 'react-native'
-import {msg} from '@lingui/macro'
-import {useLingui} from '@lingui/react'
 
 import {type AdultContextValue} from '#/state/adult/context'
 import {useSession} from '#/state/session'
@@ -28,7 +26,6 @@ export function AdultGate({
 
 function AdultGateScreen({ctx}: {ctx: AdultContextValue}) {
   const t = useTheme()
-  const {_} = useLingui()
   const {currentAccount} = useSession()
   const beginAgeAssurance = useBeginAgeAssurance()
 
@@ -36,26 +33,24 @@ function AdultGateScreen({ctx}: {ctx: AdultContextValue}) {
   let body: string
   switch (ctx.ageGateStatus) {
     case 'pending':
-      title = _(msg`Verificação em andamento`)
-      body = _(
-        msg`Sua verificação de idade está sendo processada. Tente novamente em instantes.`,
-      )
+      title = 'Verificação em andamento'
+      body =
+        'Sua verificação de idade está sendo processada. Tente novamente em instantes.'
       break
     case 'denied':
-      title = _(msg`Acesso não permitido`)
-      body = _(msg`Esta conta não pode acessar a área +18.`)
+      title = 'Acesso não permitido'
+      body = 'Esta conta não pode acessar a área +18.'
       break
     case 'restricted':
-      title = _(msg`Acesso restrito`)
-      body = _(msg`A área +18 não está disponível para a sua conta ou região.`)
+      title = 'Acesso restrito'
+      body = 'A área +18 não está disponível para a sua conta ou região.'
       break
     case 'unknown':
     case 'required':
     default:
-      title = _(msg`Verificação de idade necessária`)
-      body = _(
-        msg`Para entrar na área +18, confirme que você é maior de idade. Sem confirmação, o acesso permanece bloqueado.`,
-      )
+      title = 'Verificação de idade necessária'
+      body =
+        'Para entrar na área +18, confirme que você é maior de idade. Sem confirmação, o acesso permanece bloqueado.'
       break
   }
 
@@ -66,30 +61,28 @@ function AdultGateScreen({ctx}: {ctx: AdultContextValue}) {
     <Layout.Center style={[a.px_xl, {paddingTop: 96}]}>
       <View style={[a.align_center, a.gap_md, {maxWidth: 420}]}>
         <Text style={[a.text_2xl, a.font_bold, a.text_center]}>
-          {awaitingEntry ? _(msg`Você está entrando no AQUA +18`) : title}
+          {awaitingEntry ? 'Você está entrando no AQUA +18' : title}
         </Text>
         <Text style={[a.text_md, a.text_center, t.atoms.text_contrast_medium]}>
           {awaitingEntry
-            ? _(
-                msg`Esta é uma área adulta, separada do AQUA Social. Sua atividade aqui não alimenta feeds, buscas ou recomendações públicas.`,
-              )
+            ? 'Esta é uma área adulta, separada do AQUA Social. Sua atividade aqui não alimenta feeds, buscas ou recomendações públicas.'
             : body}
         </Text>
         {awaitingEntry ? (
           <Button
-            label={_(msg`Entrar no AQUA +18`)}
+            label="Entrar no AQUA +18"
             size="large"
             variant="solid"
             color="primary"
             onPress={ctx.enter}>
-            <ButtonText>{_(msg`Entrar no +18`)}</ButtonText>
+            <ButtonText>Entrar no +18</ButtonText>
           </Button>
         ) : (
           (ctx.ageGateStatus === 'required' ||
             ctx.ageGateStatus === 'unknown') &&
           !!currentAccount?.email && (
             <Button
-              label={_(msg`Iniciar verificação de idade`)}
+              label="Iniciar verificação de idade"
               size="large"
               variant="solid"
               color="primary"
@@ -102,8 +95,8 @@ function AdultGateScreen({ctx}: {ctx: AdultContextValue}) {
               }>
               <ButtonText>
                 {beginAgeAssurance.isPending
-                  ? _(msg`Enviando…`)
-                  : _(msg`Iniciar verificação`)}
+                  ? 'Enviando...'
+                  : 'Iniciar verificação'}
               </ButtonText>
             </Button>
           )

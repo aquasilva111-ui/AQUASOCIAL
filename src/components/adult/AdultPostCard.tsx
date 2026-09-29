@@ -1,7 +1,5 @@
 import {useMemo, useState} from 'react'
 import {View} from 'react-native'
-import {msg} from '@lingui/macro'
-import {useLingui} from '@lingui/react'
 
 import {logAdultEvent} from '#/lib/adult/analytics'
 import {getPostMedia, toAccessControlledResource} from '#/lib/adult/content'
@@ -50,7 +48,6 @@ import {Text} from '#/components/Typography'
  * by AQUA Entitlements — this component never decides access itself.
  */
 export function AdultPostCard({post}: {post: AdultPost}) {
-  const {_} = useLingui()
   const t = useTheme()
   const ctx = useAdultContext()
   const reportControl = useReportDialogControl()
@@ -130,11 +127,11 @@ export function AdultPostCard({post}: {post: AdultPost}) {
           )}
         </TimeElapsed>
         <Menu.Root>
-          <Menu.Trigger label={_(msg`Mais opções`)}>
+          <Menu.Trigger label="Mais opções">
             {({props}) => (
               <Button
                 {...props}
-                label={_(msg`Mais opções`)}
+                label="Mais opções"
                 size="small"
                 variant="ghost"
                 color="secondary"
@@ -144,19 +141,17 @@ export function AdultPostCard({post}: {post: AdultPost}) {
             )}
           </Menu.Trigger>
           <Menu.Outer>
-            <Menu.Item
-              label={_(msg`Denunciar`)}
-              onPress={() => reportControl.open()}>
+            <Menu.Item label="Denunciar" onPress={() => reportControl.open()}>
               <Menu.ItemIcon icon={FlagIcon} />
-              <Menu.ItemText>{_(msg`Denunciar`)}</Menu.ItemText>
+              <Menu.ItemText>Denunciar</Menu.ItemText>
             </Menu.Item>
             {ctx.identity && ctx.identity.did !== post.creatorId && (
               <Menu.Item
-                label={_(msg`Bloquear criador`)}
+                label="Bloquear criador"
                 onPress={() =>
                   blockAdultCreator(ctx.identity!.did, post.creatorId)
                 }>
-                <Menu.ItemText>{_(msg`Bloquear criador`)}</Menu.ItemText>
+                <Menu.ItemText>Bloquear criador</Menu.ItemText>
               </Menu.Item>
             )}
           </Menu.Outer>
@@ -206,7 +201,7 @@ export function AdultPostCard({post}: {post: AdultPost}) {
                 <PlayIcon size="xl" style={t.atoms.text_contrast_medium} />
                 <Text
                   style={[a.text_xs, t.atoms.text_contrast_medium, a.pt_xs]}>
-                  {_(msg`Vídeo — reprodução chega com o Media Engine`)}
+                  Vídeo - reprodução chega com o Media Engine
                 </Text>
               </View>
             )}
@@ -224,31 +219,29 @@ export function AdultPostCard({post}: {post: AdultPost}) {
             a.gap_sm,
             t.atoms.bg_contrast_25,
           ]}>
-          <Text style={[a.text_md, a.font_bold]}>
-            {_(msg`Conteúdo protegido`)}
-          </Text>
+          <Text style={[a.text_md, a.font_bold]}>Conteúdo protegido</Text>
           <Text
             style={[a.text_sm, a.text_center, t.atoms.text_contrast_medium]}>
             {decision.reason === 'not_subscribed'
-              ? _(msg`Disponível para assinantes do criador.`)
+              ? 'Disponível para assinantes do criador.'
               : decision.reason === 'purchase_required'
-                ? _(msg`Disponível mediante desbloqueio.`)
-                : _(msg`Você não possui acesso a este conteúdo.`)}
+                ? 'Disponível mediante desbloqueio.'
+                : 'Você não possui acesso a este conteúdo.'}
           </Text>
           <Button
-            label={_(msg`Ver opções de acesso`)}
+            label="Ver opções de acesso"
             size="small"
             variant="solid"
             color="primary"
             onPress={() => {}}>
-            <ButtonText>{_(msg`Ver opções de acesso`)}</ButtonText>
+            <ButtonText>Ver opções de acesso</ButtonText>
           </Button>
         </View>
       )}
 
       <View style={[a.flex_row, a.gap_md, a.pt_sm, a.align_center]}>
         <Button
-          label={_(msg`Curtir`)}
+          label="Curtir"
           size="small"
           variant="ghost"
           color="secondary"
@@ -256,7 +249,7 @@ export function AdultPostCard({post}: {post: AdultPost}) {
           <ButtonIcon icon={liked ? HeartFilled : HeartIcon} />
         </Button>
         <Button
-          label={saved ? _(msg`Salvo`) : _(msg`Salvar`)}
+          label={saved ? 'Salvo' : 'Salvar'}
           size="small"
           variant="ghost"
           color="secondary"

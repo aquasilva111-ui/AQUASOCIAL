@@ -1,7 +1,5 @@
 import {useMemo} from 'react'
 import {View} from 'react-native'
-import {msg} from '@lingui/macro'
-import {useLingui} from '@lingui/react'
 import {useIsFocused} from '@react-navigation/native'
 
 import {isAdultContent} from '#/lib/adult/content'
@@ -22,16 +20,14 @@ import {AdultShell} from './AdultShell'
  * signals, no social recommendation data.
  */
 export function AdultCreatorsScreen() {
-  const {_} = useLingui()
   return (
-    <AdultShell title={_(msg`Creators`)} testID="adultCreatorsScreen">
+    <AdultShell title="Creators" testID="adultCreatorsScreen">
       <AdultCreatorsInner />
     </AdultShell>
   )
 }
 
 function AdultCreatorsInner() {
-  const {_} = useLingui()
   const t = useTheme()
   const focused = useIsFocused()
   const ctx = useAdultContext()
@@ -91,8 +87,8 @@ function AdultCreatorsInner() {
           <Text
             style={[a.text_md, a.text_center, t.atoms.text_contrast_medium]}>
             {feed.isFetching
-              ? _(msg`Carregando…`)
-              : _(msg`Nenhum creator +18 descoberto ainda.`)}
+              ? 'Carregando...'
+              : 'Nenhum creator +18 descoberto ainda.'}
           </Text>
         </View>
       }

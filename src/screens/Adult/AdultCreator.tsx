@@ -2,8 +2,6 @@ import {useMemo, useState} from 'react'
 import {useSyncExternalStore} from 'react'
 import {View} from 'react-native'
 import {Image} from 'expo-image'
-import {msg} from '@lingui/macro'
-import {useLingui} from '@lingui/react'
 import {useIsFocused} from '@react-navigation/native'
 
 import {toAdultPosts} from '#/lib/adult/content'
@@ -44,16 +42,14 @@ type CreatorTab = 'posts' | 'media'
 export function AdultCreatorScreen({
   route,
 }: NativeStackScreenProps<CommonNavigatorParams, 'AdultCreator'>) {
-  const {_} = useLingui()
   return (
-    <AdultShell title={_(msg`Creator`)} testID="adultCreatorScreen">
+    <AdultShell title="Creator" testID="adultCreatorScreen">
       <AdultCreatorInner handle={route.params.name} />
     </AdultShell>
   )
 }
 
 function AdultCreatorInner({handle}: {handle: string}) {
-  const {_} = useLingui()
   const t = useTheme()
   const focused = useIsFocused()
   const ctx = useAdultContext()
@@ -92,7 +88,7 @@ function AdultCreatorInner({handle}: {handle: string}) {
         <Text
           style={[a.text_md, t.atoms.text_contrast_medium]}
           accessibilityRole="progressbar">
-          {_(msg`Carregando…`)}
+          Carregando...
         </Text>
       </View>
     )
@@ -100,9 +96,7 @@ function AdultCreatorInner({handle}: {handle: string}) {
   if (!creator) {
     return (
       <View style={[a.align_center, a.gap_sm, a.px_xl, {paddingTop: 96}]}>
-        <Text style={[a.text_lg, a.font_bold]}>
-          {_(msg`Creator não encontrado`)}
-        </Text>
+        <Text style={[a.text_lg, a.font_bold]}>Creator não encontrado</Text>
         <Text style={[a.text_md, t.atoms.text_contrast_medium]}>@{handle}</Text>
       </View>
     )
@@ -120,8 +114,8 @@ function AdultCreatorInner({handle}: {handle: string}) {
           source={{uri: creator.banner}}
           style={[a.w_full, {height: 120}]}
           contentFit="cover"
-          accessibilityLabel={_(msg`Banner do creator`)}
-          accessibilityHint={_(msg`Imagem de capa do perfil do creator`)}
+          accessibilityLabel="Banner do creator"
+          accessibilityHint="Imagem de capa do perfil do creator"
         />
       )}
       <View style={[a.p_md, a.gap_sm]}>
@@ -135,13 +129,13 @@ function AdultCreatorInner({handle}: {handle: string}) {
         {!!creator.bio && <Text style={[a.text_md]}>{creator.bio}</Text>}
         {typeof creator.followersCount === 'number' && (
           <Text style={[a.text_sm, t.atoms.text_contrast_medium]}>
-            {creator.followersCount} {_(msg`seguidores`)}
+            {creator.followersCount} seguidores
           </Text>
         )}
         {!isSelf && did && (
           <View style={[a.flex_row, a.gap_sm, a.pt_xs, a.flex_wrap]}>
             <Button
-              label={following ? _(msg`Seguindo`) : _(msg`Seguir`)}
+              label={following ? 'Seguindo' : 'Seguir'}
               size="small"
               variant={following ? 'ghost' : 'solid'}
               color="secondary"
@@ -150,21 +144,19 @@ function AdultCreatorInner({handle}: {handle: string}) {
                   ? unfollowAdultCreator(did, creator.userId)
                   : followAdultCreator(did, creator.userId)
               }>
-              <ButtonText>
-                {following ? _(msg`Seguindo`) : _(msg`Seguir`)}
-              </ButtonText>
+              <ButtonText>{following ? 'Seguindo' : 'Seguir'}</ButtonText>
             </Button>
             <Button
-              label={_(msg`Assinar`)}
+              label="Assinar"
               size="small"
               variant="solid"
               color="primary"
               disabled
               onPress={() => {}}>
-              <ButtonText>{_(msg`Assinar — em breve`)}</ButtonText>
+              <ButtonText>Assinar - em breve</ButtonText>
             </Button>
             <Button
-              label={blocked ? _(msg`Desbloquear`) : _(msg`Bloquear`)}
+              label={blocked ? 'Desbloquear' : 'Bloquear'}
               size="small"
               variant="ghost"
               color="secondary"
@@ -173,28 +165,26 @@ function AdultCreatorInner({handle}: {handle: string}) {
                   ? unblockAdultCreator(did, creator.userId)
                   : blockAdultCreator(did, creator.userId)
               }>
-              <ButtonText>
-                {blocked ? _(msg`Desbloquear`) : _(msg`Bloquear`)}
-              </ButtonText>
+              <ButtonText>{blocked ? 'Desbloquear' : 'Bloquear'}</ButtonText>
             </Button>
           </View>
         )}
         <View style={[a.flex_row, a.gap_xs, a.pt_sm]}>
           <Button
-            label={_(msg`Posts`)}
+            label="Posts"
             size="small"
             variant={tab === 'posts' ? 'solid' : 'ghost'}
             color="secondary"
             onPress={() => setTab('posts')}>
-            <ButtonText>{_(msg`Posts`)}</ButtonText>
+            <ButtonText>Posts</ButtonText>
           </Button>
           <Button
-            label={_(msg`Mídia`)}
+            label="Mídia"
             size="small"
             variant={tab === 'media' ? 'solid' : 'ghost'}
             color="secondary"
             onPress={() => setTab('media')}>
-            <ButtonText>{_(msg`Mídia`)}</ButtonText>
+            <ButtonText>Mídia</ButtonText>
           </Button>
         </View>
       </View>
@@ -219,7 +209,7 @@ function AdultCreatorInner({handle}: {handle: string}) {
           <View style={[a.align_center, a.px_xl, {paddingTop: 48}]}>
             <Text
               style={[a.text_md, a.text_center, t.atoms.text_contrast_medium]}>
-              {_(msg`Nenhuma publicação +18 deste creator ainda.`)}
+              Nenhuma publicação +18 deste creator ainda.
             </Text>
           </View>
         ) : null

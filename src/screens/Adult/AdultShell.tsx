@@ -1,7 +1,5 @@
 import {useCallback} from 'react'
 import {View} from 'react-native'
-import {msg} from '@lingui/macro'
-import {useLingui} from '@lingui/react'
 import {useNavigation} from '@react-navigation/native'
 
 import {type NavigationProp} from '#/lib/routes/types'
@@ -32,7 +30,6 @@ export function AdultShell({
   children: React.ReactNode
 }) {
   const t = useTheme()
-  const {_} = useLingui()
   const navigation = useNavigation<NavigationProp>()
   const ctx = useAdultContext()
 
@@ -68,17 +65,17 @@ export function AdultShell({
             ]}
           />
           <Text style={[a.text_sm, a.font_semi_bold, {color: CONTEXT_ACCENT}]}>
-            {_(msg`Ambiente +18`)}
+            Ambiente +18
           </Text>
         </View>
         <Button
-          label={_(msg`Sair do +18`)}
+          label="Sair do +18"
           size="small"
           variant="ghost"
           color="secondary"
           onPress={exitAdult}>
           <ButtonIcon icon={LeaveIcon} />
-          <ButtonText>{_(msg`Sair do +18`)}</ButtonText>
+          <ButtonText>Sair do +18</ButtonText>
         </Button>
       </View>
       <AdultGate ctx={ctx}>{children}</AdultGate>
