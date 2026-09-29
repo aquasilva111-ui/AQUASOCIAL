@@ -1,6 +1,6 @@
 # AQUA +18 — Arquitetura e prontidão
 
-Estado em 2026-09-28. Documento de trabalho: substitui a suposição de que as
+Estado em 2026-09-28 (atualizado em 2026-09-29: Fases 8–10 em `docs/aqua-adult/phases-8-10-report.md`). Documento de trabalho: substitui a suposição de que as
 Fases 0–10 estavam concluídas e serve de plano para as Fases 8–15.
 
 > **NÃO É PRODUCTION READY.** Nada aqui deve ser habilitado para usuários
@@ -36,10 +36,10 @@ Fases 0–10 estavam concluídas e serve de plano para as Fases 8–15.
 | 6 | Creators + relações adultas | PARTIAL (memória) | `src/lib/adult/creator.ts`, `src/state/adult/relationships.ts`, `AdultCreator(s).tsx` |
 | 7 | Entitlements (contratos + motor) | MOCKED como fronteira (motor real, store em memória) | `src/lib/adult/entitlements/*` |
 | 7 | Feed +18 | PARTIAL | `AdultFeed.tsx`, `src/components/adult/AdultPostCard.tsx` |
-| 8 | Pedidos, pagamentos, ledger | NOT IMPLEMENTED | — |
-| 9 | Views +18, progresso, histórico | NOT IMPLEMENTED | rota `/adult/views` é placeholder |
-| 10 | Studios +18 | NOT IMPLEMENTED | rota `/adult/studios` é placeholder |
-| 11 | Library | BLOCKED (depende de 8, 9 e backend) | rota `/adult/library` é placeholder |
+| 8 | Pedidos, pagamentos, ledger | IMPLEMENTED (dev, pagamento MOCKED) | `aqua-adult-api/src/economy`, `entitlements` |
+| 9 | Media Engine, Views +18, progresso, histórico | IMPLEMENTED (dev, storage local) | `aqua-adult-api/src/media`, `views`; `src/screens/Adult/AdultView*.tsx` |
+| 10 | Studios +18 | IMPLEMENTED (dev) | `aqua-adult-api/src/studios`; `src/screens/Adult/AdultStudios.tsx` |
+| 11 | Library | NOT STARTED (aguarda autorização) | rota `/adult/library` é placeholder |
 | 12 | Live +18 | BLOCKED (backend, mídia privada, entitlements) | rota `/adult/live` é placeholder |
 | 13 | Creator/Studio Dashboard | BLOCKED (backend, ledger, RBAC) | rota `/adult/creator/dashboard` é placeholder |
 | 14 | Trust & Safety | BLOCKED (backend, auditoria, RBAC admin) | — |
