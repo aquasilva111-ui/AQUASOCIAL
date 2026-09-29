@@ -5,6 +5,7 @@ import {useIsFocused, useRoute} from '@react-navigation/native'
 
 import {DISCOVER_FEED_URI} from '#/lib/constants'
 import {usePostViewTracking} from '#/lib/hooks/usePostViewTracking'
+import {type Interest} from '#/lib/interests'
 import {
   getPostTopics,
   isMediaPost,
@@ -32,6 +33,7 @@ import {Text} from '#/components/Typography'
 import {VisionboardMasonry} from '#/components/visionboard/VisionboardMasonry'
 import * as bsky from '#/types/bsky'
 import {VideosNavSidebar} from './VideosNavSidebar'
+import {VisionboardBoard} from './VisionboardBoard'
 
 type Source =
   | 'current'
@@ -62,7 +64,11 @@ function MediaHome({mode}: {mode: MediaExperience}) {
   const {currentAccount, hasSession} = useSession()
   const focused = useIsFocused()
   const moderationOpts = useModerationOpts()
-  const [source, setSource] = useState<Source>('current')
+  // Visionboard is the network-wide visual feed, so it opens on Discover.
+  const [source, setSource] = useState<Source>(
+    mode === 'images' ? 'discover' : 'current',
+  )
+  const [interest, setInterest] = useState<Interest | undefined>()
   const [draft, setDraft] = useState('')
   const [query, setQuery] = useState('')
   const [topic, setTopic] = useState<string | undefined>()
@@ -192,8 +198,9 @@ function MediaHome({mode}: {mode: MediaExperience}) {
   const clearSearch = useCallback(() => {
     setDraft('')
     setQuery('')
-    setSource('current')
-  }, [])
+    setInterest(undefined)
+    setSource(mode === 'images' ? 'discover' : 'current')
+  }, [mode])
   const isVideoWeb = isWeb && mode === 'video'
   const wideContent = isVideoWeb
     ? {maxWidth: 1200, width: '100%' as const}
@@ -357,6 +364,57 @@ function MediaHome({mode}: {mode: MediaExperience}) {
       )}
     </>
   )
+  if (isWeb && mode === 'images') {
+    return (
+      <VisionboardBoard
+        tabs={sources
+          .filter(value => value !== 'search')
+          .map(value => ({value, label: labels[value]}))}
+        source={source}
+        onSelectSource={value => {
+          setSource(value)
+          setTopic(undefined)
+          setInterest(undefined)
+        }}
+        draft={draft}
+        onChangeDraft={setDraft}
+        onSubmitSearch={() => {
+          setInterest(undefined)
+          submitSearch()
+        }}
+        onClearSearch={clearSearch}
+        query={source === 'search' ? query : ''}
+        interest={interest}
+        onSelectInterest={(value, name) => {
+          if (!value) {
+            clearSearch()
+            return
+          }
+          setInterest(value)
+          setDraft(name)
+          setQuery(name)
+          setSource('search')
+          setTopic(undefined)
+        }}
+        items={visionboardItems}
+        status={
+          active.isError
+            ? 'error'
+            : active.isFetching && !items.length
+              ? 'loading'
+              : !items.length
+                ? source === 'search' && !query
+                  ? 'idle'
+                  : 'empty'
+                : 'ready'
+        }
+        onRetry={() => active.refetch()}
+        onLoadMore={items.length ? loadMore : undefined}
+        onItemSeen={item => trackView(item.post)}
+      />
+    )
+  }
+
   return (
     <Layout.Screen testID={`aqua-${mode}`} hideCenterBorders={isVideoWeb}>
       {!isVideoWeb && (

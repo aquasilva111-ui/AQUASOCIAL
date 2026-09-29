@@ -36,6 +36,8 @@ export type ListProps<ItemT = any> = Omit<
   desktopFixedHeight?: number | boolean
   // Web only prop to contain the scroll to the container rather than the window
   disableFullWindowScroll?: boolean
+  /** Web only: span the full width instead of the center column. */
+  fullWidth?: boolean
   sideBorders?: boolean
   progressViewOffset?: number
 }

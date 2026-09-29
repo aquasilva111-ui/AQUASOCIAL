@@ -1,11 +1,11 @@
-import {useMemo} from 'react'
+import {type ReactElement, useMemo} from 'react'
 import {useWindowDimensions, View} from 'react-native'
 
 import {type VisionboardItem} from '#/lib/visionboard/model'
 import {type FeedPostSliceItem} from '#/state/queries/post-feed'
 import {List, type ListRef} from '#/view/com/util/List'
 import {atoms as a} from '#/alf'
-import {VisionboardCard} from './VisionboardCard'
+import {VisionboardCard, type VisionboardCardVariant} from './VisionboardCard'
 
 export type VisionboardMasonryProps = {
   items: VisionboardItem[]
@@ -13,6 +13,9 @@ export type VisionboardMasonryProps = {
   onItemSeen?: (item: FeedPostSliceItem) => void
   scrollElRef?: ListRef
   onScrolledDownChange?: (value: boolean) => void
+  variant?: VisionboardCardVariant
+  /** Scrolls with the grid (title, chips, status). */
+  header?: ReactElement
 }
 
 function columnCount(width: number) {
@@ -49,7 +52,10 @@ export function VisionboardMasonry({
   onItemSeen,
   scrollElRef,
   onScrolledDownChange,
+  variant = 'feed',
+  header,
 }: VisionboardMasonryProps) {
+  const gap = variant === 'board' ? 18 : 8
   const {width} = useWindowDimensions()
   const columns = columnCount(width)
   const blocks = useMemo(() => {
@@ -78,16 +84,23 @@ export function VisionboardMasonry({
       data={blocks}
       keyExtractor={block => block.key}
       renderItem={({item: block}: {item: MasonryBlock}) => (
-        <View style={[a.flex_row, a.gap_sm, a.px_sm, a.pb_sm]}>
+        <View
+          style={[
+            a.flex_row,
+            {gap, paddingBottom: gap},
+            variant === 'feed' && a.px_sm,
+          ]}>
           {block.columns.map((column, index) => (
-            <View key={index} style={[a.flex_1, a.gap_sm, {minWidth: 0}]}>
+            <View key={index} style={[a.flex_1, {gap, minWidth: 0}]}>
               {column.map(item => (
-                <VisionboardCard key={item.id} item={item} />
+                <VisionboardCard key={item.id} item={item} variant={variant} />
               ))}
             </View>
           ))}
         </View>
       )}
+      ListHeaderComponent={header}
+      fullWidth={variant === 'board'}
       onEndReached={onLoadMore}
       onEndReachedThreshold={2}
       onItemSeen={(block: MasonryBlock) =>

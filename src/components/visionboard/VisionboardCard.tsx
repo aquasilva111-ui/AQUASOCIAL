@@ -8,6 +8,8 @@ import {
 } from '@atproto/api'
 
 import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
+import {makeProfileLink} from '#/lib/routes/links'
+import {cleanError} from '#/lib/strings/errors'
 import {getPostTextAndFacets} from '#/lib/strings/long-post'
 import {type VisionboardItem} from '#/lib/visionboard/model'
 import {
@@ -15,20 +17,204 @@ import {
   type Shadow,
   usePostShadow,
 } from '#/state/cache/post-shadow'
+import {useBookmarkMutation} from '#/state/queries/bookmarks/useBookmarkMutation'
+import {useRequireAuth} from '#/state/session'
 import {IMAGE_BORDER_RADIUS} from '#/view/com/util/images/constants'
 import {PostMeta} from '#/view/com/util/PostMeta'
-import {PreviewableUserAvatar} from '#/view/com/util/UserAvatar'
-import {atoms as a, useTheme} from '#/alf'
+import {PreviewableUserAvatar, UserAvatar} from '#/view/com/util/UserAvatar'
+import {atoms as a, useTheme, web} from '#/alf'
+import {Button, ButtonText} from '#/components/Button'
 import {MediaMask} from '#/components/feeds/MediaCard'
+import {useInteractionState} from '#/components/hooks/useInteractionState'
 import {Link} from '#/components/Link'
 import * as Hider from '#/components/moderation/Hider'
 import {PostControls} from '#/components/PostControls'
+import * as toast from '#/components/Toast'
 import {Text} from '#/components/Typography'
 
-export function VisionboardCard({item}: {item: VisionboardItem}) {
+export type VisionboardCardVariant = 'feed' | 'board'
+
+/**
+ * `feed`: compact card inside the app column (native + narrow layouts).
+ * `board`: the full-page Visionboard look — big rounded image, hover Save,
+ * title and creator below. Both render the same AQUA post.
+ */
+export function VisionboardCard({
+  item,
+  variant = 'feed',
+}: {
+  item: VisionboardItem
+  variant?: VisionboardCardVariant
+}) {
   const post = usePostShadow(item.item.post)
   if (post === POST_TOMBSTONE) return null
+  if (variant === 'board') {
+    return <VisionboardBoardCard item={item} post={post} />
+  }
   return <VisionboardCardInner item={item} post={post} />
+}
+
+function useVisionboardModui(item: VisionboardItem) {
+  return useMemo(() => {
+    const list = item.moderation.ui('contentList')
+    const image = item.moderation.ui('contentMedia')
+    list.blurs = [...list.blurs, ...image.blurs]
+    list.alerts = [...list.alerts, ...image.alerts]
+    list.filters = [...list.filters, ...image.filters]
+    return list
+  }, [item.moderation])
+}
+
+function getAspectRatio(item: VisionboardItem) {
+  return item.width && item.height && item.width > 0 && item.height > 0
+    ? item.width / item.height
+    : 1
+}
+
+const BOARD_RADIUS = 22
+
+function VisionboardBoardCard({
+  item,
+  post,
+}: {
+  item: VisionboardItem
+  post: Shadow<AppBskyFeedDefs.PostView>
+}) {
+  const t = useTheme()
+  const modui = useVisionboardModui(item)
+  const {state: hovered, onIn, onOut} = useInteractionState()
+  if (modui.filter) return null
+  const aspectRatio = getAspectRatio(item)
+  const href = `/visionboard/view/${post.author.did}/${new AtUri(item.uri).rkey}`
+  const name = post.author.displayName || post.author.handle
+
+  return (
+    <View
+      testID="visionboard-card"
+      style={[a.pb_md]}
+      // @ts-expect-error web only
+      onMouseEnter={onIn}
+      onMouseLeave={onOut}>
+      <Hider.Outer modui={modui}>
+        <Hider.Mask>
+          <MediaMask aspectRatio={aspectRatio} />
+        </Hider.Mask>
+        <Hider.Content>
+          <View style={[a.relative]}>
+            <Link
+              to={href}
+              label={item.title || item.altText || 'Abrir imagem'}
+              style={[a.w_full, {display: 'flex', flexDirection: 'column'}]}>
+              <View
+                style={[
+                  a.w_full,
+                  a.overflow_hidden,
+                  t.atoms.bg_contrast_25,
+                  {aspectRatio, borderRadius: BOARD_RADIUS},
+                ]}>
+                <Image
+                  accessibilityIgnoresInvertColors
+                  accessibilityHint="Abre a publicação original"
+                  source={{uri: item.thumbnailUrl}}
+                  style={[
+                    a.w_full,
+                    a.h_full,
+                    web({
+                      transition: 'transform 300ms ease',
+                      transform: hovered ? 'scale(1.03)' : undefined,
+                    }),
+                  ]}
+                  contentFit="cover"
+                  accessibilityLabel={item.altText || item.title}
+                  transition={150}
+                  recyclingKey={item.id}
+                />
+              </View>
+            </Link>
+            <View
+              pointerEvents="box-none"
+              style={[
+                a.absolute,
+                {top: 12, right: 12},
+                web({
+                  opacity: hovered || post.viewer?.bookmarked ? 1 : 0,
+                  transition: 'opacity 150ms ease',
+                }),
+              ]}>
+              <SaveButton post={post} />
+            </View>
+          </View>
+          {!!item.title && (
+            <Text
+              numberOfLines={2}
+              style={[
+                a.pt_sm,
+                a.px_xs,
+                a.text_md,
+                a.font_bold,
+                a.leading_snug,
+              ]}>
+              {item.title}
+            </Text>
+          )}
+          <Link
+            to={makeProfileLink(post.author)}
+            label={name}
+            style={[a.flex_row, a.align_center, a.gap_xs, a.pt_xs, a.px_xs]}>
+            <UserAvatar
+              size={20}
+              avatar={post.author.avatar}
+              type={post.author.associated?.labeler ? 'labeler' : 'user'}
+              moderation={item.moderation.ui('avatar')}
+            />
+            <Text
+              numberOfLines={1}
+              style={[a.flex_1, a.text_sm, t.atoms.text_contrast_medium]}>
+              {name}
+            </Text>
+          </Link>
+        </Hider.Content>
+      </Hider.Outer>
+    </View>
+  )
+}
+
+/** Visionboard Save = AQUA Saved (bookmarks), never a separate store. */
+function SaveButton({post}: {post: Shadow<AppBskyFeedDefs.PostView>}) {
+  const {mutateAsync: bookmark, isPending} = useBookmarkMutation()
+  const requireAuth = useRequireAuth()
+  const saved = !!post.viewer?.bookmarked
+
+  const onPress = () =>
+    requireAuth(async () => {
+      try {
+        if (saved) {
+          await bookmark({action: 'delete', uri: post.uri})
+          toast.show('Removido dos salvos')
+        } else {
+          await bookmark({action: 'create', post})
+          toast.show('Salvo', {type: 'success'})
+        }
+      } catch (e) {
+        toast.show(cleanError(e), {type: 'error'})
+      }
+    })
+
+  return (
+    <Button
+      label={saved ? 'Remover dos salvos' : 'Salvar'}
+      size="small"
+      variant="solid"
+      color={saved ? 'secondary' : 'primary'}
+      disabled={isPending}
+      onPress={onPress}
+      style={[
+        a.rounded_full,
+        web({boxShadow: '0 6px 16px rgba(0, 72, 255, 0.28)'}),
+      ]}>
+      <ButtonText>{saved ? 'Salvo' : 'Salvar'}</ButtonText>
+    </Button>
+  )
 }
 
 function VisionboardCardInner({
@@ -45,19 +231,9 @@ function VisionboardCardInner({
     () => new RichTextAPI(getPostTextAndFacets(record)),
     [record],
   )
-  const modui = useMemo(() => {
-    const list = item.moderation.ui('contentList')
-    const image = item.moderation.ui('contentMedia')
-    list.blurs = [...list.blurs, ...image.blurs]
-    list.alerts = [...list.alerts, ...image.alerts]
-    list.filters = [...list.filters, ...image.filters]
-    return list
-  }, [item.moderation])
+  const modui = useVisionboardModui(item)
   if (modui.filter) return null
-  const aspectRatio =
-    item.width && item.height && item.width > 0 && item.height > 0
-      ? item.width / item.height
-      : 1
+  const aspectRatio = getAspectRatio(item)
   const rkey = new AtUri(item.uri).rkey
   const href = `/visionboard/view/${post.author.did}/${rkey}`
   return (

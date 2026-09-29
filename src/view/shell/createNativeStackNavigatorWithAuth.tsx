@@ -45,6 +45,9 @@ import {BottomBarWeb} from './bottom-bar/BottomBarWeb'
 import {DesktopLeftNav} from './desktop/LeftNav'
 import {DesktopRightNav} from './desktop/RightNav'
 
+/** Pages that bring their own header and navigation instead of the side navs. */
+const FULL_PAGE_ROUTES = ['Videos', 'Images']
+
 type NativeStackNavigationOptionsWithAuth = NativeStackNavigationOptions & {
   requireAuth?: boolean
 }
@@ -151,6 +154,8 @@ function NativeStackNavigator({
   // tablet/desktop for Feeds, Lists, Saved, and Settings.
   const showBottomBar = hasSession || leftNavMinimal
   const showLeftNav = !isMobile
+  // Full-page experiences with their own header/navigation.
+  const hasOwnChrome = FULL_PAGE_ROUTES.includes(activeRoute.name)
 
   return (
     <NavigationContent>
@@ -165,9 +170,9 @@ function NativeStackNavigator({
       </View>
       {isWeb && (
         <>
-          {showLeftNav && activeRoute.name !== 'Videos' && <DesktopLeftNav />}
+          {showLeftNav && !hasOwnChrome && <DesktopLeftNav />}
           {showBottomBar && <BottomBarWeb />}
-          {!isMobile && activeRoute.name !== 'Videos' && (
+          {!isMobile && !hasOwnChrome && (
             <DesktopRightNav routeName={activeRoute.name} />
           )}
         </>

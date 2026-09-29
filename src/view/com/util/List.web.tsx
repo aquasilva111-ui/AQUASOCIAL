@@ -34,6 +34,8 @@ export type ListProps<ItemT> = Omit<
   desktopFixedHeight?: number | boolean
   // Web only prop to contain the scroll to the container rather than the window
   disableFullWindowScroll?: boolean
+  // Web only: span the full width instead of the center column (Visionboard)
+  fullWidth?: boolean
   /**
    * @deprecated Should be using Layout components
    */
@@ -52,6 +54,7 @@ function ListImpl<ItemT>(
     ListFooterComponent,
     ListEmptyComponent,
     disableFullWindowScroll,
+    fullWidth,
     contentContainerStyle,
     data,
     desktopFixedHeight,
@@ -278,6 +281,8 @@ function ListImpl<ItemT>(
   ])
 
   // --- onScrolledDownChange ---
+  const ContentWrapper = fullWidth ? View : Layout.Center
+
   const isScrolledDown = useRef(false)
   function handleAboveTheFoldVisibleChange(isAboveTheFold: boolean) {
     const didScrollDown = !isAboveTheFold
@@ -331,7 +336,7 @@ function ListImpl<ItemT>(
           styles.parentTreeVisibilityDetector
         }
       />
-      <Layout.Center>
+      <ContentWrapper>
         <View
           ref={containerRef}
           style={[
@@ -377,7 +382,7 @@ function ListImpl<ItemT>(
           )}
           {footerComponent}
         </View>
-      </Layout.Center>
+      </ContentWrapper>
     </View>
   )
 }
