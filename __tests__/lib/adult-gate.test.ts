@@ -35,6 +35,25 @@ describe('resolveAdultAgeGate', () => {
     ).toBe('verified')
   })
 
+  it('is NOT verified by full access from a declared age alone', () => {
+    // Default-region rule: declared age >= 13 yields Full without assurance.
+    expect(
+      resolveAdultAgeGate(
+        true,
+        aa(AgeAssuranceStatus.Unknown, AgeAssuranceAccess.Full),
+      ),
+    ).toBe('required')
+    expect(
+      isAdultAccessGranted(
+        resolveAdultAgeGate(
+          true,
+          aa(AgeAssuranceStatus.Unknown, AgeAssuranceAccess.Full),
+        ),
+        true,
+      ),
+    ).toBe(false)
+  })
+
   it('is pending while verification is in progress', () => {
     expect(
       resolveAdultAgeGate(
