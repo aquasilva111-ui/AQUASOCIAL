@@ -88,6 +88,7 @@ export type CommonNavigatorParams = {
   VideoFeed: VideoFeedSourceContext
   Bookmarks: undefined
   Images: undefined
+  ImagesLegacy: undefined
   Videos: {source?: string; q?: string} | undefined
   VideoLive: {name: string}
   VideoGoLive: undefined
@@ -97,6 +98,7 @@ export type CommonNavigatorParams = {
   CreativeHub: undefined
   UIAI: undefined
   ImageDetail: {name: string; rkey: string}
+  ImageDetailLegacy: {name: string; rkey: string}
   VideoWatch: {name: string; rkey: string}
 }
 

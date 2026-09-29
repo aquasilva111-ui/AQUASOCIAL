@@ -82,7 +82,8 @@ function Inner() {
                 <TrendingTopicLink
                   key={topic.link}
                   topic={topic}
-                  style={a.rounded_full}
+                  // Long topics truncate instead of spilling past the column.
+                  style={[a.rounded_full, {maxWidth: '100%'}]}
                   onPress={() => {
                     logEvent('trendingTopic:click', {context: 'sidebar'})
                   }}>
@@ -91,6 +92,7 @@ function Inner() {
                       size="small"
                       topic={topic}
                       style={[
+                        {maxWidth: '100%'},
                         hovered && [
                           t.atoms.border_contrast_high,
                           t.atoms.bg_contrast_25,

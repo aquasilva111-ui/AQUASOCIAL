@@ -78,6 +78,10 @@ import {LaunchDetailScreen} from '#/screens/LaunchHub/LaunchDetail'
 import {NewLaunchScreen} from '#/screens/LaunchHub/NewLaunch'
 import {LogScreen} from '#/screens/Log'
 import {VideoGoLiveScreen} from '#/screens/Media/GoLive'
+import {
+  LegacyImageDetailRedirect,
+  LegacyImagesRedirect,
+} from '#/screens/Media/LegacyImagesRedirect'
 import {ImageDetailScreen, VideoWatchScreen} from '#/screens/Media/MediaDetail'
 import {ImagesScreen, VideosScreen} from '#/screens/Media/MediaHome'
 import {VideoLiveScreen} from '#/screens/Media/VideoLive'
@@ -612,7 +616,12 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
       <Stack.Screen
         name="Images"
         component={ImagesScreen}
-        options={{title: 'AQUA Pics'}}
+        options={{title: 'Visionboard'}}
+      />
+      <Stack.Screen
+        name="ImagesLegacy"
+        component={LegacyImagesRedirect}
+        options={{title: 'Visionboard'}}
       />
       <Stack.Screen
         name="Videos"
@@ -622,7 +631,12 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
       <Stack.Screen
         name="ImageDetail"
         component={ImageDetailScreen}
-        options={{title: 'AQUA Pics'}}
+        options={{title: 'Visionboard'}}
+      />
+      <Stack.Screen
+        name="ImageDetailLegacy"
+        component={LegacyImageDetailRedirect}
+        options={{title: 'Visionboard'}}
       />
       <Stack.Screen
         name="VideoWatch"

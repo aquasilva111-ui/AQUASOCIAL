@@ -29,7 +29,8 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
     maxWidth: DOCK_MAX_WIDTH,
-    borderRadius: 28,
+    // full pill; the end tabs sit well inside the curve
+    borderRadius: 999,
     paddingLeft: 6,
     paddingRight: 6,
     paddingTop: 6,

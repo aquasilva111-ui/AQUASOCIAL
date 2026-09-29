@@ -59,7 +59,7 @@ function VisionboardCardInner({
       ? item.width / item.height
       : 1
   const rkey = new AtUri(item.uri).rkey
-  const href = `/images/view/${post.author.did}/${rkey}`
+  const href = `/visionboard/view/${post.author.did}/${rkey}`
   return (
     <View
       style={[a.overflow_hidden, a.pb_sm, {borderRadius: IMAGE_BORDER_RADIUS}]}

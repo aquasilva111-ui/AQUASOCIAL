@@ -18,7 +18,7 @@ type SearchInputProps = Omit<TextField.InputProps, 'label'> & {
    */
   onClearText?: () => void
   /**
-   * Overrides the default 18px pill radius for this instance only.
+   * Overrides the default pill radius for this instance only.
    */
   radius?: number
 }
@@ -31,7 +31,7 @@ export const SearchInput = React.forwardRef<TextInput, SearchInputProps>(
 
     return (
       <View style={[a.w_full, a.relative]}>
-        <TextField.Root style={{borderRadius: radius ?? 18}}>
+        <TextField.Root style={{borderRadius: radius ?? 999}}>
           <TextField.Icon icon={MagnifyingGlassIcon} />
           <TextField.Input
             inputRef={ref}

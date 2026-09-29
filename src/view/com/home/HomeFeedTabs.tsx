@@ -62,7 +62,7 @@ export function HomeFeedTabs({
               <Text
                 emoji
                 style={[
-                  a.text_xl,
+                  {fontSize: 13},
                   a.font_bold,
                   selected
                     ? {color: ACTIVE_COLOR}

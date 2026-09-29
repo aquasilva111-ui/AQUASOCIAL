@@ -34,7 +34,12 @@ import * as bsky from '#/types/bsky'
 import {VideosNavSidebar} from './VideosNavSidebar'
 
 type Source =
-  'current' | 'discover' | 'following' | 'created' | 'saved' | 'search'
+  | 'current'
+  | 'discover'
+  | 'following'
+  | 'created'
+  | 'saved'
+  | 'search'
 const labels: Record<Source, string> = {
   current: 'Feed atual',
   discover: 'Para você',
@@ -359,7 +364,7 @@ function MediaHome({mode}: {mode: MediaExperience}) {
           <Layout.Header.BackButton />
           <Layout.Header.Content>
             <Layout.Header.TitleText>
-              {mode === 'images' ? 'AQUA Pics' : 'Aqua Views'}
+              {mode === 'images' ? 'Visionboard' : 'Aqua Views'}
             </Layout.Header.TitleText>
           </Layout.Header.Content>
         </Layout.Header.Outer>

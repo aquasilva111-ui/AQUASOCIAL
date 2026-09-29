@@ -618,7 +618,7 @@ export function DesktopLeftNav() {
         label="IU & AI"
       />
       <NavItem
-        href="/images"
+        href="/visionboard"
         icon={
           <Image
             accessibilityIgnoresInvertColors

@@ -35,6 +35,8 @@ const Context = createContext<{
   focused: boolean
   onFocus: () => void
   onBlur: () => void
+  /** Corner radius of the input chrome, taken from the Root's style. */
+  borderRadius?: number
 }>({
   inputRef: null,
   isInvalid: false,
@@ -59,6 +61,9 @@ export function Root({children, isInvalid = false, style}: RootProps) {
     onOut: onHoverOut,
   } = useInteractionState()
   const {state: focused, onIn: onFocus, onOut: onBlur} = useInteractionState()
+  const borderRadius = StyleSheet.flatten(style)?.borderRadius as
+    | number
+    | undefined
 
   const context = useMemo(
     () => ({
@@ -70,6 +75,7 @@ export function Root({children, isInvalid = false, style}: RootProps) {
       onFocus,
       onBlur,
       isInvalid,
+      borderRadius,
     }),
     [
       inputRef,
@@ -80,6 +86,7 @@ export function Root({children, isInvalid = false, style}: RootProps) {
       onFocus,
       onBlur,
       isInvalid,
+      borderRadius,
     ],
   )
 
@@ -266,7 +273,7 @@ export function createInput(Component: typeof TextInput) {
             a.z_10,
             a.absolute,
             a.inset_0,
-            {borderRadius: 10},
+            {borderRadius: ctx.borderRadius ?? 10},
             t.atoms.bg_contrast_50,
             {borderColor: 'transparent', borderWidth: 2},
             ctx.hovered ? chromeHover : {},
