@@ -1,3 +1,4 @@
+import {type DocMeta} from '#/lib/docs/types'
 import {
   type IdentityGroup,
   type Launch,
@@ -79,4 +80,10 @@ export type Account = {
   launchHubLaunches?: Launch[]
   launchHubIdentityGroups?: IdentityGroup[]
   launchHubProfileTypes?: Record<string, ProfileType>
+
+  /**
+   * AQUA DOCS metadata, kept on this device until the AQUA docs sync API
+   * (FASE 2) owns documents server-side.
+   */
+  aquaDocs?: DocMeta[]
 }

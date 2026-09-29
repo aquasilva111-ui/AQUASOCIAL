@@ -689,7 +689,8 @@ export function DesktopLeftNav() {
             }
             label="Shop"
           />
-          <PlaceholderNavItem
+          <NavItem
+            href="/docs"
             icon={
               <Image
                 accessibilityIgnoresInvertColors
@@ -701,7 +702,18 @@ export function DesktopLeftNav() {
                 }}
               />
             }
-            label="Wiki"
+            iconFilled={
+              <Image
+                accessibilityIgnoresInvertColors
+                source={wikiIcon}
+                style={{
+                  width: NAV_ICON_WIDTH,
+                  height: NAV_ICON_WIDTH,
+                  tintColor: pal.text.color,
+                }}
+              />
+            }
+            label="Docs"
           />
           <PlaceholderNavItem
             icon={

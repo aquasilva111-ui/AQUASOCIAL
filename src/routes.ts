@@ -23,6 +23,9 @@ export const router = new Router<AllNavigatableRoutes>({
   LaunchDetail: '/launch/view/:id',
   CreativeHub: '/creative-hub',
   UIAI: '/ui-ai',
+  // AQUA DOCS (block documents)
+  DocsHome: '/docs',
+  DocEditor: '/docs/:id',
   // AQUA +18 (gated adult environment)
   AdultHome: '/adult',
   AdultFeed: '/adult/feed',

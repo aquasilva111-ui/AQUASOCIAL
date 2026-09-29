@@ -76,6 +76,9 @@
   "dependencies": {
     "@atproto/api": "^0.18.6",
     "@bitdrift/react-native": "^0.6.8",
+    "@blocknote/core": "^0.55.0",
+    "@blocknote/mantine": "^0.55.0",
+    "@blocknote/react": "^0.55.0",
     "@braintree/sanitize-url": "^6.0.2",
     "@bsky.app/alf": "^0.1.5",
     "@bsky.app/react-native-mmkv": "2.12.5",
@@ -221,6 +224,9 @@
     "tippy.js": "^6.3.7",
     "tlds": "^1.234.0",
     "tldts": "^6.1.46",
+    "y-indexeddb": "^9.0.12",
+    "y-websocket": "^3.1.0",
+    "yjs": "^13.6.33",
     "zod": "^3.20.2"
   },
   "devDependencies": {

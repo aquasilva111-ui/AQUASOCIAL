@@ -138,6 +138,15 @@ bskyweb/static/media/*.png
 /streamplace/
 /aqua-pins/
 
+# Reference copies of editor/collab stack repos (AQUA DOCS)
+/yjs/
+/tiptap/
+/blocknote/
+/blocksuite/
+
+# Reference donor repos for AQUA CREATE (design editor)
+/aqua-create/
+
 # Clones of external atproto/bsky repos
 /atproto/
 /atproto-website/

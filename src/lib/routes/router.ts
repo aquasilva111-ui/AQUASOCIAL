@@ -22,6 +22,10 @@ export class Router<T extends Record<string, any>> {
     }
   }
 
+  build(name: keyof T | (string & {}), params: RouteParams = {}) {
+    return this.matchName(name)?.build(params)
+  }
+
   matchPath(path: string): [string, RouteParams] {
     let name = 'NotFound'
     let params: RouteParams = {}

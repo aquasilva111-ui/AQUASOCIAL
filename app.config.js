@@ -289,6 +289,13 @@ module.exports = function (_config) {
               './assets/fonts/inter/Inter-SemiBoldItalic.otf',
               './assets/fonts/inter/Inter-Bold.otf',
               './assets/fonts/inter/Inter-BoldItalic.otf',
+              // AQUA DOCS editor font (Trueno, SIL OFL)
+              './assets/fonts/trueno/truenolt.otf',
+              './assets/fonts/trueno/truenorg.otf',
+              './assets/fonts/trueno/truenorgit.otf',
+              './assets/fonts/trueno/truenosbd.otf',
+              './assets/fonts/trueno/truenobd.otf',
+              './assets/fonts/trueno/truenobdit.otf',
             ],
           },
         ],

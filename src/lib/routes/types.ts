@@ -97,6 +97,8 @@ export type CommonNavigatorParams = {
   LaunchDetail: {id: string}
   CreativeHub: undefined
   UIAI: undefined
+  DocsHome: undefined
+  DocEditor: {id: string}
   AdultHome: undefined
   AdultFeed: undefined
   AdultCreators: undefined
@@ -173,7 +175,8 @@ export type AllNavigatorParams = CommonNavigatorParams & {
 export type NavigationProp = NativeStackNavigationProp<AllNavigatorParams>
 
 export type State =
-  NavigationState | Omit<PartialState<NavigationState>, 'stale'>
+  | NavigationState
+  | Omit<PartialState<NavigationState>, 'stale'>
 
 export type RouteParams = Record<string, string>
 export type MatchResult = {params: RouteParams}

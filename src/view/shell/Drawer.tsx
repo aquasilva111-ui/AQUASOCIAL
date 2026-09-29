@@ -42,6 +42,7 @@ import {VerificationCheck} from '#/components/verification/VerificationCheck'
 
 const iconWidth = 26
 const uiAiIcon = require('../../../assets/icons/ui-ai.png')
+const wikiIcon = require('../../../assets/icons/wiki.png')
 
 let DrawerProfileCard = ({
   account,
@@ -275,6 +276,28 @@ let DrawerContent = ({}: React.PropsWithoutRef<{}>): React.ReactNode => {
             setDrawerOpen(false)
           }}
         />
+        {hasSession && (
+          <MenuItem
+            icon={
+              <Image
+                accessibilityIgnoresInvertColors
+                source={wikiIcon}
+                style={[
+                  {
+                    width: iconWidth,
+                    height: iconWidth,
+                    tintColor: t.atoms.text.color,
+                  },
+                ]}
+              />
+            }
+            label="Docs"
+            onPress={() => {
+              navigation.navigate('DocsHome')
+              setDrawerOpen(false)
+            }}
+          />
+        )}
         {hasSession ? (
           <>
             <SettingsMenuItem onPress={onPressSettings} />

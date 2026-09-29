@@ -88,6 +88,7 @@ import {
 } from '#/screens/Adult'
 import {BookmarksScreen} from '#/screens/Bookmarks'
 import {CreativeHubScreen, UIAIScreen} from '#/screens/ComingSoon'
+import {DocEditorScreen, DocsHomeScreen} from '#/screens/Docs'
 import {SharedPreferencesTesterScreen} from '#/screens/E2E/SharedPreferencesTesterScreen'
 import HashtagScreen from '#/screens/Hashtag'
 import {LaunchHubScreen} from '#/screens/LaunchHub'
@@ -694,6 +695,16 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
         name="UIAI"
         component={UIAIScreen}
         options={{title: 'UI & AI'}}
+      />
+      <Stack.Screen
+        name="DocsHome"
+        component={DocsHomeScreen}
+        options={{title: 'AQUA DOCS', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="DocEditor"
+        component={DocEditorScreen}
+        options={{title: 'AQUA DOCS', requireAuth: true}}
       />
       <Stack.Screen
         name="AdultHome"
