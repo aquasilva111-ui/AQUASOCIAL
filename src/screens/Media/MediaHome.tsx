@@ -27,6 +27,7 @@ import {atoms as a, useTheme, web} from '#/alf'
 import {Button, ButtonText} from '#/components/Button'
 import {LiveNowSection} from '#/components/feeds/LiveNowSection'
 import {MediaGallery} from '#/components/feeds/MediaGallery'
+import {ViewsAdFrames} from '#/components/feeds/ViewsAdFrames'
 import {SearchInput} from '#/components/forms/SearchInput'
 import * as Layout from '#/components/Layout'
 import {Text} from '#/components/Typography'
@@ -343,6 +344,7 @@ function MediaHome({mode}: {mode: MediaExperience}) {
   )
   const gallery = (
     <>
+      {mode === 'video' && !topic && source !== 'search' && <ViewsAdFrames />}
       {mode === 'video' &&
         !topic &&
         (source === 'current' || source === 'discover') && (
