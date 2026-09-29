@@ -25,11 +25,6 @@ function AdultPlaceholder({title, testID}: {title: string; testID: string}) {
   )
 }
 
-export function AdultLiveScreen() {
-  const {_} = useLingui()
-  return <AdultPlaceholder title={_(msg`Live +18`)} testID="adultLiveScreen" />
-}
-
 export function AdultMessagesScreen() {
   const {_} = useLingui()
   return (

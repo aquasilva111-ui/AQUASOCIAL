@@ -33,6 +33,7 @@ export const router = new Router<AllNavigatableRoutes>({
   AdultViews: '/adult/views',
   AdultVideo: '/adult/views/:videoId',
   AdultLive: '/adult/live',
+  AdultLiveStream: '/adult/live/:streamId',
   AdultStudios: '/adult/studios',
   AdultStudio: '/adult/studios/:handle',
   AdultTitle: '/adult/title/:type/:id',

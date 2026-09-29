@@ -77,6 +77,7 @@ import {
   AdultHomeScreen,
   AdultLibraryScreen,
   AdultLiveScreen,
+  AdultLiveStreamScreen,
   AdultMessagesScreen,
   AdultSettingsScreen,
   AdultStudioScreen,
@@ -727,6 +728,11 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
       <Stack.Screen
         name="AdultLive"
         component={AdultLiveScreen}
+        options={{title: 'Live +18', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="AdultLiveStream"
+        component={AdultLiveStreamScreen}
         options={{title: 'Live +18', requireAuth: true}}
       />
       <Stack.Screen
