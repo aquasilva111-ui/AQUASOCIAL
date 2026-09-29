@@ -13,7 +13,9 @@ import {Text} from '#/components/Typography'
 /** Round buttons in the minimal (icon-only) nav. */
 const ROUND_SIZE = 48
 /** Pill height in the full nav; both pills share a row, so they're compact. */
-const PILL_HEIGHT = 40
+const PILL_HEIGHT = 44
+/** Heavier than a.font_bold (700) — the variable Inter font renders it on web. */
+const PILL_LABEL_WEIGHT = '800' as const
 
 const lift = (active: boolean) =>
   web({
@@ -98,8 +100,12 @@ export function HubButtons() {
               a.gap_xs,
               lift(hovered || pressed),
             ]}>
-            <PlusIcon size="xs" fill="#fff" />
-            <Text style={[a.text_sm, a.font_bold, {color: '#fff'}]}>
+            <PlusIcon size="sm" fill="#fff" />
+            <Text
+              style={[
+                a.text_md,
+                {color: '#fff', fontWeight: PILL_LABEL_WEIGHT},
+              ]}>
               Creative Hub
             </Text>
           </View>
@@ -127,7 +133,11 @@ export function HubButtons() {
               lift(hovered || pressed),
             ]}>
             <LaunchMark size={PILL_HEIGHT} />
-            <Text style={[a.text_sm, a.font_bold, {color: '#fff'}]}>
+            <Text
+              style={[
+                a.text_md,
+                {color: '#fff', fontWeight: PILL_LABEL_WEIGHT},
+              ]}>
               Launch
             </Text>
           </View>
