@@ -1,12 +1,14 @@
 import {z} from 'zod'
 
-import {type Queryable} from '../db/index.js'
-import {getApprovedCreatorForDid} from '../economy/index.js'
+import {type Db, type Queryable} from '../db/index.js'
+import {createOffer, getApprovedCreatorForDid} from '../economy/index.js'
 import {
   checkAccess,
   isAgeVerified,
+  PAID_POLICIES,
   type ProtectedResource,
   registerResourceResolver,
+  sellableKinds,
 } from '../entitlements/index.js'
 import {badRequest, conflict, forbidden, notFound} from '../lib/errors.js'
 import {newId} from '../lib/ids.js'
@@ -25,13 +27,30 @@ const POLICIES = [
 const VIEW_WINDOW_MS = 12 * 3600_000
 const HISTORY_THROTTLE_MS = 3600_000
 
-/** A video is unavailable if either the video or its media is pulled. */
-export function effectiveStatus(videoStatus: string, mediaStatus: string) {
+/**
+ * A video is unavailable if either the video or its media is pulled. A
+ * scheduled video counts as published once its time has come.
+ */
+export function effectiveStatus(
+  videoStatus: string,
+  mediaStatus: string,
+  scheduledAt?: Date | string | null,
+  now = new Date(),
+) {
   if (videoStatus === 'removed' || mediaStatus === 'REMOVED') return 'removed'
   if (videoStatus === 'quarantined' || mediaStatus === 'QUARANTINED')
     return 'quarantined'
+  if (
+    videoStatus === 'scheduled' &&
+    scheduledAt &&
+    new Date(scheduledAt).getTime() <= now.getTime()
+  )
+    return 'published'
   return videoStatus
 }
+
+/** SQL twin of effectiveStatus() for the video row aliased `v`. */
+export const VIDEO_IS_LIVE = `(v.status = 'published' or (v.status = 'scheduled' and v.scheduled_at <= now()))`
 
 registerResourceResolver(
   'video',
@@ -52,6 +71,7 @@ registerResourceResolver(
       status: effectiveStatus(
         v.status,
         v.media_status,
+        v.scheduled_at,
       ) as ProtectedResource['status'],
       ownerDids: [v.creator_did],
       creatorSuspended: v.creator_status === 'suspended',
@@ -137,6 +157,127 @@ export async function recordWatch(
   }
 }
 
+/** A `tier_required` item must name a tier sold by the same seller. */
+export async function assertOwnTier(
+  db: Queryable,
+  sellerType: 'creator' | 'studio',
+  sellerId: string,
+  tierId: string | null | undefined,
+) {
+  if (!tierId) throw badRequest('invalid_tier')
+  const [tier] = await db.query(
+    `select 1 from subscription_tiers where id = $1 and owner_type = $2 and owner_id = $3`,
+    [tierId, sellerType, sellerId],
+  )
+  if (!tier) throw badRequest('invalid_tier')
+}
+
+/** Publication time for scheduling: required, and strictly in the future. */
+export function futureTime(value: string | undefined, now = new Date()) {
+  if (!value) throw badRequest('publish_at_required')
+  const at = new Date(value)
+  if (!(at.getTime() > now.getTime())) throw badRequest('publish_at_in_past')
+  return at
+}
+
+export const videoBody = z.object({
+  title: z.string().min(1).max(200),
+  description: z.string().max(5000).optional(),
+  category: z.string().max(40).optional(),
+  mediaAssetId: z.string(),
+  previewAssetId: z.string().optional(),
+  posterAssetId: z.string().optional(),
+  // Required: a failed/missing policy can never default to free.
+  accessPolicy: z.enum(POLICIES),
+  requiredTierId: z.string().optional(),
+  /** Legacy shortcut for visibility = 'published'. */
+  publish: z.boolean().default(false),
+  visibility: z.enum(['draft', 'published', 'scheduled']).optional(),
+  publishAt: z.string().datetime().optional(),
+  offer: z
+    .object({
+      kind: z.enum(['ppv', 'purchase', 'rental']),
+      priceMinor: z.union([z.number(), z.string()]),
+      currency: z.string().length(3),
+      accessHours: z
+        .number()
+        .int()
+        .positive()
+        .max(24 * 365)
+        .optional(),
+    })
+    .optional(),
+})
+
+/**
+ * Creates a creator video and, when priced, its offer — in one transaction,
+ * so a paid video can never end up published without a way to buy it (and
+ * never falls back to free when something fails).
+ */
+export async function createCreatorVideo(
+  db: Db,
+  did: string,
+  body: z.infer<typeof videoBody>,
+  opts: {requireOfferForPaid: boolean},
+) {
+  const creator = await getApprovedCreatorForDid(db, did)
+  const visibility = body.visibility ?? (body.publish ? 'published' : 'draft')
+  const main = await ownedAsset(db, did, body.mediaAssetId, 'video')
+  await ownedAsset(db, did, body.previewAssetId, 'video')
+  await ownedAsset(db, did, body.posterAssetId, 'image')
+  if (body.accessPolicy === 'tier_required')
+    await assertOwnTier(db, 'creator', creator.id, body.requiredTierId)
+  const paid = PAID_POLICIES.includes(body.accessPolicy)
+  if (body.offer) {
+    if (!paid) throw badRequest('offer_not_applicable')
+    if (!sellableKinds(body.accessPolicy).includes(body.offer.kind))
+      throw badRequest('offer_kind_mismatch')
+  } else if (paid && opts.requireOfferForPaid) {
+    throw badRequest('offer_required')
+  }
+  let scheduledAt: Date | null = null
+  if (visibility === 'scheduled') scheduledAt = futureTime(body.publishAt)
+  else if (body.publishAt) throw badRequest('publish_at_needs_scheduled')
+  if (visibility !== 'draft' && main?.status !== 'READY')
+    throw conflict('media_not_ready')
+  const id = newId('vid')
+  return db.transaction(async tx => {
+    await tx.query(
+      `insert into videos (id, creator_id, media_asset_id, preview_asset_id, poster_asset_id, title, description,
+                           category, access_policy, required_tier_id, status, published_at, scheduled_at)
+       values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
+      [
+        id,
+        creator.id,
+        body.mediaAssetId,
+        body.previewAssetId ?? null,
+        body.posterAssetId ?? null,
+        body.title,
+        body.description ?? null,
+        body.category ?? null,
+        body.accessPolicy,
+        body.accessPolicy === 'tier_required' ? body.requiredTierId : null,
+        visibility,
+        visibility === 'published' ? new Date() : scheduledAt,
+        scheduledAt,
+      ],
+    )
+    let offerId: string | undefined
+    if (body.offer) {
+      ;({offerId} = await createOffer(tx, did, {
+        sellerType: 'creator',
+        sellerId: creator.id,
+        kind: body.offer.kind,
+        resource: {type: 'video', id},
+        priceMinor: body.offer.priceMinor,
+        currency: body.offer.currency,
+        accessHours: body.offer.accessHours,
+      }))
+    }
+    return {videoId: id, offerId}
+  })
+}
+
 registerRoutes(ctx => {
   const {app, db, media} = ctx
 
@@ -162,59 +303,13 @@ registerRoutes(ctx => {
   const listSql = `select v.*, c.handle as creator_handle, a.duration_ms
       from videos v join creators c on c.id = v.creator_id
       join media_assets a on a.id = v.media_asset_id
-     where v.status = 'published' and a.status = 'READY' and c.status = 'approved'`
+     where ${VIDEO_IS_LIVE} and a.status = 'READY' and c.status = 'approved'`
 
   // ------------------------------------------------------------ creator
   app.post('/creator/videos', async req => {
     const did = await ctx.user(req)
-    const creator = await getApprovedCreatorForDid(db, did)
-    const body = z
-      .object({
-        title: z.string().min(1).max(200),
-        description: z.string().max(5000).optional(),
-        category: z.string().max(40).optional(),
-        mediaAssetId: z.string(),
-        previewAssetId: z.string().optional(),
-        posterAssetId: z.string().optional(),
-        // Required: a failed/missing policy can never default to free.
-        accessPolicy: z.enum(POLICIES),
-        requiredTierId: z.string().optional(),
-        publish: z.boolean().default(false),
-      })
-      .parse(req.body)
-    const main = await ownedAsset(db, did, body.mediaAssetId, 'video')
-    await ownedAsset(db, did, body.previewAssetId, 'video')
-    await ownedAsset(db, did, body.posterAssetId, 'image')
-    if (body.accessPolicy === 'tier_required') {
-      const [tier] = await db.query(
-        `select 1 from subscription_tiers where id = $1 and owner_type = 'creator' and owner_id = $2`,
-        [body.requiredTierId, creator.id],
-      )
-      if (!tier) throw badRequest('invalid_tier')
-    }
-    if (body.publish && main?.status !== 'READY')
-      throw conflict('media_not_ready')
-    const id = newId('vid')
-    await db.query(
-      `insert into videos (id, creator_id, media_asset_id, preview_asset_id, poster_asset_id, title, description,
-                           category, access_policy, required_tier_id, status, published_at)
-       values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
-      [
-        id,
-        creator.id,
-        body.mediaAssetId,
-        body.previewAssetId ?? null,
-        body.posterAssetId ?? null,
-        body.title,
-        body.description ?? null,
-        body.category ?? null,
-        body.accessPolicy,
-        body.requiredTierId ?? null,
-        body.publish ? 'published' : 'draft',
-        body.publish ? new Date() : null,
-      ],
-    )
-    return {videoId: id}
+    const body = videoBody.parse(req.body)
+    return createCreatorVideo(db, did, body, {requireOfferForPaid: false})
   })
 
   app.patch('/creator/videos/:id', async req => {
@@ -225,8 +320,13 @@ registerRoutes(ctx => {
       .object({
         title: z.string().min(1).max(200).optional(),
         description: z.string().max(5000).optional(),
+        category: z.string().max(40).optional(),
         accessPolicy: z.enum(POLICIES).optional(),
-        status: z.enum(['draft', 'published']).optional(),
+        requiredTierId: z.string().optional(),
+        status: z
+          .enum(['draft', 'published', 'scheduled', 'archived'])
+          .optional(),
+        publishAt: z.string().datetime().optional(),
       })
       .parse(req.body)
     const [v] = await db.query(
@@ -238,19 +338,42 @@ registerRoutes(ctx => {
     // Moderation states are not the creator's to lift.
     if (v.status === 'quarantined' || v.status === 'removed')
       throw forbidden('under_moderation')
-    if (body.status === 'published' && v.media_status !== 'READY')
+    const policy = body.accessPolicy ?? v.access_policy
+    const tierId =
+      body.requiredTierId ??
+      (body.accessPolicy ? undefined : v.required_tier_id)
+    if (policy === 'tier_required')
+      await assertOwnTier(db, 'creator', creator.id, tierId)
+    const status = body.status
+    let scheduledAt: Date | null = v.scheduled_at
+    if (status === 'scheduled') {
+      scheduledAt = futureTime(body.publishAt)
+    } else if (body.publishAt) throw badRequest('publish_at_needs_scheduled')
+    if (
+      (status === 'published' || status === 'scheduled') &&
+      v.media_status !== 'READY'
+    )
       throw conflict('media_not_ready')
     await db.query(
       `update videos set title = coalesce($2, title), description = coalesce($3, description),
-         access_policy = coalesce($4, access_policy), status = coalesce($5, status),
-         published_at = case when $5 = 'published' and published_at is null then now() else published_at end
+         category = coalesce($4, category), access_policy = $5, required_tier_id = $6,
+         status = coalesce($7, status),
+         scheduled_at = case when $7 = 'scheduled' then $8::timestamptz
+                             when $7 in ('draft', 'published') then null else scheduled_at end,
+         published_at = case when $7 = 'scheduled' then $8::timestamptz
+                             when $7 = 'published' and (published_at is null or status = 'scheduled') then now()
+                             else published_at end,
+         archived_at = case when $7 = 'archived' then now() when $7 is null then archived_at else null end
        where id = $1`,
       [
         id,
         body.title ?? null,
         body.description ?? null,
-        body.accessPolicy ?? null,
-        body.status ?? null,
+        body.category ?? null,
+        policy,
+        policy === 'tier_required' ? tierId : null,
+        status ?? null,
+        scheduledAt,
       ],
     )
     return {ok: true}
@@ -357,7 +480,7 @@ registerRoutes(ctx => {
     await requireAdult(ctx, req)
     const {id} = z.object({id: z.string()}).parse(req.params)
     const [v] = await db.query(
-      `select creator_id, category from videos where id = $1 and status = 'published'`,
+      `select creator_id, category from videos v where v.id = $1 and ${VIDEO_IS_LIVE}`,
       [id],
     )
     if (!v) throw notFound()
@@ -390,13 +513,14 @@ registerRoutes(ctx => {
     await requireAdult(ctx, req)
     const {id} = z.object({id: z.string()}).parse(req.params)
     const [v] = await db.query(
-      `select v.preview_asset_id, v.status, a.status as media_status from videos v
+      `select v.preview_asset_id, v.status, v.scheduled_at, a.status as media_status from videos v
          join media_assets a on a.id = v.media_asset_id where v.id = $1`,
       [id],
     )
     if (
       !v ||
-      effectiveStatus(v.status, v.media_status) !== 'published' ||
+      effectiveStatus(v.status, v.media_status, v.scheduled_at) !==
+        'published' ||
       !v.preview_asset_id
     )
       throw notFound()

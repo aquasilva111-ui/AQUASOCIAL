@@ -4,6 +4,7 @@ import {
   resolveResource,
   type ResourceRef,
   revokeEntitlementsBySource,
+  sellableKinds,
 } from '../entitlements/index.js'
 import {audit} from '../lib/audit.js'
 import {badRequest, conflict, forbidden, notFound} from '../lib/errors.js'
@@ -11,6 +12,7 @@ import {newId} from '../lib/ids.js'
 import {
   applyBps,
   assertCurrency,
+  assertPrice,
   parseMinor,
   proportional,
 } from '../lib/money.js'
@@ -95,10 +97,19 @@ export async function createTier(
   },
 ) {
   await assertSeller(db, did, input.sellerType, input.sellerId)
-  const price = parseMinor(input.priceMinor)
-  if (price <= 0n) throw badRequest('invalid_price')
   const currency = assertCurrency(input.currency)
+  const price = assertPrice(input.priceMinor, currency)
   const tierId = newId('tier')
+  const [anyTier] = await db.query(
+    `select 1 from subscription_tiers where owner_type = $1 and owner_id = $2 limit 1`,
+    [input.sellerType, input.sellerId],
+  )
+  // The first tier switches subscriptions on; later the seller controls it.
+  if (!anyTier && input.sellerType === 'creator')
+    await db.query(
+      `update creators set subscriptions_enabled = true where id = $1`,
+      [input.sellerId],
+    )
   const offerId = newId('offer')
   await db.query(
     `insert into subscription_tiers (id, owner_type, owner_id, name, description, price_minor, currency, billing_period, benefits)
@@ -168,8 +179,7 @@ export async function updateTier(
       ],
     )
     if (patch.priceMinor !== undefined) {
-      const price = parseMinor(patch.priceMinor)
-      if (price <= 0n) throw badRequest('invalid_price')
+      const price = assertPrice(patch.priceMinor, tier.currency)
       await tx.query(
         `update offers set active = false where tier_id = $1 and kind = 'subscription'`,
         [tierId],
@@ -219,9 +229,13 @@ export async function createOffer(
   if (!resource) throw badRequest('unknown_resource')
   // The seller must own what they sell.
   if (!resource.ownerDids.includes(did)) throw forbidden('not_owner')
-  const price = parseMinor(input.priceMinor)
-  if (price <= 0n) throw badRequest('invalid_price')
+  if (resource.status === 'removed' || resource.status === 'quarantined')
+    throw forbidden('under_moderation')
+  // Only offers whose grant actually unlocks the item are eligible.
+  if (!sellableKinds(resource.policy).includes(input.kind))
+    throw badRequest('offer_kind_mismatch')
   const currency = assertCurrency(input.currency)
+  const price = assertPrice(input.priceMinor, currency)
   if (
     (input.kind === 'rental' || input.kind === 'ppv') &&
     !(input.accessHours! > 0)
@@ -244,6 +258,21 @@ export async function createOffer(
     ],
   )
   return {offerId: id}
+}
+
+/** Switching subscriptions off blocks new checkouts; history stays. */
+export async function subscriptionsEnabled(
+  db: Queryable,
+  sellerType: SellerType,
+  sellerId: string,
+) {
+  const [row] = await db.query(
+    sellerType === 'creator'
+      ? `select subscriptions_enabled from creators where id = $1`
+      : `select subscriptions_enabled from studios where id = $1`,
+    [sellerId],
+  )
+  return !!row?.subscriptions_enabled
 }
 
 // ---------------------------------------------------------------- checkout
@@ -269,6 +298,11 @@ export async function checkout(
       [input.offerId],
     )
     if (!offer) throw notFound()
+    if (
+      offer.kind === 'subscription' &&
+      !(await subscriptionsEnabled(tx, offer.seller_type, offer.seller_id))
+    )
+      throw conflict('subscriptions_disabled')
     const [fees] = await tx.query(`select * from fee_config where id = 1`)
     const subtotal = parseMinor(offer.price_minor)
     const tax = applyBps(subtotal, fees.tax_bps)

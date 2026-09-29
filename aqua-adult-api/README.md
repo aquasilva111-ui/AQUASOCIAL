@@ -1,8 +1,9 @@
 # aqua-adult-api
 
-Backend do AQUA +18: Entitlements, Creator Economy, Media Engine, Views +18
-e Studios +18. **Somente desenvolvimento** — não habilitar para usuários
-reais. Relatório: `docs/aqua-adult/phases-8-10-report.md`.
+Backend do AQUA +18: Entitlements, Creator Economy, Media Engine, Views +18,
+Studios +18, Library, Live +18 e Creator/Studio Dashboard. **Somente
+desenvolvimento** — não habilitar para usuários reais. Relatórios:
+`docs/aqua-adult/phases-8-10-report.md`, `docs/aqua-adult/phase-13-report.md`.
 
 ## Rodar localmente
 

@@ -288,6 +288,9 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
          from subscription_tiers t
          join offers o on o.tier_id = t.id and o.kind = 'subscription' and o.active
         where t.owner_type = $1 and t.owner_id = $2 and t.active
+          and case when $1 = 'creator'
+                   then exists (select 1 from creators c where c.id = $2 and c.subscriptions_enabled)
+                   else exists (select 1 from studios s where s.id = $2 and s.subscriptions_enabled) end
         order by t.price_minor`,
       [type, id],
     )

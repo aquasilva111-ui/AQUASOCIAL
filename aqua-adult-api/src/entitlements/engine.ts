@@ -117,6 +117,22 @@ const POLICY_ACCEPTS: Record<AccessPolicy, string[]> = {
   custom: ['creator_granted', 'administrative'],
 }
 
+/** One-off offer kinds whose grant actually unlocks `policy`. */
+export function sellableKinds(
+  policy: AccessPolicy,
+): ('ppv' | 'purchase' | 'rental')[] {
+  return (['ppv', 'purchase', 'rental'] as const).filter(k =>
+    POLICY_ACCEPTS[policy]?.includes(k),
+  )
+}
+
+/** Policies that can only be unlocked by buying a one-off offer. */
+export const PAID_POLICIES: AccessPolicy[] = [
+  'ppv_required',
+  'purchase_required',
+  'rental_required',
+]
+
 const POLICY_DENIAL: Record<AccessPolicy, DenialReason> = {
   free: 'unknown',
   follower_only: 'not_subscribed',

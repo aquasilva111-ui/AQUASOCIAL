@@ -31,12 +31,3 @@ export function AdultSettingsScreen() {
     <AdultPlaceholder title="Configurações +18" testID="adultSettingsScreen" />
   )
 }
-
-export function AdultCreatorDashboardScreen() {
-  return (
-    <AdultPlaceholder
-      title="Creator Dashboard"
-      testID="adultCreatorDashboardScreen"
-    />
-  )
-}

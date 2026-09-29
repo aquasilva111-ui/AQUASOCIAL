@@ -13,17 +13,32 @@ import {
 import {badRequest, conflict, forbidden, notFound} from '../lib/errors.js'
 import {newId} from '../lib/ids.js'
 import {registerRoutes} from '../registry.js'
-import {recordWatch} from '../views/index.js'
+import {assertOwnTier, recordWatch} from '../views/index.js'
 
 export type StudioRole = 'OWNER' | 'ADMIN' | 'EDITOR' | 'ANALYST' | 'MODERATOR'
 
 /** What each capability requires. Checked on the server for every call. */
 export const PERMISSIONS = {
   manageTeam: ['OWNER', 'ADMIN'],
+  viewTeam: ['OWNER', 'ADMIN'],
   sell: ['OWNER', 'ADMIN'],
   editTitles: ['OWNER', 'ADMIN', 'EDITOR'],
+  viewContent: ['OWNER', 'ADMIN', 'EDITOR', 'MODERATOR'],
   viewRevenue: ['OWNER', 'ADMIN', 'ANALYST'],
+  viewAnalytics: ['OWNER', 'ADMIN', 'ANALYST'],
+  viewSafety: ['OWNER', 'ADMIN', 'MODERATOR'],
+  // Money leaving the studio is the owner's call alone.
+  managePayouts: ['OWNER'],
 } as const satisfies Record<string, StudioRole[]>
+
+export type StudioPermission = keyof typeof PERMISSIONS
+
+/** The capabilities a role holds — shown in the UI, enforced per route. */
+export function permissionsFor(role: StudioRole): StudioPermission[] {
+  return (Object.keys(PERMISSIONS) as StudioPermission[]).filter(p =>
+    (PERMISSIONS[p] as readonly string[]).includes(role),
+  )
+}
 
 export async function studioRole(db: Queryable, studioId: string, did: string) {
   const [row] = await db.query(
@@ -440,6 +455,8 @@ registerRoutes(ctx => {
     await ownedAsset(did, body.mediaAssetId, 'video')
     await ownedAsset(did, body.previewAssetId, 'video')
     await ownedAsset(did, body.posterAssetId, 'image')
+    if (body.accessPolicy === 'tier_required')
+      await assertOwnTier(db, 'studio', studioId, body.requiredTierId)
     if (body.status === 'published')
       await assertCanPublish(studioId, [body.mediaAssetId])
     const id = newId('mov')
@@ -457,7 +474,7 @@ registerRoutes(ctx => {
         body.synopsis ?? null,
         body.category ?? null,
         body.accessPolicy,
-        body.requiredTierId ?? null,
+        body.accessPolicy === 'tier_required' ? body.requiredTierId : null,
         body.status,
         body.releaseDate ?? null,
         body.availabilityStart ?? null,
@@ -485,6 +502,8 @@ registerRoutes(ctx => {
         allowedRegions: release.allowedRegions,
       })
       .parse(req.body)
+    if (body.accessPolicy === 'tier_required')
+      await assertOwnTier(db, 'studio', studioId, body.requiredTierId)
     if (body.status === 'published') await assertCanPublish(studioId, [])
     const id = newId('ser')
     await db.query(
@@ -498,7 +517,7 @@ registerRoutes(ctx => {
         body.synopsis ?? null,
         body.category ?? null,
         body.accessPolicy,
-        body.requiredTierId ?? null,
+        body.accessPolicy === 'tier_required' ? body.requiredTierId : null,
         body.status,
         body.availabilityStart ?? null,
         body.availabilityEnd ?? null,
@@ -563,6 +582,8 @@ registerRoutes(ctx => {
       .parse(req.body)
     await ownedAsset(did, body.mediaAssetId, 'video')
     await ownedAsset(did, body.previewAssetId, 'video')
+    if (body.accessPolicy === 'tier_required' || body.requiredTierId)
+      await assertOwnTier(db, 'studio', se.studio_id, body.requiredTierId)
     if (body.status === 'published')
       await assertCanPublish(se.studio_id, [body.mediaAssetId])
     const id = newId('epi')
@@ -621,7 +642,14 @@ registerRoutes(ctx => {
       .object({
         status: z.enum(TITLE_STATUS).optional(),
         accessPolicy: z.enum(POLICIES).optional(),
+        requiredTierId: z.string().optional(),
         title: z.string().min(1).max(200).optional(),
+        synopsis: z.string().max(5000).optional(),
+        // Releases: null clears a date/window.
+        releaseDate: z.string().date().nullable().optional(),
+        availabilityStart: z.string().datetime().nullable().optional(),
+        availabilityEnd: z.string().datetime().nullable().optional(),
+        allowedRegions: release.allowedRegions,
       })
       .parse(req.body)
     const studioId = await titleStudio(p.type, p.id)
@@ -633,17 +661,79 @@ registerRoutes(ctx => {
       throw forbidden('under_moderation')
     if (body.status === 'published')
       await assertCanPublish(studioId, [row.media_asset_id])
+
+    // Columns each level actually has (seasons inherit most of the series).
+    const columns: Record<string, string[]> = {
+      movie: [
+        'title',
+        'synopsis',
+        'required_tier_id',
+        'release_date',
+        'availability_start',
+        'availability_end',
+        'allowed_regions',
+      ],
+      series: [
+        'title',
+        'synopsis',
+        'required_tier_id',
+        'availability_start',
+        'availability_end',
+        'allowed_regions',
+      ],
+      season: ['title'],
+      episode: [
+        'title',
+        'synopsis',
+        'required_tier_id',
+        'release_date',
+        'availability_start',
+        'availability_end',
+      ],
+    }
+    const has = (c: string) => columns[p.type].includes(c)
+    const sets: [string, unknown][] = []
+    if (body.status) sets.push(['status', body.status])
+    if (body.accessPolicy) sets.push(['access_policy', body.accessPolicy])
+    const policy = body.accessPolicy ?? row.access_policy
+    if (has('required_tier_id') && (body.accessPolicy || body.requiredTierId)) {
+      const tierId =
+        body.requiredTierId ??
+        (body.accessPolicy ? undefined : row.required_tier_id)
+      if (policy === 'tier_required' || body.requiredTierId)
+        await assertOwnTier(db, 'studio', studioId, tierId)
+      sets.push([
+        'required_tier_id',
+        policy === 'tier_required' || p.type === 'episode' ? tierId : null,
+      ])
+    }
+    const optional: [keyof typeof body, string][] = [
+      ['title', 'title'],
+      ['synopsis', 'synopsis'],
+      ['releaseDate', 'release_date'],
+      ['availabilityStart', 'availability_start'],
+      ['availabilityEnd', 'availability_end'],
+      ['allowedRegions', 'allowed_regions'],
+    ]
+    for (const [key, column] of optional) {
+      if (body[key] === undefined) continue
+      if (!has(column)) throw badRequest(`not_applicable_${key}`)
+      sets.push([column, body[key]])
+    }
+    const start =
+      body.availabilityStart !== undefined
+        ? body.availabilityStart
+        : row.availability_start
+    const end =
+      body.availabilityEnd !== undefined
+        ? body.availabilityEnd
+        : row.availability_end
+    if (start && end && new Date(start) >= new Date(end))
+      throw badRequest('invalid_availability_window')
+    if (!sets.length) return {ok: true}
     await db.query(
-      `update ${table} set status = coalesce($2, status), access_policy = coalesce($3, access_policy)
-         ${p.type === 'season' ? '' : ', title = coalesce($4, title)'} where id = $1`,
-      p.type === 'season'
-        ? [p.id, body.status ?? null, body.accessPolicy ?? null]
-        : [
-            p.id,
-            body.status ?? null,
-            body.accessPolicy ?? null,
-            body.title ?? null,
-          ],
+      `update ${table} set ${sets.map(([c], i) => `${c} = $${i + 2}`).join(', ')} where id = $1`,
+      [p.id, ...sets.map(([, v]) => v ?? null)],
     )
     return {ok: true}
   })

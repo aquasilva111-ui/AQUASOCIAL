@@ -44,3 +44,15 @@ export function proportional(part: bigint, whole: bigint, of: bigint): bigint {
   if (whole === 0n) return 0n
   return (part * of + whole / 2n) / whole
 }
+
+/** Highest price accepted for one item: 100 000 major units. */
+const MAX_MAJOR_UNITS = 100_000n
+
+/** A sellable price: positive, whole minor units, below the per-currency cap. */
+export function assertPrice(value: unknown, currency: string): bigint {
+  const price = parseMinor(value)
+  const exponent = CURRENCIES[assertCurrency(currency)]
+  if (price <= 0n || price > MAX_MAJOR_UNITS * 10n ** BigInt(exponent))
+    throw new MoneyError('Price out of range.')
+  return price
+}
