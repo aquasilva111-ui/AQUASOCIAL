@@ -1,5 +1,6 @@
 import {useEffect, useState} from 'react'
 
+import {recordViewEvent} from '#/lib/views/events'
 import {isWeb} from '#/platform/detection'
 
 /**
@@ -38,6 +39,13 @@ export function recordView(uri: string) {
   const views = readAll()
   views[uri] = (views[uri] ?? 0) + 1
   writeAll(views)
+  recordViewEvent({
+    contentUri: uri,
+    contentType: 'video',
+    eventType: 'view',
+    surface: 'view',
+    source: 'local-placeholder',
+  })
 }
 
 export function formatViewCount(n: number): string {
