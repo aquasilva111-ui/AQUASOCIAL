@@ -1,6 +1,9 @@
 import {useCallback, useMemo} from 'react'
 import {useSyncExternalStore} from 'react'
+import {useQueryClient} from '@tanstack/react-query'
 
+import {clearAdultApiToken} from '#/lib/adult/api'
+import {ADULT_QUERY_NAMESPACE} from '#/lib/adult/isolation'
 import {clearAdultActionHistory} from '#/state/adult/actionHistory'
 import {
   clearAdultEntered,
@@ -59,6 +62,7 @@ export type AdultContextValue = {
 export function useAdultContext(): AdultContextValue {
   const {currentAccount, hasSession} = useSession()
   const {state: ageAssuranceState} = useAgeAssurance()
+  const queryClient = useQueryClient()
   const entry = useSyncExternalStore(subscribeAdultEntry, getAdultEntry)
 
   const identity = useMemo<AdultIdentity | null>(
@@ -89,7 +93,10 @@ export function useAdultContext(): AdultContextValue {
     // Remove transient adult state from the interface; nothing +18 lingers.
     clearAdultActionHistory()
     clearAdultRelationships()
-  }, [])
+    // Library, purchases, history: drop every cached +18 response and token.
+    clearAdultApiToken()
+    queryClient.removeQueries({queryKey: [ADULT_QUERY_NAMESPACE]})
+  }, [queryClient])
 
   return {
     identity,

@@ -30,16 +30,6 @@ export function AdultLiveScreen() {
   return <AdultPlaceholder title={_(msg`Live +18`)} testID="adultLiveScreen" />
 }
 
-export function AdultLibraryScreen() {
-  const {_} = useLingui()
-  return (
-    <AdultPlaceholder
-      title={_(msg`Minha biblioteca`)}
-      testID="adultLibraryScreen"
-    />
-  )
-}
-
 export function AdultMessagesScreen() {
   const {_} = useLingui()
   return (

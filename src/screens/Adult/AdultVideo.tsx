@@ -21,6 +21,7 @@ import {atoms as a, useTheme} from '#/alf'
 import {AdultPlayer} from '#/components/adult/AdultPlayer'
 import {Button, ButtonText} from '#/components/Button'
 import {Text} from '#/components/Typography'
+import {LibraryButtons} from './AdultLibrary'
 import {AdultShell} from './AdultShell'
 import {AdultApiNotice, POLICY_LABELS, VideoGrid} from './AdultViews'
 
@@ -230,6 +231,7 @@ function VideoPage({videoId}: {videoId: string}) {
         {!!video.description && (
           <Text style={[a.text_md, a.leading_snug]}>{video.description}</Text>
         )}
+        <LibraryButtons type="video" id={video.id} />
         <Button
           label="Denunciar"
           size="tiny"
