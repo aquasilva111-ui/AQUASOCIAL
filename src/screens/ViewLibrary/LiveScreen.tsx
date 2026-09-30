@@ -17,7 +17,7 @@ export function ViewLiveScreen() {
       title="Transmissões ao vivo"
       subtitle="O que está no ar agora."
       actions={
-        <Link to="/videos/golive" label="Iniciar transmissão">
+        <Link to="/views/golive" label="Iniciar transmissão">
           <View
             style={[
               a.rounded_full,
@@ -57,7 +57,7 @@ export function ViewLiveScreen() {
           {data.map(s => (
             <Link
               key={s.uri}
-              to={`/videos/live/${s.author.handle}`}
+              to={`/views/live/${s.author.handle}`}
               label={`Ao vivo: ${s.record.title || s.author.handle}`}
               style={[a.gap_xs, {width: 260, maxWidth: '100%'}]}>
               <View>

@@ -66,7 +66,7 @@ function CreateChannel() {
     return (
       <View style={[a.p_xl, a.gap_md, a.align_center]}>
         <Text style={[a.text_2xl, a.font_bold]}>Você já tem um canal</Text>
-        <Link to={`/videos/channel/${profile.handle}`} label="Ver meu canal">
+        <Link to={`/views/channel/${profile.handle}`} label="Ver meu canal">
           <Text style={[a.text_md, a.font_bold, t.atoms.text_contrast_high]}>
             Ver meu canal →
           </Text>

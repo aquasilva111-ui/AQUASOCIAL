@@ -8,7 +8,7 @@ import {Link} from '#/components/Link'
 import {Text} from '#/components/Typography'
 
 export const watchPath = (v: {did: string; rkey: string}) =>
-  `/videos/watch/${v.did}/${v.rkey}`
+  `/views/watch/${v.did}/${v.rkey}`
 
 /** Page chrome shared by the Views library screens. */
 export function LibraryPage({

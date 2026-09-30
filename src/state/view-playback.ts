@@ -9,7 +9,7 @@ import {useSyncExternalStore} from 'react'
 
 export type ViewVideoRef = {
   uri: string
-  /** Author DID and record key, for /videos/watch/:did/:rkey. */
+  /** Author DID and record key, for /views/watch/:did/:rkey. */
   did: string
   rkey: string
   title: string

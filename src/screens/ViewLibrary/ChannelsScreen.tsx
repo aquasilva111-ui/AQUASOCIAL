@@ -76,7 +76,7 @@ export function ViewChannelsScreen() {
       title="Canais"
       subtitle="Quem você segue e canais novos para descobrir."
       actions={
-        <Link to="/videos/channel/new" label="Criar meu canal">
+        <Link to="/views/channel/new" label="Criar meu canal">
           <Text style={[a.text_sm, a.font_bold, t.atoms.text_contrast_high]}>
             Criar meu canal
           </Text>

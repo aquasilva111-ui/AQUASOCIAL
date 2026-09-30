@@ -312,7 +312,7 @@ export function VideoGrid({
 }
 
 function watchPath(post: AppBskyFeedDefs.PostView) {
-  return `/videos/watch/${post.author.did}/${new AtUri(post.uri).rkey}`
+  return `/views/watch/${post.author.did}/${new AtUri(post.uri).rkey}`
 }
 
 /** Trailer / featured video, with the channel watermark over the player. */
@@ -432,7 +432,7 @@ function LiveCard({
   if (preview) return body
   return (
     <Link
-      to={`/videos/live/${live.author.handle}`}
+      to={`/views/live/${live.author.handle}`}
       label={`Assistir ${live.record.title || 'transmissão'}`}>
       {body}
     </Link>
@@ -452,7 +452,7 @@ function LiveTab({
     <View style={[a.gap_sm]}>
       <EmptyText>Nenhuma transmissão ao vivo agora.</EmptyText>
       {isOwner && (
-        <Link to="/videos/golive" label="Transmitir ao vivo">
+        <Link to="/views/golive" label="Transmitir ao vivo">
           <Text style={[a.text_sm, a.font_bold, t.atoms.text_contrast_high]}>
             Transmitir ao vivo →
           </Text>

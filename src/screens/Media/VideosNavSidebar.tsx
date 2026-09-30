@@ -43,23 +43,23 @@ const NAV_ITEMS: {
   to: string
   icon: React.ComponentType<SVGIconProps>
 }[] = [
-  {label: 'Assinaturas pagas', to: '/videos/paid', icon: PaidIcon},
+  {label: 'Assinaturas pagas', to: '/views/paid', icon: PaidIcon},
   {
     label: 'Inscrições',
-    to: '/videos/subscriptions',
+    to: '/views/subscriptions',
     icon: SubscriptionsIcon,
   },
-  {label: 'Canais', to: '/videos/channels', icon: ChannelsIcon},
-  {label: 'Histórico', to: '/videos/history', icon: HistoryIcon},
-  {label: 'Playlist', to: '/videos/playlists', icon: PlaylistIcon},
+  {label: 'Canais', to: '/views/channels', icon: ChannelsIcon},
+  {label: 'Histórico', to: '/views/history', icon: HistoryIcon},
+  {label: 'Playlist', to: '/views/playlists', icon: PlaylistIcon},
   {
     label: 'Assistir mais tarde',
-    to: '/videos/watch-later',
+    to: '/views/watch-later',
     icon: WatchLaterIcon,
   },
-  {label: 'Meus vídeos', to: '/videos/mine', icon: MyVideosIcon},
-  {label: 'Coleções', to: '/videos/collections', icon: CollectionsIcon},
-  {label: 'Transmissões ao vivo', to: '/videos/live', icon: LiveIcon},
+  {label: 'Meus vídeos', to: '/views/mine', icon: MyVideosIcon},
+  {label: 'Coleções', to: '/views/collections', icon: CollectionsIcon},
+  {label: 'Transmissões ao vivo', to: '/views/live', icon: LiveIcon},
 ]
 
 const COUNTRIES = ['Mundial', 'Brasil', 'Estados Unidos', 'Portugal']
@@ -117,7 +117,7 @@ export function VideosNavSidebar() {
               to: channelPath(currentAccount.handle),
               icon: MyChannelIcon,
             },
-            {label: 'View Studio', to: '/videos/studio', icon: StudioIcon},
+            {label: 'View Studio', to: '/views/studio', icon: StudioIcon},
             ...NAV_ITEMS,
           ]
         : NAV_ITEMS,
@@ -393,7 +393,7 @@ function TrendingVideos() {
           return (
             <Link
               key={topic.link}
-              to={`/videos?source=search&q=${encodeURIComponent(name)}`}
+              to={`/views?source=search&q=${encodeURIComponent(name)}`}
               label={name}
               style={[a.rounded_sm, a.px_sm, {paddingVertical: 5}]}>
               {({hovered}) => (

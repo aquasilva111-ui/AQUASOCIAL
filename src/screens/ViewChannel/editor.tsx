@@ -192,7 +192,7 @@ export function HandleReadOnly({handle}: {handle: string}) {
       <FieldLabelText>Handle / URL</FieldLabelText>
       <View
         style={[a.p_sm, a.rounded_sm, a.border, t.atoms.border_contrast_low]}>
-        <Text style={[a.text_md]}>/videos/channel/{handle}</Text>
+        <Text style={[a.text_md]}>/views/channel/{handle}</Text>
       </View>
       <HintText>
         O handle do canal é o seu handle AQUA — um só nome, sem outro cadastro.

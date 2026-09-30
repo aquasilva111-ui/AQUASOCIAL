@@ -645,7 +645,7 @@ export function DesktopLeftNav() {
         label="Visionboard"
       />
       <NavItem
-        href="/videos"
+        href="/views"
         icon={
           <ViewIcon
             introOnMount

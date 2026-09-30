@@ -225,7 +225,7 @@ export function VideoGoLiveScreen() {
             <View style={[a.flex_row, a.gap_sm]}>
               {isLive && currentAccount ? (
                 <Link
-                  to={`/videos/live/${currentAccount.did}`}
+                  to={`/views/live/${currentAccount.did}`}
                   label="Ver sua transmissão">
                   {({hovered}) => (
                     <View
@@ -366,7 +366,7 @@ export function VideoGoLiveScreen() {
               <CardHeading icon={ChatIcon} title="Chat" />
               {isLive && currentAccount ? (
                 <Link
-                  to={`/videos/live/${currentAccount.did}`}
+                  to={`/views/live/${currentAccount.did}`}
                   label="Ver transmissão e chat">
                   <Text style={[a.text_sm, {color: t.palette.primary_500}]}>
                     Abrir sua transmissão e chat →

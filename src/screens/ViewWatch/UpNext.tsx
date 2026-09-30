@@ -40,7 +40,7 @@ export function toVideoRef(post: AppBskyFeedDefs.PostView): ViewVideoRef {
 }
 
 export const watchPathOf = (v: {did: string; rkey: string}) =>
-  `/videos/watch/${v.did}/${v.rkey}`
+  `/views/watch/${v.did}/${v.rkey}`
 
 function isVideo(item: FeedPostSliceItem) {
   return getPostMedia(item.post).type === 'video'
@@ -241,7 +241,7 @@ export function UpNextPanel({
           recs.live.slice(0, 12).map(s => (
             <Link
               key={s.uri}
-              to={`/videos/live/${s.author.handle}`}
+              to={`/views/live/${s.author.handle}`}
               label={`Ao vivo: ${s.record.title || s.author.handle}`}
               style={[a.flex_row, a.gap_md]}>
               <Thumb uri={liveThumbUrl(s.author.did)} live />

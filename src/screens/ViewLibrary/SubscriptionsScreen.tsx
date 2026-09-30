@@ -52,7 +52,7 @@ export function ViewSubscriptionsScreen() {
       title="Inscrições"
       subtitle="Novidades dos canais que você segue."
       actions={
-        <Link to="/videos/channels" label="Gerenciar canais">
+        <Link to="/views/channels" label="Gerenciar canais">
           <Text style={[a.text_sm, a.font_bold, t.atoms.text_contrast_high]}>
             Gerenciar
           </Text>

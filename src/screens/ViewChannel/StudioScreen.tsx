@@ -69,9 +69,9 @@ function StudioNav({section}: {section: 'overview' | 'customization'}) {
   )
   return (
     <View style={[a.flex_row, a.gap_sm, a.flex_wrap]}>
-      {item('/videos/studio', 'Painel', section === 'overview')}
+      {item('/views/studio', 'Painel', section === 'overview')}
       {item(
-        '/videos/studio/customization',
+        '/views/studio/customization',
         'Personalização',
         section === 'customization',
       )}
@@ -101,7 +101,7 @@ function Studio({section}: {section: 'overview' | 'customization'}) {
           <Text style={[a.text_lg, a.font_bold]}>
             Você ainda não tem um canal no View
           </Text>
-          <Link to="/videos/channel/new" label="Criar canal">
+          <Link to="/views/channel/new" label="Criar canal">
             <Text style={[a.text_md, a.font_bold, t.atoms.text_contrast_high]}>
               Criar canal →
             </Text>
@@ -155,17 +155,17 @@ function Overview({data}: {data: Data}) {
         )}
       </View>
       <View style={[a.flex_row, a.flex_wrap, a.gap_sm]}>
-        <Link to={`/videos/channel/${profile.handle}`} label="Ver canal">
+        <Link to={`/views/channel/${profile.handle}`} label="Ver canal">
           <Text style={[a.text_md, a.font_bold, t.atoms.text_contrast_high]}>
             Ver canal →
           </Text>
         </Link>
-        <Link to="/videos/studio/customization" label="Personalizar canal">
+        <Link to="/views/studio/customization" label="Personalizar canal">
           <Text style={[a.text_md, a.font_bold, t.atoms.text_contrast_high]}>
             Personalizar →
           </Text>
         </Link>
-        <Link to="/videos/golive" label="Transmitir ao vivo">
+        <Link to="/views/golive" label="Transmitir ao vivo">
           <Text style={[a.text_md, a.font_bold, t.atoms.text_contrast_high]}>
             Transmitir ao vivo →
           </Text>

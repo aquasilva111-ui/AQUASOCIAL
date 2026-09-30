@@ -112,7 +112,7 @@ function ChannelPage({handle}: {handle: string}) {
       <Notice
         title="Você ainda não tem um canal no View"
         body="Seu canal usa o seu perfil AQUA: mesmo avatar, mesmo handle e seus seguidores como inscritos. Nada de conta nova.">
-        <Link to="/videos/channel/new" label="Criar canal">
+        <Link to="/views/channel/new" label="Criar canal">
           <View
             style={[
               a.rounded_full,
@@ -199,10 +199,7 @@ function OwnerActions() {
   const {openComposer} = useOpenComposer()
   return (
     <View style={[a.flex_row, a.flex_wrap, a.gap_sm, a.pt_sm]}>
-      <ActionLink
-        to="/videos/studio/customization"
-        label="Personalizar canal"
-      />
+      <ActionLink to="/views/studio/customization" label="Personalizar canal" />
       <Button
         label="Enviar vídeo"
         size="small"
@@ -210,8 +207,8 @@ function OwnerActions() {
         onPress={() => openComposer({})}>
         <ButtonText>Enviar vídeo</ButtonText>
       </Button>
-      <ActionLink to="/videos/golive" label="Transmitir ao vivo" />
-      <ActionLink to="/videos/studio" label="View Studio" />
+      <ActionLink to="/views/golive" label="Transmitir ao vivo" />
+      <ActionLink to="/views/studio" label="View Studio" />
     </View>
   )
 }

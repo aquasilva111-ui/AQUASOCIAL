@@ -69,7 +69,7 @@ function LiveCard({stream}: {stream: StreamplaceLivestreamView}) {
 
   return (
     <Link
-      to={`/videos/live/${stream.author.did}`}
+      to={`/views/live/${stream.author.did}`}
       label={title}
       style={[{width: 260}]}>
       <View

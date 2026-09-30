@@ -366,5 +366,5 @@ export function toWritableRecord(
 }
 
 export function channelPath(handle: string) {
-  return `/videos/channel/${encodeURIComponent(handle)}`
+  return `/views/channel/${encodeURIComponent(handle)}`
 }

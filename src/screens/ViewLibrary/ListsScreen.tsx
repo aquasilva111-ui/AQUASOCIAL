@@ -29,7 +29,7 @@ import {Empty, LibraryPage, Thumb} from './shared'
 const VISIBILITIES: ViewListVisibility[] = ['public', 'unlisted', 'private']
 
 export const listPath = (kind: ViewListKind, did: string, rkey: string) =>
-  `/videos/list/${kind}/${did}/${rkey}`
+  `/views/list/${kind}/${did}/${rkey}`
 
 export function ViewPlaylistsScreen() {
   return <ViewLists kind="playlist" />

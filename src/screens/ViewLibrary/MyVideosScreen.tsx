@@ -49,14 +49,14 @@ export function ViewMyVideosScreen() {
       subtitle="Os vídeos que você publicou no seu canal."
       actions={
         <>
-          <Link to="/videos/studio" label="Abrir o View Studio">
+          <Link to="/views/studio" label="Abrir o View Studio">
             <Text style={[a.text_sm, a.font_bold, t.atoms.text_contrast_high]}>
               View Studio
             </Text>
           </Link>
           {currentAccount && (
             <Link
-              to={`/videos/channel/${currentAccount.handle}`}
+              to={`/views/channel/${currentAccount.handle}`}
               label="Ver meu canal">
               <Text
                 style={[a.text_sm, a.font_bold, t.atoms.text_contrast_high]}>

@@ -1,11 +1,10 @@
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
-import {TextInput, View} from 'react-native'
+import {ScrollView, TextInput, View} from 'react-native'
 import {type AppBskyActorDefs, type AppBskyFeedDefs, AtUri} from '@atproto/api'
 import {useIsFocused, useNavigation} from '@react-navigation/native'
 
 import {getPostMedia, getPostTopics} from '#/lib/media/experiences'
 import {recordView} from '#/lib/media/views'
-import {makeProfileLink} from '#/lib/routes/links'
 import {
   type CommonNavigatorParams,
   type NativeStackScreenProps,
@@ -57,6 +56,7 @@ import {
 import {Text} from '#/components/Typography'
 import {ViewPlayer} from '#/components/view-watch/ViewPlayer'
 import {type ViewPlayerHandle} from '#/components/view-watch/ViewPlayer.types'
+import {Comments} from './Comments'
 import {toVideoRef, UpNextPanel, useRecommendations} from './UpNext'
 
 export function ViewWatchScreen({
@@ -80,9 +80,17 @@ export function ViewWatchScreen({
           <Layout.Header.Slot />
         </Layout.Header.Outer>
       )}
-      <Layout.Content>
-        <Watch uri={uri} startAt={parseStartParam(t)} />
-      </Layout.Content>
+      {isWeb ? (
+        // Layout.Content caps web pages at the 700px feed column; the watch
+        // page is a full page with its own player + "A seguir" columns.
+        <ScrollView style={[a.w_full, a.flex_1]}>
+          <Watch uri={uri} startAt={parseStartParam(t)} />
+        </ScrollView>
+      ) : (
+        <Layout.Content>
+          <Watch uri={uri} startAt={parseStartParam(t)} />
+        </Layout.Content>
+      )}
     </Layout.Screen>
   )
 }
@@ -107,7 +115,7 @@ function WebTopBar() {
         t.atoms.bg,
         {height: 64},
       ]}>
-      <Link to="/videos" label="Aqua Views">
+      <Link to="/views" label="Aqua Views">
         <Text style={[a.text_lg, a.font_bold]}>Aqua Views</Text>
       </Link>
       <View style={[a.flex_1, a.align_center]}>
@@ -137,7 +145,7 @@ function WebTopBar() {
 }
 
 function watchPath(post: AppBskyFeedDefs.PostView) {
-  return `/videos/watch/${post.author.did}/${new AtUri(post.uri).rkey}`
+  return `/views/watch/${post.author.did}/${new AtUri(post.uri).rkey}`
 }
 
 function Watch({uri, startAt}: {uri: string; startAt?: number}) {
@@ -151,7 +159,7 @@ function Watch({uri, startAt}: {uri: string; startAt?: number}) {
     return (
       <View style={[a.p_xl, a.gap_md, a.align_center]}>
         <Text style={[a.text_xl, a.font_bold]}>Vídeo não encontrado</Text>
-        <Link to="/videos" label="Voltar para o Aqua Views">
+        <Link to="/views" label="Voltar para o Aqua Views">
           <Text style={[a.text_md, a.font_bold, t.atoms.text_contrast_high]}>
             Voltar para o Aqua Views
           </Text>
@@ -379,7 +387,6 @@ function Info({
     month: 'short',
     year: 'numeric',
   })
-  const threadPath = `${makeProfileLink(post.author)}/post/${new AtUri(post.uri).rkey}`
   return (
     <View style={[a.gap_lg]}>
       <Text style={[a.text_2xl, a.font_bold, a.leading_snug]}>{title}</Text>
@@ -411,7 +418,7 @@ function Info({
           {topics.map(topic => (
             <Link
               key={topic}
-              to={`/videos?source=search&q=${encodeURIComponent(`#${topic}`)}`}
+              to={`/views?source=search&q=${encodeURIComponent(`#${topic}`)}`}
               label={`Vídeos com #${topic}`}>
               <Text style={[a.text_sm, a.font_bold, {color: '#002CF0'}]}>
                 #{topic}
@@ -450,17 +457,12 @@ function Info({
         )}
       </View>
 
-      <Link
-        to={threadPath}
-        label={`Ver ${post.replyCount ?? 0} comentários`}
-        style={[a.p_lg, a.rounded_lg, a.border, t.atoms.border_contrast_low]}>
-        <Text style={[a.text_md, a.font_bold]}>
-          Comentários · {post.replyCount ?? 0}
-        </Text>
-        <Text style={[a.text_sm, t.atoms.text_contrast_medium]}>
-          Ver e responder na conversa do post
-        </Text>
-      </Link>
+      <Comments
+        video={post}
+        creatorName={
+          channelName || post.author.displayName || post.author.handle
+        }
+      />
     </View>
   )
 }
