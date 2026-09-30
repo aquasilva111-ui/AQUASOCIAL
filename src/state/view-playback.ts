@@ -19,6 +19,10 @@ export type ViewVideoRef = {
 
 export type MiniPlayerState = ViewVideoRef & {
   playlist: string
+  /** 'audio' = music/podcast: pill with cover, no watch page to open. */
+  kind?: 'video' | 'audio'
+  /** Played by a music provider's own SDK (state/music), not by AQUA. */
+  external?: boolean
   /** Position to resume from (seconds). */
   time: number
   watermarkUri?: string
@@ -112,6 +116,16 @@ export function setAutoplay(autoplay: boolean) {
 
 export function openMiniPlayer(mini: MiniPlayerState) {
   set({mini})
+}
+
+/** Starts the floating player for an audio-only source (HLS or direct file). */
+export function playAudio(
+  audio: Omit<ViewVideoRef, 'did' | 'rkey'> & {src: string},
+) {
+  const {src, ...ref} = audio
+  set({
+    mini: {...ref, did: '', rkey: '', playlist: src, time: 0, kind: 'audio'},
+  })
 }
 
 export function closeMiniPlayer() {

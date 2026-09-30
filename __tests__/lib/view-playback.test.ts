@@ -8,6 +8,7 @@ import {
   openMiniPlayer,
   peekMiniPlayerTime,
   pickNext,
+  playAudio,
   removeFromQueue,
   resetViewPlayback,
   setAutoplay,
@@ -83,6 +84,22 @@ describe('miniplayer', () => {
 
   it('can be closed', () => {
     openMiniPlayer(mini)
+    closeMiniPlayer()
+    expect(getViewPlayback().mini).toBeNull()
+  })
+})
+
+describe('audio mini player', () => {
+  it('opens an audio-only mini player', () => {
+    playAudio({
+      uri: 'aqua:track:1',
+      title: 'Maré alta',
+      author: 'Aqua Radio',
+      src: 'https://x/a.m3u8',
+    })
+    const mini = getViewPlayback().mini
+    expect(mini?.kind).toBe('audio')
+    expect(mini?.playlist).toBe('https://x/a.m3u8')
     closeMiniPlayer()
     expect(getViewPlayback().mini).toBeNull()
   })
