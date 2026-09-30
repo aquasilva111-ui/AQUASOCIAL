@@ -59,6 +59,7 @@ import {type SectionRef} from './types'
 
 const GRID_COLUMNS = 3
 const GRID_GAP = 2
+const GRID_RADIUS = 12
 
 interface MediaGridItem {
   key: string
@@ -318,7 +319,12 @@ function MediaTileInner({
   const href = makeProfileLink(post.author, 'post', rkey)
 
   return (
-    <View style={[a.flex_1, {marginBottom: GRID_GAP}]}>
+    <View
+      style={[
+        a.flex_1,
+        a.overflow_hidden,
+        {marginBottom: GRID_GAP, borderRadius: GRID_RADIUS},
+      ]}>
       <Hider.Outer modui={modui}>
         <Hider.Mask>
           <MediaMask aspectRatio={1} />
@@ -335,7 +341,7 @@ function MediaTileInner({
                   a.w_full,
                   a.overflow_hidden,
                   t.atoms.bg_contrast_25,
-                  {aspectRatio: 1},
+                  {aspectRatio: 1, borderRadius: GRID_RADIUS},
                 ]}>
                 <Image
                   accessibilityIgnoresInvertColors
@@ -383,7 +389,11 @@ function MediaTileInner({
                     a.justify_center,
                     a.align_center,
                     a.flex_row,
-                    {gap: 18, backgroundColor: 'rgba(0,0,0,0.4)'},
+                    {
+                      gap: 18,
+                      backgroundColor: 'rgba(0,0,0,0.4)',
+                      borderRadius: GRID_RADIUS,
+                    },
                   ]}>
                   <View style={[a.flex_row, a.align_center, {gap: 5}]}>
                     <HeartIcon size="sm" fill="#fff" />
