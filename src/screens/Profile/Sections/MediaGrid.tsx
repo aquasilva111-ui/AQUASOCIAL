@@ -57,7 +57,7 @@ import * as Hider from '#/components/moderation/Hider'
 import {Text} from '#/components/Typography'
 import {type SectionRef} from './types'
 
-const GRID_COLUMNS = 3
+const GRID_COLUMNS = 6
 const GRID_GAP = 2
 const GRID_RADIUS = 12
 
@@ -357,10 +357,10 @@ function MediaTileInner({
             </Link>
             <View
               pointerEvents="none"
-              style={[a.absolute, a.inset_0, {padding: 6}]}>
+              style={[a.absolute, a.inset_0, {padding: 3}]}>
               {isPinned && (
                 <View style={styles.badgeChip}>
-                  <PinIcon size="xs" fill="#fff" />
+                  <PinIcon size="2xs" fill="#fff" />
                 </View>
               )}
               <View
@@ -368,16 +368,16 @@ function MediaTileInner({
                   a.absolute,
                   a.flex_row,
                   a.align_center,
-                  {top: 6, right: 6, gap: 4},
+                  {top: 3, right: 3, gap: 3},
                 ]}>
                 {images && images.length > 1 && (
                   <View style={styles.badgeChip}>
-                    <MultiIcon size="xs" fill="#fff" />
+                    <MultiIcon size="2xs" fill="#fff" />
                   </View>
                 )}
                 {media.type === 'video' && (
                   <View style={styles.badgeChip}>
-                    <PlayIcon size="xs" fill="#fff" />
+                    <PlayIcon size="2xs" fill="#fff" />
                   </View>
                 )}
               </View>
@@ -390,17 +390,17 @@ function MediaTileInner({
                     a.align_center,
                     a.flex_row,
                     {
-                      gap: 18,
+                      gap: 8,
                       backgroundColor: 'rgba(0,0,0,0.4)',
                       borderRadius: GRID_RADIUS,
                     },
                   ]}>
-                  <View style={[a.flex_row, a.align_center, {gap: 5}]}>
-                    <HeartIcon size="sm" fill="#fff" />
+                  <View style={[a.flex_row, a.align_center, {gap: 3}]}>
+                    <HeartIcon size="xs" fill="#fff" />
                     <Text style={styles.hoverStat}>{post.likeCount ?? 0}</Text>
                   </View>
-                  <View style={[a.flex_row, a.align_center, {gap: 5}]}>
-                    <CommentIcon size="sm" fill="#fff" />
+                  <View style={[a.flex_row, a.align_center, {gap: 3}]}>
+                    <CommentIcon size="xs" fill="#fff" />
                     <Text style={styles.hoverStat}>{post.replyCount ?? 0}</Text>
                   </View>
                 </View>
@@ -417,14 +417,14 @@ const styles = StyleSheet.create({
   badgeChip: {
     backgroundColor: 'rgba(0,0,0,0.55)',
     borderRadius: 999,
-    width: 24,
-    height: 24,
+    width: 18,
+    height: 18,
     alignItems: 'center',
     justifyContent: 'center',
   },
   hoverStat: {
     color: '#fff',
     fontWeight: '700',
-    fontSize: 14,
+    fontSize: 11,
   },
 })

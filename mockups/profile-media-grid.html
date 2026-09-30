@@ -178,7 +178,7 @@
   .grid-scroll::-webkit-scrollbar { display: none; }
   .grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(6, 1fr);
     gap: 2px;
     padding: 2px;
   }
@@ -208,23 +208,24 @@
     filter: drop-shadow(0 1px 2px rgba(0,0,0,0.55));
     z-index: 2;
   }
-  .badge.tr { top: 7px; right: 7px; }
-  .badge.tl { top: 7px; left: 7px; }
-  .badge.br { bottom: 7px; right: 7px; }
+  .badge.tr { top: 3px; right: 3px; }
+  .badge.tl { top: 3px; left: 3px; }
+  .badge.br { bottom: 3px; right: 3px; }
   .badge.duration {
     background: rgba(0,0,0,0.65);
-    border-radius: 6px;
-    padding: 2px 7px;
-    font-size: 11px;
+    border-radius: 4px;
+    padding: 1px 4px;
+    font-size: 9px;
     font-weight: 600;
     filter: none;
   }
   .badge.pin {
     background: rgba(0,0,0,0.55);
     border-radius: 50%;
-    width: 24px; height: 24px;
+    width: 16px; height: 16px;
     filter: none;
   }
+  .badge svg { width: 10px; height: 10px; }
 
   /* Hover stats overlay (Instagram web style) */
   .hover-overlay {
@@ -235,16 +236,17 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 18px;
+    gap: 6px;
     opacity: 0;
     transition: opacity 0.18s ease;
     z-index: 3;
     color: #fff;
     font-weight: 700;
-    font-size: 14px;
+    font-size: 10px;
   }
   .tile:hover .hover-overlay { opacity: 1; }
-  .hover-overlay span { display: flex; align-items: center; gap: 5px; }
+  .hover-overlay span { display: flex; align-items: center; gap: 2px; }
+  .hover-overlay svg { width: 10px; height: 10px; }
 
   /* ---------- FAB ---------- */
   .fab {
@@ -295,7 +297,7 @@
 <h1>Aba “Mídia” do Perfil — estilo Instagram</h1>
 <p class="subtitle">
   Mockup da aba <b>Mídia</b> do perfil do AquaSocial reformulada como uma grade de fotos/vídeos
-  (3 colunas), no lugar do feed vertical de posts atual.
+  (6 colunas), no lugar do feed vertical de posts atual.
 </p>
 
 <div class="frames">
@@ -381,7 +383,7 @@
 <div class="notes">
   <h2>Comportamento proposto</h2>
   <ul>
-    <li>Grade de 3 colunas com células quadradas de cantos arredondados e espaçamento de 2px, igual ao Instagram.</li>
+    <li>Grade de 6 colunas com células quadradas de cantos arredondados e espaçamento de 2px.</li>
     <li>Tocar na célula abre o post completo (o post original com texto, curtidas e comentários).</li>
     <li>Ícone de “camadas” no canto superior direito indica post com várias fotos.</li>
     <li>Vídeos mostram ícone de play e a duração no canto inferior direito.</li>
