@@ -261,3 +261,26 @@ describe('routes', () => {
     )
   })
 })
+
+describe('reading list', () => {
+  const {
+    newReadingRecord,
+    normalizeReading,
+    parseBookUri,
+  } = require('#/lib/books/model')
+  const uri = 'at://did:plc:abc/place.aqua.book.book/3k'
+
+  it('parses a book uri', () => {
+    expect(parseBookUri(uri)).toEqual({did: 'did:plc:abc', rkey: '3k'})
+    expect(
+      parseBookUri('at://did:plc:abc/app.bsky.feed.post/3k'),
+    ).toBeUndefined()
+  })
+
+  it('round-trips a reading record and rejects bad ones', () => {
+    const rec = newReadingRecord(uri, new Date('2026-01-01T00:00:00Z'))
+    expect(normalizeReading(rec)?.book).toBe(uri)
+    expect(normalizeReading({book: 'nope'})).toBeUndefined()
+    expect(normalizeReading(null)).toBeUndefined()
+  })
+})

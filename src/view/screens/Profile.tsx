@@ -41,6 +41,7 @@ import {ErrorScreen} from '#/view/com/util/error/ErrorScreen'
 import {FAB} from '#/view/com/util/fab/FAB'
 import {type ListRef} from '#/view/com/util/List'
 import {ProfileHeader, ProfileHeaderLoading} from '#/screens/Profile/Header'
+import {ProfileBooksSection} from '#/screens/Profile/Sections/Books'
 import {ProfileFeedSection} from '#/screens/Profile/Sections/Feed'
 import {ProfileLabelsSection} from '#/screens/Profile/Sections/Labels'
 import {ProfilePlaceholderSection} from '#/screens/Profile/Sections/Placeholder'
@@ -198,6 +199,7 @@ function ProfileScreenLoaded({
   const repliesSectionRef = React.useRef<SectionRef>(null)
   const mediaSectionRef = React.useRef<SectionRef>(null)
   const videosSectionRef = React.useRef<SectionRef>(null)
+  const booksSectionRef = React.useRef<SectionRef>(null)
   const marketplaceSectionRef = React.useRef<SectionRef>(null)
   const brandsSectionRef = React.useRef<SectionRef>(null)
   const likesSectionRef = React.useRef<SectionRef>(null)
@@ -224,6 +226,7 @@ function ProfileScreenLoaded({
   const showRepliesTab = hasSession
   const showMediaTab = !hasLabeler
   const showVideosTab = !hasLabeler
+  const showBooksTab = !hasLabeler
   const showMarketplaceTab = !hasLabeler
   const showBrandsTab = !hasLabeler
   const showLikesTab = isMe
@@ -242,6 +245,7 @@ function ProfileScreenLoaded({
     showRepliesTab ? _(msg`Replies`) : undefined,
     showMediaTab ? _(msg`Media`) : undefined,
     showVideosTab ? _(msg`Videos`) : undefined,
+    showBooksTab ? 'Livros' : undefined,
     showMarketplaceTab ? 'Marketplace' : undefined,
     showBrandsTab ? 'Brands' : undefined,
     showLikesTab ? _(msg`Likes`) : undefined,
@@ -256,6 +260,7 @@ function ProfileScreenLoaded({
   let repliesIndex: number | null = null
   let mediaIndex: number | null = null
   let videosIndex: number | null = null
+  let booksIndex: number | null = null
   let marketplaceIndex: number | null = null
   let brandsIndex: number | null = null
   let likesIndex: number | null = null
@@ -276,6 +281,9 @@ function ProfileScreenLoaded({
   }
   if (showVideosTab) {
     videosIndex = nextIndex++
+  }
+  if (showBooksTab) {
+    booksIndex = nextIndex++
   }
   if (showMarketplaceTab) {
     marketplaceIndex = nextIndex++
@@ -308,6 +316,8 @@ function ProfileScreenLoaded({
         mediaSectionRef.current?.scrollToTop()
       } else if (index === videosIndex) {
         videosSectionRef.current?.scrollToTop()
+      } else if (index === booksIndex) {
+        booksSectionRef.current?.scrollToTop()
       } else if (index === marketplaceIndex) {
         marketplaceSectionRef.current?.scrollToTop()
       } else if (index === brandsIndex) {
@@ -328,6 +338,7 @@ function ProfileScreenLoaded({
       repliesIndex,
       mediaIndex,
       videosIndex,
+      booksIndex,
       marketplaceIndex,
       brandsIndex,
       likesIndex,
@@ -518,6 +529,18 @@ function ProfileScreenLoaded({
                   color: 'primary',
                 }}
                 emptyStateIcon={VideoIcon}
+              />
+            )
+          : null}
+        {showBooksTab
+          ? ({headerHeight, isFocused, scrollElRef}) => (
+              <ProfileBooksSection
+                ref={booksSectionRef}
+                did={profile.did}
+                scrollElRef={scrollElRef as ListRef}
+                headerHeight={headerHeight}
+                isFocused={isFocused}
+                setScrollViewTag={setScrollViewTag}
               />
             )
           : null}

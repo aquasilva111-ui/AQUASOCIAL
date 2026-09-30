@@ -17,6 +17,7 @@
 
 export const BOOK_COLLECTION = 'place.aqua.book.book'
 export const CHAPTER_COLLECTION = 'place.aqua.book.chapter'
+export const READING_COLLECTION = 'place.aqua.book.reading'
 
 export type BookStatus = 'ongoing' | 'completed' | 'hiatus'
 export type BookVisibility = 'public' | 'unlisted' | 'private'
@@ -447,4 +448,40 @@ export function announcementText(input: {
   const head = `Novo capítulo de ${input.book.title}: ${input.chapter.number}. ${input.chapter.title}`
   const note = input.note?.trim()
   return (note ? `${note}\n\n${head}` : head).slice(0, 300)
+}
+
+/** A book the person is reading. Lives in the reader's own repo. */
+export type ReadingRecord = {
+  $type: typeof READING_COLLECTION
+  /** at:// URI of the book (in the author's repo). */
+  book: string
+  createdAt: string
+}
+
+export function newReadingRecord(
+  book: string,
+  now = new Date(),
+): ReadingRecord {
+  return {
+    $type: READING_COLLECTION,
+    book,
+    createdAt: now.toISOString(),
+  }
+}
+
+export function normalizeReading(raw: unknown): ReadingRecord | undefined {
+  if (!raw || typeof raw !== 'object') return undefined
+  const r = raw as Record<string, unknown>
+  if (!isBookUri(r.book)) return undefined
+  return {
+    $type: READING_COLLECTION,
+    book: r.book,
+    createdAt: typeof r.createdAt === 'string' ? r.createdAt : '',
+  }
+}
+
+/** Splits an at:// book URI into its repo and record key. */
+export function parseBookUri(uri: string) {
+  const m = uri.match(/^at:\/\/([^/]+)\/place\.aqua\.book\.book\/([^/]+)$/)
+  return m ? {did: m[1], rkey: m[2]} : undefined
 }

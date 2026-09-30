@@ -11,9 +11,13 @@ import {
   CHAPTER_COLLECTION,
   chapterPath,
   type ChapterRecord,
+  newReadingRecord,
   normalizeBook,
   normalizeChapter,
+  normalizeReading,
+  parseBookUri,
   publishChapter,
+  READING_COLLECTION,
   rkeyOf,
   toWritable,
   validateChapterForPublish,
@@ -520,5 +524,103 @@ export function useFollowedBooksQuery() {
         ),
       )
     },
+  })
+}
+
+export type ReadingEntry = {
+  uri: string
+  rkey: string
+  /** at:// URI of the book. */
+  bookUri: string
+  /** Undefined when the book is gone or hidden from this viewer. */
+  stored?: StoredBook
+}
+
+const READING_LIMIT = 30
+
+/** Books a person is reading, newest first. */
+export function useReadingQuery(did: string | undefined) {
+  const agent = useAgent()
+  const {currentAccount} = useSession()
+  return useQuery<ReadingEntry[]>({
+    queryKey: [ROOT, 'reading', did ?? ''],
+    enabled: !!did,
+    staleTime: 30_000,
+    queryFn: async () => {
+      if (!did) return []
+      const records = await listAll(agent, did, READING_COLLECTION, 1)
+      const entries = records
+        .map(r => ({r, reading: normalizeReading(r.value)}))
+        .filter(
+          (x): x is {r: typeof x.r; reading: NonNullable<typeof x.reading>} =>
+            !!x.reading,
+        )
+        .sort((a, b) => b.reading.createdAt.localeCompare(a.reading.createdAt))
+        .slice(0, READING_LIMIT)
+      return Promise.all(
+        entries.map(async ({r, reading}): Promise<ReadingEntry> => {
+          const base = {
+            uri: r.uri,
+            rkey: rkeyOf(r.uri),
+            bookUri: reading.book,
+          }
+          const ref = parseBookUri(reading.book)
+          if (!ref) return base
+          try {
+            const {data} = await agent.com.atproto.repo.getRecord({
+              repo: ref.did,
+              collection: BOOK_COLLECTION,
+              rkey: ref.rkey,
+            })
+            const book = normalizeBook(data.value)
+            if (!book) return base
+            // Private books only show to their own author.
+            if (
+              book.visibility === 'private' &&
+              currentAccount?.did !== ref.did
+            )
+              return base
+            return {
+              ...base,
+              stored: {uri: data.uri, rkey: ref.rkey, did: ref.did, book},
+            }
+          } catch {
+            return base
+          }
+        }),
+      )
+    },
+  })
+}
+
+export function useAddToReadingMutation() {
+  const agent = useAgent()
+  const ownDid = useOwnDid()
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (bookUri: string) => {
+      await agent.com.atproto.repo.createRecord({
+        repo: ownDid(),
+        collection: READING_COLLECTION,
+        record: newReadingRecord(bookUri) as unknown as Record<string, unknown>,
+      })
+    },
+    onSuccess: () => qc.invalidateQueries({queryKey: [ROOT, 'reading']}),
+  })
+}
+
+export function useRemoveFromReadingMutation() {
+  const agent = useAgent()
+  const ownDid = useOwnDid()
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (rkey: string) => {
+      await agent.com.atproto.repo.deleteRecord({
+        repo: ownDid(),
+        collection: READING_COLLECTION,
+        rkey,
+      })
+    },
+    onSuccess: () => qc.invalidateQueries({queryKey: [ROOT, 'reading']}),
   })
 }

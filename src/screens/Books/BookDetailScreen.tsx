@@ -16,12 +16,17 @@ import {
 } from '#/lib/routes/types'
 import {
   coverUrl,
+  useAddToReadingMutation,
   useAuthorPdsQuery,
   useBookQuery,
   useChaptersQuery,
+  useReadingQuery,
+  useRemoveFromReadingMutation,
 } from '#/state/queries/books'
+import {useSession} from '#/state/session'
 import {atoms as a, useTheme} from '#/alf'
 import {BookCover} from '#/components/books/BookCover'
+import {Button, ButtonText} from '#/components/Button'
 import {Link} from '#/components/Link'
 import {Text} from '#/components/Typography'
 import {useAgeAssurance} from '#/ageAssurance'
@@ -144,6 +149,7 @@ function BookPage({handle, rkey}: {handle: string; rkey: string}) {
             label={`Ler capítulo ${first.chapter.number}`}
           />
         )}
+        <ReadingToggle bookUri={stored.uri} />
         {author.isOwner && (
           <>
             <PillLink
@@ -209,5 +215,28 @@ function BookPage({handle, rkey}: {handle: string; rkey: string}) {
         </View>
       )}
     </View>
+  )
+}
+
+/** Adds or removes the book from the signed-in person's "Leitura" list. */
+function ReadingToggle({bookUri}: {bookUri: string}) {
+  const {currentAccount} = useSession()
+  const reading = useReadingQuery(currentAccount?.did)
+  const add = useAddToReadingMutation()
+  const remove = useRemoveFromReadingMutation()
+  if (!currentAccount || reading.isLoading) return null
+  const entry = reading.data?.find(e => e.bookUri === bookUri)
+  const busy = add.isPending || remove.isPending
+  return (
+    <Button
+      label={entry ? 'Remover da leitura' : 'Adicionar à leitura'}
+      size="large"
+      color="secondary"
+      disabled={busy}
+      onPress={() => (entry ? remove.mutate(entry.rkey) : add.mutate(bookUri))}>
+      <ButtonText>
+        {entry ? 'Na sua leitura ✓' : 'Adicionar à leitura'}
+      </ButtonText>
+    </Button>
   )
 }
