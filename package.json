@@ -98,6 +98,8 @@
     "@haileyok/bluesky-video": "0.3.2",
     "@ipld/dag-cbor": "^9.2.0",
     "@lingui/react": "^4.14.1",
+    "@mantine/core": "^8.3.11",
+    "@mantine/hooks": "^8.3.11",
     "@mattermost/react-native-paste-input": "mattermost/react-native-paste-input",
     "@miblanchard/react-native-slider": "^2.6.0",
     "@mozzius/expo-dynamic-app-icon": "^1.8.0",
@@ -231,7 +233,6 @@
     "zod": "^3.20.2"
   },
   "devDependencies": {
-    "@atproto/dev-env": "^0.3.193",
     "@babel/core": "^7.29.6",
     "@babel/preset-env": "^7.26.0",
     "@babel/runtime": "^7.26.10",
@@ -286,6 +287,9 @@
     "ts-plugin-sort-import-suggestions": "^1.0.4",
     "typescript": "^5.9.2",
     "webpack-bundle-analyzer": "^4.10.1"
+  },
+  "optionalDependencies": {
+    "@atproto/dev-env": "^0.3.193"
   },
   "resolutions": {
     "@react-native/babel-preset": "0.81.5",

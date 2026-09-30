@@ -1,3 +1,5 @@
+const path = require('path')
+const webpack = require('webpack')
 const createExpoWebpackConfigAsync = require('@expo/webpack-config')
 const {withAlias} = require('@expo/webpack-config/addons')
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin')
@@ -18,6 +20,37 @@ const reactNativeWebWebviewConfiguration = {
   },
 }
 
+// The composer uses Tiptap v2 while BlockNote (AQUA DOCS) ships Tiptap v3.
+// npm may hoist some v3 extensions to the top-level node_modules, where they
+// would resolve the app's v2 @tiptap/core and @tiptap/pm. Resolve @tiptap/core and
+// @tiptap/pm imports made by those v3 packages from BlockNote's copy instead.
+const TIPTAP_V3_BASE = path.join(__dirname, 'node_modules/@blocknote/core')
+const TIPTAP_HOISTED_DIR = path.join(__dirname, 'node_modules/@tiptap')
+const tiptapMajorCache = new Map()
+function tiptapMajor(dir) {
+  if (!tiptapMajorCache.has(dir)) {
+    let major = null
+    try {
+      major = require(path.join(dir, 'package.json')).version.split('.')[0]
+    } catch {}
+    tiptapMajorCache.set(dir, major)
+  }
+  return tiptapMajorCache.get(dir)
+}
+const tiptapV3Resolution = new webpack.NormalModuleReplacementPlugin(
+  /^@tiptap\/(core|pm)(\/|$)/,
+  resource => {
+    const context = resource.context || ''
+    if (!context.startsWith(TIPTAP_HOISTED_DIR + path.sep)) return
+    const pkgName = context
+      .slice(TIPTAP_HOISTED_DIR.length + 1)
+      .split(path.sep)[0]
+    if (tiptapMajor(path.join(TIPTAP_HOISTED_DIR, pkgName)) === '3') {
+      resource.context = TIPTAP_V3_BASE
+    }
+  },
+)
+
 module.exports = async function (env, argv) {
   let config = await createExpoWebpackConfigAsync(env, argv)
   config = withAlias(config, {
@@ -32,6 +65,7 @@ module.exports = async function (env, argv) {
     ...(config.module.rules || []),
     reactNativeWebWebviewConfiguration,
   ]
+  config.plugins.push(tiptapV3Resolution)
   if (env.mode === 'development') {
     config.plugins.push(new ReactRefreshWebpackPlugin())
   } else {
