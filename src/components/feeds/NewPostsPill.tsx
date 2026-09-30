@@ -21,10 +21,13 @@ export function NewPostsPill({
   authors,
   onPress,
   label,
+  text,
 }: {
   authors: AppBskyActorDefs.ProfileViewBasic[]
   onPress: () => void
   label: string
+  /** Overrides the default "posted" text (used when there are no avatars). */
+  text?: string
 }) {
   const t = useTheme()
   const {_} = useLingui()
@@ -67,7 +70,7 @@ export function NewPostsPill({
             />
           )}
           <Text style={[a.font_bold, styles.white, styles.label]}>
-            {_(msg`posted`)}
+            {text ?? _(msg`posted`)}
           </Text>
         </View>
       </PressableScale>
@@ -79,7 +82,7 @@ const styles = StyleSheet.create({
   capsule: {
     paddingVertical: 7,
     paddingHorizontal: 14,
-    backgroundColor: 'rgba(0, 43, 239, 0.55)',
+    backgroundColor: '#002bef',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.35)',
   },

@@ -5,8 +5,9 @@ import {Button, ButtonIcon} from '#/components/Button'
 import {PlusLarge_Stroke2_Corner0_Rounded as PlusIcon} from '#/components/icons/Plus'
 import {Text} from '#/components/Typography'
 
-/** AQUA light blue, from the logo. */
-const ACTIVE_COLOR = '#009eff'
+/** AQUA blue, from the logo (lighter in dark mode for contrast). */
+const ACTIVE_COLOR = '#002bef'
+const ACTIVE_COLOR_DARK = '#3e5bff'
 const SIDE_SLOT = 44
 
 /**
@@ -65,7 +66,10 @@ export function HomeFeedTabs({
                   {fontSize: 13},
                   a.font_bold,
                   selected
-                    ? {color: ACTIVE_COLOR}
+                    ? {
+                        color:
+                          t.name === 'light' ? ACTIVE_COLOR : ACTIVE_COLOR_DARK,
+                      }
                     : t.atoms.text_contrast_medium,
                   web({transition: 'color 150ms ease'}),
                 ]}>

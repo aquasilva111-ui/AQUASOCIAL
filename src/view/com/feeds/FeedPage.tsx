@@ -7,6 +7,7 @@ import {
   useState,
 } from 'react'
 import {View} from 'react-native'
+import {runOnJS, useAnimatedReaction} from 'react-native-reanimated'
 import {type AppBskyActorDefs, AppBskyFeedDefs} from '@atproto/api'
 import {msg} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
@@ -32,7 +33,7 @@ import {
 } from '#/state/queries/post-feed'
 import {truncateAndInvalidate} from '#/state/queries/util'
 import {useSession} from '#/state/session'
-import {useSetMinimalShellMode} from '#/state/shell'
+import {useMinimalShellMode, useSetMinimalShellMode} from '#/state/shell'
 import {useFeedExperience} from '#/state/shell/feed-experience'
 import {atoms as a} from '#/alf'
 import {NewPostsPill} from '#/components/feeds/NewPostsPill'
@@ -73,6 +74,12 @@ export function FeedPage({
   const {openComposer} = useOpenComposer()
   const [isScrolledDown, setIsScrolledDown] = useState(false)
   const setMinimalShellMode = useSetMinimalShellMode()
+  const {headerMode} = useMinimalShellMode()
+  // Each time the person scrolls back up, nudge them toward the newest posts
+  // (and the feed tabs, which come back with the header) for a few seconds.
+  const [showUpPill, setShowUpPill] = useState(false)
+  const upPillTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
+  const isScrolledDownRef = useRef(false)
   const baseHeaderOffset = useHeaderOffset()
   const headerOffset = baseHeaderOffset > 0 ? baseHeaderOffset + 46 : 0
   const experienceMode = useFeedExperience()
@@ -96,6 +103,27 @@ export function FeedPage({
       setHomeBadge(hasNew)
     }
   }, [isPageFocused, hasNew, setHomeBadge])
+
+  const onScrolledBackUp = useCallback(() => {
+    if (!isScrolledDownRef.current) return
+    setShowUpPill(true)
+    clearTimeout(upPillTimer.current)
+    upPillTimer.current = setTimeout(() => setShowUpPill(false), 4000)
+  }, [])
+  const onScrolledDownAgain = useCallback(() => {
+    clearTimeout(upPillTimer.current)
+    setShowUpPill(false)
+  }, [])
+  useAnimatedReaction(
+    () => Math.round(headerMode.get()),
+    (mode, prev) => {
+      if (prev === null || mode === prev) return
+      // 0 = header/tabs shown (scrolling up), 1 = hidden (scrolling down).
+      if (mode === 0) runOnJS(onScrolledBackUp)()
+      else runOnJS(onScrolledDownAgain)()
+    },
+  )
+  useEffect(() => () => clearTimeout(upPillTimer.current), [])
 
   const scrollToTop = useCallback(() => {
     scrollElRef.current?.scrollToOffset({
@@ -184,7 +212,14 @@ export function FeedPage({
             pollInterval={POLL_FREQ}
             disablePoll={hasNew || !isPageFocused}
             scrollElRef={scrollElRef}
-            onScrolledDownChange={setIsScrolledDown}
+            onScrolledDownChange={(v: boolean) => {
+              isScrolledDownRef.current = v
+              setIsScrolledDown(v)
+              if (!v) {
+                clearTimeout(upPillTimer.current)
+                setShowUpPill(false)
+              }
+            }}
             onHasNew={onHasNew}
             renderEmptyState={renderEmptyState}
             renderEndOfFeed={renderEndOfFeed}
@@ -194,7 +229,7 @@ export function FeedPage({
           />
         </FeedFeedbackProvider>
       </MainScrollProvider>
-      {hasNew && newPosters.length > 0 ? (
+      {(hasNew && newPosters.length > 0) || (showUpPill && isScrolledDown) ? (
         <View
           pointerEvents="box-none"
           style={[
@@ -208,9 +243,10 @@ export function FeedPage({
             },
           ]}>
           <NewPostsPill
-            authors={newPosters}
+            authors={hasNew ? newPosters : []}
             onPress={onPressLoadLatest}
             label={_(msg`Load new posts`)}
+            text={hasNew ? undefined : _(msg`See new posts`)}
           />
         </View>
       ) : (

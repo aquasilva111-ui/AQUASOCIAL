@@ -8,7 +8,7 @@
   box-sizing: border-box;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.35);
-  background: rgba(0, 43, 239, 0.55);
+  background: #002bef;
   -webkit-backdrop-filter: blur(16px) saturate(1.6);
   backdrop-filter: blur(16px) saturate(1.6);
   box-shadow:
@@ -24,7 +24,7 @@
   transition: background 150ms ease-out;
 }
 .new-posts-pill:hover {
-  background: rgba(0, 43, 239, 0.68);
+  background: #0023c4;
 }
 .new-posts-pill:focus-visible {
   outline: 2px solid #002bef;
@@ -47,7 +47,7 @@
 }
 .new-posts-pill[data-theme='dark'],
 .new-posts-pill[data-theme='dim'] {
-  background: rgba(0, 43, 239, 0.45);
+  background: #002bef;
   border-color: rgba(255, 255, 255, 0.22);
   box-shadow:
     0 8px 24px rgba(0, 0, 0, 0.45),
@@ -55,7 +55,7 @@
 }
 .new-posts-pill[data-theme='dark']:hover,
 .new-posts-pill[data-theme='dim']:hover {
-  background: rgba(0, 43, 239, 0.58);
+  background: #0023c4;
 }
 @keyframes new-posts-pill-in {
   from {

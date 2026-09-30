@@ -16,15 +16,18 @@ export function NewPostsPill({
   authors,
   onPress,
   label,
+  text,
 }: {
   authors: AppBskyActorDefs.ProfileViewBasic[]
   onPress: () => void
   label: string
+  /** Overrides the default "posted" text (used when there are no avatars). */
+  text?: string
 }) {
   const theme = useTheme()
   const {_} = useLingui()
   const gate = useGate()
-  const postedLabel = _(msg`posted`)
+  const postedLabel = text ?? _(msg`posted`)
   if (gate('remove_show_latest_button')) {
     return null
   }
