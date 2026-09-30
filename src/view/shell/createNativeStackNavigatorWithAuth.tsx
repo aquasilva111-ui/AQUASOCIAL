@@ -55,6 +55,8 @@ const FULL_PAGE_ROUTES = [
   'ViewChannelCreate',
   'ViewStudio',
   'ViewStudioCustomize',
+  'CreativeHub',
+  'CreativeHubTab',
 ]
 
 type NativeStackNavigationOptionsWithAuth = NativeStackNavigationOptions & {

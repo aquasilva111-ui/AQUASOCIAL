@@ -95,7 +95,8 @@ import {
   BooksStudioScreen,
   ChapterEditScreen,
 } from '#/screens/Books'
-import {CreativeHubScreen, UIAIScreen} from '#/screens/ComingSoon'
+import {UIAIScreen} from '#/screens/ComingSoon'
+import {CreativeHubScreen} from '#/screens/CreativeHub'
 import {DocEditorScreen, DocsHomeScreen} from '#/screens/Docs'
 import {SharedPreferencesTesterScreen} from '#/screens/E2E/SharedPreferencesTesterScreen'
 import HashtagScreen from '#/screens/Hashtag'
@@ -118,6 +119,7 @@ import {MessagesSettingsScreen} from '#/screens/Messages/Settings'
 import {ModerationScreen} from '#/screens/Moderation'
 import {Screen as ModerationVerificationSettings} from '#/screens/Moderation/VerificationSettings'
 import {Screen as ModerationInteractionSettings} from '#/screens/ModerationInteractionSettings'
+import {MusicScreen} from '#/screens/Music'
 import {NotificationsActivityListScreen} from '#/screens/Notifications/ActivityList'
 import {PostLikedByScreen} from '#/screens/Post/PostLikedBy'
 import {PostQuotesScreen} from '#/screens/Post/PostQuotes'
@@ -699,6 +701,11 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
         options={{title: 'Transmitir ao vivo', requireAuth: true}}
       />
       <Stack.Screen
+        name="Music"
+        component={MusicScreen}
+        options={{title: 'Música'}}
+      />
+      <Stack.Screen
         name="Books"
         component={BooksHomeScreen}
         options={{title: 'Livros'}}
@@ -816,7 +823,12 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
       <Stack.Screen
         name="CreativeHub"
         component={CreativeHubScreen}
-        options={{title: 'Creative Hub'}}
+        options={{title: 'Creative Hub', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="CreativeHubTab"
+        component={CreativeHubScreen}
+        options={{title: 'Creative Hub', requireAuth: true}}
       />
       <Stack.Screen
         name="UIAI"

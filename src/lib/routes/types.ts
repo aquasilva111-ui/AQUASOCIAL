@@ -106,6 +106,7 @@ export type CommonNavigatorParams = {
   ViewWatchLater: undefined
   ViewLive: undefined
   ViewList: {kind: string; name: string; rkey: string}
+  Music: undefined
   Books: undefined
   BooksStudio: undefined
   BookEdit: {book: string}
@@ -116,6 +117,7 @@ export type CommonNavigatorParams = {
   LaunchNew: {id?: string} | undefined
   LaunchDetail: {id: string}
   CreativeHub: undefined
+  CreativeHubTab: {tab: string}
   UIAI: undefined
   DocsHome: undefined
   DocEditor: {id: string}

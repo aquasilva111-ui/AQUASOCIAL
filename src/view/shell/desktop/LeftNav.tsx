@@ -36,6 +36,7 @@ import {ArrowBoxLeft_Stroke2_Corner0_Rounded as LeaveIcon} from '#/components/ic
 import {Book_Stroke2_Corner2_Rounded as Book} from '#/components/icons/Book'
 import {CirclePlus_Stroke2_Corner0_Rounded as CirclePlusIcon} from '#/components/icons/CirclePlus'
 import {DotGrid_Stroke2_Corner0_Rounded as EllipsisIcon} from '#/components/icons/DotGrid'
+import {MusicNote_Stroke2_Corner0_Rounded as MusicNote} from '#/components/icons/MusicNote'
 import {PlusLarge_Stroke2_Corner0_Rounded as PlusIcon} from '#/components/icons/Plus'
 import {
   SettingsGear2_Filled_Corner0_Rounded as SettingsFilled,
@@ -63,7 +64,6 @@ const portalsIcon = require('../../../../assets/icons/portals.png')
 const shopIcon = require('../../../../assets/icons/shop.png')
 const uiAiIcon = require('../../../../assets/icons/ui-ai.png')
 const visionboardIcon = require('../../../../assets/icons/visionboard.png')
-const wikiIcon = require('../../../../assets/icons/wiki.png')
 
 function ProfileCard() {
   const {currentAccount, accounts} = useSession()
@@ -684,6 +684,24 @@ export function DesktopLeftNav() {
             }
             label="Books"
           />
+          <NavItem
+            href="/music"
+            icon={
+              <MusicNote
+                aria-hidden={true}
+                width={NAV_ICON_WIDTH}
+                style={pal.text}
+              />
+            }
+            iconFilled={
+              <MusicNote
+                aria-hidden={true}
+                width={NAV_ICON_WIDTH}
+                style={pal.text}
+              />
+            }
+            label="Música"
+          />
           <PlaceholderNavItem
             icon={
               <Image
@@ -697,32 +715,6 @@ export function DesktopLeftNav() {
               />
             }
             label="Shop"
-          />
-          <NavItem
-            href="/docs"
-            icon={
-              <Image
-                accessibilityIgnoresInvertColors
-                source={wikiIcon}
-                style={{
-                  width: NAV_ICON_WIDTH,
-                  height: NAV_ICON_WIDTH,
-                  tintColor: pal.text.color,
-                }}
-              />
-            }
-            iconFilled={
-              <Image
-                accessibilityIgnoresInvertColors
-                source={wikiIcon}
-                style={{
-                  width: NAV_ICON_WIDTH,
-                  height: NAV_ICON_WIDTH,
-                  tintColor: pal.text.color,
-                }}
-              />
-            }
-            label="Docs"
           />
           <PlaceholderNavItem
             icon={

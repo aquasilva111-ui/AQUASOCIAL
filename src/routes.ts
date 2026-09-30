@@ -35,6 +35,7 @@ export const router = new Router<AllNavigatableRoutes>({
   ViewLive: '/videos/live',
   ViewList: '/videos/list/:kind/:name/:rkey',
   // AQUA Books — static segments first; each pattern matches an exact depth
+  Music: '/music',
   Books: '/books',
   BooksStudio: '/books/studio',
   BookEdit: '/books/studio/book/:book',
@@ -45,6 +46,7 @@ export const router = new Router<AllNavigatableRoutes>({
   LaunchNew: '/launch/new',
   LaunchDetail: '/launch/view/:id',
   CreativeHub: '/creative-hub',
+  CreativeHubTab: '/creative-hub/:tab',
   UIAI: '/ui-ai',
   // AQUA DOCS (block documents)
   DocsHome: '/docs',

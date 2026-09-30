@@ -28,10 +28,6 @@ function ComingSoon({title, testID}: {title: string; testID: string}) {
   )
 }
 
-export function CreativeHubScreen() {
-  return <ComingSoon title="Creative Hub" testID="creativeHubScreen" />
-}
-
 export function UIAIScreen() {
   return <ComingSoon title="UI & AI" testID="uiAiScreen" />
 }
