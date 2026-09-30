@@ -45,6 +45,7 @@ import {
   useViewPlayback,
 } from '#/state/view-playback'
 import {UserAvatar} from '#/view/com/util/UserAvatar'
+import {SaveMenu, useRecordWatch} from '#/screens/ViewLibrary/SaveMenu'
 import {atoms as a, useBreakpoints, useTheme, web} from '#/alf'
 import {Button, ButtonText} from '#/components/Button'
 import * as Layout from '#/components/Layout'
@@ -171,6 +172,7 @@ function WatchLoaded({
   const {gtTablet} = useBreakpoints()
   const post = usePostShadow(rawPost)
   const playerRef = useRef<ViewPlayerHandle>(null)
+  useRecordWatch(rawPost)
   const [time, setTime] = useState(startAt ?? 0)
   const [duration, setDuration] = useState<number>()
   const [theater, setTheater] = useState(false)
@@ -558,6 +560,7 @@ function Actions({
           {at > 0 ? `Compartilhar em ${formatTime(at)}` : 'Compartilhar'}
         </ButtonText>
       </Button>
+      {hasSession && <SaveMenu post={post} />}
       {hasSession && (
         <Button
           label={saved ? 'Remover dos salvos' : 'Salvar'}

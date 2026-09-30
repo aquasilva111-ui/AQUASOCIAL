@@ -171,6 +171,16 @@ import {
   ViewStudioCustomizeScreen,
   ViewStudioScreen,
 } from '#/screens/ViewChannel/StudioScreen'
+import {ViewChannelsScreen} from '#/screens/ViewLibrary/ChannelsScreen'
+import {ViewHistoryScreen} from '#/screens/ViewLibrary/HistoryScreen'
+import {ViewListScreen} from '#/screens/ViewLibrary/ListDetailScreen'
+import {
+  ViewCollectionsScreen,
+  ViewPlaylistsScreen,
+} from '#/screens/ViewLibrary/ListsScreen'
+import {ViewLiveScreen} from '#/screens/ViewLibrary/LiveScreen'
+import {ViewPaidScreen} from '#/screens/ViewLibrary/PaidScreen'
+import {ViewWatchLaterScreen} from '#/screens/ViewLibrary/WatchLaterScreen'
 import {ViewWatchScreen} from '#/screens/ViewWatch/WatchScreen'
 import {type Theme, useTheme} from '#/alf'
 import {
@@ -735,6 +745,46 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
         name="ViewStudioCustomize"
         component={ViewStudioCustomizeScreen}
         options={{title: 'Personalizar canal', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="ViewPaid"
+        component={ViewPaidScreen}
+        options={{title: 'Assinaturas pagas'}}
+      />
+      <Stack.Screen
+        name="ViewChannels"
+        component={ViewChannelsScreen}
+        options={{title: 'Canais', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="ViewHistory"
+        component={ViewHistoryScreen}
+        options={{title: 'Histórico', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="ViewPlaylists"
+        component={ViewPlaylistsScreen}
+        options={{title: 'Playlists', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="ViewCollections"
+        component={ViewCollectionsScreen}
+        options={{title: 'Coleções', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="ViewWatchLater"
+        component={ViewWatchLaterScreen}
+        options={{title: 'Assistir mais tarde', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="ViewLive"
+        component={ViewLiveScreen}
+        options={{title: 'Transmissões ao vivo'}}
+      />
+      <Stack.Screen
+        name="ViewList"
+        component={ViewListScreen}
+        options={{title: 'Lista'}}
       />
       <Stack.Screen
         name="LaunchHub"

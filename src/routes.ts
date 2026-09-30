@@ -23,6 +23,15 @@ export const router = new Router<AllNavigatableRoutes>({
   ViewChannel: '/videos/channel/:handle',
   ViewStudio: '/videos/studio',
   ViewStudioCustomize: '/videos/studio/customization',
+  // AQUA Views library (Você menu)
+  ViewPaid: '/videos/paid',
+  ViewChannels: '/videos/channels',
+  ViewHistory: '/videos/history',
+  ViewPlaylists: '/videos/playlists',
+  ViewCollections: '/videos/collections',
+  ViewWatchLater: '/videos/watch-later',
+  ViewLive: '/videos/live',
+  ViewList: '/videos/list/:kind/:name/:rkey',
   // AQUA Books — static segments first; each pattern matches an exact depth
   Books: '/books',
   BooksStudio: '/books/studio',

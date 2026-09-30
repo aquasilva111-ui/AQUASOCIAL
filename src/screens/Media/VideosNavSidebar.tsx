@@ -43,23 +43,23 @@ const NAV_ITEMS: {
   to: string
   icon: React.ComponentType<SVGIconProps>
 }[] = [
-  {label: 'Assinaturas pagas', to: '/videos', icon: PaidIcon},
+  {label: 'Assinaturas pagas', to: '/videos/paid', icon: PaidIcon},
   {
     label: 'Inscrições',
     to: '/videos?source=following',
     icon: SubscriptionsIcon,
   },
-  {label: 'Canais', to: '/videos', icon: ChannelsIcon},
-  {label: 'Histórico', to: '/videos', icon: HistoryIcon},
-  {label: 'Playlist', to: '/videos', icon: PlaylistIcon},
+  {label: 'Canais', to: '/videos/channels', icon: ChannelsIcon},
+  {label: 'Histórico', to: '/videos/history', icon: HistoryIcon},
+  {label: 'Playlist', to: '/videos/playlists', icon: PlaylistIcon},
   {
     label: 'Assistir mais tarde',
-    to: '/videos?source=saved',
+    to: '/videos/watch-later',
     icon: WatchLaterIcon,
   },
   {label: 'Meus vídeos', to: '/videos?source=created', icon: MyVideosIcon},
-  {label: 'Coleções', to: '/videos', icon: CollectionsIcon},
-  {label: 'Transmissões ao vivo', to: '/videos/golive', icon: LiveIcon},
+  {label: 'Coleções', to: '/videos/collections', icon: CollectionsIcon},
+  {label: 'Transmissões ao vivo', to: '/videos/live', icon: LiveIcon},
 ]
 
 const COUNTRIES = ['Mundial', 'Brasil', 'Estados Unidos', 'Portugal']

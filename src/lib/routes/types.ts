@@ -96,6 +96,14 @@ export type CommonNavigatorParams = {
   ViewChannel: {handle: string}
   ViewStudio: undefined
   ViewStudioCustomize: undefined
+  ViewPaid: undefined
+  ViewChannels: undefined
+  ViewHistory: undefined
+  ViewPlaylists: undefined
+  ViewCollections: undefined
+  ViewWatchLater: undefined
+  ViewLive: undefined
+  ViewList: {kind: string; name: string; rkey: string}
   Books: undefined
   BooksStudio: undefined
   BookEdit: {book: string}
