@@ -7,6 +7,9 @@ export type ViewPlayerHandle = {
   seek: (sec: number) => void
   /** Current position in seconds (0 when unknown). */
   getTime: () => number
+  isPlaying: () => boolean
+  play: () => void
+  pause: () => void
 }
 
 export type ViewPlayerProps = {
@@ -20,4 +23,13 @@ export type ViewPlayerProps = {
   onToggleTheater?: () => void
   onTimeUpdate?: (sec: number) => void
   onDuration?: (sec: number) => void
+  onPlayingChange?: (playing: boolean) => void
+  /** Start playing as soon as it can (resuming from the miniplayer). */
+  autoStart?: boolean
+  /** What plays next; shown at the end with an autoplay countdown. */
+  upNext?: {title: string; thumbnail?: string}
+  autoplay?: boolean
+  onPlayNext?: () => void
+  /** Keeps playing in the miniplayer and leaves the page. */
+  onMiniPlayer?: () => void
 }

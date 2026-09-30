@@ -1,15 +1,9 @@
-import {useEffect, useMemo, useRef, useState} from 'react'
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
 import {TextInput, View} from 'react-native'
-import {Image} from 'expo-image'
 import {type AppBskyActorDefs, type AppBskyFeedDefs, AtUri} from '@atproto/api'
-import {useNavigation} from '@react-navigation/native'
+import {useIsFocused, useNavigation} from '@react-navigation/native'
 
-import {DISCOVER_FEED_URI} from '#/lib/constants'
-import {
-  getPostMedia,
-  getPostTopics,
-  getRelatedMedia,
-} from '#/lib/media/experiences'
+import {getPostMedia, getPostTopics} from '#/lib/media/experiences'
 import {recordView} from '#/lib/media/views'
 import {makeProfileLink} from '#/lib/routes/links'
 import {
@@ -36,14 +30,20 @@ import {
 import {useProfileShadow} from '#/state/cache/profile-shadow'
 import {useBookmarkMutation} from '#/state/queries/bookmarks/useBookmarkMutation'
 import {usePostLikeMutationQueue, usePostQuery} from '#/state/queries/post'
-import {usePostFeedQuery} from '#/state/queries/post-feed'
 import {
   useProfileFollowMutationQueue,
   useProfileQuery,
 } from '#/state/queries/profile'
 import {channelBlobUrl, useViewChannelQuery} from '#/state/queries/view-channel'
 import {useSession} from '#/state/session'
-import {useSelectedFeed} from '#/state/shell/selected-feed'
+import {
+  openMiniPlayer,
+  peekMiniPlayerTime,
+  pickNext,
+  removeFromQueue,
+  takeOverFromMiniPlayer,
+  useViewPlayback,
+} from '#/state/view-playback'
 import {UserAvatar} from '#/view/com/util/UserAvatar'
 import {atoms as a, useBreakpoints, useTheme, web} from '#/alf'
 import {Button, ButtonText} from '#/components/Button'
@@ -56,6 +56,7 @@ import {
 import {Text} from '#/components/Typography'
 import {ViewPlayer} from '#/components/view-watch/ViewPlayer'
 import {type ViewPlayerHandle} from '#/components/view-watch/ViewPlayer.types'
+import {toVideoRef, UpNextPanel, useRecommendations} from './UpNext'
 
 export function ViewWatchScreen({
   route,
@@ -176,6 +177,19 @@ function WatchLoaded({
   const author = rawPost.author
   const channel = useViewChannelQuery(author.did)
   const profile = useProfileQuery({did: author.did})
+  const navigation = useNavigation<NavigationProp>()
+  const isFocused = useIsFocused()
+  const recs = useRecommendations(rawPost)
+  const {queue, autoplay} = useViewPlayback()
+  const next = useMemo(
+    () => pickNext(queue, rawPost.uri, recs.all),
+    [queue, rawPost.uri, recs.all],
+  )
+
+  // Coming back from the miniplayer: resume where it was, already playing.
+  const [resumeAt] = useState(() => peekMiniPlayerTime(rawPost.uri))
+  const lastTime = useRef(resumeAt ?? startAt ?? 0)
+  const playingRef = useRef(false)
 
   const media = getPostMedia(rawPost)
   const text = (rawPost.record as {text?: string}).text ?? ''
@@ -189,6 +203,50 @@ function WatchLoaded({
     author.did,
     channel.data?.channel?.watermark,
   )
+
+  // Hands the video to the miniplayer (web) so it keeps playing elsewhere.
+  const toMiniPlayer = useCallback(() => {
+    if (!isWeb || media.type !== 'video') return
+    openMiniPlayer({
+      ...toVideoRef(rawPost),
+      playlist: media.view.playlist,
+      time: lastTime.current,
+      watermarkUri,
+    })
+  }, [rawPost, media, watermarkUri])
+  const toMiniRef = useRef(toMiniPlayer)
+  toMiniRef.current = toMiniPlayer
+
+  const firstFocus = useRef(true)
+  useEffect(() => {
+    if (isFocused) {
+      // This page owns playback now; any miniplayer closes.
+      const resumeFrom = takeOverFromMiniPlayer(rawPost.uri)
+      if (!firstFocus.current && resumeFrom !== undefined) {
+        playerRef.current?.seek(resumeFrom)
+        playerRef.current?.play()
+      }
+      firstFocus.current = false
+    } else if (playerRef.current?.isPlaying()) {
+      // Leaving while it plays: continue in the miniplayer.
+      playerRef.current.pause()
+      toMiniRef.current()
+    }
+  }, [isFocused, rawPost.uri])
+  useEffect(
+    () => () => {
+      if (playingRef.current) toMiniRef.current()
+    },
+    [],
+  )
+
+  const playNext = useCallback(() => {
+    if (!next) return
+    playerRef.current?.pause()
+    playingRef.current = false
+    if (next.fromQueue) removeFromQueue(next.video.uri)
+    navigation.push('VideoWatch', {name: next.video.did, rkey: next.video.rkey})
+  }, [next, navigation])
 
   if (post === POST_TOMBSTONE)
     return (
@@ -208,12 +266,36 @@ function WatchLoaded({
       ref={playerRef}
       embed={media.view}
       chapters={chapters}
-      startAt={startAt}
+      startAt={resumeAt ?? startAt}
+      autoStart={resumeAt !== undefined}
       watermarkUri={watermarkUri}
       theater={theater}
       onToggleTheater={gtTablet ? () => setTheater(v => !v) : undefined}
-      onTimeUpdate={setTime}
+      onTimeUpdate={sec => {
+        lastTime.current = sec
+        setTime(sec)
+      }}
+      onPlayingChange={playing => {
+        playingRef.current = playing
+      }}
       onDuration={setDuration}
+      upNext={
+        next
+          ? {title: next.video.title, thumbnail: next.video.thumbnail}
+          : undefined
+      }
+      autoplay={autoplay}
+      onPlayNext={next ? playNext : undefined}
+      onMiniPlayer={
+        isWeb
+          ? () => {
+              playerRef.current?.pause()
+              playingRef.current = false
+              toMiniPlayer()
+              navigation.navigate('Videos')
+            }
+          : undefined
+      }
     />
   )
   const info = (
@@ -228,7 +310,14 @@ function WatchLoaded({
       profile={profile.data}
     />
   )
-  const aside = <Related post={rawPost} />
+  const aside = (
+    <UpNextPanel
+      currentUri={rawPost.uri}
+      next={next}
+      recs={recs}
+      onPlayNext={playNext}
+    />
+  )
 
   if (!gtTablet)
     return (
@@ -500,76 +589,6 @@ function Actions({
           />
         </>
       )}
-    </View>
-  )
-}
-
-/** Related videos: same topics or same author, from the feed already loaded. */
-function Related({post}: {post: AppBskyFeedDefs.PostView}) {
-  const t = useTheme()
-  const selected = useSelectedFeed()
-  const feed = usePostFeedQuery(selected ?? `feedgen|${DISCOVER_FEED_URI}`)
-  const items = useMemo(
-    () =>
-      getRelatedMedia(
-        post,
-        feed.data?.pages.flatMap(page =>
-          page.slices.flatMap(slice => slice.items),
-        ) ?? [],
-        'video',
-      ).slice(0, 12),
-    [post, feed.data],
-  )
-  return (
-    <View style={[a.gap_md]}>
-      <Text style={[a.text_lg, a.font_bold]}>Relacionados</Text>
-      {!items.length && (
-        <Text style={[a.text_sm, t.atoms.text_contrast_medium]}>
-          {feed.isLoading ? 'Carregando…' : 'Nenhum vídeo relacionado agora.'}
-        </Text>
-      )}
-      {items.map(item => {
-        const m = getPostMedia(item.post)
-        const thumb = m.type === 'video' ? m.view.thumbnail : undefined
-        const itemTitle =
-          splitTitle((item.post.record as {text?: string}).text ?? '').title ||
-          'Vídeo'
-        const who = item.post.author.displayName || item.post.author.handle
-        return (
-          <Link
-            key={item.uri}
-            to={watchPath(item.post)}
-            label={`${itemTitle}, de ${who}`}
-            style={[a.flex_row, a.gap_md]}>
-            <View
-              style={[
-                a.rounded_md,
-                a.overflow_hidden,
-                t.atoms.bg_contrast_50,
-                {width: 168, aspectRatio: 16 / 9},
-              ]}>
-              {thumb && (
-                <Image
-                  source={{uri: thumb}}
-                  style={{width: '100%', height: '100%'}}
-                  contentFit="cover"
-                  accessibilityIgnoresInvertColors
-                />
-              )}
-            </View>
-            <View style={[a.flex_1, a.gap_2xs]}>
-              <Text style={[a.text_sm, a.font_bold]} numberOfLines={2}>
-                {itemTitle}
-              </Text>
-              <Text
-                style={[a.text_xs, t.atoms.text_contrast_medium]}
-                numberOfLines={1}>
-                {who}
-              </Text>
-            </View>
-          </Link>
-        )
-      })}
     </View>
   )
 }

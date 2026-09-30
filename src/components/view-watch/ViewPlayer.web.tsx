@@ -9,20 +9,12 @@ import {
   useRef,
   useState,
 } from 'react'
-import type * as HlsTypes from 'hls.js'
 
 import {chapterAt, formatTime} from '#/lib/view-watch/chapters'
+import {type HlsInstance, loadHls} from './hls.web'
 import {type ViewPlayerHandle, type ViewPlayerProps} from './ViewPlayer.types'
 
-type CachedPromise<T> = Promise<T> & {value: undefined | T}
-const promiseForHls = import(
-  // @ts-ignore
-  'hls.js/dist/hls.min'
-).then(mod => mod.default) as CachedPromise<typeof HlsTypes.default>
-promiseForHls.value = undefined
-promiseForHls.then(Hls => {
-  promiseForHls.value = Hls
-})
+const COUNTDOWN_SEC = 8
 
 const SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2]
 const WHITE = '#FFFFFF'
@@ -40,7 +32,7 @@ export const ViewPlayer = forwardRef<ViewPlayerHandle, ViewPlayerProps>(
     const {embed, chapters, startAt, watermarkUri, theater} = props
     const videoRef = useRef<HTMLVideoElement>(null)
     const boxRef = useRef<HTMLDivElement>(null)
-    const hlsRef = useRef<HlsTypes.default | undefined>(undefined)
+    const hlsRef = useRef<HlsInstance | undefined>(undefined)
     const [playing, setPlaying] = useState(false)
     const [time, setTime] = useState(startAt ?? 0)
     const [duration, setDuration] = useState(0)
@@ -54,6 +46,10 @@ export const ViewPlayer = forwardRef<ViewPlayerHandle, ViewPlayerProps>(
     const [menu, setMenu] = useState<Menu>(null)
     const [error, setError] = useState<string>()
     const [fullscreen, setFullscreen] = useState(false)
+    const [ended, setEnded] = useState(false)
+    // Read once when the source loads; changing it later must not reload.
+    const autoStartRef = useRef(props.autoStart)
+    const [countdown, setCountdown] = useState<number | null>(null)
 
     useImperativeHandle(ref, () => ({
       seek(sec) {
@@ -63,6 +59,11 @@ export const ViewPlayer = forwardRef<ViewPlayerHandle, ViewPlayerProps>(
         setTime(v.currentTime)
       },
       getTime: () => videoRef.current?.currentTime ?? 0,
+      isPlaying: () => !!videoRef.current && !videoRef.current.paused,
+      play: () => {
+        videoRef.current?.play().catch(() => {})
+      },
+      pause: () => videoRef.current?.pause(),
     }))
 
     // ---------------------------------------------------------- hls setup
@@ -70,8 +71,8 @@ export const ViewPlayer = forwardRef<ViewPlayerHandle, ViewPlayerProps>(
       const video = videoRef.current
       if (!video) return
       let cancelled = false
-      let hls: HlsTypes.default | undefined
-      promiseForHls.then(Hls => {
+      let hls: HlsInstance | undefined
+      loadHls.then(Hls => {
         if (cancelled) return
         if (!Hls.isSupported()) {
           // Safari plays HLS natively.
@@ -84,6 +85,10 @@ export const ViewPlayer = forwardRef<ViewPlayerHandle, ViewPlayerProps>(
         hlsRef.current = hls
         hls.attachMedia(video)
         hls.loadSource(embed.playlist)
+        if (autoStartRef.current)
+          hls.once(Hls.Events.MANIFEST_PARSED, () => {
+            video.play().catch(() => {})
+          })
         hls.on(Hls.Events.MANIFEST_PARSED, (_e, data) => {
           setLevels(
             data.levels
@@ -118,6 +123,26 @@ export const ViewPlayer = forwardRef<ViewPlayerHandle, ViewPlayerProps>(
         hlsRef.current = undefined
       }
     }, [embed.playlist])
+
+    // Autoplay countdown after the video ends.
+    const {upNext, autoplay, onPlayNext} = props
+    useEffect(() => {
+      if (!ended || !upNext || !autoplay || !onPlayNext) {
+        setCountdown(null)
+        return
+      }
+      setCountdown(COUNTDOWN_SEC)
+      const started = Date.now()
+      const timer = setInterval(() => {
+        const left = COUNTDOWN_SEC - Math.floor((Date.now() - started) / 1000)
+        if (left <= 0) {
+          clearInterval(timer)
+          setCountdown(null)
+          onPlayNext()
+        } else setCountdown(left)
+      }, 250)
+      return () => clearInterval(timer)
+    }, [ended, upNext, autoplay, onPlayNext])
 
     useEffect(() => {
       if (startAt && videoRef.current) videoRef.current.currentTime = startAt
@@ -256,8 +281,16 @@ export const ViewPlayer = forwardRef<ViewPlayerHandle, ViewPlayerProps>(
           playsInline
           muted={muted}
           onClick={togglePlay}
-          onPlay={() => setPlaying(true)}
-          onPause={() => setPlaying(false)}
+          onPlay={() => {
+            setPlaying(true)
+            setEnded(false)
+            props.onPlayingChange?.(true)
+          }}
+          onPause={() => {
+            setPlaying(false)
+            props.onPlayingChange?.(false)
+          }}
+          onEnded={() => setEnded(true)}
           onTimeUpdate={e => {
             const t = e.currentTarget.currentTime
             setTime(t)
@@ -334,7 +367,78 @@ export const ViewPlayer = forwardRef<ViewPlayerHandle, ViewPlayerProps>(
           </div>
         )}
 
-        {!playing && !error && (
+        {ended && upNext && (
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'rgba(0,0,0,0.78)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 14,
+              color: WHITE,
+              padding: 24,
+              textAlign: 'center',
+            }}>
+            <span style={{fontSize: 13, fontWeight: 600, opacity: 0.85}}>
+              {countdown !== null ? `A seguir em ${countdown} s` : 'A seguir'}
+            </span>
+            {upNext.thumbnail && (
+              <img
+                src={upNext.thumbnail}
+                alt=""
+                style={{
+                  width: 220,
+                  maxWidth: '40%',
+                  aspectRatio: '16 / 9',
+                  objectFit: 'cover',
+                  borderRadius: 12,
+                }}
+              />
+            )}
+            <span style={{fontSize: 17, fontWeight: 700, maxWidth: 520}}>
+              {upNext.title}
+            </span>
+            <div style={{display: 'flex', gap: 10}}>
+              {countdown !== null && (
+                <button
+                  type="button"
+                  onClick={() => setEnded(false)}
+                  style={{
+                    padding: '9px 16px',
+                    borderRadius: 999,
+                    border: '1px solid rgba(255,255,255,0.5)',
+                    background: 'transparent',
+                    color: WHITE,
+                    fontSize: 14,
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                  }}>
+                  Cancelar
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => onPlayNext?.()}
+                style={{
+                  padding: '9px 16px',
+                  borderRadius: 999,
+                  border: 'none',
+                  background: WHITE,
+                  color: '#0F172A',
+                  fontSize: 14,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                }}>
+                Assistir agora
+              </button>
+            </div>
+          </div>
+        )}
+
+        {!playing && !error && !(ended && upNext) && (
           <button
             type="button"
             aria-label="Reproduzir"
@@ -440,6 +544,21 @@ export const ViewPlayer = forwardRef<ViewPlayerHandle, ViewPlayerProps>(
                 <path d="M8 5.5v13l10.5-6.5z" fill={WHITE} />
               )}
             </IconButton>
+            {upNext && onPlayNext && (
+              <IconButton
+                label={`Próximo: ${upNext.title}`}
+                onPress={onPlayNext}>
+                <path d="M6 6v12l8.5-6z" fill={WHITE} />
+                <rect
+                  x="16"
+                  y="6"
+                  width="2.5"
+                  height="12"
+                  rx="1"
+                  fill={WHITE}
+                />
+              </IconButton>
+            )}
             <IconButton
               label={muted ? 'Ativar som' : 'Silenciar'}
               onPress={() => setMuted(v => !v)}>
@@ -549,6 +668,21 @@ export const ViewPlayer = forwardRef<ViewPlayerHandle, ViewPlayerProps>(
                   })),
                 ]}
               />
+            )}
+            {props.onMiniPlayer && !fullscreen && (
+              <IconButton label="Miniplayer" onPress={props.onMiniPlayer}>
+                <rect
+                  x="3"
+                  y="5"
+                  width="18"
+                  height="14"
+                  rx="2"
+                  fill="none"
+                  stroke={WHITE}
+                  strokeWidth={2}
+                />
+                <rect x="11" y="11" width="8" height="6" rx="1" fill={WHITE} />
+              </IconButton>
             )}
             {pipSupported && (
               <IconButton label="Picture-in-picture" onPress={togglePip}>

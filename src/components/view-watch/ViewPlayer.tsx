@@ -12,7 +12,13 @@ import {type ViewPlayerHandle, type ViewPlayerProps} from './ViewPlayer.types'
  */
 export const ViewPlayer = forwardRef<ViewPlayerHandle, ViewPlayerProps>(
   function ViewPlayer({embed, watermarkUri}, ref) {
-    useImperativeHandle(ref, () => ({seek: () => {}, getTime: () => 0}))
+    useImperativeHandle(ref, () => ({
+      seek: () => {},
+      getTime: () => 0,
+      isPlaying: () => false,
+      play: () => {},
+      pause: () => {},
+    }))
     return (
       <View style={[a.relative, a.w_full]}>
         <VideoEmbed embed={embed} />

@@ -26,6 +26,7 @@ import {
   usePolicyUpdateContext,
 } from '#/components/PolicyUpdateOverlay'
 import {Outlet as PortalOutlet} from '#/components/Portal'
+import {ViewMiniPlayer} from '#/components/view-watch/MiniPlayer'
 import {WelcomeModal} from '#/components/WelcomeModal'
 import {useAgeAssurance} from '#/ageAssurance'
 import {NoAccessScreen} from '#/ageAssurance/components/NoAccessScreen'
@@ -76,6 +77,7 @@ function ShellInner() {
         <FlatNavigator />
       </ErrorBoundary>
       <Composer winHeight={0} />
+      <ViewMiniPlayer />
       <ModalsContainer />
       <MutedWordsDialog />
       <SigninDialog />
