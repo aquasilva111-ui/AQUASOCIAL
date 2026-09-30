@@ -1,5 +1,8 @@
 RewriteEngine On
 
+# Old Aqua Views URLs (/videos/...) now live under /views/.
+RewriteRule ^videos(/.*)?$ /views$1 [R=301,L]
+
 # Serve existing static files and directories normally.
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
