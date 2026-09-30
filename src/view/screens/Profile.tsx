@@ -44,6 +44,7 @@ import {ProfileHeader, ProfileHeaderLoading} from '#/screens/Profile/Header'
 import {ProfileBooksSection} from '#/screens/Profile/Sections/Books'
 import {ProfileFeedSection} from '#/screens/Profile/Sections/Feed'
 import {ProfileLabelsSection} from '#/screens/Profile/Sections/Labels'
+import {ProfileMediaGridSection} from '#/screens/Profile/Sections/MediaGrid'
 import {ProfilePlaceholderSection} from '#/screens/Profile/Sections/Placeholder'
 import {atoms as a} from '#/alf'
 import {Circle_And_Square_Stroke1_Corner0_Rounded_Filled as CircleAndSquareIcon} from '#/components/icons/CircleAndSquare'
@@ -490,7 +491,7 @@ function ProfileScreenLoaded({
           : null}
         {showMediaTab
           ? ({headerHeight, isFocused, scrollElRef}) => (
-              <ProfileFeedSection
+              <ProfileMediaGridSection
                 ref={mediaSectionRef}
                 feed={`author|${profile.did}|posts_with_media`}
                 headerHeight={headerHeight}

@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Mockup — Aba Mídia estilo Instagram · AquaSocial</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #0e1620;
+    min-height: 100vh;
+    padding: 48px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+  }
+  h1 {
+    color: #f1f3f5;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .subtitle {
+    color: #7b8b9e;
+    font-size: 15px;
+    margin-top: 8px;
+    max-width: 720px;
+    text-align: center;
+    line-height: 1.5;
+  }
+  .frames {
+    display: flex;
+    gap: 48px;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+  }
+  .frame-wrap { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+  .frame-label {
+    color: #9fb0c3;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
+
+  /* ---------- Phone frame ---------- */
+  .phone {
+    width: 380px;
+    height: 780px;
+    border-radius: 44px;
+    padding: 10px;
+    background: #1c2733;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.6), inset 0 0 0 2px #2e3d4d;
+  }
+  .screen {
+    width: 100%;
+    height: 100%;
+    border-radius: 36px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+  .screen.light { background: #ffffff; color: #111111; }
+  .screen.dark  { background: #161e27; color: #f1f3f5; }
+
+  .notch {
+    position: absolute;
+    top: 8px; left: 50%;
+    transform: translateX(-50%);
+    width: 110px; height: 26px;
+    background: #000;
+    border-radius: 14px;
+    z-index: 30;
+  }
+
+  /* ---------- Status / top bar ---------- */
+  .topbar {
+    height: 44px;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    gap: 16px;
+    flex-shrink: 0;
+  }
+  .topbar .back {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px;
+  }
+  .screen.light .topbar .back { background: #f0f2f5; }
+  .screen.dark  .topbar .back { background: #232e3b; }
+
+  /* ---------- Profile header ---------- */
+  .banner {
+    height: 110px;
+    background: linear-gradient(120deg, #002BEF 0%, #0057FF 55%, #009EFF 100%);
+    flex-shrink: 0;
+  }
+  .profile-info {
+    padding: 0 16px 12px;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .avatar {
+    width: 74px; height: 74px;
+    border-radius: 50%;
+    border: 3px solid;
+    margin-top: -34px;
+    object-fit: cover;
+    background: #555;
+  }
+  .screen.light .avatar { border-color: #fff; }
+  .screen.dark  .avatar { border-color: #161e27; }
+  .follow-btn {
+    position: absolute;
+    right: 16px; top: 10px;
+    background: #0085ff;
+    color: #fff;
+    border: none;
+    border-radius: 999px;
+    padding: 8px 20px;
+    font-weight: 700;
+    font-size: 14px;
+  }
+  .p-name { font-size: 20px; font-weight: 800; margin-top: 8px; }
+  .p-handle { font-size: 14px; margin-top: 1px; }
+  .screen.light .p-handle { color: #67727d; }
+  .screen.dark  .p-handle { color: #8c9aab; }
+  .p-bio { font-size: 14px; margin-top: 8px; line-height: 1.35; }
+  .p-stats {
+    display: flex; gap: 14px;
+    margin-top: 8px;
+    font-size: 13.5px;
+  }
+  .screen.light .p-stats { color: #67727d; }
+  .screen.dark  .p-stats { color: #8c9aab; }
+  .p-stats b { font-weight: 800; }
+  .screen.light .p-stats b { color: #111; }
+  .screen.dark  .p-stats b { color: #f1f3f5; }
+
+  /* ---------- Tabs ---------- */
+  .tabs {
+    display: flex;
+    border-bottom: 1px solid;
+    overflow-x: auto;
+    scrollbar-width: none;
+    flex-shrink: 0;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .screen.light .tabs { border-color: #e3e7ea; }
+  .screen.dark  .tabs { border-color: #2a3542; }
+  .tab {
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+    position: relative;
+  }
+  .screen.light .tab { color: #67727d; }
+  .screen.dark  .tab { color: #8c9aab; }
+  .tab.active { color: #0085ff; }
+  .tab.active::after {
+    content: "";
+    position: absolute;
+    left: 12px; right: 12px; bottom: -1px;
+    height: 3px;
+    border-radius: 3px 3px 0 0;
+    background: #0085ff;
+  }
+
+  /* ---------- Grid ---------- */
+  .grid-scroll { flex: 1; overflow-y: auto; scrollbar-width: none; }
+  .grid-scroll::-webkit-scrollbar { display: none; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    padding: 2px;
+  }
+  .tile {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    background: #2a3542;
+    cursor: pointer;
+  }
+  .tile img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.25s ease;
+  }
+  .tile:hover img { transform: scale(1.05); }
+
+  /* Overlay icons */
+  .badge {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.55));
+    z-index: 2;
+  }
+  .badge.tr { top: 7px; right: 7px; }
+  .badge.tl { top: 7px; left: 7px; }
+  .badge.br { bottom: 7px; right: 7px; }
+  .badge.duration {
+    background: rgba(0,0,0,0.65);
+    border-radius: 6px;
+    padding: 2px 7px;
+    font-size: 11px;
+    font-weight: 600;
+    filter: none;
+  }
+  .badge.pin {
+    background: rgba(0,0,0,0.55);
+    border-radius: 50%;
+    width: 24px; height: 24px;
+    filter: none;
+  }
+
+  /* Hover stats overlay (Instagram web style) */
+  .hover-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    opacity: 0;
+    transition: opacity 0.18s ease;
+    z-index: 3;
+    color: #fff;
+    font-weight: 700;
+    font-size: 14px;
+  }
+  .tile:hover .hover-overlay { opacity: 1; }
+  .hover-overlay span { display: flex; align-items: center; gap: 5px; }
+
+  /* ---------- FAB ---------- */
+  .fab {
+    position: absolute;
+    right: 18px; bottom: 74px;
+    width: 54px; height: 54px;
+    border-radius: 50%;
+    background: #0085ff;
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px;
+    box-shadow: 0 6px 18px rgba(0,133,255,0.45);
+    z-index: 20;
+  }
+
+  /* ---------- Bottom bar ---------- */
+  .bottombar {
+    height: 58px;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    border-top: 1px solid;
+    flex-shrink: 0;
+    font-size: 22px;
+  }
+  .screen.light .bottombar { border-color: #e3e7ea; color: #67727d; background: #fff; }
+  .screen.dark  .bottombar { border-color: #2a3542; color: #8c9aab; background: #161e27; }
+  .bottombar .active { color: #0085ff; }
+
+  /* ---------- Notes ---------- */
+  .notes {
+    max-width: 860px;
+    background: #141c26;
+    border: 1px solid #26313f;
+    border-radius: 16px;
+    padding: 28px 32px;
+    color: #c6d2df;
+  }
+  .notes h2 { color: #f1f3f5; font-size: 18px; margin-bottom: 14px; }
+  .notes ul { list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 12px 28px; }
+  .notes li { font-size: 14px; line-height: 1.5; display: flex; gap: 10px; }
+  .notes li::before { content: "→"; color: #0085ff; font-weight: 700; flex-shrink: 0; }
+  @media (max-width: 720px) { .notes ul { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<h1>Aba “Mídia” do Perfil — estilo Instagram</h1>
+<p class="subtitle">
+  Mockup da aba <b>Mídia</b> do perfil do AquaSocial reformulada como uma grade de fotos/vídeos
+  (3 colunas), no lugar do feed vertical de posts atual.
+</p>
+
+<div class="frames">
+
+  <!-- ================= LIGHT ================= -->
+  <div class="frame-wrap">
+    <div class="frame-label">Tema claro</div>
+    <div class="phone">
+      <div class="screen light">
+        <div class="notch"></div>
+        <div class="topbar"><div class="back">‹</div></div>
+        <div class="banner"></div>
+        <div class="profile-info">
+          <img class="avatar" src="https://i.pravatar.cc/160?img=12" alt="avatar" />
+          <button class="follow-btn">Seguir</button>
+          <div class="p-name">Aqua Samuel</div>
+          <div class="p-handle">@aqua.social</div>
+          <div class="p-bio">Construindo o AquaSocial 🌊 fotos, vídeos e lives no AT Protocol</div>
+          <div class="p-stats"><span><b>1.248</b> seguidores</span><span><b>312</b> seguindo</span><span><b>586</b> posts</span></div>
+        </div>
+
+        <div class="tabs">
+          <div class="tab">Posts</div>
+          <div class="tab">Respostas</div>
+          <div class="tab active">Mídia</div>
+          <div class="tab">Vídeos</div>
+          <div class="tab">Marketplace</div>
+          <div class="tab">Marcas</div>
+        </div>
+
+        <div class="grid-scroll">
+          <div class="grid" id="grid-light"></div>
+        </div>
+
+        <div class="fab">✎</div>
+        <div class="bottombar">
+          <span>⌂</span><span>⌕</span><span>＋</span><span>♡</span><span class="active">◉</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= DARK ================= -->
+  <div class="frame-wrap">
+    <div class="frame-label">Tema escuro</div>
+    <div class="phone">
+      <div class="screen dark">
+        <div class="notch"></div>
+        <div class="topbar"><div class="back">‹</div></div>
+        <div class="banner"></div>
+        <div class="profile-info">
+          <img class="avatar" src="https://i.pravatar.cc/160?img=12" alt="avatar" />
+          <button class="follow-btn">Seguir</button>
+          <div class="p-name">Aqua Samuel</div>
+          <div class="p-handle">@aqua.social</div>
+          <div class="p-bio">Construindo o AquaSocial 🌊 fotos, vídeos e lives no AT Protocol</div>
+          <div class="p-stats"><span><b>1.248</b> seguidores</span><span><b>312</b> seguindo</span><span><b>586</b> posts</span></div>
+        </div>
+
+        <div class="tabs">
+          <div class="tab">Posts</div>
+          <div class="tab">Respostas</div>
+          <div class="tab active">Mídia</div>
+          <div class="tab">Vídeos</div>
+          <div class="tab">Marketplace</div>
+          <div class="tab">Marcas</div>
+        </div>
+
+        <div class="grid-scroll">
+          <div class="grid" id="grid-dark"></div>
+        </div>
+
+        <div class="fab">✎</div>
+        <div class="bottombar">
+          <span>⌂</span><span>⌕</span><span>＋</span><span>♡</span><span class="active">◉</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="notes">
+  <h2>Comportamento proposto</h2>
+  <ul>
+    <li>Grade de 3 colunas com células quadradas e espaçamento de 2px, igual ao Instagram.</li>
+    <li>Tocar na célula abre o post completo (o post original com texto, curtidas e comentários).</li>
+    <li>Ícone de “camadas” no canto superior direito indica post com várias fotos.</li>
+    <li>Vídeos mostram ícone de play e a duração no canto inferior direito.</li>
+    <li>Post fixado no perfil aparece primeiro, com selo de pin no canto superior esquerdo.</li>
+    <li>Na web, passar o mouse mostra curtidas e comentários por cima da imagem.</li>
+    <li>Scroll infinito carrega mais mídias conforme o usuário desce.</li>
+    <li>Estado vazio mantém o botão “Postar uma foto” que abre o composer.</li>
+  </ul>
+</div>
+
+<script>
+  const pinSVG = `<svg width="13" height="13" viewBox="0 0 24 24" fill="white"><path d="M16 3a1 1 0 0 1 .707.293l4 4A1 1 0 0 1 21 8.414V9a1 1 0 0 1-.293.707l-2.121 2.121a1 1 0 0 1-.707.293H16.41l-2 6.172a1 1 0 0 1-1.704.372l-2.12-2.122-5.172 5.172a1 1 0 0 1-1.414-1.414l5.172-5.172-2.122-2.121a1 1 0 0 1 .372-1.705l6.172-2V6.12a1 1 0 0 1 .293-.707l2.121-2.121A1 1 0 0 1 16 3z"/></svg>`;
+  const layersSVG = `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="8" y="8" width="13" height="13" rx="2.5"/><path d="M16 5V4.5A2.5 2.5 0 0 0 13.5 2h-9A2.5 2.5 0 0 0 2 4.5v9A2.5 2.5 0 0 0 4.5 16H5"/></svg>`;
+  const playSVG = `<svg width="17" height="17" viewBox="0 0 24 24" fill="white"><path d="M8 5.14v13.72a1 1 0 0 0 1.52.86l11-6.86a1 1 0 0 0 0-1.72l-11-6.86A1 1 0 0 0 8 5.14z"/></svg>`;
+  const heartSVG = `<svg width="17" height="17" viewBox="0 0 24 24" fill="white"><path d="M12 21s-7.5-4.9-9.7-9.1C.7 8.9 2.4 5.4 5.7 4.7c1.9-.4 3.9.3 5.2 1.7a1 1 0 0 0 1.5 0c1.3-1.4 3.3-2.1 5.2-1.7 3.3.7 5 4.2 3.4 7.2C19.5 16.1 12 21 12 21z"/></svg>`;
+  const commentSVG = `<svg width="17" height="17" viewBox="0 0 24 24" fill="white"><path d="M12 3C6.9 3 3 6.6 3 10.9c0 2.5 1.3 4.7 3.3 6.2-.1 1.2-.6 2.7-1.8 3.9 0 0 2.5.2 4.7-1.3.9.2 1.8.3 2.8.3 5.1 0 9-3.6 9-7.9S17.1 3 12 3z"/></svg>`;
+
+  // Tipos de célula: photo | multi | video | pinned
+  const cells = [
+    { type: "pinned", seed: 11, likes: 482, comments: 36 },
+    { type: "photo",  seed: 22, likes: 219, comments: 12 },
+    { type: "video",  seed: 33, likes: 1040, comments: 88, duration: "0:42" },
+    { type: "multi",  seed: 44, likes: 356, comments: 21 },
+    { type: "photo",  seed: 55, likes: 178, comments: 9 },
+    { type: "video",  seed: 66, likes: 692, comments: 44, duration: "1:17" },
+    { type: "photo",  seed: 77, likes: 95,  comments: 4 },
+    { type: "multi",  seed: 88, likes: 274, comments: 17 },
+    { type: "photo",  seed: 99, likes: 143, comments: 7 },
+    { type: "video",  seed: 12, likes: 831, comments: 52, duration: "0:28" },
+    { type: "photo",  seed: 23, likes: 208, comments: 13 },
+    { type: "multi",  seed: 34, likes: 167, comments: 10 },
+    { type: "photo",  seed: 45, likes: 311, comments: 19 },
+    { type: "photo",  seed: 56, likes: 129, comments: 6 },
+    { type: "video",  seed: 67, likes: 504, comments: 31, duration: "2:05" },
+  ];
+
+  function renderGrid(el) {
+    el.innerHTML = cells.map(c => {
+      let badges = "";
+      if (c.type === "pinned") badges += `<div class="badge tl pin">${pinSVG}</div>`;
+      if (c.type === "multi")  badges += `<div class="badge tr">${layersSVG}</div>`;
+      if (c.type === "video")  badges += `<div class="badge tr">${playSVG}</div><div class="badge br duration">${c.duration}</div>`;
+      return `
+        <div class="tile">
+          <img src="https://picsum.photos/seed/${c.seed}/420/420" loading="lazy" alt="" />
+          ${badges}
+          <div class="hover-overlay">
+            <span>${heartSVG} ${c.likes}</span>
+            <span>${commentSVG} ${c.comments}</span>
+          </div>
+        </div>`;
+    }).join("");
+  }
+
+  renderGrid(document.getElementById("grid-light"));
+  renderGrid(document.getElementById("grid-dark"));
+</script>
+
+</body>
+</html>
