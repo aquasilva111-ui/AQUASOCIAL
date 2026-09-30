@@ -23,6 +23,13 @@ export const router = new Router<AllNavigatableRoutes>({
   ViewChannel: '/videos/channel/:handle',
   ViewStudio: '/videos/studio',
   ViewStudioCustomize: '/videos/studio/customization',
+  // AQUA Books — static segments first; each pattern matches an exact depth
+  Books: '/books',
+  BooksStudio: '/books/studio',
+  BookEdit: '/books/studio/book/:book',
+  ChapterEdit: '/books/studio/book/:book/chapter/:chapter',
+  BookDetail: '/books/:handle/:book',
+  BookChapter: '/books/:handle/:book/:chapter',
   LaunchHub: '/launch',
   LaunchNew: '/launch/new',
   LaunchDetail: '/launch/view/:id',

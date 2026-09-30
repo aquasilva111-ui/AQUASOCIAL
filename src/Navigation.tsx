@@ -87,6 +87,14 @@ import {
   AdultViewsScreen,
 } from '#/screens/Adult'
 import {BookmarksScreen} from '#/screens/Bookmarks'
+import {
+  BookChapterScreen,
+  BookDetailScreen,
+  BookEditScreen,
+  BooksHomeScreen,
+  BooksStudioScreen,
+  ChapterEditScreen,
+} from '#/screens/Books'
 import {CreativeHubScreen, UIAIScreen} from '#/screens/ComingSoon'
 import {DocEditorScreen, DocsHomeScreen} from '#/screens/Docs'
 import {SharedPreferencesTesterScreen} from '#/screens/E2E/SharedPreferencesTesterScreen'
@@ -677,6 +685,36 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
         name="VideoGoLive"
         component={VideoGoLiveScreen}
         options={{title: 'Transmitir ao vivo', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="Books"
+        component={BooksHomeScreen}
+        options={{title: 'Livros'}}
+      />
+      <Stack.Screen
+        name="BooksStudio"
+        component={BooksStudioScreen}
+        options={{title: 'Estúdio de Livros', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="BookEdit"
+        component={BookEditScreen}
+        options={{title: 'Editar livro', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="ChapterEdit"
+        component={ChapterEditScreen}
+        options={{title: 'Editar capítulo', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="BookDetail"
+        component={BookDetailScreen}
+        options={{title: 'Livro'}}
+      />
+      <Stack.Screen
+        name="BookChapter"
+        component={BookChapterScreen}
+        options={{title: 'Capítulo'}}
       />
       <Stack.Screen
         name="ViewChannelCreate"

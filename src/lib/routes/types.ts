@@ -96,6 +96,12 @@ export type CommonNavigatorParams = {
   ViewChannel: {handle: string}
   ViewStudio: undefined
   ViewStudioCustomize: undefined
+  Books: undefined
+  BooksStudio: undefined
+  BookEdit: {book: string}
+  ChapterEdit: {book: string; chapter: string}
+  BookDetail: {handle: string; book: string}
+  BookChapter: {handle: string; book: string; chapter: string}
   LaunchHub: undefined
   LaunchNew: {id?: string} | undefined
   LaunchDetail: {id: string}

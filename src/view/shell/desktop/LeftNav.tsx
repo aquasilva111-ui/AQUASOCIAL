@@ -666,8 +666,16 @@ export function DesktopLeftNav() {
       />
       {hasSession && (
         <>
-          <PlaceholderNavItem
+          <NavItem
+            href="/books"
             icon={
+              <Book
+                aria-hidden={true}
+                width={NAV_ICON_WIDTH}
+                style={pal.text}
+              />
+            }
+            iconFilled={
               <Book
                 aria-hidden={true}
                 width={NAV_ICON_WIDTH}
