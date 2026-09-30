@@ -29,6 +29,7 @@ export function StoryViewer({
   stories,
   initialIndex,
   isMe,
+  allowDelete = isMe,
   onClose,
 }: {
   author:
@@ -37,6 +38,8 @@ export function StoryViewer({
   stories: StoryView[]
   initialIndex: number
   isMe: boolean
+  /** Hide the trash button (e.g. when playing a highlight). */
+  allowDelete?: boolean
   onClose: () => void
 }) {
   const [index, setIndex] = useState(initialIndex)
@@ -159,7 +162,7 @@ export function StoryViewer({
               )}
             </TimeElapsed>
           </View>
-          {isMe && (
+          {allowDelete && (
             <Button
               label="Excluir story"
               size="small"

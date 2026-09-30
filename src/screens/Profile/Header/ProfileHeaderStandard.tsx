@@ -36,6 +36,7 @@ import {
 } from '#/components/KnownFollowers'
 import * as Prompt from '#/components/Prompt'
 import {RichText} from '#/components/RichText'
+import {HighlightsRow} from '#/components/stories/HighlightsRow'
 import {StoriesRow} from '#/components/stories/StoriesRow'
 import * as Toast from '#/components/Toast'
 import {Text} from '#/components/Typography'
@@ -169,6 +170,9 @@ let ProfileHeaderStandard = ({
               ) : undefined}
 
               {!isBlockedUser && <StoriesRow profile={profile} isMe={isMe} />}
+              {!isBlockedUser && (
+                <HighlightsRow profile={profile} isMe={isMe} />
+              )}
 
               {!isMe &&
                 !isBlockedUser &&
