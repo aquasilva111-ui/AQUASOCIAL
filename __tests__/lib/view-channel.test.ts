@@ -110,18 +110,24 @@ describe('channel record (AQUA-019A)', () => {
   })
 
   it('routes: create page wins over a handle; handles map to the channel page', () => {
-    expect(router.matchPath('/videos/channel/new')[0]).toBe('ViewChannelCreate')
-    expect(router.matchPath('/videos/channel/alice.bsky.social')).toEqual([
+    expect(router.matchPath('/views/channel/new')[0]).toBe('ViewChannelCreate')
+    expect(router.matchPath('/views/channel/alice.bsky.social')).toEqual([
       'ViewChannel',
       {handle: 'alice.bsky.social'},
     ])
-    expect(router.matchPath('/videos/studio')[0]).toBe('ViewStudio')
-    expect(router.matchPath('/videos/studio/customization')[0]).toBe(
+    expect(router.matchPath('/views/studio')[0]).toBe('ViewStudio')
+    expect(router.matchPath('/views/studio/customization')[0]).toBe(
       'ViewStudioCustomize',
     )
     expect(channelPath('alice.bsky.social')).toBe(
-      '/videos/channel/alice.bsky.social',
+      '/views/channel/alice.bsky.social',
     )
+    // Links shared before the /videos → /views move still open the channel.
+    expect(router.matchPath('/videos/channel/alice.bsky.social')).toEqual([
+      'ViewChannelLegacy',
+      {handle: 'alice.bsky.social'},
+    ])
+    expect(router.matchPath('/videos')[0]).toBe('VideosLegacy')
   })
 })
 

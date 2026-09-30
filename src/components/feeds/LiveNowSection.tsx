@@ -71,7 +71,8 @@ function LiveCard({stream}: {stream: StreamplaceLivestreamView}) {
     <Link
       to={`/views/live/${stream.author.did}`}
       label={title}
-      style={[{width: 260}]}>
+      // Link is a row-laid Button; stack the title under the thumbnail.
+      style={[a.flex_col, a.align_stretch, {width: 260}]}>
       <View
         style={[
           a.w_full,

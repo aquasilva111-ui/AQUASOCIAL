@@ -64,9 +64,14 @@ describe('time helpers', () => {
   })
 
   it('the watch route keeps its path and accepts ?t=', () => {
-    const [name, params] = router.matchPath('/videos/watch/did:plc:abc/3kx')
+    const [name, params] = router.matchPath('/views/watch/did:plc:abc/3kx')
     expect(name).toBe('VideoWatch')
     expect(params).toMatchObject({name: 'did:plc:abc', rkey: '3kx'})
+    // Links shared before the /videos → /views move still open the video.
+    expect(router.matchPath('/videos/watch/did:plc:abc/3kx')).toEqual([
+      'VideoWatchLegacy',
+      {name: 'did:plc:abc', rkey: '3kx'},
+    ])
   })
 })
 

@@ -76,7 +76,7 @@ function MediaCardInner({
         ? ratio.width / ratio.height
         : 1
   const rkey = new AtUri(post.uri).rkey
-  const href = `/${mode === 'video' ? 'videos/watch' : 'visionboard/view'}/${post.author.did}/${rkey}`
+  const href = `/${mode === 'video' ? 'views/watch' : 'visionboard/view'}/${post.author.did}/${rkey}`
   return (
     <View
       style={[a.overflow_hidden, a.pb_sm, {borderRadius: IMAGE_BORDER_RADIUS}]}

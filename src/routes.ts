@@ -13,14 +13,17 @@ export const router = new Router<AllNavigatableRoutes>({
   Images: '/visionboard',
   ImagesLegacy: '/images',
   Videos: '/views',
+  VideosLegacy: '/videos',
   ImageDetail: '/visionboard/view/:name/:rkey',
   ImageDetailLegacy: '/images/view/:name/:rkey',
   VideoWatch: '/views/watch/:name/:rkey',
+  VideoWatchLegacy: '/videos/watch/:name/:rkey',
   VideoLive: '/views/live/:name',
   VideoGoLive: '/views/golive',
   // AQUA View channels — before ViewChannel: first matching pattern wins
   ViewChannelCreate: '/views/channel/new',
   ViewChannel: '/views/channel/:handle',
+  ViewChannelLegacy: '/videos/channel/:handle',
   ViewStudio: '/views/studio',
   ViewStudioCustomize: '/views/studio/customization',
   // AQUA Views library (Você menu)

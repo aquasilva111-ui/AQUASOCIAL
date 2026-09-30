@@ -317,7 +317,7 @@ function MediaHome({mode}: {mode: MediaExperience}) {
           <ButtonText>Tentar novamente</ButtonText>
         </Button>
       )}
-      {active.isFetching && (
+      {active.isFetching && !items.length && (
         <Text style={[a.p_md]} accessibilityRole="progressbar">
           Carregando...
         </Text>
@@ -329,7 +329,9 @@ function MediaHome({mode}: {mode: MediaExperience}) {
             : 'Nenhuma publicação compatível nas páginas carregadas.'}
         </Text>
       )}
-      {active.hasNextPage && (
+      {/* With results the gallery loads more on scroll; the button is only
+          for filters that matched nothing in the pages loaded so far. */}
+      {active.hasNextPage && !items.length && !active.isFetching && (
         <View style={[a.align_center, a.pb_sm]}>
           <Button label="Carregar mais" size="small" onPress={loadMore}>
             <ButtonText>Carregar mais</ButtonText>

@@ -90,10 +90,12 @@ export type CommonNavigatorParams = {
   Images: {source?: string; q?: string} | undefined
   ImagesLegacy: undefined
   Videos: {source?: string; q?: string} | undefined
+  VideosLegacy: undefined
   VideoLive: {name: string}
   VideoGoLive: undefined
   ViewChannelCreate: undefined
   ViewChannel: {handle: string}
+  ViewChannelLegacy: {handle: string}
   ViewStudio: undefined
   ViewStudioCustomize: undefined
   ViewPaid: undefined
@@ -140,6 +142,7 @@ export type CommonNavigatorParams = {
   ImageDetailLegacy: {name: string; rkey: string}
   /** `t`: share-at-time start position ("192", "3m12s"). */
   VideoWatch: {name: string; rkey: string; t?: string}
+  VideoWatchLegacy: {name: string; rkey: string; t?: string}
 }
 
 export type BottomTabNavigatorParams = CommonNavigatorParams & {

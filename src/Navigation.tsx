@@ -109,6 +109,11 @@ import {
   LegacyImageDetailRedirect,
   LegacyImagesRedirect,
 } from '#/screens/Media/LegacyImagesRedirect'
+import {
+  LegacyVideosRedirect,
+  LegacyVideoWatchRedirect,
+  LegacyViewChannelRedirect,
+} from '#/screens/Media/LegacyVideosRedirect'
 import {ImageDetailScreen} from '#/screens/Media/MediaDetail'
 import {ImagesScreen, VideosScreen} from '#/screens/Media/MediaHome'
 import {VideoLiveScreen} from '#/screens/Media/VideoLive'
@@ -688,6 +693,21 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
       <Stack.Screen
         name="VideoWatch"
         component={ViewWatchScreen}
+        options={{title: 'Aqua Views'}}
+      />
+      <Stack.Screen
+        name="VideosLegacy"
+        component={LegacyVideosRedirect}
+        options={{title: 'Aqua Views'}}
+      />
+      <Stack.Screen
+        name="VideoWatchLegacy"
+        component={LegacyVideoWatchRedirect}
+        options={{title: 'Aqua Views'}}
+      />
+      <Stack.Screen
+        name="ViewChannelLegacy"
+        component={LegacyViewChannelRedirect}
         options={{title: 'Aqua Views'}}
       />
       <Stack.Screen
