@@ -2,11 +2,13 @@ import {
   addListItem,
   addWatchLater,
   canViewList,
+  compactCount,
   dayBucket,
   groupHistory,
   HISTORY_LIMIT,
   LIST_COLLECTIONS,
   listToRecord,
+  matchesRecency,
   moveItem,
   newListRecord,
   normalizeHistory,
@@ -16,6 +18,7 @@ import {
   removeListItem,
   removeWatchLater,
   searchHistory,
+  sumStat,
 } from '#/lib/view-library/model'
 
 const ref = (n: number) => ({
@@ -186,5 +189,27 @@ describe('lists', () => {
     })!
     expect(canViewList(v, false)).toBe(false)
     expect(canViewList(v, true)).toBe(true)
+  })
+})
+
+describe('subscriptions helpers', () => {
+  it('filters by recency using calendar days', () => {
+    const today = new Date(2026, 8, 30, 1, 0).toISOString()
+    const yesterday = new Date(2026, 8, 29, 23, 0).toISOString()
+    const old = new Date(2026, 8, 10).toISOString()
+    expect(matchesRecency(today, 'today', NOW)).toBe(true)
+    expect(matchesRecency(yesterday, 'today', NOW)).toBe(false)
+    expect(matchesRecency(yesterday, 'week', NOW)).toBe(true)
+    expect(matchesRecency(old, 'week', NOW)).toBe(false)
+    expect(matchesRecency(old, 'all', NOW)).toBe(true)
+    expect(matchesRecency('bad', 'week', NOW)).toBe(false)
+  })
+
+  it('sums and compacts counts', () => {
+    expect(sumStat([{count: 2}, {}, {count: 3}])).toBe(5)
+    expect(compactCount(950)).toBe('950')
+    expect(compactCount(1500)).toBe('1,5 mil'.replace(',', '.'))
+    expect(compactCount(12_400)).toBe('12 mil')
+    expect(compactCount(2_000_000)).toBe('2 mi')
   })
 })

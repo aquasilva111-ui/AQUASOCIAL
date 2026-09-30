@@ -303,3 +303,31 @@ export function removeListItem(items: ViewListItem[], uri: string) {
 export function canViewList(list: ViewListView, isOwner: boolean) {
   return isOwner || list.visibility !== 'private'
 }
+
+// ------------------------------------------------------------ subscriptions
+
+export type RecencyFilter = 'all' | 'today' | 'week'
+
+/** Filters the subscriptions feed by age (calendar day / last 7 days). */
+export function matchesRecency(
+  iso: string,
+  filter: RecencyFilter,
+  now: number,
+): boolean {
+  if (filter === 'all') return true
+  const at = new Date(iso).getTime()
+  if (Number.isNaN(at)) return false
+  const diff = Math.round((startOfDay(now) - startOfDay(at)) / DAY)
+  return filter === 'today' ? diff <= 0 : diff < 7
+}
+
+export function sumStat(items: {count?: number}[]): number {
+  return items.reduce((n, i) => n + (i.count ?? 0), 0)
+}
+
+export function compactCount(n: number): string {
+  if (n < 1000) return String(n)
+  if (n < 1_000_000)
+    return `${(n / 1000).toFixed(n < 10_000 ? 1 : 0).replace('.0', '')} mil`
+  return `${(n / 1_000_000).toFixed(1).replace('.0', '')} mi`
+}

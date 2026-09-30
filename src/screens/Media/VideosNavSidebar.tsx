@@ -46,7 +46,7 @@ const NAV_ITEMS: {
   {label: 'Assinaturas pagas', to: '/videos/paid', icon: PaidIcon},
   {
     label: 'Inscrições',
-    to: '/videos?source=following',
+    to: '/videos/subscriptions',
     icon: SubscriptionsIcon,
   },
   {label: 'Canais', to: '/videos/channels', icon: ChannelsIcon},
@@ -57,7 +57,7 @@ const NAV_ITEMS: {
     to: '/videos/watch-later',
     icon: WatchLaterIcon,
   },
-  {label: 'Meus vídeos', to: '/videos?source=created', icon: MyVideosIcon},
+  {label: 'Meus vídeos', to: '/videos/mine', icon: MyVideosIcon},
   {label: 'Coleções', to: '/videos/collections', icon: CollectionsIcon},
   {label: 'Transmissões ao vivo', to: '/videos/live', icon: LiveIcon},
 ]

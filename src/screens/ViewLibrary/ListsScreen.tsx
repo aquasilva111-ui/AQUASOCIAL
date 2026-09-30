@@ -6,22 +6,25 @@ import {type NavigationProp} from '#/lib/routes/types'
 import {
   LIST_LABELS,
   type ViewListKind,
+  type ViewListView,
   type ViewListVisibility,
   VISIBILITY_LABELS,
 } from '#/lib/view-library/model'
 import {logger} from '#/logger'
 import {
   useCreateViewListMutation,
+  useListPostsQuery,
   useViewListsQuery,
 } from '#/state/queries/view-lists'
 import {useSession} from '#/state/session'
 import * as Toast from '#/view/com/util/Toast'
+import {toVideoRef} from '#/screens/ViewWatch/UpNext'
 import {atoms as a, useTheme} from '#/alf'
 import {Button, ButtonText} from '#/components/Button'
 import * as TextField from '#/components/forms/TextField'
 import {Link} from '#/components/Link'
 import {Text} from '#/components/Typography'
-import {Empty, LibraryPage} from './shared'
+import {Empty, LibraryPage, Thumb} from './shared'
 
 const VISIBILITIES: ViewListVisibility[] = ['public', 'unlisted', 'private']
 
@@ -147,31 +150,51 @@ function ViewLists({kind}: {kind: ViewListKind}) {
       ) : (
         <View style={[a.flex_row, a.flex_wrap, a.gap_md]}>
           {lists.map(list => (
-            <Link
+            <ListCard
               key={list.uri}
-              to={listPath(kind, currentAccount?.did ?? '', list.rkey)}
-              label={`${list.title}, ${list.items.length} vídeos`}
-              style={[
-                a.p_lg,
-                a.gap_xs,
-                a.rounded_lg,
-                a.border,
-                t.atoms.border_contrast_low,
-                t.atoms.bg_contrast_25,
-                {width: 260, maxWidth: '100%'},
-              ]}>
-              <Text style={[a.text_lg, a.font_bold]} numberOfLines={2}>
-                {list.title}
-              </Text>
-              <Text style={[a.text_sm, t.atoms.text_contrast_medium]}>
-                {list.items.length}{' '}
-                {list.items.length === 1 ? 'vídeo' : 'vídeos'} ·{' '}
-                {VISIBILITY_LABELS[list.visibility]}
-              </Text>
-            </Link>
+              list={list}
+              did={currentAccount?.did ?? ''}
+            />
           ))}
         </View>
       )}
     </LibraryPage>
+  )
+}
+
+function ListCard({list, did}: {list: ViewListView; did: string}) {
+  const t = useTheme()
+  // The cover is the first video's thumbnail.
+  const firstUri = list.items[0]?.uri
+  const first = useListPostsQuery(firstUri ? [firstUri] : [])
+  const cover = first.data?.[0]
+    ? toVideoRef(first.data[0]).thumbnail
+    : undefined
+  return (
+    <Link
+      to={listPath(list.kind, did, list.rkey)}
+      label={`${list.title}, ${list.items.length} vídeos`}
+      style={[a.gap_xs, {width: 260, maxWidth: '100%'}]}>
+      <View>
+        <Thumb uri={cover} width={260} />
+        <View
+          style={[
+            a.absolute,
+            a.rounded_xs,
+            a.px_xs,
+            {right: 6, bottom: 6, backgroundColor: 'rgba(0,0,0,0.78)'},
+          ]}>
+          <Text style={[a.text_2xs, a.font_bold, {color: '#FFFFFF'}]}>
+            {list.items.length} {list.items.length === 1 ? 'vídeo' : 'vídeos'}
+          </Text>
+        </View>
+      </View>
+      <Text style={[a.text_md, a.font_bold]} numberOfLines={2}>
+        {list.title}
+      </Text>
+      <Text style={[a.text_sm, t.atoms.text_contrast_medium]}>
+        {VISIBILITY_LABELS[list.visibility]}
+      </Text>
+    </Link>
   )
 }

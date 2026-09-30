@@ -142,3 +142,29 @@ export function VideoRow({
     </View>
   )
 }
+
+/** Grid card: full-width thumbnail, title, author and an optional line. */
+export function VideoCard({
+  video,
+  meta,
+}: {
+  video: ViewVideoRef
+  meta?: React.ReactNode
+}) {
+  const t = useTheme()
+  return (
+    <Link
+      to={watchPath(video)}
+      label={`${video.title}, de ${video.author}`}
+      style={[a.gap_xs, {width: 260, maxWidth: '100%'}]}>
+      <Thumb uri={video.thumbnail} width={260} />
+      <Text style={[a.text_md, a.font_bold]} numberOfLines={2}>
+        {video.title}
+      </Text>
+      <Text style={[a.text_sm, t.atoms.text_contrast_medium]} numberOfLines={1}>
+        {video.author}
+        {meta ? <> · {meta}</> : null}
+      </Text>
+    </Link>
+  )
+}

@@ -179,7 +179,9 @@ import {
   ViewPlaylistsScreen,
 } from '#/screens/ViewLibrary/ListsScreen'
 import {ViewLiveScreen} from '#/screens/ViewLibrary/LiveScreen'
+import {ViewMyVideosScreen} from '#/screens/ViewLibrary/MyVideosScreen'
 import {ViewPaidScreen} from '#/screens/ViewLibrary/PaidScreen'
+import {ViewSubscriptionsScreen} from '#/screens/ViewLibrary/SubscriptionsScreen'
 import {ViewWatchLaterScreen} from '#/screens/ViewLibrary/WatchLaterScreen'
 import {ViewWatchScreen} from '#/screens/ViewWatch/WatchScreen'
 import {type Theme, useTheme} from '#/alf'
@@ -750,6 +752,16 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
         name="ViewPaid"
         component={ViewPaidScreen}
         options={{title: 'Assinaturas pagas'}}
+      />
+      <Stack.Screen
+        name="ViewSubscriptions"
+        component={ViewSubscriptionsScreen}
+        options={{title: 'Inscrições', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="ViewMyVideos"
+        component={ViewMyVideosScreen}
+        options={{title: 'Meus vídeos', requireAuth: true}}
       />
       <Stack.Screen
         name="ViewChannels"

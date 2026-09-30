@@ -25,6 +25,8 @@ export const router = new Router<AllNavigatableRoutes>({
   ViewStudioCustomize: '/videos/studio/customization',
   // AQUA Views library (Você menu)
   ViewPaid: '/videos/paid',
+  ViewSubscriptions: '/videos/subscriptions',
+  ViewMyVideos: '/videos/mine',
   ViewChannels: '/videos/channels',
   ViewHistory: '/videos/history',
   ViewPlaylists: '/videos/playlists',
