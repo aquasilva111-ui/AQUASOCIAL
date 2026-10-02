@@ -111,6 +111,7 @@ module.exports = {
     '*.html',
     'bskyweb',
     '/drops',
+    '/aqua-studio',
     'bskyembed',
     'src/locale/locales/_build/',
     'src/locale/locales/**/*.js',
