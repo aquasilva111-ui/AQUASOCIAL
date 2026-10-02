@@ -20,7 +20,8 @@ cd aqua-hub && npm install && npm run dev      # http://localhost:5192
 ## O que não é (ainda)
 
 - **Docs não está aqui**: o editor é o `aqua-docs/` (BlockNote) e não foi embutido.
-- A timeline de vídeo é própria (inspirada nas *features* do OpenCut, que é MIT mas está em reescrita e não foi importado). Pré-visualização aproximada (fade/cor) e **sem tocar a trilha de música**. Sem velocidade, transições entre clipes além de fade, múltiplas faixas de vídeo, legendas automáticas ou keyframes.
+- A timeline de vídeo é própria (inspirada nas *features* do OpenCut, que é MIT mas está em reescrita e não foi importado). Tem velocidade (0,25–4×), segunda faixa de vídeo (sobreposição com posição/tamanho e movimento por keyframes), textos com movimento e aparecer em fade, legendas (SRT/VTT ou **Whisper tiny no navegador**, ~40 MB baixados na 1ª vez do Hugging Face) e trilha de música tocando na prévia.
+- Limites do vídeo: keyframes só de posição (x/y) e opacidade do texto, não de zoom/escala/cor; só **uma** faixa de sobreposição por item (várias sobreposições se empilham em ordem), sem edição visual de curvas; Whisper tiny erra mais que modelos grandes e a legenda automática usa só clipes com áudio; o áudio do clipe acelerado muda de tom (atempo preserva, mas o resultado depende do ffmpeg). A cor na prévia é aproximada; fade e posição são exatos. Não ouvi o áudio da prévia (só confirmei que o `play()` é chamado).
 - Piano roll e onda são **componentes próprios e simples**, não os doadores
   (signal, waveform-playlist, omniclip). Servem para editar e exportar; não têm multitrack de
   áudio, mixer, arrastar notas/clipes na grade, nem pré-visualização do vídeo.

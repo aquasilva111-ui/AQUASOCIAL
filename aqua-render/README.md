@@ -20,9 +20,10 @@ navegador permitidas, separadas por vírgula; vazio = sem CORS), `PORT` (8788), 
 
 ## Limites conhecidos
 
+- Texto usa a fonte DejaVu Sans Bold que vem no pacote (`dejavu-fonts-ttf`), sem depender do sistema; `fontFile` troca por outra.
 - O render foi validado com **ffmpeg 6.0 real** (2 clipes, um sem áudio, mais uma trilha: saída de
   4,0 s, H.264 + AAC, resolução e fps pedidos). Para repetir: `FFMPEG=/caminho/ffmpeg npm test`
-  (sem a variável, esse teste é ignorado). Não testado: vídeos longos, rotação de celular, 4K, VFR.
+  (sem a variável, esse teste é ignorado). Também validado em ffmpeg real: velocidade, sobreposição com keyframes (por pixels) e legendas. Não testado: vídeos longos, rotação de celular, 4K, VFR.
 - Assets ficam na memória do servidor (sem disco, sem limpeza); um token compartilhado, sem
   usuários nem cotas. Para produção: armazenamento em disco/objeto e autenticação por usuário.
 - Instalar ffmpeg no servidor é decisão de licença (builds com libx264 são GPL).

@@ -155,10 +155,15 @@ export default function VideoPanel({ itemId }: { itemId: string }) {
       el.muted = !o.audio
       const want = o.in + (t - o.start)
       if (active) {
-        if (!playing && Math.abs(el.currentTime - want) > 0.05) el.currentTime = want
-        if (playing && el.paused) (Math.abs(el.currentTime - want) > 0.15 && (el.currentTime = want), void el.play().catch(() => {}))
-        else if (playing && Math.abs(el.currentTime - want) > 0.3) el.currentTime = want
-        if (!playing && !el.paused) el.pause()
+        if (!playing) {
+          if (Math.abs(el.currentTime - want) > 0.05) el.currentTime = want
+          if (!el.paused) el.pause()
+        } else {
+          // Chrome may refuse to play muted, video-only media it considers to be in the background. When that
+          // happens the element stays paused and is followed by seeking instead, so the preview still moves.
+          if (el.paused) void el.play().catch(() => {})
+          if (Math.abs(el.currentTime - want) > (el.paused ? 0.1 : 0.3)) el.currentTime = want
+        }
       } else if (!el.paused) el.pause()
     }
   }, [t, playing, p, media]) // eslint-disable-line react-hooks/exhaustive-deps
