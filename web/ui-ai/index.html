@@ -111,6 +111,23 @@
   .parear button { padding: 0 16px; }
   [hidden] { display: none !important; }
 
+  /* Apresentação: a porta de entrada para quem ainda não tem a U.I. */
+  .apresentacao { min-height: calc(100vh - 4px); display: grid; place-items: center; padding: 32px 16px; }
+  .apresentacao .cartao { max-width: 640px; width: 100%; display: grid; gap: 22px; padding: 40px; text-align: center; }
+  .apresentacao img { width: 140px; height: 140px; justify-self: center; }
+  .apresentacao h1 { font-size: clamp(28px, 5vw, 44px); }
+  .apresentacao p { margin: 0; color: var(--tinta-2); line-height: 1.6; font-size: 16px; }
+  .passos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .passos div { border: 1px solid var(--borda); border-radius: 16px; padding: 14px 10px; font-size: 14px; line-height: 1.4; }
+  .passos b { display: block; font-family: var(--pesada); font-size: 22px; margin-bottom: 4px; }
+  .acoes { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .acoes a, .acoes button { display: inline-flex; align-items: center; min-height: 52px; padding: 0 26px; border-radius: 999px;
+                            font-family: var(--pesada); text-transform: uppercase; font-size: 14px; text-decoration: none; }
+  .acoes .principal { background: var(--tinta); color: var(--fundo); }
+  .acoes .principal[aria-disabled="true"] { opacity: .5; pointer-events: none; }
+  .acoes .secundaria { background: transparent; color: var(--tinta); border: 1px solid var(--tinta); }
+  @media (max-width: 560px) { .passos { grid-template-columns: 1fr; } .apresentacao .cartao { padding: 28px 20px; } }
+
   @media (max-width: 860px) {
     .grade { grid-template-columns: 1fr; }
     .centro { height: auto; min-height: 70vh; }
@@ -121,7 +138,25 @@
 </head>
 <body>
 <div class="faixa"></div>
-<main class="grade">
+<section class="apresentacao" id="apresentacao" hidden aria-labelledby="apresentacao-titulo">
+  <div class="cartao">
+    <img src="web/logo.svg" alt="">
+    <h1 id="apresentacao-titulo">Unidade de Inteligência</h1>
+    <p>Uma inteligência que aprende com você. Ela organiza o que sabe em Convenções de Realidade,
+       conecta os seus chats de IA para trabalharem juntos e age pelos Autômatos.
+       Roda no seu computador: o que ela aprende é seu.</p>
+    <div class="passos">
+      <div><b>1</b>Baixe e instale a U.I.</div>
+      <div><b>2</b>Ligue a U.I. no seu computador</div>
+      <div><b>3</b>Volte aqui e pareie esta página</div>
+    </div>
+    <div class="acoes">
+      <a class="principal" id="baixar" href="#">Baixar a U.I.</a>
+      <button class="secundaria" id="tentar" type="button">Já instalei</button>
+    </div>
+  </div>
+</section>
+<main class="grade" id="grade">
   <section class="cartao centro" aria-label="Centro de Entrada e Saída">
     <div class="topo" id="topo">
       <img src="web/logo.svg" alt="">
@@ -198,12 +233,24 @@
   // que fala com a U.I. deste computador usando o código de pareamento.
   const LOCAL = ["localhost", "127.0.0.1"].includes(location.hostname);
   const UI = LOCAL ? "" : "http://localhost:8765/";
+  // Endereço do instalador da U.I. Vazio = "Download em breve".
+  const DOWNLOAD = "";
   const lerCodigo = () => { try { return localStorage.getItem("ui-pareamento") || ""; } catch (e) { return ""; } };
   const guardarCodigo = (c) => { try { localStorage.setItem("ui-pareamento", c); } catch (e) {} };
   function cabecalhos() {
     const h = { "Content-Type": "application/json" };
     if (!LOCAL) h["X-UI-Pareamento"] = lerCodigo();
     return h;
+  }
+  function apresentar(sim) {
+    $("apresentacao").hidden = !sim;
+    $("grade").hidden = sim;
+  }
+  if (DOWNLOAD) {
+    $("baixar").href = DOWNLOAD;
+  } else {
+    $("baixar").textContent = "Download em breve";
+    $("baixar").setAttribute("aria-disabled", "true");
   }
   function pedirPareamento(mensagem) {
     $("cartao-parear").hidden = false;
@@ -244,6 +291,7 @@
     try {
       const r = await fetch(UI + "consola/estado", { headers: cabecalhos() });
       const e = await r.json();
+      apresentar(false);
       if (r.status === 401) { pedirPareamento(); throw new Error("não pareada"); }
       $("cartao-parear").hidden = true;
       if (e.pareamento) {
@@ -271,12 +319,12 @@
       $("n-experiencias").textContent = e.experiencias;
     } catch (err) {
       $("chats").innerHTML = '<li><small class="erro">U.I. não encontrada</small></li>';
-      if (!LOCAL && err.message !== "não pareada") {
-        pedirPareamento("Não encontrei a U.I. neste computador. Ligue-a com " +
-                        "“.venv/bin/python api.py” e recarregue (use o Chrome).");
-      }
+      // página pública sem U.I. neste computador: a porta de entrada
+      if (!LOCAL && err.message !== "não pareada") apresentar(true);
     }
   }
+
+  $("tentar").addEventListener("click", atualizarEstado);
 
   $("form-parear").addEventListener("submit", (ev) => {
     ev.preventDefault();

@@ -96,7 +96,6 @@ import {
   BooksStudioScreen,
   ChapterEditScreen,
 } from '#/screens/Books'
-import {UIAIScreen} from '#/screens/ComingSoon'
 import {CreativeHubScreen} from '#/screens/CreativeHub'
 import {DocEditorScreen, DocsHomeScreen} from '#/screens/Docs'
 import {DropsScreen} from '#/screens/Drops'
@@ -173,6 +172,7 @@ import {
 } from '#/screens/StarterPack/StarterPackScreen'
 import {Wizard} from '#/screens/StarterPack/Wizard'
 import TopicScreen from '#/screens/Topic'
+import {UIAIScreen} from '#/screens/UIAI'
 import {VideoFeed} from '#/screens/VideoFeed'
 import {ViewChannelScreen} from '#/screens/ViewChannel/ChannelScreen'
 import {ViewChannelCreateScreen} from '#/screens/ViewChannel/CreateChannelScreen'
@@ -856,7 +856,7 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
       <Stack.Screen
         name="UIAI"
         component={UIAIScreen}
-        options={{title: 'UI & AI'}}
+        options={{title: 'IU & AI'}}
       />
       <Stack.Screen
         name="DocsHome"
