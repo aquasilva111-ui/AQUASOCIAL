@@ -32,6 +32,6 @@ cd aqua-hub && npm install && npm run dev      # http://localhost:5192
 
 Criar e abrir as 7 ferramentas sem erros; persistência após recarregar; música (3 notas clicadas
 -> WAV de 1,4 MB válido); áudio (WAV de 4 s cortado em 2 s, 32044 bytes exatos); gráfico PNG;
-apresentação (PPTX zip válido); vídeo (navegador -> servidor -> MP4, **com ffmpeg simulado**).
+apresentação (PPTX zip válido); vídeo (navegador -> servidor -> MP4 com ffmpeg simulado; o render em si foi validado à parte com ffmpeg real, ver `aqua-render/README.md`).
 Não testado: arrastar no canvas de Design/waveform com o mouse, editar célula da planilha
 manualmente, vídeo de verdade.

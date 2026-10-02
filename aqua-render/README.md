@@ -20,9 +20,9 @@ navegador permitidas, separadas por vírgula; vazio = sem CORS), `PORT` (8788), 
 
 ## Limites conhecidos
 
-- **O comando do ffmpeg nunca rodou com ffmpeg real** (a máquina de desenvolvimento não tem).
-  Os testes usam um executável de mentira que só registra os argumentos. Antes de usar: rodar um
-  render real e ajustar o filtro, se preciso.
+- O render foi validado com **ffmpeg 6.0 real** (2 clipes, um sem áudio, mais uma trilha: saída de
+  4,0 s, H.264 + AAC, resolução e fps pedidos). Para repetir: `FFMPEG=/caminho/ffmpeg npm test`
+  (sem a variável, esse teste é ignorado). Não testado: vídeos longos, rotação de celular, 4K, VFR.
 - Assets ficam na memória do servidor (sem disco, sem limpeza); um token compartilhado, sem
   usuários nem cotas. Para produção: armazenamento em disco/objeto e autenticação por usuário.
 - Instalar ffmpeg no servidor é decisão de licença (builds com libx264 são GPL).

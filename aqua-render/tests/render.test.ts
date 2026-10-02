@@ -105,3 +105,31 @@ test('cors: only listed origins get headers; preflight needs no token; others ar
     server.close()
   }
 })
+
+// Opt-in: needs a real ffmpeg. `FFMPEG=/path/to/ffmpeg npm test`
+test('real ffmpeg: two clips plus a music track render to a valid MP4', { skip: !process.env.FFMPEG }, async () => {
+  const { execFileSync } = await import('node:child_process')
+  const bin = process.env.FFMPEG!
+  const dir = await mkdtemp(join(tmpdir(), 'real-ff-'))
+  const gen = (args: string[]) => execFileSync(bin, ['-y', '-loglevel', 'error', ...args], { stdio: 'pipe' })
+  gen(['-f', 'lavfi', '-i', 'testsrc=size=640x360:rate=30:duration=3', '-f', 'lavfi', '-i', 'sine=frequency=440:duration=3', '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-shortest', join(dir, 'a.mp4')])
+  gen(['-f', 'lavfi', '-i', 'testsrc2=size=320x240:rate=25:duration=2', '-c:v', 'libx264', '-pix_fmt', 'yuv420p', join(dir, 'b.mp4')])
+  gen(['-f', 'lavfi', '-i', 'sine=frequency=880:duration=2', join(dir, 'm.wav')])
+  const store = new MemoryAssetStore()
+  const put = async (f: string, mime: string) => (await store.put(new Uint8Array(await readFile(join(dir, f))), mime)).hash
+  const p = defaultVideo('t')
+  p.width = 480
+  p.height = 270
+  p.fps = 30
+  p.clips.push({ id: '1', asset: await put('a.mp4', 'video/mp4'), in: 0.5, out: 2.5, audio: true }, { id: '2', asset: await put('b.mp4', 'video/mp4'), in: 0, out: 2, audio: false })
+  p.audioTracks.push({ id: 'x', asset: await put('m.wav', 'audio/wav'), start: 1, gainDb: -6 } as never)
+  const out = join(dir, 'out.mp4')
+  await writeFile(out, await renderVideo(p, store, { ffmpeg: bin }))
+  let info = ''
+  try {
+    execFileSync(bin, ['-hide_banner', '-i', out], { stdio: 'pipe' })
+  } catch (e) {
+    info = String((e as { stderr?: Buffer }).stderr) // ffmpeg exits 1 when no output file is given; the probe is on stderr
+  }
+  assert.match(info, /Duration: 00:00:04/)
+})
