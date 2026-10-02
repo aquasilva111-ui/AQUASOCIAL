@@ -148,6 +148,7 @@ export type CommonNavigatorParams = {
 export type BottomTabNavigatorParams = CommonNavigatorParams & {
   HomeTab: undefined
   SearchTab: undefined
+  DropsTab: undefined
   NotificationsTab: undefined
   MyProfileTab: undefined
   MessagesTab: undefined
@@ -159,6 +160,10 @@ export type HomeTabNavigatorParams = CommonNavigatorParams & {
 
 export type SearchTabNavigatorParams = CommonNavigatorParams & {
   Search: {q?: string; tab?: 'user' | 'profile' | 'feed'}
+}
+
+export type DropsTabNavigatorParams = CommonNavigatorParams & {
+  Drops: undefined
 }
 
 export type NotificationsTabNavigatorParams = CommonNavigatorParams & {
@@ -175,6 +180,7 @@ export type MessagesTabNavigatorParams = CommonNavigatorParams & {
 
 export type FlatNavigatorParams = CommonNavigatorParams & {
   Home: undefined
+  Drops: undefined
   Search: {q?: string; tab?: 'user' | 'profile' | 'feed'}
   Feeds: undefined
   Notifications: undefined
@@ -185,6 +191,8 @@ export type AllNavigatorParams = CommonNavigatorParams & {
   HomeTab: undefined
   Home: undefined
   SearchTab: undefined
+  DropsTab: undefined
+  Drops: undefined
   Search: {q?: string; tab?: 'user' | 'profile' | 'feed'}
   Feeds: undefined
   NotificationsTab: undefined

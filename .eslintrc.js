@@ -110,6 +110,7 @@ module.exports = {
     'patches',
     '*.html',
     'bskyweb',
+    'drops',
     'bskyembed',
     'src/locale/locales/_build/',
     'src/locale/locales/**/*.js',

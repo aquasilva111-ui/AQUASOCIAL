@@ -31,6 +31,7 @@ import {buildStateObject} from '#/lib/routes/helpers'
 import {
   type AllNavigatorParams,
   type BottomTabNavigatorParams,
+  type DropsTabNavigatorParams,
   type FlatNavigatorParams,
   type HomeTabNavigatorParams,
   type MessagesTabNavigatorParams,
@@ -98,6 +99,7 @@ import {
 import {UIAIScreen} from '#/screens/ComingSoon'
 import {CreativeHubScreen} from '#/screens/CreativeHub'
 import {DocEditorScreen, DocsHomeScreen} from '#/screens/Docs'
+import {DropsScreen} from '#/screens/Drops'
 import {SharedPreferencesTesterScreen} from '#/screens/E2E/SharedPreferencesTesterScreen'
 import HashtagScreen from '#/screens/Hashtag'
 import {LaunchHubScreen} from '#/screens/LaunchHub'
@@ -207,6 +209,7 @@ const navigationRef = createNavigationContainerRef<AllNavigatorParams>()
 
 const HomeTab = createNativeStackNavigatorWithAuth<HomeTabNavigatorParams>()
 const SearchTab = createNativeStackNavigatorWithAuth<SearchTabNavigatorParams>()
+const DropsTab = createNativeStackNavigatorWithAuth<DropsTabNavigatorParams>()
 const NotificationsTab =
   createNativeStackNavigatorWithAuth<NotificationsTabNavigatorParams>()
 const MyProfileTab =
@@ -972,6 +975,7 @@ function TabsNavigator() {
       tabBar={tabBar}>
       <Tab.Screen name="HomeTab" getComponent={() => HomeTabNavigator} />
       <Tab.Screen name="SearchTab" getComponent={() => SearchTabNavigator} />
+      <Tab.Screen name="DropsTab" getComponent={() => DropsTabNavigator} />
       <Tab.Screen
         name="MessagesTab"
         getComponent={() => MessagesTabNavigator}
@@ -1017,6 +1021,18 @@ function SearchTabNavigator() {
       <SearchTab.Screen name="Search" getComponent={() => SearchScreen} />
       {commonScreens(SearchTab as typeof Flat)}
     </SearchTab.Navigator>
+  )
+}
+
+function DropsTabNavigator() {
+  const t = useTheme()
+  return (
+    <DropsTab.Navigator
+      screenOptions={screenOptions(t)}
+      initialRouteName="Drops">
+      <DropsTab.Screen name="Drops" getComponent={() => DropsScreen} />
+      {commonScreens(DropsTab as typeof Flat)}
+    </DropsTab.Navigator>
   )
 }
 
@@ -1098,6 +1114,11 @@ const FlatNavigator = () => {
         options={{title: title(msg`Explore`)}}
       />
       <Flat.Screen
+        name="Drops"
+        getComponent={() => DropsScreen}
+        options={{title: title(msg`Drops`)}}
+      />
+      <Flat.Screen
         name="Notifications"
         getComponent={() => NotificationsScreen}
         options={{title: title(msg`Notifications`), requireAuth: true}}
@@ -1159,6 +1180,9 @@ const LINKING = {
     if (isNative) {
       if (name === 'Search') {
         return buildStateObject('SearchTab', 'Search', params)
+      }
+      if (name === 'Drops') {
+        return buildStateObject('DropsTab', 'Drops', params)
       }
       if (name === 'Notifications') {
         return buildStateObject('NotificationsTab', 'Notifications', params)

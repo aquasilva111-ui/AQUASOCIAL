@@ -28,12 +28,14 @@ import {
   HomeOpen_Filled_Corner0_Rounded as HomeFilled,
   HomeOpen_Stoke2_Corner0_Rounded as Home,
 } from '#/components/icons/HomeOpen'
-import {MagnifyingGlass_Filled_Stroke2_Corner0_Rounded as MagnifyingGlassFilled} from '#/components/icons/MagnifyingGlass'
-import {MagnifyingGlass2_Stroke2_Corner0_Rounded as MagnifyingGlass} from '#/components/icons/MagnifyingGlass2'
 import {
   Message_Stroke2_Corner0_Rounded as Message,
   Message_Stroke2_Corner0_Rounded_Filled as MessageFilled,
 } from '#/components/icons/Message'
+import {
+  Play_Filled_Corner2_Rounded as PlayFilled,
+  Play_Stroke2_Corner2_Rounded as Play,
+} from '#/components/icons/Play'
 import {PlusLarge_Stroke2_Corner0_Rounded as PlusIcon} from '#/components/icons/Plus'
 import {
   UserCircle_Filled_Corner0_Rounded as UserCircleFilled,
@@ -112,12 +114,12 @@ export function BottomBarWeb() {
             }}
           </NavItem>
           <NavItem
-            routeName="Search"
-            href="/search"
-            label="Search"
+            routeName="Drops"
+            href="/drops"
+            label="Drops"
             showLabel={showLabels}>
             {({isActive}) => {
-              const Icon = isActive ? MagnifyingGlassFilled : MagnifyingGlass
+              const Icon = isActive ? PlayFilled : Play
               return (
                 <Icon
                   aria-hidden={true}

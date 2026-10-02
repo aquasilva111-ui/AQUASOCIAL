@@ -2,10 +2,13 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "web",
-      "runtimeExecutable": "npx",
-      "runtimeArgs": ["expo", "start", "--web"],
-      "port": 19006
+      "name": "drops-web",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": [
+        "-c",
+        "cd drops/example && CI=1 ./node_modules/.bin/expo start --web --port 19120"
+      ],
+      "port": 19120
     }
   ]
 }

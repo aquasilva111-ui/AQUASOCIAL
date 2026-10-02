@@ -42,18 +42,26 @@ import {
   HomeOpen_Filled_Corner0_Rounded as HomeFilled,
   HomeOpen_Stoke2_Corner0_Rounded as Home,
 } from '#/components/icons/HomeOpen'
-import {MagnifyingGlass_Filled_Stroke2_Corner0_Rounded as MagnifyingGlassFilled} from '#/components/icons/MagnifyingGlass'
-import {MagnifyingGlass2_Stroke2_Corner0_Rounded as MagnifyingGlass} from '#/components/icons/MagnifyingGlass2'
 import {
   Message_Stroke2_Corner0_Rounded as Message,
   Message_Stroke2_Corner0_Rounded_Filled as MessageFilled,
 } from '#/components/icons/Message'
+import {
+  Play_Filled_Corner2_Rounded as PlayFilled,
+  Play_Stroke2_Corner2_Rounded as Play,
+} from '#/components/icons/Play'
 import {PlusLarge_Stroke2_Corner0_Rounded as PlusIcon} from '#/components/icons/Plus'
 import {Text} from '#/components/Typography'
 import {useDemoMode} from '#/storage/hooks/demo-mode'
 import {DOCK_INSET, styles} from './BottomBarStyles'
 
-type TabOptions = 'Home' | 'Search' | 'Messages' | 'Notifications' | 'MyProfile'
+type TabOptions =
+  | 'Home'
+  | 'Drops'
+  | 'Search'
+  | 'Messages'
+  | 'Notifications'
+  | 'MyProfile'
 
 export function BottomBar({navigation}: BottomTabBarProps) {
   const {hasSession, currentAccount} = useSession()
@@ -61,7 +69,7 @@ export function BottomBar({navigation}: BottomTabBarProps) {
   const {_} = useLingui()
   const safeAreaInsets = useSafeAreaInsets()
   const {footerHeight} = useShellLayout()
-  const {isAtHome, isAtSearch, isAtNotifications, isAtMyProfile, isAtMessages} =
+  const {isAtHome, isAtDrops, isAtNotifications, isAtMyProfile, isAtMessages} =
     useNavigationTabState()
   const numUnreadNotifications = useUnreadNotifications()
   const numUnreadMessages = useUnreadMessageCount()
@@ -120,7 +128,7 @@ export function BottomBar({navigation}: BottomTabBarProps) {
     [navigation, dedupe],
   )
   const onPressHome = useCallback(() => onPressTab('Home'), [onPressTab])
-  const onPressSearch = useCallback(() => onPressTab('Search'), [onPressTab])
+  const onPressDrops = useCallback(() => onPressTab('Drops'), [onPressTab])
   const onPressNotifications = useCallback(
     () => onPressTab('Notifications'),
     [onPressTab],
@@ -195,23 +203,23 @@ export function BottomBar({navigation}: BottomTabBarProps) {
               accessibilityHint=""
             />
             <Btn
+              testID="bottomBarDropsBtn"
               icon={
-                isAtSearch ? (
-                  <MagnifyingGlassFilled
+                isAtDrops ? (
+                  <PlayFilled
                     width={iconWidth + 2}
                     style={[styles.ctrlIcon, pal.text, styles.searchIcon]}
                   />
                 ) : (
-                  <MagnifyingGlass
-                    testID="bottomBarSearchBtn"
+                  <Play
                     width={iconWidth + 2}
                     style={[styles.ctrlIcon, pal.text, styles.searchIcon]}
                   />
                 )
               }
-              onPress={onPressSearch}
-              accessibilityRole="search"
-              accessibilityLabel="Search"
+              onPress={onPressDrops}
+              accessibilityRole="tab"
+              accessibilityLabel="Drops"
               accessibilityHint=""
             />
             <Btn

@@ -9,6 +9,7 @@ type AllNavigatableRoutes = Omit<
 export const router = new Router<AllNavigatableRoutes>({
   Home: '/',
   Search: '/search',
+  Drops: '/drops',
   Feeds: '/feeds',
   Images: '/visionboard',
   ImagesLegacy: '/images',

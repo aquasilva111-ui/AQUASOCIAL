@@ -1,0 +1,32 @@
+{
+  "expo": {
+    "name": "Drops",
+    "slug": "aqua-drops",
+    "version": "1.0.0",
+    "orientation": "default",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "online.aquaapp.drops"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#0057FF",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "package": "online.aquaapp.drops"
+    },
+    "plugins": [
+      "expo-font"
+    ],
+    "scheme": "aquadrops",
+    "web": {
+      "bundler": "metro",
+      "output": "single"
+    }
+  }
+}

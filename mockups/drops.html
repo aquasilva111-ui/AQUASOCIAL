@@ -1,0 +1,166 @@
+<title>Drops Tela Inicial</title>
+<style>
+/* Layout: header, then two phones side by side (atual vs otimizada) and a short list of what changed. Single dark look: Aqua ink black + blue, orange only for likes. */
+:root {
+  --bg: #000000;
+  --ink: #f4f6fb;
+  --muted: #98a2b8;
+  --line: rgba(255,255,255,.09);
+  --surface: #0c0f16;
+  --raised: #151a25;
+  --aqua: #1185fe;
+  --aqua-deep: #002bef;
+  --aqua-light: #009eff;
+  --like: #ff7a00;
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font); padding-inline: 20px; padding-block: 40px 56px; margin: 0; }
+.wrap { max-width: 1040px; margin: 0 auto; display: grid; gap: 40px; }
+header { display: grid; gap: 10px; max-width: 62ch; }
+.brand { font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+h1 { margin: 0; font-size: clamp(36px, 6vw, 60px); line-height: 1.02; letter-spacing: -.04em; font-weight: 900; text-wrap: balance; }
+h1 i { color: var(--aqua); font-style: normal; }
+header p { margin: 0; color: var(--muted); font-size: 16px; line-height: 1.55; }
+.stage { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 40px 32px; align-items: start; justify-items: center; }
+figure { margin: 0; display: grid; gap: 16px; width: 290px; max-width: 100%; }
+figcaption { display: grid; gap: 4px; }
+figcaption b { font-size: 15px; }
+figcaption b.new { color: var(--aqua-light); }
+figcaption span { font-size: 13px; line-height: 1.5; color: var(--muted); }
+.notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 24px 32px; border-top: 1px solid var(--line); padding-top: 28px; }
+.notes div { display: grid; gap: 6px; align-content: start; }
+.notes b { font-size: 14px; }
+.notes p { margin: 0; font-size: 13.5px; line-height: 1.55; color: var(--muted); }
+.notes .o b { color: var(--like); }
+.mono { font-family: var(--mono); font-size: 12px; color: var(--aqua-light); }
+
+/* phone */
+.phone { width: 290px; max-width: 100%; aspect-ratio: 9 / 19; border-radius: 42px; background: #000; border: 6px solid #1b2030; position: relative; overflow: hidden; box-shadow: 0 0 0 1px var(--line), 0 30px 60px -20px rgba(0,17,90,.55); }
+.phone.dull { opacity: .72; filter: saturate(.7); }
+.notch { position: absolute; top: 8px; left: 50%; width: 76px; height: 22px; background: #000; border-radius: 99px; transform: translateX(-50%); z-index: 9; }
+.sb { position: absolute; top: 10px; left: 24px; right: 24px; display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; z-index: 8; }
+svg.i { width: 22px; height: 22px; fill: currentColor; display: block; }
+.scr { position: absolute; inset: 0; padding-top: 44px; }
+
+.g1 { background: linear-gradient(160deg, #5fd0ff, #0b3a80 60%, #021233); }
+.g2 { background: linear-gradient(160deg, #ffb24d, #ff6a3d 40%, #3a1a5c 85%); }
+.g3 { background: linear-gradient(160deg, #0a84ff, #001a66); }
+.g4 { background: linear-gradient(160deg, #ffd27a, #e0562d); }
+.g5 { background: linear-gradient(160deg, #3b6bff, #0b1236); }
+.g6 { background: linear-gradient(160deg, #5be0c2, #0b4f63); }
+
+/* current home */
+.cur { padding: 44px 14px 0; display: grid; gap: 10px; align-content: start; }
+.cur small { font-size: 9px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+.cur h2 { margin: 0; font-size: 44px; letter-spacing: -.05em; line-height: 1; font-weight: 900; }
+.cur h2 i { color: var(--aqua); font-style: normal; }
+.cur p { margin: 0; font-size: 11px; line-height: 1.5; color: var(--muted); }
+.cur .hero { border-radius: 18px; padding: 14px; height: 120px; display: grid; align-content: end; gap: 3px; background: linear-gradient(135deg, var(--aqua-deep), var(--aqua-light)); }
+.cur .hero b { font-size: 17px; } .cur .hero span { font-size: 10px; opacity: .85; }
+.cur .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.cur .tiles div { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; height: 86px; padding: 10px; font-size: 12px; font-weight: 800; display: grid; align-content: end; }
+
+/* optimized home */
+.hd { display: flex; justify-content: space-between; align-items: center; padding: 4px 14px 8px; }
+.hd .logo { font-size: 24px; font-weight: 900; letter-spacing: -.05em; }
+.hd .logo i { color: var(--aqua); font-style: normal; }
+.hd .ic { display: flex; gap: 14px; color: var(--ink); }
+.hd .ic svg { width: 21px; height: 21px; }
+.seg { display: flex; gap: 6px; padding: 0 14px 10px; font-size: 11.5px; font-weight: 700; }
+.seg span { padding: 6px 12px; border-radius: 99px; background: var(--raised); color: var(--muted); }
+.seg .on { background: linear-gradient(90deg, var(--aqua-deep), var(--aqua-light)); color: #fff; }
+.feat { margin: 0 14px; height: 218px; border-radius: 20px; position: relative; overflow: hidden; }
+.feat::before { content: ""; position: absolute; inset: 0; background: radial-gradient(120% 60% at 30% 10%, #5fd0ff 0%, transparent 55%), linear-gradient(180deg, #0b4a8f 0%, #062a5c 50%, #021233 100%); }
+.feat::after { content: ""; position: absolute; inset: auto 0 0 0; height: 62%; background: linear-gradient(transparent, rgba(0,0,0,.82)); }
+.feat .pl { position: absolute; top: 12px; left: 12px; z-index: 2; font-size: 10px; font-weight: 800; padding: 4px 9px; border-radius: 99px; background: rgba(0,0,0,.45); backdrop-filter: blur(8px); display: flex; align-items: center; gap: 5px; }
+.feat .pl i { width: 6px; height: 6px; border-radius: 50%; background: var(--aqua-light); }
+.feat .tx { position: absolute; left: 14px; right: 14px; bottom: 12px; z-index: 2; display: grid; gap: 3px; }
+.feat .tx b { font-size: 14px; } .feat .tx span { font-size: 11px; color: rgba(255,255,255,.8); }
+.feat .go { position: absolute; right: 12px; bottom: 12px; z-index: 3; width: 40px; height: 40px; border-radius: 50%; background: #fff; color: var(--aqua-deep); display: grid; place-items: center; }
+.feat .go svg { width: 18px; height: 18px; margin-left: 2px; }
+.feat .prog { position: absolute; left: 0; bottom: 0; height: 3px; width: 38%; background: linear-gradient(90deg, var(--aqua-deep), var(--aqua-light)); z-index: 3; }
+.sec { display: flex; justify-content: space-between; align-items: baseline; padding: 14px 14px 8px; font-size: 13px; font-weight: 800; }
+.sec span { font-size: 11px; color: var(--aqua-light); font-weight: 700; }
+.rail { display: flex; gap: 8px; padding: 0 14px; overflow: hidden; }
+.rail div { flex: 0 0 84px; height: 132px; border-radius: 14px; position: relative; overflow: hidden; }
+.rail div::after { content: ""; position: absolute; inset: auto 0 0 0; height: 55%; background: linear-gradient(transparent, rgba(0,0,0,.7)); }
+.rail em { position: absolute; left: 7px; bottom: 6px; z-index: 2; font-style: normal; font-size: 10px; font-weight: 800; display: flex; align-items: center; gap: 3px; color: var(--like); }
+.rail em svg { width: 11px; height: 11px; }
+.chips { display: flex; gap: 6px; padding: 0 14px; overflow: hidden; }
+.chips span { flex: 0 0 auto; font-size: 11px; font-weight: 700; padding: 6px 11px; border-radius: 99px; border: 1px solid var(--line); color: var(--muted); }
+.tab { position: absolute; left: 0; right: 0; bottom: 0; height: 56px; background: rgba(0,0,0,.84); backdrop-filter: blur(14px); border-top: 1px solid var(--line); display: flex; justify-content: space-around; align-items: center; color: var(--muted); }
+.tab .on { color: #fff; }
+.tab .plus { width: 44px; height: 30px; border-radius: 10px; background: linear-gradient(90deg, var(--aqua-deep), var(--aqua-light)); color: #fff; display: grid; place-items: center; }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="heart" viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 2.6 4.5 6.3 4.5c2.1 0 3.6 1.1 4.5 2.6l1.2 1.9 1.2-1.9c.9-1.5 2.4-2.6 4.5-2.6 3.7 0 5.4 3.9 3.9 7.3C19.5 16.4 12 21 12 21z"/></symbol>
+  <symbol id="play" viewBox="0 0 24 24"><path d="M6 3.500v17l14-8.500L6 3.500z"/></symbol>
+  <symbol id="plus" viewBox="0 0 24 24"><path d="M11 4h2v7h7v2h-7v7h-2v-7H4v-2h7V4z"/></symbol>
+  <symbol id="home" viewBox="0 0 24 24"><path d="M12 3 2 11h3v9h5v-6h4v6h5v-9h3L12 3z"/></symbol>
+  <symbol id="bell" viewBox="0 0 24 24"><path d="M12 22a2.500 2.500 0 0 0 2.400-2h-4.800A2.500 2.500 0 0 0 12 22zm7-6V11c0-3.100-1.600-5.600-4.500-6.300V4a2.500 2.500 0 0 0-5 0v.7C6.600 5.400 5 7.900 5 11v5l-2 2v1h18v-1l-2-2z"/></symbol>
+  <symbol id="user" viewBox="0 0 24 24"><path d="M12 12a4.500 4.500 0 1 0 0-9 4.500 4.500 0 0 0 0 9zm0 2c-4 0-8 2-8 5v2h16v-2c0-3-4-5-8-5z"/></symbol>
+  <symbol id="search" viewBox="0 0 24 24"><path d="M10 3a7 7 0 0 1 5.600 11.200l5.100 5.100-1.400 1.400-5.100-5.100A7 7 0 1 1 10 3zm0 2a5 5 0 1 0 0 10 5 5 0 0 0 0-10z"/></symbol>
+</svg>
+
+<div class="wrap">
+  <header>
+    <div class="brand">Aqua</div>
+    <h1>Drops<i>.</i> tela inicial</h1>
+    <p>Hoje a home do Drops é uma vitrine de desenvolvimento: nome grande e atalhos de teste. A versão otimizada abre direto no que o usuário quer, ver o próximo drop.</p>
+  </header>
+
+  <div class="stage">
+    <figure>
+      <div class="phone dull">
+        <div class="notch"></div><div class="sb"><span>9:41</span><span>5G</span></div>
+        <div class="cur">
+          <small>Aqua</small>
+          <h2>Drops<i>.</i></h2>
+          <p>Vídeos e fotos em tela cheia, sem fim. Toque duas vezes para curtir com laranja.</p>
+          <div class="hero"><b>Assistir Drops</b><span>Toque para pausar, toque duplo para curtir</span></div>
+          <small>Laboratório</small>
+          <div class="tiles"><div>Feed</div><div>Layouts</div><div>Stress</div><div>Cache</div></div>
+        </div>
+      </div>
+      <figcaption><b>Atual</b><span>Texto de apresentação, um botão e quatro atalhos de teste. Precisa de um toque extra para chegar ao conteúdo.</span></figcaption>
+    </figure>
+
+    <figure>
+      <div class="phone">
+        <div class="notch"></div><div class="sb"><span>9:41</span><span>5G</span></div>
+        <div class="scr">
+          <div class="hd"><div class="logo">Drops<i>.</i></div><div class="ic"><svg class="i"><use href="#search"/></svg><svg class="i"><use href="#bell"/></svg></div></div>
+          <div class="seg"><span class="on">Para você</span><span>Seguindo</span><span>Perto de mim</span></div>
+          <div class="feat">
+            <div class="pl"><i></i>Continuar assistindo</div>
+            <div class="tx"><b>@mara.films</b><span>Maré baixa em Jericoacoara, 0:14 de 0:38</span></div>
+            <div class="go"><svg class="i"><use href="#play"/></svg></div>
+            <div class="prog"></div>
+          </div>
+          <div class="sec">Em alta agora<span>Ver tudo</span></div>
+          <div class="rail">
+            <div class="g2"><em><svg class="i"><use href="#heart"/></svg>12 mil</em></div>
+            <div class="g3"><em><svg class="i"><use href="#heart"/></svg>9,4 mil</em></div>
+            <div class="g4"><em><svg class="i"><use href="#heart"/></svg>7,1 mil</em></div>
+            <div class="g6"><em><svg class="i"><use href="#heart"/></svg>5,8 mil</em></div>
+          </div>
+          <div class="sec">Explorar</div>
+          <div class="chips"><span>Viagem</span><span>Música</span><span>Esporte</span><span>Arte</span><span>Humor</span></div>
+        </div>
+        <div class="tab"><svg class="i"><use href="#home"/></svg><svg class="i on"><use href="#play"/></svg><div class="plus"><svg class="i"><use href="#plus"/></svg></div><svg class="i"><use href="#bell"/></svg><svg class="i"><use href="#user"/></svg></div>
+      </div>
+      <figcaption><b class="new">Otimizada</b><span>Abre no que importa: retomar o drop em andamento, ver o que está em alta e explorar por tema.</span></figcaption>
+    </figure>
+  </div>
+
+  <section class="notes">
+    <div><b>Retomar em um toque</b><p>O card grande guarda o ponto onde o usuário parou e abre o feed já nesse drop, com a barra de progresso em azul Aqua.</p></div>
+    <div class="o"><b>Laranja só nos likes</b><p>Os corações da faixa "Em alta" e das telas seguintes usam laranja. Seleção e ações principais ficam em azul.</p></div>
+    <div><b>Carga leve</b><p>A home usa miniaturas pequenas e só pré-carrega o primeiro drop. Os vídeos de cada card só começam ao abrir o feed.</p></div>
+    <div><b>Ferramentas de teste fora</b><p>Layouts, Stress e Cache saem da home e ficam num menu de desenvolvedor, que o usuário comum não vê.</p></div>
+  </section>
+</div>
