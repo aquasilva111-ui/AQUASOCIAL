@@ -112,6 +112,7 @@ module.exports = {
     'bskyweb',
     '/drops',
     '/aqua-studio',
+    '/aqua-docs',
     'bskyembed',
     'src/locale/locales/_build/',
     'src/locale/locales/**/*.js',
