@@ -312,3 +312,33 @@ test('video: split keeps total duration, fades move to the right half, texts and
   s.removeText(s.state.texts![0].id)
   assert.equal(s.state.texts!.length, 0)
 })
+
+import { keyframeExpr, parseSrt } from '../src/index'
+
+test('video: speed changes duration, split respects speed, SRT import, overlays, keyframe expression', async () => {
+  const rt = new CreativeRuntime({ project: createProject('V'), store: new MemoryAssetStore(), adapters: [videoAdapter()] })
+  const item = await rt.create('video', 'Edit')
+  const s = (await rt.openItem(item.id)) as VideoSession
+  const c = s.addClip('h', 10)
+  s.update((d) => void (d.clips[0].speed = 2))
+  assert.equal(s.duration(), 5)
+  s.splitClip(c, 2) // 2 s of timeline = 4 s of source
+  assert.deepEqual(s.state.clips.map((x) => [x.in, x.out]), [[0, 4], [4, 10]])
+  assert.equal(s.duration(), 5)
+
+  assert.equal(s.importSrt('1\n00:00:01,000 --> 00:00:02,500\nOi\n\n2\n00:00:03,000 --> 00:00:04,000\nTchau', 0.5), 2)
+  assert.deepEqual(s.state.texts!.map((t) => [t.id, t.start, t.end]), [['cap_0', 1.5, 3], ['cap_1', 3.5, 4.5]])
+  assert.equal(s.importSrt('1\n00:00:00,000 --> 00:00:01,000\nSó um'), 1) // replaces earlier captions
+  assert.equal(s.state.texts!.length, 1)
+
+  const o = s.addOverlay('h2', 3, 1)
+  assert.equal(s.state.overlays![0].id, o)
+  s.removeOverlay(o)
+  assert.equal(s.state.overlays!.length, 0)
+
+  assert.equal(keyframeExpr([{ t: 0, v: 1 }], 'T'), 'if(lt(T,0),1,1)')
+  const e = keyframeExpr([{ t: 2, v: 1 }, { t: 0, v: 0 }], 'T') // unsorted input
+  assert.match(e, /^if\(lt\(T,0\),0,if\(lt\(T,2\),0\+\(1\)\*\(T-0\)\/2,1\)\)$/)
+  assert.throws(() => keyframeExpr([], 'T'))
+  assert.deepEqual(parseSrt('garbage\n\nno times here'), [])
+})

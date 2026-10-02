@@ -180,3 +180,62 @@ test('the bundled font exists, so text overlays work on any host', async () => {
   const pkg = createRequire(import.meta.url).resolve('dejavu-fonts-ttf/package.json')
   assert.ok(existsSync(join(dirname(pkg), 'ttf', 'DejaVuSans-Bold.ttf')))
 })
+
+test('real ffmpeg: speed, overlay with keyframes and SRT captions', { skip: !process.env.FFMPEG }, async () => {
+  const { execFileSync } = await import('node:child_process')
+  const { videoAdapter } = await import('aqua-runtime/src/index')
+  const bin = process.env.FFMPEG!
+  const dir = await mkdtemp(join(tmpdir(), 'real-v2-'))
+  const gen = (args: string[]) => execFileSync(bin, ['-y', '-loglevel', 'error', ...args], { stdio: 'pipe' })
+  gen(['-f', 'lavfi', '-i', 'color=c=0x808080:size=320x240:rate=30:duration=4', '-f', 'lavfi', '-i', 'sine=frequency=440:duration=4', '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-shortest', join(dir, 'base.mp4')])
+  gen(['-f', 'lavfi', '-i', 'color=c=0xff0000:size=160x120:rate=30:duration=2', '-c:v', 'libx264', '-pix_fmt', 'yuv420p', join(dir, 'red.mp4')])
+  const store = new MemoryAssetStore()
+  const put = async (f: string) => (await store.put(new Uint8Array(await readFile(join(dir, f))), 'video/mp4')).hash
+  const p = defaultVideo('v2')
+  p.width = 320
+  p.height = 240
+  p.clips.push({ id: 'c', asset: await put('base.mp4'), in: 0, out: 4, audio: true, speed: 2 }) // 4 s of source at 2x = 2 s
+  p.overlays = [{ id: 'o', asset: await put('red.mp4'), in: 0, out: 2, start: 0, x: 0.2, y: 0.5, scale: 0.25, audio: false, anim: { x: [{ t: 0, v: 0.2 }, { t: 2, v: 0.8 }] } }]
+  p.texts = [{ id: 't', text: 'Olá', start: 0, end: 2, x: 0.5, y: 0.2, size: 0.1, color: '#ffffff', anim: { opacity: [{ t: 0, v: 0 }, { t: 1, v: 1 }] } }]
+  const out = join(dir, 'out.mp4')
+  await writeFile(out, await renderVideo(p, store, { ffmpeg: bin }))
+  let info = ''
+  try {
+    execFileSync(bin, ['-hide_banner', '-i', out], { stdio: 'pipe' })
+  } catch (e) {
+    info = String((e as { stderr?: Buffer }).stderr)
+  }
+  assert.match(info, /Duration: 00:00:0[12]\.9|Duration: 00:00:02\.0/, info) // ~2 s: the speed change shortened it
+  // Pixels: red overlay is on the left at t=0 and on the right at t~1.9.
+  const frame = (t: number) => execFileSync(bin, ['-loglevel', 'error', '-ss', String(t), '-i', out, '-frames:v', '1', '-vf', 'format=rgb24', '-f', 'rawvideo', '-'], { stdio: 'pipe', maxBuffer: 1 << 24 })
+  const red = (buf: Buffer, x: number, y: number) => buf[(y * 320 + x) * 3] > 200 && buf[(y * 320 + x) * 3 + 1] < 60
+  const f0 = frame(0.05)
+  const f1 = frame(1.85)
+  assert.ok(red(f0, 70, 120) && !red(f0, 250, 120), 'overlay starts on the left')
+  assert.ok(red(f1, 250, 120) && !red(f1, 70, 120), 'overlay moved to the right')
+})
+
+test('captions: SRT becomes text overlays that render', { skip: !process.env.FFMPEG }, async () => {
+  const { execFileSync } = await import('node:child_process')
+  const { parseSrt } = await import('aqua-runtime/src/index')
+  const cues = parseSrt('1\n00:00:00,500 --> 00:00:01,500\nOi, mundo\n\n2\n00:00:02,000 --> 00:00:03,000\n<i>Linha 2</i>\nsegunda\n')
+  assert.deepEqual(cues, [{ start: 0.5, end: 1.5, text: 'Oi, mundo' }, { start: 2, end: 3, text: 'Linha 2\nsegunda' }])
+  const bin = process.env.FFMPEG!
+  const dir = await mkdtemp(join(tmpdir(), 'real-cap-'))
+  execFileSync(bin, ['-y', '-loglevel', 'error', '-f', 'lavfi', '-i', 'color=c=0x808080:size=320x240:rate=30:duration=4', '-c:v', 'libx264', '-pix_fmt', 'yuv420p', join(dir, 'b.mp4')])
+  const store = new MemoryAssetStore()
+  const asset = (await store.put(new Uint8Array(await readFile(join(dir, 'b.mp4'))), 'video/mp4')).hash
+  const p = defaultVideo('cap')
+  p.width = 320
+  p.height = 240
+  p.clips.push({ id: 'c', asset, in: 0, out: 4, audio: false })
+  p.texts = cues.map((c, i) => ({ id: `cap_${i}`, text: c.text, start: c.start, end: c.end, x: 0.5, y: 0.5, size: 0.2, color: '#ffffff' }))
+  const out = join(dir, 'o.mp4')
+  await writeFile(out, await renderVideo(p, store, { ffmpeg: bin }))
+  const mean = (t: number) => {
+    const raw = execFileSync(bin, ['-loglevel', 'error', '-ss', String(t), '-i', out, '-frames:v', '1', '-vf', 'format=gray', '-f', 'rawvideo', '-'], { stdio: 'pipe', maxBuffer: 1 << 24 })
+    return raw.reduce((a, b) => a + b, 0) / raw.length
+  }
+  assert.ok(mean(1) > mean(1.8) + 2, 'caption 1 visible at 1.0 s, gone at 1.8 s')
+  assert.ok(mean(2.5) > mean(1.8) + 2, 'caption 2 visible at 2.5 s')
+})
