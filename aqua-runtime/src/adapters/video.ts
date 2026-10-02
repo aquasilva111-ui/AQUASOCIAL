@@ -101,6 +101,8 @@ export type VideoSession = JsonSession<VideoProject> & {
   removeOverlay(overlayId: string): void
   /** Turns SRT subtitles into text overlays (replacing earlier captions); returns how many. */
   importSrt(srt: string, offsetSec?: number): number
+  /** Replaces earlier captions with these cues (timeline seconds); returns how many were kept (max 200). */
+  setCaptions(cues: Cue[]): number
   removeText(textId: string): void
   addAudio(asset: string, start?: number, gainDb?: number): string
   duration(): number
@@ -337,14 +339,15 @@ export function videoAdapter(opts: VideoAdapterOptions = {}): ToolAdapter {
       return oid
     }
     s.removeOverlay = (overlayId) => s.update((d) => void (d.overlays = (d.overlays ?? []).filter((o) => o.id !== overlayId)))
-    s.importSrt = (srt, offsetSec = 0) => {
-      const cues = parseSrt(srt).slice(0, 200)
+    s.setCaptions = (cues) => {
+      const kept = cues.filter((c) => c.text.trim() && c.end > c.start).slice(0, 200)
       s.update((d) => {
         const texts = (d.texts = (d.texts ?? []).filter((t) => !t.id.startsWith('cap_')))
-        cues.forEach((c, n) => texts.push({ id: `cap_${n}`, text: c.text, start: Math.max(0, c.start + offsetSec), end: Math.max(0, c.end + offsetSec), x: 0.5, y: 0.88, size: 0.045, color: '#ffffff' }))
+        kept.forEach((c, n) => texts.push({ id: `cap_${n}`, text: c.text.slice(0, 200), start: Math.max(0, c.start), end: Math.max(0, c.end), x: 0.5, y: 0.88, size: 0.045, color: '#ffffff' }))
       })
-      return cues.length
+      return kept.length
     }
+    s.importSrt = (srt, offsetSec = 0) => s.setCaptions(parseSrt(srt).map((c) => ({ ...c, start: c.start + offsetSec, end: c.end + offsetSec })))
     s.addAudio = (asset, start = 0, gainDb = -6) => {
       const tid = id('aud')
       s.update((d) => void d.audioTracks.push({ id: tid, asset, start, gainDb }))
