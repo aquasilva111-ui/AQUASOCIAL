@@ -1,0 +1,378 @@
+/* eslint-disable bsky-internal/avoid-unwrapped-text -- plain DOM elements, web only */
+import {useCallback, useEffect, useRef, useState} from 'react'
+import {View} from 'react-native'
+
+import {
+  Heart2_Filled_Stroke2_Corner0_Rounded as HeartFilled,
+  Heart2_Stroke2_Corner0_Rounded as Heart,
+} from '#/components/icons/Heart2'
+import {type Drop, makeDrops} from './data'
+
+/** Web layout, like TikTok on desktop: a centered 9:16 card with the actions beside it. */
+
+const LIKE = '#FF7A00'
+const AQUA = '#1185FE'
+const PAGE = 12
+
+const compact = (n: number) =>
+  n >= 1000 ? `${(n / 1000).toFixed(n >= 10000 ? 0 : 1)} mil` : String(n)
+
+const circle: React.CSSProperties = {
+  width: 48,
+  height: 48,
+  borderRadius: '50%',
+  border: 0,
+  background: 'rgba(255,255,255,0.14)',
+  color: '#fff',
+  display: 'grid',
+  placeItems: 'center',
+  cursor: 'pointer',
+  padding: 0,
+}
+
+function Slide({
+  drop,
+  active,
+  near,
+  muted,
+  liked,
+  onLike,
+  onToggleMute,
+}: {
+  drop: Drop
+  active: boolean
+  near: boolean
+  muted: boolean
+  liked: boolean
+  onLike: (id: string, force?: boolean) => void
+  onToggleMute: () => void
+}) {
+  const video = useRef<HTMLVideoElement>(null)
+  const bar = useRef<HTMLDivElement>(null)
+  const [paused, setPaused] = useState(false)
+  const [copied, setCopied] = useState(false)
+
+  useEffect(() => {
+    const v = video.current
+    if (!v) return
+    v.muted = muted
+    if (active) {
+      v.play().catch(() => {})
+      setPaused(false)
+    } else {
+      v.pause()
+      v.currentTime = 0
+    }
+  }, [active, muted, near])
+
+  const LikeIcon = liked ? HeartFilled : Heart
+  const copyLink = () => {
+    navigator.clipboard
+      ?.writeText(`${window.location.origin}/drops`)
+      .then(() => {
+        setCopied(true)
+        setTimeout(() => setCopied(false), 1500)
+      })
+      .catch(() => {})
+  }
+
+  return (
+    <div
+      style={{
+        height: '100%',
+        scrollSnapAlign: 'start',
+        scrollSnapStop: 'always',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: 16,
+        padding: '16px 0',
+        boxSizing: 'border-box',
+      }}>
+      <div
+        style={{
+          height: '100%',
+          aspectRatio: '9 / 16',
+          maxWidth: 'calc(100% - 80px)',
+          position: 'relative',
+          borderRadius: 16,
+          overflow: 'hidden',
+          background: '#000',
+        }}>
+        {near ? (
+          <video
+            ref={video}
+            src={drop.uri}
+            poster={drop.poster}
+            loop
+            playsInline
+            muted={muted}
+            preload="auto"
+            onTimeUpdate={e => {
+              const v = e.currentTarget
+              if (bar.current && v.duration)
+                bar.current.style.width = `${(v.currentTime / v.duration) * 100}%`
+            }}
+            onClick={() => {
+              const v = video.current
+              if (!v) return
+              if (v.paused) {
+                v.play().catch(() => {})
+                setPaused(false)
+              } else {
+                v.pause()
+                setPaused(true)
+              }
+            }}
+            onDoubleClick={() => onLike(drop.id, true)}
+            style={{
+              position: 'absolute',
+              inset: 0,
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              cursor: 'pointer',
+            }}
+          />
+        ) : (
+          <img
+            src={drop.poster}
+            alt=""
+            style={{width: '100%', height: '100%', objectFit: 'cover'}}
+          />
+        )}
+        <div
+          style={{
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            bottom: 0,
+            height: '35%',
+            pointerEvents: 'none',
+            background: 'linear-gradient(transparent, rgba(0,0,0,0.65))',
+          }}
+        />
+        <button
+          type="button"
+          aria-label={muted ? 'Ativar som' : 'Silenciar'}
+          onClick={onToggleMute}
+          style={{
+            ...circle,
+            width: 36,
+            height: 36,
+            position: 'absolute',
+            top: 12,
+            left: 12,
+            background: 'rgba(0,0,0,0.4)',
+            fontSize: 16,
+          }}>
+          {muted ? '🔇' : '🔊'}
+        </button>
+        {paused ? (
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              display: 'grid',
+              placeItems: 'center',
+              pointerEvents: 'none',
+              color: '#fff',
+              fontSize: 56,
+              textShadow: '0 2px 12px rgba(0,0,0,0.5)',
+            }}>
+            ▶
+          </div>
+        ) : null}
+        <div
+          style={{
+            position: 'absolute',
+            left: 16,
+            right: 16,
+            bottom: 16,
+            color: '#fff',
+            pointerEvents: 'none',
+          }}>
+          <div style={{fontWeight: 700, fontSize: 17}}>@{drop.author}</div>
+          <div style={{fontSize: 14, lineHeight: 1.4, marginTop: 4}}>
+            {drop.caption}
+          </div>
+        </div>
+        <div
+          style={{
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            bottom: 0,
+            height: 3,
+            background: 'rgba(255,255,255,0.25)',
+          }}>
+          <div
+            ref={bar}
+            style={{
+              height: '100%',
+              width: 0,
+              background: `linear-gradient(90deg, #002BEF, #009EFF)`,
+            }}
+          />
+        </div>
+      </div>
+
+      <div
+        style={{
+          alignSelf: 'flex-end',
+          marginBottom: 8,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 18,
+          color: '#fff',
+        }}>
+        <div
+          style={{
+            width: 48,
+            height: 48,
+            borderRadius: '50%',
+            background: AQUA,
+            border: '2px solid #fff',
+            display: 'grid',
+            placeItems: 'center',
+            fontWeight: 700,
+            fontSize: 18,
+            boxSizing: 'border-box',
+          }}>
+          {drop.author[0].toUpperCase()}
+        </div>
+        <div style={{display: 'grid', justifyItems: 'center', gap: 4}}>
+          <button
+            type="button"
+            aria-label={liked ? 'Descurtir' : 'Curtir'}
+            onClick={() => onLike(drop.id)}
+            style={circle}>
+            <LikeIcon width={26} style={{color: liked ? LIKE : '#fff'}} />
+          </button>
+          <span style={{fontSize: 12, fontWeight: 600}}>
+            {compact(drop.likes + (liked ? 1 : 0))}
+          </span>
+        </div>
+        <div style={{display: 'grid', justifyItems: 'center', gap: 4}}>
+          <button
+            type="button"
+            aria-label="Copiar link"
+            onClick={copyLink}
+            style={{...circle, fontSize: 20}}>
+            ↗
+          </button>
+          <span style={{fontSize: 12, fontWeight: 600}}>
+            {copied ? 'Copiado' : 'Enviar'}
+          </span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export function DropsScreen() {
+  const scroller = useRef<HTMLDivElement>(null)
+  const [drops, setDrops] = useState<Drop[]>(() => makeDrops(PAGE))
+  const [index, setIndex] = useState(0)
+  const [muted, setMuted] = useState(true)
+  const [liked, setLiked] = useState<Set<string>>(() => new Set())
+
+  const onLike = useCallback((id: string, force?: boolean) => {
+    setLiked(prev => {
+      if (force && prev.has(id)) return prev
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }, [])
+
+  const goTo = (i: number) => {
+    const el = scroller.current
+    if (!el) return
+    el.scrollTo({
+      top: Math.max(0, i) * el.clientHeight,
+      behavior: 'smooth',
+    })
+  }
+
+  const onScroll = () => {
+    const el = scroller.current
+    if (!el) return
+    const i = Math.round(el.scrollTop / el.clientHeight)
+    if (i !== index) setIndex(i)
+    if (i >= drops.length - 4) {
+      setDrops(prev => [...prev, ...makeDrops(PAGE, prev.length)])
+    }
+  }
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowDown') goTo(index + 1)
+      else if (e.key === 'ArrowUp') goTo(index - 1)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  })
+
+  const arrow: React.CSSProperties = {
+    ...circle,
+    width: 44,
+    height: 44,
+    fontSize: 18,
+  }
+
+  return (
+    <View style={{flex: 1, backgroundColor: '#000'}}>
+      <div
+        ref={scroller}
+        onScroll={onScroll}
+        style={{
+          position: 'absolute',
+          inset: 0,
+          overflowY: 'scroll',
+          scrollSnapType: 'y mandatory',
+          scrollbarWidth: 'none',
+        }}>
+        {drops.map((drop, i) => (
+          <Slide
+            key={drop.id}
+            drop={drop}
+            active={i === index}
+            near={Math.abs(i - index) <= 1}
+            muted={muted}
+            liked={liked.has(drop.id)}
+            onLike={onLike}
+            onToggleMute={() => setMuted(m => !m)}
+          />
+        ))}
+      </div>
+      <div
+        style={{
+          position: 'absolute',
+          right: 16,
+          top: '50%',
+          transform: 'translateY(-50%)',
+          display: 'grid',
+          gap: 12,
+        }}>
+        <button
+          type="button"
+          aria-label="Drop anterior"
+          disabled={index === 0}
+          onClick={() => goTo(index - 1)}
+          style={{...arrow, opacity: index === 0 ? 0.35 : 1}}>
+          ▲
+        </button>
+        <button
+          type="button"
+          aria-label="Próximo drop"
+          onClick={() => goTo(index + 1)}
+          style={arrow}>
+          ▼
+        </button>
+      </div>
+    </View>
+  )
+}
