@@ -84,6 +84,7 @@ import {
   createComposerImage,
   pasteImage,
 } from '#/state/gallery'
+import {compressImage} from '#/state/gallery'
 import {useModalControls} from '#/state/modals'
 import {useRequireAltTextEnabled} from '#/state/preferences'
 import {
@@ -94,10 +95,15 @@ import {
 } from '#/state/preferences/languages'
 import {usePreferencesQuery} from '#/state/queries/preferences'
 import {useProfileQuery} from '#/state/queries/profile'
+import {useCreateStoryMutation} from '#/state/queries/stories'
 import {type Gif} from '#/state/queries/tenor'
 import {useAgent, useSession} from '#/state/session'
 import {useComposerControls} from '#/state/shell/composer'
-import {type ComposerOpts, type OnPostSuccessData} from '#/state/shell/composer'
+import {
+  type ComposerKind,
+  type ComposerOpts,
+  type OnPostSuccessData,
+} from '#/state/shell/composer'
 import {CharProgress} from '#/view/com/composer/char-progress/CharProgress'
 import {ComposerReplyTo} from '#/view/com/composer/ComposerReplyTo'
 import {
@@ -173,6 +179,7 @@ export const ComposePost = ({
   imageUris: initImageUris,
   videoUri: initVideoUri,
   openGallery,
+  kind: initKind = 'post',
   cancelRef,
 }: Props & {
   cancelRef?: React.RefObject<CancelRef | null>
@@ -194,6 +201,9 @@ export const ComposePost = ({
   const navigation = useNavigation<NavigationProp>()
 
   const [isKeyboardVisible] = useIsKeyboardVisible({iosUseWillEvents: true})
+  const [kind, setKind] = useState<ComposerKind>(initKind)
+  const isStory = kind === 'story'
+  const {mutateAsync: createStory} = useCreateStoryMutation()
   const [isPublishing, setIsPublishing] = useState(false)
   const [publishingStage, setPublishingStage] = useState('')
   const [error, setError] = useState('')
@@ -408,17 +418,22 @@ export const ComposePost = ({
     }
   }, [thread, requireAltTextEnabled, _])
 
-  const canPost =
-    !missingAltError &&
-    thread.posts.every(
-      post =>
-        post.shortenedGraphemeLength <= MAX_GRAPHEME_LENGTH &&
-        !isEmptyPost(post) &&
-        !(
-          post.embed.media?.type === 'video' &&
-          post.embed.media.video.status === 'error'
-        ),
-    )
+  const storyImage =
+    activePost.embed.media?.type === 'images'
+      ? activePost.embed.media.images[0]
+      : undefined
+  const canPost = isStory
+    ? !!storyImage
+    : !missingAltError &&
+      thread.posts.every(
+        post =>
+          post.shortenedGraphemeLength <= MAX_GRAPHEME_LENGTH &&
+          !isEmptyPost(post) &&
+          !(
+            post.embed.media?.type === 'video' &&
+            post.embed.media.video.status === 'error'
+          ),
+      )
 
   const onPressPublish = React.useCallback(async () => {
     if (isPublishing) {
@@ -438,6 +453,23 @@ export const ComposePost = ({
       )
     ) {
       setPublishOnUpload(true)
+      return
+    }
+
+    if (isStory) {
+      if (!storyImage) return
+      setError('')
+      setIsPublishing(true)
+      try {
+        const {path, width, height, mime} = await compressImage(storyImage)
+        await createStory({path, width, height, mime, size: 0})
+        Toast.show(_(msg`Story published`))
+        closeComposer()
+      } catch (e: any) {
+        logger.error('composer: story failed', {message: String(e)})
+        setError(_(msg`Could not publish the story`))
+        setIsPublishing(false)
+      }
       return
     }
 
@@ -607,6 +639,10 @@ export const ComposePost = ({
     setLangPrefs,
     queryClient,
     navigation,
+    isStory,
+    storyImage,
+    createStory,
+    closeComposer,
   ])
 
   // Preserves the referential identity passed to each post item.
@@ -699,18 +735,23 @@ export const ComposePost = ({
         currentLanguages={currentLanguages}
         onAcceptSuggestedLanguage={setAcceptedLanguageSuggestion}
       />
-      <ComposerPills
-        isReply={!!replyTo}
-        post={activePost}
-        thread={composerState.thread}
-        dispatch={composerDispatch}
-        bottomBarAnimatedStyle={bottomBarAnimatedStyle}
-      />
+      {!isStory && (
+        <ComposerPills
+          isReply={!!replyTo}
+          post={activePost}
+          thread={composerState.thread}
+          dispatch={composerDispatch}
+          bottomBarAnimatedStyle={bottomBarAnimatedStyle}
+        />
+      )}
       <ComposerFooter
         post={activePost}
         dispatch={dispatch}
+        isStory={isStory}
         showAddButton={
-          !isEmptyPost(activePost) && (!nextPost || !isEmptyPost(nextPost))
+          !isStory &&
+          !isEmptyPost(activePost) &&
+          (!nextPost || !isEmptyPost(nextPost))
         }
         onError={setError}
         onEmojiButtonPress={onEmojiButtonPress}
@@ -745,6 +786,8 @@ export const ComposePost = ({
             isPublishQueued={publishOnUpload}
             isPublishing={isPublishing}
             isThread={thread.posts.length > 1}
+            kind={kind}
+            onChangeKind={replyTo ? undefined : setKind}
             publishingStage={publishingStage}
             topBarAnimatedStyle={topBarAnimatedStyle}
             onCancel={onPressCancel}
@@ -1022,6 +1065,8 @@ function ComposerTopBar({
   isPublishQueued,
   isPublishing,
   isThread,
+  kind,
+  onChangeKind,
   publishingStage,
   onCancel,
   onPublish,
@@ -1034,6 +1079,8 @@ function ComposerTopBar({
   isReply: boolean
   isPublishQueued: boolean
   isThread: boolean
+  kind: ComposerKind
+  onChangeKind?: (kind: ComposerKind) => void
   onCancel: () => void
   onPublish: () => void
   topBarAnimatedStyle: StyleProp<ViewStyle>
@@ -1062,6 +1109,25 @@ function ComposerTopBar({
           </ButtonText>
         </Button>
         <View style={a.flex_1} />
+        {onChangeKind && !isPublishing ? (
+          <View style={[a.flex_row, a.gap_xs, a.mr_sm]}>
+            {(['post', 'story'] as const).map(k => (
+              <Button
+                key={k}
+                label={k === 'post' ? _(msg`Post`) : _(msg`Story`)}
+                variant={kind === k ? 'solid' : 'ghost'}
+                color={kind === k ? 'secondary' : 'primary'}
+                shape="default"
+                size="small"
+                style={[a.rounded_full, a.py_sm]}
+                onPress={() => onChangeKind(k)}>
+                <ButtonText style={[a.text_md]}>
+                  {k === 'post' ? <Trans>Post</Trans> : <Trans>Story</Trans>}
+                </ButtonText>
+              </Button>
+            ))}
+          </View>
+        ) : null}
         {isPublishing ? (
           <>
             <Text style={pal.textLight}>{publishingStage}</Text>
@@ -1115,6 +1181,8 @@ function ComposerTopBar({
             <ButtonText style={[a.text_md]}>
               {isReply ? (
                 <Trans context="action">Reply</Trans>
+              ) : kind === 'story' ? (
+                <Trans context="action">Share</Trans>
               ) : isThread ? (
                 <Trans context="action">Post All</Trans>
               ) : (
@@ -1330,6 +1398,7 @@ function ComposerPills({
 function ComposerFooter({
   post,
   dispatch,
+  isStory,
   showAddButton,
   onEmojiButtonPress,
   onSelectVideo,
@@ -1340,6 +1409,7 @@ function ComposerFooter({
 }: {
   post: PostDraft
   dispatch: (action: PostAction) => void
+  isStory: boolean
   showAddButton: boolean
   onEmojiButtonPress: () => void
   onError: (error: string) => void
@@ -1463,17 +1533,25 @@ function ComposerFooter({
           ) : (
             <ToolbarWrapper style={[a.flex_row, a.align_center, a.gap_xs]}>
               <SelectMediaButton
-                disabled={isMediaSelectionDisabled}
-                allowedAssetTypes={selectedAssetsType}
+                disabled={isMediaSelectionDisabled || (isStory && !!media)}
+                allowedAssetTypes={isStory ? 'image' : selectedAssetsType}
                 selectedAssetsCount={selectedAssetsCount}
                 onSelectAssets={onSelectAssets}
                 autoOpen={openGallery}
               />
               <OpenCameraBtn
-                disabled={media?.type === 'images' ? isMaxImages : !!media}
+                disabled={
+                  isStory
+                    ? !!media
+                    : media?.type === 'images'
+                      ? isMaxImages
+                      : !!media
+                }
                 onAdd={onImageAdd}
               />
-              <SelectGifBtn onSelectGif={onSelectGif} disabled={!!media} />
+              {!isStory && (
+                <SelectGifBtn onSelectGif={onSelectGif} disabled={!!media} />
+              )}
               {!isMobile ? (
                 <Button
                   onPress={onEmojiButtonPress}
@@ -1502,14 +1580,18 @@ function ComposerFooter({
             <PlusIcon size="lg" />
           </Button>
         )}
-        <PostLanguageSelect
-          currentLanguages={currentLanguages}
-          onSelectLanguage={onSelectLanguage}
-        />
-        <CharProgress
-          count={post.shortenedGraphemeLength}
-          style={{width: 65}}
-        />
+        {!isStory && (
+          <>
+            <PostLanguageSelect
+              currentLanguages={currentLanguages}
+              onSelectLanguage={onSelectLanguage}
+            />
+            <CharProgress
+              count={post.shortenedGraphemeLength}
+              style={{width: 65}}
+            />
+          </>
+        )}
       </View>
     </View>
   )
