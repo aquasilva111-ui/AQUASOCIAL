@@ -179,13 +179,13 @@ export function VideosNavSidebar() {
               a.align_center,
               a.gap_sm,
             ]}>
-            <Logo width={22} />
+            <Logo width={30} />
             <Text
               numberOfLines={1}
               style={[
-                a.text_md,
+                a.text_xl,
                 a.font_bold,
-                t.atoms.text,
+                {color: '#000000'},
                 web({whiteSpace: 'nowrap'}),
               ]}>
               Aqua Views
