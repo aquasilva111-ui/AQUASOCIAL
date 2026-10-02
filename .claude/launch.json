@@ -9,6 +9,15 @@
         "cd drops/example && CI=1 ./node_modules/.bin/expo start --web --port 19120"
       ],
       "port": 19120
+    },
+    {
+      "name": "aqua-studio",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": [
+        "-c",
+        "cd aqua-studio && ./node_modules/.bin/vite --port 5188"
+      ],
+      "port": 5188
     }
   ]
 }

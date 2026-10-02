@@ -1,0 +1,12 @@
+{
+  "panels": {
+    "panelsList": {
+      "templates": "Modelos",
+      "customize": "Tamanho",
+      "elements": "Elementos",
+      "uploads": "Uploads",
+      "text": "Texto",
+      "layers": "Camadas"
+    }
+  }
+}
