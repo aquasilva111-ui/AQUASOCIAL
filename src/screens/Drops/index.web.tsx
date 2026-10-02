@@ -11,6 +11,7 @@ import {
   Heart2_Filled_Stroke2_Corner0_Rounded as HeartFilled,
   Heart2_Stroke2_Corner0_Rounded as Heart,
 } from '#/components/icons/Heart2'
+import {StoriesTray} from '#/components/stories/StoriesTray'
 import {loadHls} from '#/components/view-watch/hls.web'
 import {type Drop} from './data'
 import {useDropLike} from './useDropLike'
@@ -485,6 +486,9 @@ export function DropsScreen() {
               onSubmitEditing={() => goSearch(query)}
               label="Pesquisar"
             />
+            <div style={{margin: '0 -16px'}}>
+              <StoriesTray />
+            </div>
           </ThemeProvider>
           <span
             style={{
