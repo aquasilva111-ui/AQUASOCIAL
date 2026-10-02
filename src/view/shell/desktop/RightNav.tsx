@@ -27,6 +27,7 @@ import {
 } from '#/components/Layout'
 import {InlineLinkText} from '#/components/Link'
 import {ProgressGuideList} from '#/components/ProgressGuide/List'
+import {StoriesTray} from '#/components/stories/StoriesTray'
 import {Text} from '#/components/Typography'
 
 function useWebQueryParams() {
@@ -118,6 +119,12 @@ export function DesktopRightNav({routeName}: {routeName: string}) {
           <DesktopFeeds />
           <Divider />
         </>
+      )}
+
+      {hasSession && routeName === 'Home' && (
+        <View style={{marginHorizontal: -16}}>
+          <StoriesTray />
+        </View>
       )}
 
       {showTrending && <SidebarTrendingTopics />}

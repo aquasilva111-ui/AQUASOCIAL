@@ -36,6 +36,7 @@ import {CustomFeedEmptyState} from '#/view/com/posts/CustomFeedEmptyState'
 import {FollowingEmptyState} from '#/view/com/posts/FollowingEmptyState'
 import {FollowingEndOfFeed} from '#/view/com/posts/FollowingEndOfFeed'
 import {NoFeedsPinned} from '#/screens/Home/NoFeedsPinned'
+import {useLayoutBreakpoints} from '#/alf'
 import * as Layout from '#/components/Layout'
 import {StoriesTray} from '#/components/stories/StoriesTray'
 import {useDemoMode} from '#/storage/hooks/demo-mode'
@@ -141,6 +142,7 @@ function HomeScreenReady({
   const selectedIndex = Math.max(0, maybeFoundIndex)
   const maybeSelectedFeed: FeedDescriptor | undefined = allFeeds[selectedIndex]
   const requestNotificationsPermission = useRequestNotificationsPermission()
+  const {rightNavVisible} = useLayoutBreakpoints()
 
   useSetTitle(pinnedFeedInfos[selectedIndex]?.displayName)
   useOTAUpdates()
@@ -317,7 +319,9 @@ function HomeScreenReady({
                 feedParams={homeFeedParams}
                 renderEmptyState={renderFollowingEmptyState}
                 renderEndOfFeed={FollowingEndOfFeed}
-                ListHeaderComponent={StoriesTrayHeader}
+                ListHeaderComponent={
+                  rightNavVisible ? undefined : StoriesTrayHeader
+                }
                 feedInfo={feedInfo}
               />
             )

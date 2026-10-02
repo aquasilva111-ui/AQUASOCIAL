@@ -33,11 +33,11 @@ import {Button} from '#/components/Button'
 import {type DialogControlProps} from '#/components/Dialog'
 import {AquaLogo} from '#/components/icons/AquaLogo'
 import {ArrowBoxLeft_Stroke2_Corner0_Rounded as LeaveIcon} from '#/components/icons/ArrowBoxLeft'
-import {Book_Stroke2_Corner2_Rounded as Book} from '#/components/icons/Book'
 import {CirclePlus_Stroke2_Corner0_Rounded as CirclePlusIcon} from '#/components/icons/CirclePlus'
 import {DotGrid_Stroke2_Corner0_Rounded as EllipsisIcon} from '#/components/icons/DotGrid'
 import {MusicNote_Stroke2_Corner0_Rounded as MusicNote} from '#/components/icons/MusicNote'
 import {PlusLarge_Stroke2_Corner0_Rounded as PlusIcon} from '#/components/icons/Plus'
+import {Reads_Filled_Corner2_Rounded as Book} from '#/components/icons/Reads'
 import {
   SettingsGear2_Filled_Corner0_Rounded as SettingsFilled,
   SettingsGear2_Stroke2_Corner0_Rounded as Settings,
@@ -662,7 +662,7 @@ export function DesktopLeftNav() {
             width={NAV_ICON_WIDTH}
           />
         }
-        label="Video+Stream"
+        label="Streams"
       />
       {hasSession && (
         <>
