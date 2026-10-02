@@ -6,6 +6,13 @@ fs.copyFileSync(
   path.join(projectRoot, 'web/.htaccess'),
   path.join(projectRoot, 'web-build/.htaccess'),
 )
+// Consola da Unidade de Inteligência em /ui-ai (página estática; fala com a
+// U.I. local do usuário). Fonte: repositório I.U-A.I, ui/web/consola.html.
+fs.cpSync(
+  path.join(projectRoot, 'web/ui-ai'),
+  path.join(projectRoot, 'web-build/ui-ai'),
+  {recursive: true},
+)
 const templateFile = path.join(
   projectRoot,
   'bskyweb',

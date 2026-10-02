@@ -3020,7 +3020,7 @@
 
 "@discord/bottom-sheet@bluesky-social/react-native-bottom-sheet":
   version "4.6.1"
-  resolved "git+ssh://git@github.com/bluesky-social/react-native-bottom-sheet.git#28a87d1bb55e10fc355fa1455545a30734995908"
+  resolved "https://codeload.github.com/bluesky-social/react-native-bottom-sheet/tar.gz/28a87d1bb55e10fc355fa1455545a30734995908"
   dependencies:
     "@gorhom/portal" "1.0.14"
     invariant "^2.2.4"
@@ -4460,7 +4460,7 @@
 
 "@mattermost/react-native-paste-input@mattermost/react-native-paste-input":
   version "2.0.1"
-  resolved "git+ssh://git@github.com/mattermost/react-native-paste-input.git#26489acf1f6b8636cc40e5b220f3af6432572598"
+  resolved "https://codeload.github.com/mattermost/react-native-paste-input/tar.gz/26489acf1f6b8636cc40e5b220f3af6432572598"
 
 "@messageformat/parser@^5.0.0":
   version "5.1.0"
@@ -16389,7 +16389,7 @@ react-native-pager-view@6.8.0:
 
 react-native-progress@bluesky-social/react-native-progress:
   version "5.0.0"
-  resolved "git+ssh://git@github.com/bluesky-social/react-native-progress.git#5a372f4f2ce5feb26f4f47b6a4d187ab9b923ab4"
+  resolved "https://codeload.github.com/bluesky-social/react-native-progress/tar.gz/5a372f4f2ce5feb26f4f47b6a4d187ab9b923ab4"
   dependencies:
     prop-types "^15.7.2"
 
