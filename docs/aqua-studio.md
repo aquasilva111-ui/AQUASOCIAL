@@ -59,3 +59,9 @@ Inter, mostra os modelos e exporta o PNG.
 Falta nesta fase: traduzir os títulos internos dos painéis e da barra de ferramentas
 (ainda em inglês), painéis de imagens e formas extras, salvar projetos além do JSON
 manual, e o bundle principal tem 1,9 MB (dividir em partes).
+
+## Design Core (`aqua-design-core/`)
+
+Pacote sem UI: `scene-graph` do OpenPencil (MIT, copiado) + ponte com o Fabric.js
+(dependência npm). Konva fica para a fase 3 (Filerobot) e `fabric-canvas-editor` não foi
+copiado por não ter licença. Detalhes e lacunas em `aqua-design-core/README.md`.

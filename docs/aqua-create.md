@@ -54,7 +54,9 @@ Arestas extras além do diagrama original:
 | | onerkiz/fabric-canvas-editor | Referência de arquitetura React/TS: layers, shapes, filters, export |
 | | jalilmarkel/design-editor | Multipágina/apresentação — base do modo Presentations |
 | | fabricjs/fabric.js | Motor de canvas |
-| Sheets | Univer | Candidato principal (planilha tipo Google Sheets) |
+| Sheets | dream-num/univer (Apache-2.0) | **Principal**. Sheets, Docs, Slides e tabelas numa runtime extensível |
+| | dream-num/univer-presets (Apache-2.0) | Presets e exemplos prontos de planilha, inclusive colaboração |
+| | dream-num/univer-workspace (Apache-2.0) | **Só referência** de workspace colaborativo: documentos conectados, storage, permissões, revisão |
 | | FortuneSheet | Doador secundário de UX; mais leve, menos ativo |
 | Presentations | **Design Core** (modo de documento) | Canvas, páginas/slides, texto, imagens, shapes, layers, templates |
 | | PptxGenJS | Geração/exportação PPTX |
@@ -76,6 +78,32 @@ Arestas extras além do diagrama original:
 `aqua-create/` está no `.gitignore` (cópias de referência). Código do AQUA vive
 em pacotes próprios rastreados, mantendo LICENSEs e avisos de terceiros
 (mesma regra já aplicada em `aqua-studio/`).
+
+### Lista confirmada de doadores (licenças conferidas em 2026-10-02)
+
+| Ferramenta | Doador | Licença | Uso e estado |
+| --- | --- | --- | --- |
+| Docs | BlockNote, Tiptap | MPL-2.0 / MIT | `aqua-docs/` (AQUA-023) |
+| Docs | BlockSuite | MPL-2.0 | só referência |
+| Sheets | Univer (+ presets, workspace) | Apache-2.0 | `aqua-sheets/` (spike, ver `aqua-sheets/README.md`) e adaptador `sheet` no runtime |
+| Design | fabric.js | MIT | `aqua-design-core/` (dependência npm) |
+| Design | fabric-canvas-editor | **sem licença** | só referência, nada copiado |
+| Presentations | PptxGenJS, reveal.js | MIT, MIT | `aqua-design-core/src/presentation.ts` (PPTX e preview) |
+| Audio | wavesurfer.js | BSD-3-Clause | só visualização/seleção; modelo de edição no runtime, UI pendente |
+| Music | Tone.js | MIT | modelo de música no runtime; playback/render e piano roll na UI, pendentes |
+| Data Viz | ECharts | Apache-2.0 | adaptador de gráficos (SVG sem DOM) |
+| Data Viz | Vega-Lite, Observable Plot | BSD-3-Clause, ISC | `vegaLiteToSvg` e `plotToSvg` no runtime (SVG sem navegador); sem UI |
+| Repository | isomorphic-git | MIT | `aqua-project/src/git.ts` |
+| Video | ffmpeg (processo no servidor) | LGPL/GPL, **não embutido** | `aqua-runtime/src/adapters/video.ts` monta o comando; render no servidor. O `@ffmpeg/core` do ffmpeg.wasm (MIT) é GPL-2.0+: só entra no app após decisão de licença |
+| Video | **omni-media/omniclip** (MIT, 1,4 mil estrelas, ativo em 2026-10) | MIT | **doador da timeline/UI** (recomendado). Antes de copiar: ler o código, não há pacote reutilizável garantido |
+| Video | xzdarcy/react-timeline-editor | MIT | componente de timeline genérico, alternativa mais leve |
+| Video | diffusionstudio/core | MPL-2.0 | motor de composição WebCodecs; reserva (último commit 2025-11) |
+| Music | **ryohey/signal** (MIT, 2,4 mil estrelas, ativo) | MIT | doador do **piano roll** (editor MIDI completo) |
+| Music | g200kg/webaudio-pianoroll | Apache-2.0 | piano roll como componente simples, reserva |
+| Audio/Music | **naomiaro/waveform-playlist** (MIT, ativo) | MIT | doador de **multitrack + mixer**: waveform, fades, cues, efeitos Tone.js, export WAV |
+| Audio | katspaugh/wavesurfer-multitrack | BSD-3-Clause | alternativa menor ao waveform-playlist |
+| **Evitar** | openDAW | AGPL-3.0 | copyleft de rede: contamina o app |
+| **Evitar** | Remotion, designcombo/react-video-editor | licença especial / NOASSERTION | exigem licença comercial ou não têm licença clara |
 
 ### Doadores locais (cópias de referência, gitignored)
 
@@ -137,14 +165,14 @@ modo de documento + PptxGenJS + preview (reveal.js).
 | --- | --- | --- | --- |
 | AQUA-023 | Docs Core | BlockNote + Tiptap + Yjs | — |
 | AQUA-024 | Design Core | Fabric.js + design-editor donors (inclui spike Yjs+Fabric) | — |
-| AQUA-041 | Repository | AQUA Projects + isomorphic-git | AQUA-024 |
-| AQUA-0XX | Shared Runtime | shell, painéis, asset picker, Yjs provider, undo/redo | AQUA-023, AQUA-024 |
-| AQUA-036 | Sheets | Univer (WebView no nativo, DOM na web) | AQUA-041 |
-| AQUA-037 | Presentations | Design Core + PptxGenJS + reveal.js | AQUA-024 |
-| AQUA-038 | Video Editor | omniclip + FFmpeg (render server-side) | AQUA-041 |
-| AQUA-039 | Audio Editor | WaveSurfer + Web Audio | AQUA-041 |
-| AQUA-040 | Music Studio | Tone.js + Timeline compartilhada | AQUA-038 |
-| AQUA-042 | Data Visualization | ECharts + Vega/Plot | AQUA-041 |
+| AQUA-041 | Repository | AQUA Projects + isomorphic-git (**1ª fatia feita**: `aqua-project/`, versões por snapshot) | AQUA-024 |
+| AQUA-0XX | Shared Runtime | shell, painéis, asset picker, Yjs provider, undo/redo (**1ª fatia feita**: `aqua-runtime/`, sem UI; Docs e Design integrados) | AQUA-023, AQUA-024 |
+| AQUA-036 | Sheets | Univer (WebView no nativo, DOM na web) (**spike, adaptador e tela no `aqua-hub/` feitos**) | AQUA-041 |
+| AQUA-037 | Presentations | Design Core + PptxGenJS + reveal.js (**feito no núcleo**: slides, notas, PPTX, preview; falta UI e PNG por slide) | AQUA-024 |
+| AQUA-038 | Video Editor | omniclip + FFmpeg (render server-side) (**modelo, plano e servidor `aqua-render/` feitos, UI simples em `aqua-hub/`**; falta testar com ffmpeg real e a timeline do donor) | AQUA-041 |
+| AQUA-039 | Audio Editor | WaveSurfer/waveform-playlist + Web Audio (**modelo, render WAV e tela simples no `aqua-hub/` feitos**; falta multitrack/mixer do donor) | AQUA-041 |
+| AQUA-040 | Music Studio | Tone.js + signal (piano roll) + Timeline compartilhada (**modelo, render WAV e piano roll simples no `aqua-hub/` feitos**; falta o piano roll do donor e Tone.js) | AQUA-038 |
+| AQUA-042 | Data Visualization | ECharts + Vega/Plot (**ECharts no runtime**; Vega/Plot não iniciados) | AQUA-041 |
 
 Mudanças em relação à fila original:
 

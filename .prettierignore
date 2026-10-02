@@ -22,3 +22,9 @@ web-build
 
 # Separate web package with its own style
 aqua-studio/
+aqua-design-core/
+aqua-project/
+aqua-runtime/
+aqua-sheets/
+aqua-render/
+aqua-hub/
