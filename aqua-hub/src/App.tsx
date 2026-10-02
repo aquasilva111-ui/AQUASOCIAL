@@ -9,6 +9,7 @@ const Slides = lazy(() => import('./panels/PresentationPanel'))
 const Chart = lazy(() => import('./panels/ChartPanel'))
 const Music = lazy(() => import('./panels/MusicPanel'))
 const Audio = lazy(() => import('./panels/AudioPanel'))
+const Mix = lazy(() => import('./panels/MixPanel'))
 const Video = lazy(() => import('./panels/VideoPanel'))
 const Sheet = lazy(() => import('./panels/SheetPanel'))
 
@@ -18,6 +19,7 @@ const PANELS: Partial<Record<ItemKind, React.LazyExoticComponent<React.Component
   chart: Chart,
   music: Music,
   audio: Audio,
+  mix: Mix,
   video: Video,
   sheet: Sheet
 }

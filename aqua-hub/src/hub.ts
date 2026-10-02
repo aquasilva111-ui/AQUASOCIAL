@@ -3,6 +3,7 @@ import { FabricRenderer } from 'aqua-design-core/src/fabric/renderer'
 import { audioAdapter } from 'aqua-runtime/src/adapters/audio'
 import { chartAdapter } from 'aqua-runtime/src/adapters/chart'
 import { designAdapter } from 'aqua-runtime/src/adapters/design'
+import { mixAdapter } from 'aqua-runtime/src/adapters/mix'
 import { musicAdapter } from 'aqua-runtime/src/adapters/music'
 import { sheetAdapter } from 'aqua-runtime/src/adapters/sheet'
 import { videoAdapter } from 'aqua-runtime/src/adapters/video'
@@ -94,6 +95,7 @@ export const runtime = new CreativeRuntime({
     designAdapter('presentation', { renderPng }),
     chartAdapter({ rasterize }),
     musicAdapter(),
+    mixAdapter({ loadSource: async (h) => (await store.get(h))?.bytes, decode: decodeAny }),
     audioAdapter({ loadSource: async (h) => (await store.get(h))?.bytes, decode: decodeAny }),
     videoAdapter(),
     sheetAdapter()
@@ -105,6 +107,7 @@ export const KIND_LABEL: Partial<Record<ItemKind, string>> = {
   sheet: 'Planilha',
   video: 'Vídeo',
   audio: 'Áudio',
+  mix: 'Mixagem',
   music: 'Música',
   chart: 'Gráfico'
 }
