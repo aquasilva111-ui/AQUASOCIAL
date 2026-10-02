@@ -14,13 +14,14 @@ cd aqua-hub && npm install && npm run dev      # http://localhost:5192
 | Gráfico | dados em texto, barras/linha/pizza (ECharts), PNG |
 | Música | piano roll próprio (grade, faixas, instrumentos), gerar áudio e baixar WAV |
 | Áudio | onda, seleção por arrasto, trechos mantidos, ganho e fades, WAV (importa WAV/MP3/M4A) |
-| Vídeo | linha do tempo, cortes, ordem, áudio do clipe; render no servidor `aqua-render` |
+| Vídeo | timeline com cursor, pré-visualização e reprodução; arrastar bordas (cortar) e clipes (reordenar); dividir (S); fade, brilho/contraste/saturação; textos; trilha de música; render no servidor `aqua-render` |
 | Planilha | Univer carregado só ao abrir a planilha; snapshot salvo no projeto |
 
 ## O que não é (ainda)
 
 - **Docs não está aqui**: o editor é o `aqua-docs/` (BlockNote) e não foi embutido.
-- Piano roll, onda e timeline são **componentes próprios e simples**, não os doadores
+- A timeline de vídeo é própria (inspirada nas *features* do OpenCut, que é MIT mas está em reescrita e não foi importado). Pré-visualização aproximada (fade/cor) e **sem tocar a trilha de música**. Sem velocidade, transições entre clipes além de fade, múltiplas faixas de vídeo, legendas automáticas ou keyframes.
+- Piano roll e onda são **componentes próprios e simples**, não os doadores
   (signal, waveform-playlist, omniclip). Servem para editar e exportar; não têm multitrack de
   áudio, mixer, arrastar notas/clipes na grade, nem pré-visualização do vídeo.
 - Música toca por síntese própria (WAV), não Tone.js. Sem pré-escuta ao vivo enquanto edita.
