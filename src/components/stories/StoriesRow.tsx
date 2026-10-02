@@ -1,5 +1,5 @@
 import {useState} from 'react'
-import {ScrollView, View} from 'react-native'
+import {View} from 'react-native'
 import {Image} from 'expo-image'
 import {type AppBskyActorDefs} from '@atproto/api'
 
@@ -13,8 +13,10 @@ import {Button, ButtonIcon} from '#/components/Button'
 import {PlusLarge_Stroke2_Corner0_Rounded as PlusIcon} from '#/components/icons/Plus'
 import {Loader} from '#/components/Loader'
 import {StoryViewer} from '#/components/stories/StoryViewer'
+import {Text} from '#/components/Typography'
 
-const RING_SIZE = 60
+export const STRIP_SIZE = 64
+const RING_SIZE = STRIP_SIZE
 
 /**
  * Row of story circles for one profile, shown under the bio. Each circle
@@ -22,7 +24,7 @@ const RING_SIZE = 60
  * opens the full-screen viewer starting there. On your own profile, a
  * leading "+" circle lets you add a new one.
  */
-export function StoriesRow({
+export function StoriesItems({
   profile,
   isMe,
 }: {
@@ -50,40 +52,36 @@ export function StoriesRow({
 
   return (
     <>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={[a.gap_md, a.pb_xs]}>
-        {isMe && (
-          <View style={[a.align_center, {width: RING_SIZE}]}>
-            <Button
-              label="Adicionar story"
-              onPress={onPressAdd}
-              disabled={isUploading}
-              style={[
-                a.rounded_full,
-                a.align_center,
-                a.justify_center,
-                a.border,
-                {
-                  width: RING_SIZE,
-                  height: RING_SIZE,
-                  borderStyle: 'dashed',
-                },
-              ]}>
-              <ButtonIcon icon={isUploading ? Loader : PlusIcon} />
-            </Button>
-          </View>
-        )}
-        {stories?.map((story, i) => (
-          <StoryCircle
-            key={story.uri}
-            uri={story.mediaUrl}
-            storyUri={story.uri}
-            onPress={() => setViewerIndex(i)}
-          />
-        ))}
-      </ScrollView>
+      {isMe && (
+        <View style={[a.align_center, a.gap_xs, {width: RING_SIZE + 8}]}>
+          <Button
+            label="Adicionar story"
+            onPress={onPressAdd}
+            disabled={isUploading}
+            style={[
+              a.rounded_full,
+              a.align_center,
+              a.justify_center,
+              a.border,
+              {
+                width: RING_SIZE,
+                height: RING_SIZE,
+                borderStyle: 'dashed',
+              },
+            ]}>
+            <ButtonIcon icon={isUploading ? Loader : PlusIcon} />
+          </Button>
+          <StripLabelText>Story</StripLabelText>
+        </View>
+      )}
+      {stories?.map((story, i) => (
+        <StoryCircle
+          key={story.uri}
+          uri={story.mediaUrl}
+          storyUri={story.uri}
+          onPress={() => setViewerIndex(i)}
+        />
+      ))}
 
       {viewerIndex !== null && stories && stories[viewerIndex] && (
         <StoryViewer
@@ -95,6 +93,21 @@ export function StoriesRow({
         />
       )}
     </>
+  )
+}
+
+export function StripLabelText({children}: {children: string}) {
+  const t = useTheme()
+  return (
+    <Text
+      numberOfLines={1}
+      style={[
+        a.text_xs,
+        t.atoms.text_contrast_medium,
+        {maxWidth: RING_SIZE + 8},
+      ]}>
+      {children}
+    </Text>
   )
 }
 
@@ -111,7 +124,10 @@ function StoryCircle({
   const seen = useIsStorySeen(storyUri)
 
   return (
-    <Button label="Ver story" onPress={onPress} style={[a.align_center]}>
+    <Button
+      label="Ver story"
+      onPress={onPress}
+      style={[a.align_center, a.gap_xs, {width: RING_SIZE + 8}]}>
       <View
         style={[
           a.rounded_full,
@@ -135,6 +151,7 @@ function StoryCircle({
           accessibilityLabel="Story"
         />
       </View>
+      <StripLabelText>{seen ? 'Visto' : 'Novo'}</StripLabelText>
     </Button>
   )
 }
