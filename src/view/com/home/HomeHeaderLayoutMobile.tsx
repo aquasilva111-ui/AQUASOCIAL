@@ -19,9 +19,11 @@ import {Link} from '#/components/Link'
 
 export function HomeHeaderLayoutMobile({
   children,
+  onHeightChange,
 }: {
   children: React.ReactNode
   tabBarAnchor: JSX.Element | null | undefined
+  onHeightChange?: (height: number) => void
 }) {
   const t = useTheme()
   const {_} = useLingui()
@@ -45,6 +47,7 @@ export function HomeHeaderLayoutMobile({
       ]}
       onLayout={e => {
         headerHeight.set(e.nativeEvent.layout.height)
+        onHeightChange?.(e.nativeEvent.layout.height)
       }}>
       <Layout.Header.Outer noBottomBorder>
         <Layout.Header.Slot>
