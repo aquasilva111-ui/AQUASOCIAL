@@ -21,6 +21,7 @@ export const READING_COLLECTION = 'place.aqua.book.reading'
 
 export type BookStatus = 'ongoing' | 'completed' | 'hiatus'
 export type BookVisibility = 'public' | 'unlisted' | 'private'
+export type BookAudience = 'all' | 'kids' | 'teen' | 'ya' | 'adult'
 export type BookMaturity = 'general' | 'teen' | 'mature'
 export type ChapterStatus = 'draft' | 'published'
 
@@ -38,6 +39,10 @@ export type BookRecord = {
   cover?: BookBlob
   genres: string[]
   tags: string[]
+  /** Main characters, shown on the book page. */
+  characters: string[]
+  /** Intended readers; independent of the maturity gate. */
+  audience?: BookAudience
   language?: string
   maturity: BookMaturity
   status: BookStatus
@@ -84,6 +89,14 @@ export const STATUS_LABELS: Record<BookStatus, string> = {
   hiatus: 'Em pausa',
 }
 
+export const AUDIENCE_LABELS: Record<BookAudience, string> = {
+  all: 'Todos os públicos',
+  kids: 'Infantil',
+  teen: 'Adolescentes',
+  ya: 'Jovem adulto',
+  adult: 'Adultos',
+}
+
 export const MATURITY_LABELS: Record<BookMaturity, string> = {
   general: 'Livre',
   teen: '14+',
@@ -96,6 +109,8 @@ export const LIMITS = {
   genres: 3,
   tags: 10,
   tag: 32,
+  characters: 10,
+  character: 60,
   chapterTitle: 120,
   chapterBody: 60_000,
   authorNote: 1000,
@@ -107,6 +122,7 @@ export const LIMITS = {
 const GENRE_IDS = new Set(GENRES.map(g => g.id))
 const STATUSES = new Set<BookStatus>(['ongoing', 'completed', 'hiatus'])
 const VISIBILITIES = new Set<BookVisibility>(['public', 'unlisted', 'private'])
+const AUDIENCES = new Set<BookAudience>(['all', 'kids', 'teen', 'ya', 'adult'])
 const MATURITIES = new Set<BookMaturity>(['general', 'teen', 'mature'])
 
 const clampText = (v: unknown, max: number) =>
@@ -144,6 +160,7 @@ export function newBookRecord(
     $type: BOOK_COLLECTION,
     genres: [],
     tags: [],
+    characters: [],
     maturity: 'general',
     status: 'ongoing',
     visibility: 'public',
@@ -196,6 +213,16 @@ export function normalizeBook(raw: unknown): BookRecord | undefined {
           ),
         ].slice(0, LIMITS.tags)
       : [],
+    characters: Array.isArray(r.characters)
+      ? [
+          ...new Set(
+            r.characters
+              .map((c: unknown) => clampText(c, LIMITS.character))
+              .filter((c: string | undefined): c is string => !!c),
+          ),
+        ].slice(0, LIMITS.characters)
+      : [],
+    audience: AUDIENCES.has(r.audience) ? r.audience : undefined,
     language: clampText(r.language, 8),
     maturity: MATURITIES.has(r.maturity) ? r.maturity : 'general',
     status: STATUSES.has(r.status) ? r.status : 'ongoing',
@@ -391,6 +418,18 @@ export function splitIntoParts(body: string, size = LIMITS.partSize): string[] {
     }
   }
   return parts
+}
+
+/** Genre filter for the home; `undefined` keeps everything. */
+export function filterByGenre<T extends {book: BookRecord}>(
+  items: T[],
+  genre: string | undefined,
+): T[] {
+  return genre ? items.filter(i => i.book.genres.includes(genre)) : items
+}
+
+export function genreLabel(id: string) {
+  return GENRES.find(g => g.id === id)?.label ?? id
 }
 
 /* ------------------------------------------------------------------ */

@@ -4,6 +4,8 @@ import {Image} from 'expo-image'
 import {useNavigation} from '@react-navigation/native'
 
 import {
+  AUDIENCE_LABELS,
+  type BookAudience,
   type BookMaturity,
   type BookRecord,
   type BookStatus,
@@ -72,6 +74,7 @@ function BookForm({rkey}: {rkey?: string}) {
     rkey ? undefined : newBookRecord({title: ''}),
   )
   const [tags, setTags] = useState('')
+  const [characters, setCharacters] = useState('')
   const [localCover, setLocalCover] = useState<string>()
   const [confirmDelete, setConfirmDelete] = useState(false)
 
@@ -79,6 +82,7 @@ function BookForm({rkey}: {rkey?: string}) {
     if (rkey && existing.data && !draft) {
       setDraft(existing.data.book)
       setTags(existing.data.book.tags.join(', '))
+      setCharacters(existing.data.book.characters.join(', '))
     }
   }, [rkey, existing.data, draft])
 
@@ -125,6 +129,11 @@ function BookForm({rkey}: {rkey?: string}) {
             .map(x => x.trim().toLowerCase())
             .filter(Boolean)
             .slice(0, LIMITS.tags),
+          characters: characters
+            .split(',')
+            .map(x => x.trim().slice(0, LIMITS.character))
+            .filter(Boolean)
+            .slice(0, LIMITS.characters),
         },
       },
       {
@@ -208,6 +217,20 @@ function BookForm({rkey}: {rkey?: string}) {
         hint="Separe por vírgula."
       />
 
+      <Field
+        label="Personagens principais"
+        value={characters}
+        onChange={setCharacters}
+        placeholder="Marina, Capitão Leo"
+        hint="Separe por vírgula."
+      />
+
+      <ChipRow
+        label="Público-alvo"
+        options={Object.entries(AUDIENCE_LABELS) as [BookAudience, string][]}
+        value={draft.audience ?? 'all'}
+        onChange={v => set('audience', v)}
+      />
       <ChipRow
         label="Classificação"
         options={Object.entries(MATURITY_LABELS) as [BookMaturity, string][]}

@@ -6,6 +6,8 @@ import {
   chapterPath,
   chapterToCards,
   countWords,
+  filterByGenre,
+  genreLabel,
   neighbors,
   newBookRecord,
   newChapterRecord,
@@ -311,5 +313,37 @@ describe('reads feed parts', () => {
     expect(partUrl('https://x.y', '/books/a/b/c', 2)).toBe(
       'https://x.y/books/a/b/c#parte-3',
     )
+  })
+})
+
+describe('home genre filter', () => {
+  const mk = (genres: string[]) => ({
+    book: newBookRecord({title: 'T', genres}),
+  })
+  it('filters by genre and keeps all without one', () => {
+    const list = [mk(['romance']), mk(['horror', 'romance']), mk(['scifi'])]
+    expect(filterByGenre(list, 'romance')).toHaveLength(2)
+    expect(filterByGenre(list, undefined)).toHaveLength(3)
+  })
+  it('labels genres', () => {
+    expect(genreLabel('fantasy')).toBe('Fantasia')
+    expect(genreLabel('x')).toBe('x')
+  })
+})
+
+describe('characters and audience', () => {
+  it('normalizes characters and audience from repo data', () => {
+    const b = normalizeBook({
+      title: 'T',
+      characters: ['  Ana ', 'Ana', '', 5, 'Leo'],
+      audience: 'ya',
+    })
+    expect(b?.characters).toEqual(['Ana', 'Leo'])
+    expect(b?.audience).toBe('ya')
+  })
+  it('drops invalid audience and defaults characters', () => {
+    const b = normalizeBook({title: 'T', audience: 'x'})
+    expect(b?.audience).toBeUndefined()
+    expect(b?.characters).toEqual([])
   })
 })
