@@ -47,6 +47,8 @@ import {DesktopRightNav} from './desktop/RightNav'
 
 /** Pages that bring their own header and navigation instead of the side navs. */
 const FULL_PAGE_ROUTES = [
+  'Drops',
+  'DropsTab',
   'Videos',
   'Images',
   'ImageDetail',

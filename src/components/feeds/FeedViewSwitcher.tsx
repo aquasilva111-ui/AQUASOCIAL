@@ -8,11 +8,11 @@ import {
 import {atoms as a, useTheme} from '#/alf'
 import {Button} from '#/components/Button'
 import {ChevronBottom_Stroke2_Corner0_Rounded as Chevron} from '#/components/icons/Chevron'
+import {Drop_Filled_Corner0_Rounded as Drops} from '#/components/icons/Drop'
 import {HomeOpen_Stoke2_Corner0_Rounded as Social} from '#/components/icons/HomeOpen'
 import {Image_Stroke2_Corner0_Rounded as Images} from '#/components/icons/Image'
 import {Message_Stroke2_Corner0_Rounded as Streams} from '#/components/icons/Message'
 import {Newspaper_Stroke2_Corner2_Rounded as Editorial} from '#/components/icons/Newspaper'
-import {Play_Filled_Corner0_Rounded as Drops} from '#/components/icons/Play'
 import {VideoClip_Stroke2_Corner0_Rounded as Video} from '#/components/icons/VideoClip'
 import * as Menu from '#/components/Menu'
 

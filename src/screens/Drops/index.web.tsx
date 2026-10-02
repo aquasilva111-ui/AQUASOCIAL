@@ -1,8 +1,12 @@
 /* eslint-disable bsky-internal/avoid-unwrapped-text -- plain DOM elements, web only */
 import {useEffect, useRef, useState} from 'react'
 import {View} from 'react-native'
+import {useNavigation} from '@react-navigation/native'
 
+import {type NavigationProp} from '#/lib/routes/types'
 import {POST_TOMBSTONE, usePostShadow} from '#/state/cache/post-shadow'
+import {ThemeProvider, useBreakpoints} from '#/alf'
+import {SearchInput} from '#/components/forms/SearchInput'
 import {
   Heart2_Filled_Stroke2_Corner0_Rounded as HeartFilled,
   Heart2_Stroke2_Corner0_Rounded as Heart,
@@ -16,6 +20,10 @@ import {useDropsFeed} from './useDropsFeed'
 
 const LIKE = '#FF7A00'
 const AQUA = '#1185FE'
+/** The fixed bottom dock overlays the feed; keep the card clear of it. */
+const DOCK_CLEARANCE = 128
+
+const TRENDING = ['Jericoacoara', 'Neon', 'Trilha', 'Pôr do sol']
 
 const compact = (n: number) =>
   n >= 1000 ? `${(n / 1000).toFixed(n >= 10000 ? 0 : 1)} mil` : String(n)
@@ -123,7 +131,7 @@ function SlideInner({
         justifyContent: 'center',
         alignItems: 'center',
         gap: 16,
-        padding: '16px 0',
+        padding: `16px 0 ${DOCK_CLEARANCE}px`,
         boxSizing: 'border-box',
       }}>
       <div
@@ -314,6 +322,13 @@ export function DropsScreen() {
   const {drops, isLoading, isError, loadMore, refetch} = useDropsFeed()
   const [index, setIndex] = useState(0)
   const [muted, setMuted] = useState(true)
+  const [query, setQuery] = useState('')
+  const navigation = useNavigation<NavigationProp>()
+  const {gtMobile} = useBreakpoints()
+  const goSearch = (text: string) => {
+    const q = text.trim()
+    navigation.navigate('Search', q ? {q} : {})
+  }
   const goTo = (i: number) => {
     const el = scroller.current
     if (!el) return
@@ -348,86 +363,160 @@ export function DropsScreen() {
   }
 
   return (
-    <View style={{flex: 1, backgroundColor: '#000'}}>
-      <div
-        ref={scroller}
-        onScroll={onScroll}
-        style={{
-          position: 'absolute',
-          inset: 0,
-          overflowY: 'scroll',
-          scrollSnapType: 'y mandatory',
-          scrollbarWidth: 'none',
-        }}>
-        {drops.length === 0 ? (
-          <div
+    <View style={{flex: 1, flexDirection: 'row', backgroundColor: '#000'}}>
+      <View style={{flex: 1, position: 'relative'}}>
+        <div
+          ref={scroller}
+          onScroll={onScroll}
+          style={{
+            position: 'absolute',
+            inset: 0,
+            overflowY: 'scroll',
+            scrollSnapType: 'y mandatory',
+            scrollbarWidth: 'none',
+          }}>
+          {drops.length === 0 ? (
+            <div
+              style={{
+                height: '100%',
+                display: 'grid',
+                placeItems: 'center',
+                color: '#fff',
+                textAlign: 'center',
+                fontSize: 15,
+              }}>
+              {isError ? (
+                <div style={{display: 'grid', gap: 12, justifyItems: 'center'}}>
+                  Não foi possível carregar os drops.
+                  <button
+                    type="button"
+                    onClick={() => refetch()}
+                    style={{
+                      background: AQUA,
+                      color: '#fff',
+                      border: 0,
+                      borderRadius: 99,
+                      padding: '10px 20px',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                    }}>
+                    Tentar de novo
+                  </button>
+                </div>
+              ) : (
+                <span>
+                  {isLoading ? 'Carregando drops…' : 'Buscando drops…'}
+                </span>
+              )}
+            </div>
+          ) : null}
+          {drops.map((drop, i) => (
+            <Slide
+              key={drop.id}
+              drop={drop}
+              active={i === index}
+              near={Math.abs(i - index) <= 1}
+              muted={muted}
+              onToggleMute={() => setMuted(m => !m)}
+            />
+          ))}
+        </div>
+        <div
+          style={{
+            position: 'absolute',
+            right: 16,
+            top: '50%',
+            transform: 'translateY(-50%)',
+            display: 'grid',
+            gap: 12,
+          }}>
+          <button
+            type="button"
+            aria-label="Drop anterior"
+            disabled={index === 0}
+            onClick={() => goTo(index - 1)}
+            style={{...arrow, opacity: index === 0 ? 0.35 : 1}}>
+            ▲
+          </button>
+          <button
+            type="button"
+            aria-label="Próximo drop"
+            onClick={() => goTo(index + 1)}
+            style={arrow}>
+            ▼
+          </button>
+        </div>
+      </View>
+      {gtMobile ? (
+        <div
+          style={{
+            width: 280,
+            flexShrink: 0,
+            borderLeft: '1px solid rgba(255,255,255,0.09)',
+            padding: '18px 16px',
+            paddingBottom: DOCK_CLEARANCE,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 16,
+            boxSizing: 'border-box',
+          }}>
+          <button
+            type="button"
+            aria-label="Ir para a Home"
+            onClick={() => navigation.navigate('Home')}
             style={{
-              height: '100%',
-              display: 'grid',
-              placeItems: 'center',
+              background: 'none',
+              border: 0,
+              padding: 0,
+              textAlign: 'left',
               color: '#fff',
-              textAlign: 'center',
-              fontSize: 15,
+              fontSize: 20,
+              fontWeight: 900,
+              letterSpacing: -0.8,
+              cursor: 'pointer',
             }}>
-            {isError ? (
-              <div style={{display: 'grid', gap: 12, justifyItems: 'center'}}>
-                Não foi possível carregar os drops.
-                <button
-                  type="button"
-                  onClick={() => refetch()}
-                  style={{
-                    background: AQUA,
-                    color: '#fff',
-                    border: 0,
-                    borderRadius: 99,
-                    padding: '10px 20px',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                  }}>
-                  Tentar de novo
-                </button>
-              </div>
-            ) : (
-              <span>{isLoading ? 'Carregando drops…' : 'Buscando drops…'}</span>
-            )}
+            Aqua<span style={{color: AQUA}}>.</span>
+          </button>
+          <ThemeProvider theme="dark">
+            <SearchInput
+              value={query}
+              onChangeText={setQuery}
+              onClearText={() => setQuery('')}
+              onSubmitEditing={() => goSearch(query)}
+              label="Pesquisar"
+            />
+          </ThemeProvider>
+          <span
+            style={{
+              fontSize: 12,
+              letterSpacing: 1.2,
+              textTransform: 'uppercase',
+              color: '#98a2b8',
+              fontWeight: 700,
+            }}>
+            Em alta
+          </span>
+          <div style={{display: 'flex', flexWrap: 'wrap', gap: 6}}>
+            {TRENDING.map(tag => (
+              <button
+                key={tag}
+                type="button"
+                onClick={() => goSearch(tag)}
+                style={{
+                  background: '#151a25',
+                  color: '#98a2b8',
+                  border: 0,
+                  borderRadius: 99,
+                  padding: '6px 12px',
+                  fontSize: 12.5,
+                  cursor: 'pointer',
+                }}>
+                {tag}
+              </button>
+            ))}
           </div>
-        ) : null}
-        {drops.map((drop, i) => (
-          <Slide
-            key={drop.id}
-            drop={drop}
-            active={i === index}
-            near={Math.abs(i - index) <= 1}
-            muted={muted}
-            onToggleMute={() => setMuted(m => !m)}
-          />
-        ))}
-      </div>
-      <div
-        style={{
-          position: 'absolute',
-          right: 16,
-          top: '50%',
-          transform: 'translateY(-50%)',
-          display: 'grid',
-          gap: 12,
-        }}>
-        <button
-          type="button"
-          aria-label="Drop anterior"
-          disabled={index === 0}
-          onClick={() => goTo(index - 1)}
-          style={{...arrow, opacity: index === 0 ? 0.35 : 1}}>
-          ▲
-        </button>
-        <button
-          type="button"
-          aria-label="Próximo drop"
-          onClick={() => goTo(index + 1)}
-          style={arrow}>
-          ▼
-        </button>
-      </div>
+        </div>
+      ) : null}
     </View>
   )
 }

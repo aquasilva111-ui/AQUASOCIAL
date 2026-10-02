@@ -9,16 +9,21 @@ import {
   View,
   type ViewToken,
 } from 'react-native'
+import {useSafeAreaInsets} from 'react-native-safe-area-context'
 import {Image} from 'expo-image'
 import {LinearGradient} from 'expo-linear-gradient'
 import {useVideoPlayer, VideoView} from 'expo-video'
+import {useNavigation} from '@react-navigation/native'
 
 import {useHaptics} from '#/lib/haptics'
+import {type NavigationProp} from '#/lib/routes/types'
 import {POST_TOMBSTONE, usePostShadow} from '#/state/cache/post-shadow'
+import {DOCK_HEIGHT, DOCK_INSET} from '#/view/shell/bottom-bar/BottomBarStyles'
 import {
   Heart2_Filled_Stroke2_Corner0_Rounded as HeartFilled,
   Heart2_Stroke2_Corner0_Rounded as Heart,
 } from '#/components/icons/Heart2'
+import {MagnifyingGlass2_Stroke2_Corner0_Rounded as SearchIcon} from '#/components/icons/MagnifyingGlass2'
 import {type Drop} from './data'
 import {useDropLike} from './useDropLike'
 import {useDropsFeed} from './useDropsFeed'
@@ -55,6 +60,7 @@ const DropPage = memo(function DropPage(props: {
   height: number
   active: boolean
   near: boolean
+  bottom: number
 }) {
   const shadow = usePostShadow(props.drop.post)
   if (shadow === POST_TOMBSTONE) return null
@@ -66,12 +72,14 @@ function DropPageInner({
   height,
   active,
   near,
+  bottom,
   post,
 }: {
   drop: Drop
   height: number
   active: boolean
   near: boolean
+  bottom: number
   post: Parameters<typeof useDropLike>[0]
 }) {
   const lastTap = useRef(0)
@@ -111,7 +119,7 @@ function DropPageInner({
         colors={['transparent', 'rgba(0,0,0,0.6)']}
         style={styles.shade}
       />
-      <View style={styles.rail}>
+      <View style={[styles.rail, {bottom}]}>
         <View style={styles.avatar}>
           <Text style={styles.avatarText}>
             {drop.authorName[0]?.toUpperCase() ?? '?'}
@@ -131,7 +139,7 @@ function DropPageInner({
           <Text style={styles.count}>{compact(likeCount)}</Text>
         </Pressable>
       </View>
-      <View style={styles.meta} pointerEvents="none">
+      <View style={[styles.meta, {bottom}]} pointerEvents="none">
         <Text style={styles.author}>@{drop.authorHandle}</Text>
         {drop.caption ? (
           <Text style={styles.caption} numberOfLines={2}>
@@ -147,6 +155,11 @@ export function DropsScreen() {
   const [height, setHeight] = useState(0)
   const [activeIndex, setActiveIndex] = useState(0)
   const {drops, isLoading, isError, loadMore, refetch} = useDropsFeed()
+  const insets = useSafeAreaInsets()
+  const navigation = useNavigation<NavigationProp>()
+
+  // Keep the rail and the caption clear of the bottom dock.
+  const dockClearance = DOCK_HEIGHT + Math.max(insets.bottom, DOCK_INSET) + 16
 
   const onLayout = (e: LayoutChangeEvent) =>
     setHeight(e.nativeEvent.layout.height)
@@ -163,9 +176,10 @@ export function DropsScreen() {
         height={height}
         active={index === activeIndex}
         near={Math.abs(index - activeIndex) <= 1}
+        bottom={dockClearance}
       />
     ),
-    [height, activeIndex],
+    [height, activeIndex, dockClearance],
   )
 
   return (
@@ -219,6 +233,15 @@ export function DropsScreen() {
         <Text style={styles.topText}>Drops</Text>
         <View style={styles.topDot} />
       </View>
+      <Pressable
+        style={styles.search}
+        hitSlop={10}
+        accessibilityRole="button"
+        accessibilityLabel="Pesquisar"
+        accessibilityHint=""
+        onPress={() => navigation.navigate('SearchTab')}>
+        <SearchIcon width={20} style={{color: '#fff'}} />
+      </Pressable>
     </View>
   )
 }
@@ -254,10 +277,20 @@ const styles = StyleSheet.create({
     backgroundColor: AQUA,
     marginBottom: 5,
   },
+  search: {
+    position: 'absolute',
+    top: 44,
+    right: 16,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   rail: {
     position: 'absolute',
     right: 12,
-    bottom: 130,
     alignItems: 'center',
     gap: 22,
   },
@@ -274,7 +307,7 @@ const styles = StyleSheet.create({
   avatarText: {color: '#fff', fontSize: 18, fontWeight: '700'},
   action: {alignItems: 'center', gap: 2},
   count: {color: '#fff', fontSize: 12, fontWeight: '600'},
-  meta: {position: 'absolute', left: 16, right: 84, bottom: 130, gap: 4},
+  meta: {position: 'absolute', left: 16, right: 84, gap: 4},
   author: {color: '#fff', fontSize: 16, fontWeight: '700'},
   caption: {color: '#fff', fontSize: 14, lineHeight: 19},
 })
