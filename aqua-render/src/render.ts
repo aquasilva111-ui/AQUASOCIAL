@@ -2,7 +2,8 @@ import { spawn } from 'node:child_process'
 import { existsSync } from 'node:fs'
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { createRequire } from 'node:module'
+import { dirname, join } from 'node:path'
 
 import type { AssetStore } from 'aqua-project/src/index'
 import { buildFfmpegArgs, videoDuration, type VideoProject } from 'aqua-runtime/src/index'
@@ -12,7 +13,7 @@ export interface RenderOptions {
   ffmpeg?: string
   /** Kill ffmpeg after this long. */
   timeoutMs?: number
-  /** TrueType font for text overlays (default: first system font found). */
+  /** TrueType font for text overlays (default: the bundled DejaVu Sans Bold). */
   fontFile?: string
   /** Refuse longer projects (seconds). */
   maxDurationSec?: number
@@ -28,13 +29,15 @@ export class RenderError extends Error {
 }
 
 const MAX_CLIPS = 200
-const FONTS = [
-  '/System/Library/Fonts/Supplemental/Arial.ttf',
-  '/Library/Fonts/Arial.ttf',
-  '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',
-  '/usr/share/fonts/dejavu/DejaVuSans.ttf',
-  '/usr/share/fonts/TTF/DejaVuSans.ttf'
-]
+/** DejaVu Sans Bold ships with this package (free licence), so text overlays never depend on the host's fonts. */
+function bundledFont(): string | undefined {
+  try {
+    return join(dirname(createRequire(import.meta.url).resolve('dejavu-fonts-ttf/package.json')), 'ttf', 'DejaVuSans-Bold.ttf')
+  } catch {
+    return undefined
+  }
+}
+const FONTS = [bundledFont(), '/System/Library/Fonts/Supplemental/Arial.ttf', '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'].filter(Boolean) as string[]
 const findFont = () => FONTS.find((f) => existsSync(f))
 
 /** Validates the project shape before it reaches ffmpeg (the project comes over the network). */
@@ -48,11 +51,20 @@ export function validateProject(p: VideoProject, maxDurationSec: number): void {
   const inRange = (v: unknown, lo: number, hi: number) => v === undefined || (num(v) && (v as number) >= lo && (v as number) <= hi)
   for (const c of p.clips)
     if (![c.fadeIn, c.fadeOut].every((v) => inRange(v, 0, 10)) || !inRange(c.brightness, -1, 1) || !inRange(c.contrast, 0, 2) || !inRange(c.saturation, 0, 3)) throw new RenderError('Invalid clip effect', 400)
+  for (const c of p.clips) if (!inRange(c.speed, 0.25, 4)) throw new RenderError('Invalid clip speed', 400)
+  const keys = (k: unknown, lo: number, hi: number) =>
+    k === undefined || (Array.isArray(k) && k.length <= 30 && k.every((x) => x && num(x.t) && num(x.v) && x.t >= 0 && x.t <= 36000 && x.v >= lo && x.v <= hi))
+  const overlays = p.overlays ?? []
+  if (!Array.isArray(overlays) || overlays.length > 10) throw new RenderError('Too many overlays', 400)
+  for (const o of overlays) {
+    const ok = typeof o.id === 'string' && typeof o.asset === 'string' && [o.in, o.out, o.start, o.x, o.y, o.scale].every(num) && o.in >= 0 && o.out > o.in && o.start >= 0 && o.x >= 0 && o.x <= 1 && o.y >= 0 && o.y <= 1 && o.scale >= 0.05 && o.scale <= 1 && keys(o.anim?.x, 0, 1) && keys(o.anim?.y, 0, 1)
+    if (!ok) throw new RenderError('Invalid overlay', 400)
+  }
   const texts = p.texts ?? []
-  if (!Array.isArray(texts) || texts.length > 50) throw new RenderError('Too many texts', 400)
+  if (!Array.isArray(texts) || texts.length > 200) throw new RenderError('Too many texts', 400)
   for (const t of texts) {
     const ok = typeof t.id === 'string' && /^[\w-]{1,40}$/.test(t.id) && typeof t.text === 'string' && t.text.length > 0 && t.text.length <= 200 && typeof t.color === 'string' && /^#[0-9a-fA-F]{6}$/.test(t.color)
-    if (!ok || ![t.start, t.end, t.x, t.y, t.size].every(num) || t.start < 0 || t.end <= t.start || t.x < 0 || t.x > 1 || t.y < 0 || t.y > 1 || t.size < 0.01 || t.size > 0.3) throw new RenderError('Invalid text', 400)
+    if (!ok || ![t.start, t.end, t.x, t.y, t.size].every(num) || t.start < 0 || t.end <= t.start || t.x < 0 || t.x > 1 || t.y < 0 || t.y > 1 || t.size < 0.01 || t.size > 0.3 || !keys(t.anim?.x, 0, 1) || !keys(t.anim?.y, 0, 1) || !keys(t.anim?.opacity, 0, 1)) throw new RenderError('Invalid text', 400)
   }
   for (const t of p.audioTracks) if (!num(t.start) || !num(t.gainDb) || t.start < 0 || typeof t.asset !== 'string') throw new RenderError('Invalid audio track', 400)
   if (videoDuration(p) > maxDurationSec) throw new RenderError(`Longer than ${maxDurationSec}s`, 422)
@@ -64,7 +76,7 @@ export async function renderVideo(project: VideoProject, store: AssetStore, opts
   const dir = await mkdtemp(join(tmpdir(), 'aqua-render-'))
   try {
     const inputs: Record<string, string> = {}
-    const hashes = new Set([...project.clips.map((c) => c.asset), ...project.audioTracks.map((t) => t.asset)])
+    const hashes = new Set([...project.clips.map((c) => c.asset), ...(project.overlays ?? []).map((o) => o.asset), ...project.audioTracks.map((t) => t.asset)])
     for (const hash of hashes) {
       const blob = await store.get(hash)
       if (!blob) throw new RenderError(`Missing asset ${hash}`, 422)
@@ -79,7 +91,7 @@ export async function renderVideo(project: VideoProject, store: AssetStore, opts
       await writeFile(textFiles[t.id], t.text)
     }
     const fontFile = opts.fontFile ?? findFont()
-    if (project.texts?.length && !fontFile) throw new RenderError('No font available on the server for text overlays', 500)
+    if (project.texts?.length && !fontFile) throw new RenderError('No usable font for text overlays', 500)
     await run(opts.ffmpeg ?? 'ffmpeg', buildFfmpegArgs(project, inputs, out, { fontFile, textFiles }), opts.timeoutMs ?? 10 * 60_000)
     return new Uint8Array(await readFile(out))
   } finally {

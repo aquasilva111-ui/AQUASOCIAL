@@ -11,7 +11,12 @@
   },
   "dependencies": {
     "aqua-project": "file:../aqua-project",
-    "aqua-runtime": "file:../aqua-runtime"
+    "aqua-runtime": "file:../aqua-runtime",
+    "dejavu-fonts-ttf": "^2.37.3"
   },
-  "devDependencies": { "@types/node": "^22.0.0", "tsx": "^4.19.0", "typescript": "^5.6.0" }
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  }
 }

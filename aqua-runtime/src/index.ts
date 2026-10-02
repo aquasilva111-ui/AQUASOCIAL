@@ -10,6 +10,6 @@ export { audioAdapter, defaultAudio, type AudioEdit, type AudioRegion, type Audi
 export { encodeWav, decodeWav, type Pcm } from './render/wav'
 export { renderSong } from './render/music'
 export { applyAudioEdit } from './render/audio'
-export { videoAdapter, buildFfmpegArgs, defaultVideo, videoDuration, type VideoProject, type VideoClip, type VideoSession, type VideoAdapterOptions } from './adapters/video'
+export { videoAdapter, buildFfmpegArgs, keyframeExpr, parseSrt, clipLength, defaultVideo, videoDuration, type VideoProject, type VideoClip, type VideoOverlay, type VideoText, type Keyframe, type Cue, type VideoSession, type VideoAdapterOptions } from './adapters/video'
 export { vegaLiteToSvg, plotToSvg, type PlotSpec } from './adapters/dataviz'
 export { sheetAdapter, type SheetDoc, type SheetSession, type SheetAdapterOptions } from './adapters/sheet'

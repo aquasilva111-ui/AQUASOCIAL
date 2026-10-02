@@ -172,3 +172,11 @@ test('validation: effect and text fields are checked', () => {
   assert.throws(() => validateProject({ ...base, texts: [{ ...text, text: 'x'.repeat(201) }] }, 600), /Invalid text/)
   assert.throws(() => validateProject({ ...base, clips: [{ ...base.clips[0], brightness: 9 }] }, 600), /Invalid clip effect/)
 })
+
+test('the bundled font exists, so text overlays work on any host', async () => {
+  const { existsSync } = await import('node:fs')
+  const { createRequire } = await import('node:module')
+  const { dirname } = await import('node:path')
+  const pkg = createRequire(import.meta.url).resolve('dejavu-fonts-ttf/package.json')
+  assert.ok(existsSync(join(dirname(pkg), 'ttf', 'DejaVuSans-Bold.ttf')))
+})
