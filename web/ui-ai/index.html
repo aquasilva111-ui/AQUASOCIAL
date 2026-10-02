@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Consola da U.I.</title>
+<link rel="icon" type="image/svg+xml" href="web/logo.svg">
+<style>
+  :root {
+    --fundo: #f7f7f7;
+    --cartao: #fbfbfb;
+    --tinta: #0a0a0a;
+    --tinta-2: #4a4a4a;
+    --borda: #b9b9b9;
+    --azul: #00b4ff;
+    --laranja: #ff6b2c;
+    --amarelo: #f2c94c;
+    --verde: #1db57a;
+    --vermelho: #eb4b4b;
+    --azul-automato: #2f80ed;
+    --branco-automato: #ffffff;
+    --raio: 22px;
+    --pesada: "Archivo Black", "Arial Black", "Helvetica Neue", system-ui, sans-serif;
+    --texto: system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-tema="claro"]) {
+      --fundo: #111112; --cartao: #18181a; --tinta: #f2f2f2; --tinta-2: #b3b3b3; --borda: #3a3a3d;
+      --branco-automato: #f2f2f2;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    background: var(--fundo); color: var(--tinta); font-family: var(--texto);
+    display: grid; grid-template-rows: auto 1fr; min-height: 100vh;
+  }
+  .faixa { height: 4px; background: linear-gradient(90deg, var(--azul) 0 12%, var(--tinta) 12% 92%, var(--laranja) 92%); }
+  .grade {
+    display: grid; gap: 16px; padding: 16px; max-width: 1280px; width: 100%; margin: 0 auto;
+    grid-template-columns: minmax(0, 1fr) 320px; min-height: 0;
+  }
+  .cartao {
+    background: var(--cartao); border: 1px solid var(--borda); border-radius: var(--raio);
+    padding: 20px; min-width: 0;
+  }
+  h1, h2 { font-family: var(--pesada); font-weight: 900; margin: 0; letter-spacing: -0.01em; text-transform: uppercase; }
+  h1 { font-size: clamp(22px, 3vw, 34px); line-height: 1; }
+  h2 { font-size: 15px; margin-bottom: 12px; }
+  .sub { color: var(--tinta-2); font-size: 13px; margin-top: 6px; }
+
+  /* Centro de Entrada e Saída */
+  .centro { display: grid; grid-template-rows: auto 1fr auto; height: calc(100vh - 36px); min-height: 520px; }
+  .topo { display: flex; align-items: center; gap: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--borda); }
+  .topo img { width: 64px; height: 64px; flex: none; }
+  .topo.pensando img { animation: pensar 1.2s ease-in-out infinite; }
+  @keyframes pensar { 50% { transform: scale(1.08) rotate(-4deg); } }
+  #conversa { overflow-y: auto; padding: 16px 2px; display: flex; flex-direction: column; gap: 12px; }
+  .msg { max-width: 82%; padding: 12px 16px; border-radius: 18px; white-space: pre-wrap; line-height: 1.45;
+         overflow-wrap: anywhere; font-size: 15px; }
+  .msg.eu { align-self: flex-end; background: var(--tinta); color: var(--fundo); border-bottom-right-radius: 6px; }
+  .msg.ui { align-self: flex-start; border: 1px solid var(--borda); border-bottom-left-radius: 6px; }
+  .msg.ui.ajuda { border-color: var(--laranja); }
+  .msg .estado { display: block; font-size: 11px; color: var(--tinta-2); margin-top: 8px; text-transform: uppercase; letter-spacing: .04em; }
+  .vazio { color: var(--tinta-2); text-align: center; margin: auto; max-width: 420px; line-height: 1.6; }
+  .vazio code { background: var(--fundo); border: 1px solid var(--borda); border-radius: 8px; padding: 1px 6px; }
+
+  form { display: flex; gap: 10px; padding-top: 14px; border-top: 1px solid var(--borda); }
+  textarea {
+    flex: 1; resize: none; min-height: 52px; max-height: 200px; padding: 14px 16px; border-radius: 18px;
+    border: 1px solid var(--borda); background: var(--fundo); color: var(--tinta); font: 15px/1.4 var(--texto);
+  }
+  textarea:focus-visible, button:focus-visible { outline: 2px solid var(--azul); outline-offset: 2px; }
+  button {
+    border: 0; border-radius: 999px; padding: 0 22px; background: var(--tinta); color: var(--fundo);
+    font-family: var(--pesada); text-transform: uppercase; font-size: 13px; cursor: pointer;
+  }
+  button:disabled { opacity: .45; cursor: progress; }
+  .pill { height: 10px; border-radius: 999px; margin-top: 10px; display: flex; gap: 6px; }
+  .pill span { border-radius: 999px; }
+  .pill .a { flex: 0 0 34px; background: var(--azul); }
+  .pill .b { flex: 1; background: var(--tinta); transform-origin: left; transition: transform .4s; }
+  .pill .c { flex: 0 0 14px; background: var(--laranja); }
+  .pensando-pill .b { animation: avancar 1.4s ease-in-out infinite; }
+  @keyframes avancar { 0% { transform: scaleX(.15); } 100% { transform: scaleX(1); } }
+
+  /* Lateral */
+  .lateral { display: grid; gap: 16px; align-content: start; }
+  .automatos { display: flex; gap: 12px; justify-content: space-between; padding: 4px 2px; }
+  .bola { width: 40px; height: 40px; border-radius: 50%; position: relative; box-shadow: 0 0 14px var(--cor); background: radial-gradient(circle at 32% 30%, #fff8 0 14%, var(--cor) 46%); border: 1px solid #0002; }
+  .bola::before, .bola::after { content: ""; position: absolute; top: 15px; width: 4px; height: 4px; border-radius: 50%; background: #0a0a0a; }
+  .bola::before { left: 12px; } .bola::after { right: 12px; }
+  .ativo .bola { animation: pulsar 1s ease-in-out infinite; }
+  .ativo .bola:nth-child(2) { animation-delay: .15s } .ativo .bola:nth-child(3) { animation-delay: .3s }
+  .ativo .bola:nth-child(4) { animation-delay: .45s } .ativo .bola:nth-child(5) { animation-delay: .6s }
+  @keyframes pulsar { 50% { transform: translateY(-6px); } }
+  ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  li { display: flex; justify-content: space-between; gap: 8px; font-size: 14px; }
+  li b { font-family: var(--pesada); font-weight: 900; }
+  li small { color: var(--tinta-2); }
+  .numeros { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center; }
+  .numeros b { display: block; font-family: var(--pesada); font-size: 22px; }
+  .numeros small { color: var(--tinta-2); font-size: 11px; text-transform: uppercase; }
+  .dica { font-size: 13px; color: var(--tinta-2); line-height: 1.6; }
+  .dica code { font-size: 12px; }
+  .erro { color: var(--vermelho); }
+  .codigo { font-family: var(--pesada); font-size: 20px; letter-spacing: .06em; margin: 6px 0; user-select: all; }
+  .parear { display: flex; gap: 8px; margin-top: 10px; }
+  .parear input { flex: 1; min-width: 0; padding: 10px 14px; border-radius: 999px; border: 1px solid var(--borda);
+                  background: var(--fundo); color: var(--tinta); font: 15px var(--pesada); text-transform: uppercase; }
+  .parear button { padding: 0 16px; }
+  [hidden] { display: none !important; }
+
+  @media (max-width: 860px) {
+    .grade { grid-template-columns: 1fr; }
+    .centro { height: auto; min-height: 70vh; }
+    .msg { max-width: 92%; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="faixa"></div>
+<main class="grade">
+  <section class="cartao centro" aria-label="Centro de Entrada e Saída">
+    <div class="topo" id="topo">
+      <img src="web/logo.svg" alt="">
+      <div>
+        <h1>Centro de Entrada e Saída</h1>
+        <div class="sub">Unidade de Inteligência · expresse sua intenção</div>
+      </div>
+    </div>
+    <div id="conversa" aria-live="polite">
+      <div class="vazio" id="vazio">
+        Fale com a U.I. ou com um chat conectado.<br>
+        <code>o que é 🜔?</code> · <code>chats</code> · <code>@gpt sua mensagem</code>
+      </div>
+    </div>
+    <div>
+      <form id="form">
+        <textarea id="campo" rows="1" placeholder="Expresse sua intenção…" aria-label="Diretriz" autofocus></textarea>
+        <button id="enviar" type="submit">Enviar</button>
+      </form>
+      <div class="pill" id="pill" aria-hidden="true"><span class="a"></span><span class="b"></span><span class="c"></span></div>
+    </div>
+  </section>
+
+  <aside class="lateral">
+    <section class="cartao">
+      <h2>Autômatos</h2>
+      <div class="automatos" id="automatos" aria-label="Os cinco Autômatos">
+        <span class="bola" style="--cor: var(--amarelo)"></span>
+        <span class="bola" style="--cor: var(--verde)"></span>
+        <span class="bola" style="--cor: var(--vermelho)"></span>
+        <span class="bola" style="--cor: var(--azul-automato)"></span>
+        <span class="bola" style="--cor: var(--branco-automato)"></span>
+      </div>
+      <div class="sub" id="automatos-estado">em repouso</div>
+    </section>
+
+    <section class="cartao">
+      <h2>Chats conectados</h2>
+      <ul id="chats"><li><small>carregando…</small></li></ul>
+      <p class="dica">Conecte com<br><code>conectar &lt;endereço&gt; como gpt</code></p>
+    </section>
+
+    <section class="cartao" id="cartao-codigo" hidden>
+      <h2>Parear com o Aqua</h2>
+      <div class="dica">Na página <span id="origens"></span>/ui-ai, use este código:</div>
+      <div class="codigo" id="codigo"></div>
+      <div class="dica">Ele fica só neste computador.</div>
+    </section>
+
+    <section class="cartao" id="cartao-parear" hidden>
+      <h2>Parear esta página</h2>
+      <div class="dica" id="parear-dica">Esta página fala com a U.I. que roda <b>neste computador</b>.
+        Abra a Consola local (<code>http://localhost:8765</code>) e copie o código de pareamento.</div>
+      <form class="parear" id="form-parear">
+        <input id="campo-codigo" placeholder="XXXX-XXXX-XXXX" aria-label="Código de pareamento" autocomplete="off">
+        <button type="submit">Parear</button>
+      </form>
+    </section>
+
+    <section class="cartao">
+      <h2>Base de Sínteses</h2>
+      <div class="numeros">
+        <div><b id="n-convencoes">–</b><small>Convenções</small></div>
+        <div><b id="n-sinapses">–</b><small>Sinapses</small></div>
+        <div><b id="n-experiencias">–</b><small>Experiências</small></div>
+      </div>
+    </section>
+  </aside>
+</main>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  // Servida pela própria U.I. (localhost) ou pela página pública (aquaapp.systems/ui-ai),
+  // que fala com a U.I. deste computador usando o código de pareamento.
+  const LOCAL = ["localhost", "127.0.0.1"].includes(location.hostname);
+  const UI = LOCAL ? "" : "http://localhost:8765/";
+  const lerCodigo = () => { try { return localStorage.getItem("ui-pareamento") || ""; } catch (e) { return ""; } };
+  const guardarCodigo = (c) => { try { localStorage.setItem("ui-pareamento", c); } catch (e) {} };
+  function cabecalhos() {
+    const h = { "Content-Type": "application/json" };
+    if (!LOCAL) h["X-UI-Pareamento"] = lerCodigo();
+    return h;
+  }
+  function pedirPareamento(mensagem) {
+    $("cartao-parear").hidden = false;
+    if (mensagem) $("parear-dica").textContent = mensagem;
+  }
+  let sessao;
+  try {
+    sessao = sessionStorage.getItem("ui-sessao") || crypto.randomUUID();
+    sessionStorage.setItem("ui-sessao", sessao);
+  } catch (e) {
+    sessao = String(Math.random()).slice(2);
+  }
+
+  function balao(texto, quem, estado) {
+    $("vazio")?.remove();
+    const div = document.createElement("div");
+    div.className = "msg " + quem + (estado === "aguardando_ajuda" ? " ajuda" : "");
+    div.textContent = texto;
+    if (estado) {
+      const e = document.createElement("span");
+      e.className = "estado";
+      e.textContent = estado.replace(/_/g, " ");
+      div.appendChild(e);
+    }
+    $("conversa").appendChild(div);
+    $("conversa").scrollTop = $("conversa").scrollHeight;
+  }
+
+  function pensando(sim) {
+    $("topo").classList.toggle("pensando", sim);
+    $("pill").classList.toggle("pensando-pill", sim);
+    $("automatos").classList.toggle("ativo", sim);
+    $("automatos-estado").textContent = sim ? "em missão…" : "em repouso";
+    $("enviar").disabled = sim;
+  }
+
+  async function atualizarEstado() {
+    try {
+      const r = await fetch(UI + "consola/estado", { headers: cabecalhos() });
+      const e = await r.json();
+      if (r.status === 401) { pedirPareamento(); throw new Error("não pareada"); }
+      $("cartao-parear").hidden = true;
+      if (e.pareamento) {
+        $("cartao-codigo").hidden = false;
+        $("codigo").textContent = e.pareamento.codigo;
+        $("origens").textContent = e.pareamento.origens[0] || "";
+      }
+      const ul = $("chats");
+      ul.replaceChildren();
+      const nomes = Object.entries(e.chats || {});
+      if (!nomes.length) {
+        const li = document.createElement("li");
+        li.innerHTML = "<small>nenhum ainda</small>";
+        ul.appendChild(li);
+      }
+      for (const [nome, c] of nomes) {
+        const li = document.createElement("li");
+        const b = document.createElement("b"); b.textContent = "@" + nome;
+        const s = document.createElement("small"); s.textContent = c.plataforma;
+        li.append(b, s);
+        ul.appendChild(li);
+      }
+      $("n-convencoes").textContent = e.base.convencoes;
+      $("n-sinapses").textContent = e.base.sinapses;
+      $("n-experiencias").textContent = e.experiencias;
+    } catch (err) {
+      $("chats").innerHTML = '<li><small class="erro">U.I. não encontrada</small></li>';
+      if (!LOCAL && err.message !== "não pareada") {
+        pedirPareamento("Não encontrei a U.I. neste computador. Ligue-a com " +
+                        "“.venv/bin/python api.py” e recarregue (use o Chrome).");
+      }
+    }
+  }
+
+  $("form-parear").addEventListener("submit", (ev) => {
+    ev.preventDefault();
+    guardarCodigo($("campo-codigo").value.trim().toUpperCase());
+    atualizarEstado();
+  });
+
+  $("form").addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    const texto = $("campo").value.trim();
+    if (!texto) return;
+    $("campo").value = "";
+    $("campo").style.height = "";
+    balao(texto, "eu");
+    pensando(true);
+    try {
+      const r = await fetch(UI + "consola", {
+        method: "POST",
+        headers: cabecalhos(),
+        body: JSON.stringify({ texto, sessao }),
+      });
+      const dados = await r.json();
+      if (r.status === 401) pedirPareamento();
+      if (!r.ok) throw new Error(dados.erro || r.statusText);
+      balao(dados.texto, "ui", dados.estado);
+    } catch (err) {
+      balao("Não consegui falar com a U.I.: " + err.message, "ui", "aguardando_ajuda");
+    } finally {
+      pensando(false);
+      atualizarEstado();
+      $("campo").focus();
+    }
+  });
+
+  $("campo").addEventListener("keydown", (ev) => {
+    if (ev.key === "Enter" && !ev.shiftKey) { ev.preventDefault(); $("form").requestSubmit(); }
+  });
+  $("campo").addEventListener("input", () => {
+    $("campo").style.height = "";
+    $("campo").style.height = Math.min($("campo").scrollHeight, 200) + "px";
+  });
+
+  atualizarEstado();
+</script>
+</body>
+</html>
