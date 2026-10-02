@@ -23,6 +23,8 @@ export interface Track {
   instrument: 'synth' | 'pluck' | 'membrane' | 'sampler'
   volumeDb: number
   muted: boolean
+  /** When any track is soloed, only soloed tracks are heard. */
+  solo?: boolean
   notes: Note[]
 }
 
@@ -37,6 +39,10 @@ export interface Song {
 export type MusicSession = JsonSession<Song> & {
   addTrack(name: string, instrument?: Track['instrument']): string
   addNote(trackId: string, note: Omit<Note, 'velocity'> & { velocity?: number }): void
+  /** Edits one note; `index` is its position in the track's `notes`. */
+  updateNote(trackId: string, index: number, patch: Partial<Note>): void
+  removeNote(trackId: string, index: number): void
+  removeTrack(trackId: string): void
   /** Song length in seconds. */
   duration(): number
 }
@@ -69,6 +75,28 @@ export function musicAdapter(opts: MusicAdapterOptions = {}): ToolAdapter {
         if (!t) throw new Error(`Track not found: ${trackId}`)
         t.notes.push({ velocity: 0.8, ...n })
       })
+    const track = (d: Song, id: string) => {
+      const t = d.tracks.find((x) => x.id === id)
+      if (!t) throw new Error(`Track not found: ${id}`)
+      return t
+    }
+    s.updateNote = (trackId, index, patch) =>
+      s.update((d) => {
+        const n = track(d, trackId).notes[index]
+        if (!n) throw new Error(`Note not found: ${index}`)
+        Object.assign(n, patch)
+        n.beat = Math.max(0, n.beat)
+        n.length = Math.max(0.0625, n.length)
+        n.pitch = Math.max(0, Math.min(127, Math.round(n.pitch)))
+        n.velocity = Math.max(0.05, Math.min(1, n.velocity))
+      })
+    s.removeNote = (trackId, index) =>
+      s.update((d) => {
+        const t = track(d, trackId)
+        if (!t.notes[index]) throw new Error(`Note not found: ${index}`)
+        t.notes.splice(index, 1)
+      })
+    s.removeTrack = (trackId) => s.update((d) => void (d.tracks = d.tracks.filter((t) => t.id !== trackId)))
     s.duration = () => ((s.state.bars * s.state.beatsPerBar) / s.state.bpm) * 60
     return s
   }

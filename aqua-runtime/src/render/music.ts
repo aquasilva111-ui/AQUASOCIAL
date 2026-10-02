@@ -24,8 +24,9 @@ export function renderSong(song: Song, sampleRate = 44100): Pcm {
   const frames = Math.ceil((length + 0.5) * sampleRate)
   const mix = new Float32Array(frames)
 
+  const anySolo = song.tracks.some((t) => t.solo)
   for (const t of song.tracks) {
-    if (t.muted) continue
+    if (t.muted || (anySolo && !t.solo)) continue
     const v = VOICES[t.instrument]
     const trackGain = dbToGain(t.volumeDb)
     for (const n of t.notes) {

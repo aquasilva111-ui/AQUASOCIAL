@@ -1,5 +1,5 @@
 /** Tools of the Creative Hub; each item of a project belongs to one. */
-export type ItemKind = 'doc' | 'design' | 'presentation' | 'sheet' | 'video' | 'audio' | 'music' | 'chart'
+export type ItemKind = 'doc' | 'design' | 'presentation' | 'sheet' | 'video' | 'audio' | 'mix' | 'music' | 'chart'
 
 export interface AssetRef {
   /** sha-256 of the bytes, hex. Same bytes, same asset. */

@@ -342,3 +342,92 @@ test('video: speed changes duration, split respects speed, SRT import, overlays,
   assert.throws(() => keyframeExpr([], 'T'))
   assert.deepEqual(parseSrt('garbage\n\nno times here'), [])
 })
+
+import { defaultMix, mixAdapter, renderMix, resample, type MixSession, type Pcm } from '../src/index'
+import { decodeWav as decodeWavFile } from '../src/render/wav'
+
+const tone = (hz: number, sec: number, rate = 8000): Pcm => ({ sampleRate: rate, channels: [Float32Array.from({ length: Math.floor(sec * rate) }, (_, i) => 0.5 * Math.sin((2 * Math.PI * hz * i) / rate))] })
+const rms = (a: Float32Array, from = 0, to = a.length) => Math.sqrt(a.slice(from, to).reduce((s, v) => s + v * v, 0) / Math.max(1, to - from))
+
+test('mix render: placement, pan, mute, solo, fades, gain, resample', () => {
+  const m = defaultMix('m')
+  m.tracks.push(
+    { id: 'a', name: 'A', volumeDb: 0, pan: -1, muted: false, solo: false, clips: [{ id: 'c1', asset: 'x', start: 1, in: 0, out: 1, gainDb: 0, fadeIn: 0, fadeOut: 0 }] },
+    { id: 'b', name: 'B', volumeDb: -6.0206, pan: 1, muted: false, solo: false, clips: [{ id: 'c2', asset: 'x', start: 1, in: 0, out: 1, gainDb: 0, fadeIn: 0.5, fadeOut: 0 }] }
+  )
+  const src = { x: tone(440, 1) }
+  const out = renderMix(m, src, 8000)
+  assert.equal(out.channels.length, 2)
+  assert.equal(out.channels[0].length, 16000) // 2 s: clip placed at 1 s
+  assert.ok(rms(out.channels[0], 0, 7000) < 1e-9) // silence before the clip
+  const [l, r] = [rms(out.channels[0], 8000, 16000), rms(out.channels[1], 8000, 16000)]
+  assert.ok(l > 0.3 && r > 0.1) // A hard left (unity*1.41), B hard right at half amplitude
+  // fade-in on B: the first quarter second of the right channel is quieter than the last
+  assert.ok(rms(out.channels[1], 8000, 9000) < rms(out.channels[1], 15000, 16000))
+  // A is hard left: the left channel carries it, the right channel only has B
+  assert.ok(rms(out.channels[0], 8000, 16000) > rms(out.channels[1], 8000, 16000))
+
+  m.tracks[0].muted = true
+  assert.ok(rms(renderMix(m, src, 8000).channels[0], 8000, 16000) < 1e-9) // left is only A, which is muted
+  m.tracks[0].muted = false
+  m.tracks[1].solo = true
+  assert.ok(rms(renderMix(m, src, 8000).channels[0], 8000, 16000) < 1e-9) // A is silenced by solo on B
+  m.tracks[1].solo = false
+  m.masterDb = -20
+  assert.ok(rms(renderMix(m, src, 8000).channels[0], 8000, 16000) < l / 5)
+
+  assert.equal(resample(new Float32Array(8000), 8000, 16000).length, 16000)
+  assert.equal(renderMix(defaultMix('empty'), {}).channels[0].length, 0)
+  assert.equal(renderMix(m, {}).channels[0].length, 88200) // missing source: silent, but the length is still the project's
+})
+
+test('mix session: add, move across tracks, trim keeps audio in place, split, export through the runtime', async () => {
+  const store = new MemoryAssetStore()
+  const wav = (await import('../src/render/wav')).encodeWav(tone(440, 2))
+  const ref = await store.put(wav, 'audio/wav')
+  const rt = new CreativeRuntime({ project: createProject('M'), store, adapters: [mixAdapter({ loadSource: async (h) => (await store.get(h))?.bytes })] })
+  const item = await rt.create('mix', 'Mix')
+  const s = (await rt.openItem(item.id)) as MixSession
+  const t1 = s.addTrack()
+  const t2 = s.addTrack('Voz')
+  const c = s.addClip(t1, ref.hash, 2, 1)
+  assert.equal(s.duration(), 3)
+  s.trimClip(c, 0.5, 1.5) // drop the first half second: the rest stays where it was heard (start 1 -> 1.5)
+  assert.deepEqual([s.state.tracks[0].clips[0].start, s.state.tracks[0].clips[0].in, s.state.tracks[0].clips[0].out], [1.5, 0.5, 1.5])
+  assert.throws(() => s.trimClip(c, 1, 1.01), /Invalid trim/)
+  const second = s.splitClip(c, 2)
+  assert.deepEqual(s.state.tracks[0].clips.map((x) => [x.start, x.in, x.out]), [[1.5, 0.5, 1], [2, 1, 1.5]])
+  assert.throws(() => s.splitClip(c, 1.5), /inside the clip/)
+  s.moveClip(second, 4, t2)
+  assert.equal(s.state.tracks[0].clips.length, 1)
+  assert.equal(s.state.tracks[1].clips[0].start, 4)
+  const out = await rt.exportForLaunch(item.id, 'audio')
+  assert.equal(out?.mime, 'audio/wav')
+  assert.ok(Math.abs(decodeWavFile(out!.bytes).channels[0].length / 44100 - 4.5) < 0.01) // 4 s + 0.5 s clip
+  s.removeClip(c)
+  s.removeTrack(t2)
+  assert.equal(s.state.tracks.length, 1)
+  assert.equal(rt.canUndo(item.id), true)
+})
+
+test('music: note editing, solo and clamps', async () => {
+  const rt = new CreativeRuntime({ project: createProject('S'), store: new MemoryAssetStore(), adapters: [musicAdapter()] })
+  const item = await rt.create('music', 'Song')
+  const s = (await rt.openItem(item.id)) as MusicSession
+  const a = s.addTrack('A')
+  const b = s.addTrack('B')
+  s.addNote(a, { beat: 0, pitch: 60, length: 1 })
+  s.addNote(b, { beat: 0, pitch: 72, length: 1 })
+  s.updateNote(a, 0, { beat: -3, length: 0, pitch: 200, velocity: 5 })
+  assert.deepEqual(s.state.tracks[0].notes[0], { beat: 0, pitch: 127, length: 0.0625, velocity: 1 })
+  assert.throws(() => s.updateNote(a, 5, {}), /Note not found/)
+  s.updateNote(a, 0, { pitch: 60, length: 1, velocity: 0.8 })
+  const both = rms(renderSong(s.state).channels[0])
+  s.update((d) => void (d.tracks[1].solo = true))
+  const onlyB = rms(renderSong(s.state).channels[0])
+  assert.ok(onlyB > 0 && onlyB < both * 1.5 && Math.abs(onlyB - both) > 1e-6)
+  s.removeNote(a, 0)
+  assert.equal(s.state.tracks[0].notes.length, 0)
+  s.removeTrack(b)
+  assert.equal(s.state.tracks.length, 1)
+})

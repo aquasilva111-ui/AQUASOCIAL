@@ -21,6 +21,7 @@ export const EXPORTS: Record<ItemKind, ExportOption[]> = {
     { capability: 'long_video', mime: 'video/mp4', label: 'Vídeo longo' }
   ],
   audio: [{ capability: 'audio', mime: 'audio/mpeg', label: 'Áudio' }],
+  mix: [{ capability: 'audio', mime: 'audio/wav', label: 'Mixagem' }],
   music: [{ capability: 'audio', mime: 'audio/mpeg', label: 'Faixa' }],
   chart: [{ capability: 'image', mime: 'image/png', label: 'Gráfico como imagem' }]
 }
