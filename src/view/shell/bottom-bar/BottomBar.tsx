@@ -34,6 +34,7 @@ import {atoms as a, useTheme} from '#/alf'
 import {Button, ButtonText} from '#/components/Button'
 import {useDialogControl} from '#/components/Dialog'
 import {SwitchAccountDialog} from '#/components/dialogs/SwitchAccount'
+import {GlassSurface} from '#/components/GlassSurface'
 import {
   Bell_Filled_Corner0_Rounded as BellFilled,
   Bell_Stroke2_Corner0_Rounded as Bell,
@@ -162,25 +163,29 @@ export function BottomBar({navigation}: BottomTabBarProps) {
           footerHeight.set(e.nativeEvent.layout.height)
         }}>
         {hasSession ? (
-          <View
+          <GlassSurface
             style={[
               styles.dock,
               {
-                backgroundColor:
-                  t.scheme === 'dark'
-                    ? 'rgba(22, 24, 28, 0.88)'
-                    : 'rgba(255, 255, 255, 0.88)',
-                borderColor:
-                  t.scheme === 'dark'
-                    ? 'rgba(255, 255, 255, 0.12)'
-                    : 'rgba(15, 23, 42, 0.08)',
+                borderWidth: 0,
                 shadowColor: '#000',
                 shadowOpacity: 0.12,
                 shadowRadius: 20,
                 shadowOffset: {width: 0, height: 8},
                 elevation: 12,
               },
-            ]}>
+            ]}
+            fallbackStyle={{
+              borderWidth: 1,
+              backgroundColor:
+                t.scheme === 'dark'
+                  ? 'rgba(22, 24, 28, 0.88)'
+                  : 'rgba(255, 255, 255, 0.88)',
+              borderColor:
+                t.scheme === 'dark'
+                  ? 'rgba(255, 255, 255, 0.12)'
+                  : 'rgba(15, 23, 42, 0.08)',
+            }}>
             <Btn
               testID="bottomBarHomeBtn"
               icon={
@@ -356,7 +361,7 @@ export function BottomBar({navigation}: BottomTabBarProps) {
               accessibilityLabel="Profile"
               accessibilityHint=""
             />
-          </View>
+          </GlassSurface>
         ) : (
           <>
             <View

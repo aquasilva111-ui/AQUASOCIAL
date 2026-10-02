@@ -13,7 +13,10 @@ import {LinearGradient} from 'expo-linear-gradient'
 import {useVideoPlayer, VideoView} from 'expo-video'
 
 import {useHaptics} from '#/lib/haptics'
+import {useSaveVideoToMediaLibrary} from '#/lib/media/save-video'
 import {logger} from '#/logger'
+import {isNative} from '#/platform/detection'
+import {Download_Stroke2_Corner0_Rounded as DownloadIcon} from '#/components/icons/Download'
 import {
   Heart2_Filled_Stroke2_Corner0_Rounded as HeartFilled,
   Heart2_Stroke2_Corner0_Rounded as Heart,
@@ -65,6 +68,7 @@ const DropPage = memo(function DropPage({
 }) {
   const lastTap = useRef(0)
   const playHaptic = useHaptics()
+  const saveVideo = useSaveVideoToMediaLibrary()
   const onTap = () => {
     const now = Date.now()
     if (now - lastTap.current < DOUBLE_TAP_MS) {
@@ -116,6 +120,21 @@ const DropPage = memo(function DropPage({
             {compact(drop.likes + (liked ? 1 : 0))}
           </Text>
         </Pressable>
+        {isNative ? (
+          <Pressable
+            style={styles.action}
+            hitSlop={10}
+            accessibilityRole="button"
+            accessibilityLabel="Salvar na galeria"
+            accessibilityHint=""
+            onPress={() => {
+              playHaptic()
+              saveVideo(drop.uri)
+            }}>
+            <DownloadIcon width={30} style={{color: '#fff'}} />
+            <Text style={styles.count}>Salvar</Text>
+          </Pressable>
+        ) : null}
       </View>
       <View style={styles.meta} pointerEvents="none">
         <Text style={styles.author}>@{drop.author}</Text>
