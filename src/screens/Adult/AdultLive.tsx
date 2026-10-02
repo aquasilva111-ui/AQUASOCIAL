@@ -207,11 +207,7 @@ function CreateLive() {
         style={[a.self_start]}>
         <ButtonText>Criar live</ButtonText>
       </Button>
-      {error && (
-        <Text style={[a.text_sm, {color: t.palette.negative_500}]}>
-          {error}
-        </Text>
-      )}
+      {error && <Text style={[a.text_sm, {color: '#c2570c'}]}>{error}</Text>}
       {created && <StreamKeyNotice {...created} />}
     </View>
   )
@@ -553,11 +549,7 @@ function Chat({id, slowModeSeconds}: {id: string; slowModeSeconds: number}) {
           <ButtonText>Enviar</ButtonText>
         </Button>
       </View>
-      {error && (
-        <Text style={[a.text_xs, {color: t.palette.negative_500}]}>
-          {error}
-        </Text>
-      )}
+      {error && <Text style={[a.text_xs, {color: '#c2570c'}]}>{error}</Text>}
     </View>
   )
 }

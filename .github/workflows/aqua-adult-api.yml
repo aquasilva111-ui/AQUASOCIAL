@@ -1,0 +1,38 @@
+name: AQUA +18 API
+
+on:
+  pull_request:
+    paths:
+      - 'aqua-adult-api/**'
+      - '.github/workflows/aqua-adult-api.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'aqua-adult-api/**'
+concurrency:
+  group: "${{ github.workflow }}-${{ github.head_ref || github.ref }}"
+  cancel-in-progress: true
+
+jobs:
+  adult-api:
+    name: Typecheck and test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: aqua-adult-api
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v4
+      - name: Install node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: aqua-adult-api/package-lock.json
+      - name: Install
+        run: npm ci
+      - name: Type check
+        run: npm run typecheck
+      - name: Tests
+        run: npm test
