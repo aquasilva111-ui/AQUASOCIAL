@@ -133,3 +133,42 @@ test('real ffmpeg: two clips plus a music track render to a valid MP4', { skip: 
   }
   assert.match(info, /Duration: 00:00:04/)
 })
+
+test('real ffmpeg: fade, colour filter and a text overlay with hostile characters', { skip: !process.env.FFMPEG }, async () => {
+  const { execFileSync } = await import('node:child_process')
+  const bin = process.env.FFMPEG!
+  const dir = await mkdtemp(join(tmpdir(), 'real-fx-'))
+  execFileSync(bin, ['-y', '-loglevel', 'error', '-f', 'lavfi', '-i', 'color=c=0x808080:size=320x240:rate=30:duration=3', '-f', 'lavfi', '-i', 'sine=frequency=440:duration=3', '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-shortest', join(dir, 'g.mp4')])
+  const store = new MemoryAssetStore()
+  const asset = (await store.put(new Uint8Array(await readFile(join(dir, 'g.mp4'))), 'video/mp4')).hash
+  const p = defaultVideo('fx')
+  p.width = 320
+  p.height = 240
+  p.clips.push({ id: 'c', asset, in: 0, out: 3, audio: true, fadeIn: 1, fadeOut: 1 })
+  p.texts = [{ id: 't1', text: `it's 50%: a\\b ,;[]`, start: 1, end: 2, x: 0.5, y: 0.5, size: 0.3, color: '#ffffff' }]
+  const out = join(dir, 'out.mp4')
+  await writeFile(out, await renderVideo(p, store, { ffmpeg: bin }))
+  // Mean luma of a frame at time t (grey source is ~128, so black means a fade, white text lifts the mean).
+  const luma = (t: number) => {
+    const raw = execFileSync(bin, ['-loglevel', 'error', '-ss', String(t), '-i', out, '-frames:v', '1', '-vf', 'format=gray', '-f', 'rawvideo', '-'], { stdio: 'pipe', maxBuffer: 1 << 24 })
+    return raw.reduce((a, b) => a + b, 0) / raw.length
+  }
+  assert.ok(luma(0) < 20, 'first frame is faded to black')
+  const last = luma(2.9)
+  assert.ok(last < 40, `near the end the frame is faded to black (${last})`)
+  const withText = luma(1.5)
+  p.texts = []
+  await writeFile(out, await renderVideo(p, store, { ffmpeg: bin }))
+  assert.ok(withText > luma(1.5) + 3, `text lifts the frame (${withText} vs ${luma(1.5)})`)
+})
+
+test('validation: effect and text fields are checked', () => {
+  const base = defaultVideo('v')
+  base.clips.push({ id: 'c', asset: 'h', in: 0, out: 2, audio: false })
+  const text = { id: 't', text: 'oi', start: 0, end: 1, x: 0.5, y: 0.5, size: 0.05, color: '#ffffff' }
+  assert.doesNotThrow(() => validateProject({ ...base, texts: [text] }, 600))
+  assert.throws(() => validateProject({ ...base, texts: [{ ...text, color: 'red;drop' }] }, 600), /Invalid text/)
+  assert.throws(() => validateProject({ ...base, texts: [{ ...text, id: "x'y" }] }, 600), /Invalid text/)
+  assert.throws(() => validateProject({ ...base, texts: [{ ...text, text: 'x'.repeat(201) }] }, 600), /Invalid text/)
+  assert.throws(() => validateProject({ ...base, clips: [{ ...base.clips[0], brightness: 9 }] }, 600), /Invalid clip effect/)
+})

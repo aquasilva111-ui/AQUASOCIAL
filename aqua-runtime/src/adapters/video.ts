@@ -16,6 +16,27 @@ export interface VideoClip {
   out: number
   /** Whether the clip's own audio is kept. */
   audio: boolean
+  /** Fade from/to black (and audio fade), seconds. Gives a dip-to-black transition between clips. */
+  fadeIn?: number
+  fadeOut?: number
+  /** Colour adjustment (ffmpeg `eq`): brightness -1..1 (0), contrast 0..2 (1), saturation 0..3 (1). */
+  brightness?: number
+  contrast?: number
+  saturation?: number
+}
+
+/** Text drawn over the finished timeline between `start` and `end` seconds. */
+export interface VideoText {
+  id: string
+  text: string
+  start: number
+  end: number
+  /** Position of the text box centre, 0..1 of the canvas. */
+  x: number
+  y: number
+  /** Font size as a fraction of the canvas height. */
+  size: number
+  color: string
 }
 
 export interface VideoAudioTrack {
@@ -35,6 +56,7 @@ export interface VideoProject {
   clips: VideoClip[]
   /** Extra audio (music, voice-over) mixed under the main track. */
   audioTracks: VideoAudioTrack[]
+  texts?: VideoText[]
 }
 
 export type VideoSession = JsonSession<VideoProject> & {
@@ -42,6 +64,10 @@ export type VideoSession = JsonSession<VideoProject> & {
   trim(clipId: string, inSec: number, outSec: number): void
   moveClip(clipId: string, toIndex: number): void
   removeClip(clipId: string): void
+  /** Splits a clip at `atSec` seconds from its own start; returns the id of the second half. */
+  splitClip(clipId: string, atSec: number): string
+  addText(text: string, start: number, end: number): string
+  removeText(textId: string): void
   addAudio(asset: string, start?: number, gainDb?: number): string
   duration(): number
 }
@@ -58,7 +84,14 @@ const num = (n: number) => +n.toFixed(3)
  * are delayed, gained and mixed with the clips' own audio. Silent clips get generated silence so
  * concat always has matching streams.
  */
-export function buildFfmpegArgs(p: VideoProject, inputs: Record<string, string>, output: string): string[] {
+export interface FfmpegExtras {
+  /** Font file for text overlays (required when the project has texts). */
+  fontFile?: string
+  /** text id -> path of a file holding that text (kept out of the filter string on purpose). */
+  textFiles?: Record<string, string>
+}
+
+export function buildFfmpegArgs(p: VideoProject, inputs: Record<string, string>, output: string, extras: FfmpegExtras = {}): string[] {
   if (!p.clips.length) throw new Error('Video has no clips')
   const files: string[] = []
   const idx = (hash: string) => {
@@ -73,12 +106,31 @@ export function buildFfmpegArgs(p: VideoProject, inputs: Record<string, string>,
   p.clips.forEach((c, n) => {
     const i = idx(c.asset)
     const len = num(c.out - c.in)
-    f.push(`[${i}:v]trim=start=${num(c.in)}:end=${num(c.out)},setpts=PTS-STARTPTS,fps=${p.fps},scale=${p.width}:${p.height}:force_original_aspect_ratio=decrease,pad=${p.width}:${p.height}:(ow-iw)/2:(oh-ih)/2,setsar=1[v${n}]`)
-    if (c.audio) f.push(`[${i}:a]atrim=start=${num(c.in)}:end=${num(c.out)},asetpts=PTS-STARTPTS,aresample=44100,aformat=channel_layouts=stereo[a${n}]`)
+    const fin = Math.min(c.fadeIn ?? 0, len)
+    const fout = Math.min(c.fadeOut ?? 0, len)
+    const look = c.brightness || (c.contrast ?? 1) !== 1 || (c.saturation ?? 1) !== 1 ? `,eq=brightness=${num(c.brightness ?? 0)}:contrast=${num(c.contrast ?? 1)}:saturation=${num(c.saturation ?? 1)}` : ''
+    const vfade = (fin > 0 ? `,fade=t=in:st=0:d=${num(fin)}` : '') + (fout > 0 ? `,fade=t=out:st=${num(len - fout)}:d=${num(fout)}` : '')
+    const afade = (fin > 0 ? `,afade=t=in:st=0:d=${num(fin)}` : '') + (fout > 0 ? `,afade=t=out:st=${num(len - fout)}:d=${num(fout)}` : '')
+    f.push(`[${i}:v]trim=start=${num(c.in)}:end=${num(c.out)},setpts=PTS-STARTPTS,fps=${p.fps},scale=${p.width}:${p.height}:force_original_aspect_ratio=decrease,pad=${p.width}:${p.height}:(ow-iw)/2:(oh-ih)/2,setsar=1${look}${vfade}[v${n}]`)
+    if (c.audio) f.push(`[${i}:a]atrim=start=${num(c.in)}:end=${num(c.out)},asetpts=PTS-STARTPTS,aresample=44100,aformat=channel_layouts=stereo${afade}[a${n}]`)
     else f.push(`anullsrc=r=44100:cl=stereo,atrim=duration=${len}[a${n}]`)
   })
   const cat = p.clips.map((_, n) => `[v${n}][a${n}]`).join('')
-  f.push(`${cat}concat=n=${p.clips.length}:v=1:a=1[vout][amain]`)
+  const texts = p.texts ?? []
+  f.push(`${cat}concat=n=${p.clips.length}:v=1:a=1[${texts.length ? 'vcat' : 'vout'}][amain]`)
+  if (texts.length) {
+    if (!extras.fontFile) throw new Error('Text overlays need a font file')
+    let prev = 'vcat'
+    texts.forEach((t, n) => {
+      const file = extras.textFiles?.[t.id]
+      if (!file) throw new Error(`No text file for ${t.id}`)
+      const out = n === texts.length - 1 ? 'vout' : `vt${n}`
+      f.push(
+        `[${prev}]drawtext=expansion=none:fontfile=${extras.fontFile}:textfile=${file}:fontsize=${num(t.size * p.height)}:fontcolor=${t.color}:x=(w*${num(t.x)})-text_w/2:y=(h*${num(t.y)})-text_h/2:enable=between(t\\,${num(t.start)}\\,${num(t.end)})[${out}]`
+      )
+      prev = out
+    })
+  }
 
   const mix = ['[amain]']
   p.audioTracks.forEach((t, n) => {
@@ -139,6 +191,28 @@ export function videoAdapter(opts: VideoAdapterOptions = {}): ToolAdapter {
         d.clips.splice(Math.max(0, Math.min(to, d.clips.length)), 0, c)
       })
     s.removeClip = (clipId) => s.update((d) => void (d.clips = d.clips.filter((c) => c.id !== clipId)))
+    s.splitClip = (clipId, atSec) => {
+      const nid = id('clp')
+      s.update((d) => {
+        const i = d.clips.findIndex((x) => x.id === clipId)
+        if (i < 0) throw new Error(`Clip not found: ${clipId}`)
+        const c = d.clips[i]
+        const cut = c.in + atSec
+        if (!(atSec > 0.05 && cut < c.out - 0.05)) throw new Error('Split point must be inside the clip')
+        // The fade-out and transition stay with the second half; the fade-in stays with the first.
+        const second = { ...c, id: nid, in: cut, fadeIn: 0 }
+        d.clips.splice(i + 1, 0, second)
+        c.out = cut
+        c.fadeOut = 0
+      })
+      return nid
+    }
+    s.addText = (text, start, end) => {
+      const tid = id('txt')
+      s.update((d) => void (d.texts ??= []).push({ id: tid, text, start, end, x: 0.5, y: 0.8, size: 0.05, color: '#ffffff' }))
+      return tid
+    }
+    s.removeText = (textId) => s.update((d) => void (d.texts = (d.texts ?? []).filter((t) => t.id !== textId)))
     s.addAudio = (asset, start = 0, gainDb = -6) => {
       const tid = id('aud')
       s.update((d) => void d.audioTracks.push({ id: tid, asset, start, gainDb }))

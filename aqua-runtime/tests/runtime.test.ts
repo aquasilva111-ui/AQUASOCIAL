@@ -287,3 +287,28 @@ test('design collab: two people edit one design; concurrent additions both survi
   assert.deepEqual(kids(sa), kids(sb))
   assert.equal(kids(sa).length, start + 1)
 })
+
+test('video: split keeps total duration, fades move to the right half, texts and effects reach ffmpeg', async () => {
+  const rt = new CreativeRuntime({ project: createProject('V'), store: new MemoryAssetStore(), adapters: [videoAdapter()] })
+  const item = await rt.create('video', 'Edit')
+  const s = (await rt.openItem(item.id)) as VideoSession
+  const c1 = s.addClip('h1', 10)
+  s.update((d) => Object.assign(d.clips[0], { fadeIn: 1, fadeOut: 2, brightness: 0.1 }))
+  const c2 = s.splitClip(c1, 4)
+  assert.equal(s.duration(), 10)
+  assert.deepEqual(s.state.clips.map((c) => [c.in, c.out, c.fadeIn, c.fadeOut]), [[0, 4, 1, 0], [4, 10, 0, 2]])
+  assert.equal(s.state.clips[1].id, c2)
+  assert.throws(() => s.splitClip(c1, 0), /inside the clip/)
+  assert.throws(() => s.splitClip(c1, 4), /inside the clip/) // the first half is now 4 s long
+  s.addText('Olá', 1, 3)
+  const args = buildFfmpegArgs(s.state, { h1: '/in' }, '/out', { fontFile: '/f.ttf', textFiles: { [s.state.texts![0].id]: '/t.txt' } })
+  const graph = args[args.indexOf('-filter_complex') + 1]
+  assert.match(graph, /fade=t=in:st=0:d=1/)
+  assert.match(graph, /fade=t=out:st=4:d=2/)
+  assert.match(graph, /eq=brightness=0\.1/)
+  assert.match(graph, /drawtext=expansion=none/)
+  assert.match(graph, /\[vout\]/)
+  assert.throws(() => buildFfmpegArgs(s.state, { h1: '/in' }, '/out'), /font file/)
+  s.removeText(s.state.texts![0].id)
+  assert.equal(s.state.texts!.length, 0)
+})
