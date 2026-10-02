@@ -207,15 +207,17 @@ export default function MixPanel({ itemId }: { itemId: string }) {
       </div>
       {err && <p className="note" style={{ color: 'var(--orange)' }}>{err}</p>}
 
-      {found && (
-        <div className="row">
+      {/* Always rendered with a fixed height: selecting a clip must not shift the tracks mid-drag. */}
+      <div className="row" style={{ minHeight: 40 }}>
+        {!found && <span className="note">Selecione um clipe para ajustar ganho e fades.</span>}
+        {found && (<>
           <b>Clipe</b>
           <label className="field">Ganho (dB) <input type="number" step={1} value={found.c.gainDb} style={{ width: 64 }} onChange={(e) => setClip(found.c.id, { gainDb: +e.target.value || 0 })} /></label>
           <label className="field">Fade in (s) <input type="number" min={0} step={0.1} value={found.c.fadeIn} style={{ width: 64 }} onChange={(e) => setClip(found.c.id, { fadeIn: Math.max(0, +e.target.value || 0) })} /></label>
           <label className="field">Fade out (s) <input type="number" min={0} step={0.1} value={found.c.fadeOut} style={{ width: 64 }} onChange={(e) => setClip(found.c.id, { fadeOut: Math.max(0, +e.target.value || 0) })} /></label>
           <span className="note">{(found.c.out - found.c.in).toFixed(2)} s</span>
-        </div>
-      )}
+        </>)}
+      </div>
 
       {!mix.tracks.length ? (
         <p className="note">Adicione uma faixa e um arquivo de áudio. Arraste os clipes (também entre faixas) e as bordas para cortar; S divide no cursor; clique na régua para posicionar. Volume, pan, M (mudo) e S (solo) valem na pré-escuta e na exportação.</p>
