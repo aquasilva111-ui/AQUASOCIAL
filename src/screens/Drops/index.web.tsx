@@ -1,18 +1,21 @@
 /* eslint-disable bsky-internal/avoid-unwrapped-text -- plain DOM elements, web only */
-import {useCallback, useEffect, useRef, useState} from 'react'
+import {useEffect, useRef, useState} from 'react'
 import {View} from 'react-native'
 
+import {POST_TOMBSTONE, usePostShadow} from '#/state/cache/post-shadow'
 import {
   Heart2_Filled_Stroke2_Corner0_Rounded as HeartFilled,
   Heart2_Stroke2_Corner0_Rounded as Heart,
 } from '#/components/icons/Heart2'
-import {type Drop, makeDrops} from './data'
+import {loadHls} from '#/components/view-watch/hls.web'
+import {type Drop} from './data'
+import {useDropLike} from './useDropLike'
+import {useDropsFeed} from './useDropsFeed'
 
 /** Web layout, like TikTok on desktop: a centered 9:16 card with the actions beside it. */
 
 const LIKE = '#FF7A00'
 const AQUA = '#1185FE'
-const PAGE = 12
 
 const compact = (n: number) =>
   n >= 1000 ? `${(n / 1000).toFixed(n >= 10000 ? 0 : 1)} mil` : String(n)
@@ -30,27 +33,61 @@ const circle: React.CSSProperties = {
   padding: 0,
 }
 
-function Slide({
+function Slide(props: {
+  drop: Drop
+  active: boolean
+  near: boolean
+  muted: boolean
+  onToggleMute: () => void
+}) {
+  const shadow = usePostShadow(props.drop.post)
+  if (shadow === POST_TOMBSTONE) return null
+  return <SlideInner {...props} post={shadow} />
+}
+
+function SlideInner({
   drop,
   active,
   near,
   muted,
-  liked,
-  onLike,
   onToggleMute,
+  post,
 }: {
   drop: Drop
   active: boolean
   near: boolean
   muted: boolean
-  liked: boolean
-  onLike: (id: string, force?: boolean) => void
   onToggleMute: () => void
+  post: Parameters<typeof useDropLike>[0]
 }) {
+  const {liked, likeCount, toggle} = useDropLike(post)
   const video = useRef<HTMLVideoElement>(null)
   const bar = useRef<HTMLDivElement>(null)
   const [paused, setPaused] = useState(false)
   const [copied, setCopied] = useState(false)
+
+  // Posts are HLS playlists: hls.js everywhere except Safari, which plays them natively.
+  useEffect(() => {
+    const v = video.current
+    if (!v || !near) return
+    let cancelled = false
+    let hls: {destroy: () => void} | undefined
+    loadHls.then(Hls => {
+      if (cancelled) return
+      if (Hls.isSupported()) {
+        const instance = new Hls({maxMaxBufferLength: 20})
+        hls = instance
+        instance.attachMedia(v)
+        instance.loadSource(drop.playlist)
+      } else if (v.canPlayType('application/vnd.apple.mpegurl')) {
+        v.src = drop.playlist
+      }
+    })
+    return () => {
+      cancelled = true
+      hls?.destroy()
+    }
+  }, [near, drop.playlist])
 
   useEffect(() => {
     const v = video.current
@@ -102,7 +139,6 @@ function Slide({
         {near ? (
           <video
             ref={video}
-            src={drop.uri}
             poster={drop.poster}
             loop
             playsInline
@@ -124,7 +160,7 @@ function Slide({
                 setPaused(true)
               }
             }}
-            onDoubleClick={() => onLike(drop.id, true)}
+            onDoubleClick={() => toggle(true)}
             style={{
               position: 'absolute',
               inset: 0,
@@ -136,7 +172,7 @@ function Slide({
           />
         ) : (
           <img
-            src={drop.poster}
+            src={drop.poster ?? ''}
             alt=""
             style={{width: '100%', height: '100%', objectFit: 'cover'}}
           />
@@ -192,7 +228,9 @@ function Slide({
             color: '#fff',
             pointerEvents: 'none',
           }}>
-          <div style={{fontWeight: 700, fontSize: 17}}>@{drop.author}</div>
+          <div style={{fontWeight: 700, fontSize: 17}}>
+            @{drop.authorHandle}
+          </div>
           <div style={{fontSize: 14, lineHeight: 1.4, marginTop: 4}}>
             {drop.caption}
           </div>
@@ -240,18 +278,18 @@ function Slide({
             fontSize: 18,
             boxSizing: 'border-box',
           }}>
-          {drop.author[0].toUpperCase()}
+          {drop.authorName[0]?.toUpperCase() ?? '?'}
         </div>
         <div style={{display: 'grid', justifyItems: 'center', gap: 4}}>
           <button
             type="button"
             aria-label={liked ? 'Descurtir' : 'Curtir'}
-            onClick={() => onLike(drop.id)}
+            onClick={() => toggle()}
             style={circle}>
             <LikeIcon width={26} style={{color: liked ? LIKE : '#fff'}} />
           </button>
           <span style={{fontSize: 12, fontWeight: 600}}>
-            {compact(drop.likes + (liked ? 1 : 0))}
+            {compact(likeCount)}
           </span>
         </div>
         <div style={{display: 'grid', justifyItems: 'center', gap: 4}}>
@@ -273,21 +311,9 @@ function Slide({
 
 export function DropsScreen() {
   const scroller = useRef<HTMLDivElement>(null)
-  const [drops, setDrops] = useState<Drop[]>(() => makeDrops(PAGE))
+  const {drops, isLoading, isError, loadMore, refetch} = useDropsFeed()
   const [index, setIndex] = useState(0)
   const [muted, setMuted] = useState(true)
-  const [liked, setLiked] = useState<Set<string>>(() => new Set())
-
-  const onLike = useCallback((id: string, force?: boolean) => {
-    setLiked(prev => {
-      if (force && prev.has(id)) return prev
-      const next = new Set(prev)
-      if (next.has(id)) next.delete(id)
-      else next.add(id)
-      return next
-    })
-  }, [])
-
   const goTo = (i: number) => {
     const el = scroller.current
     if (!el) return
@@ -302,9 +328,7 @@ export function DropsScreen() {
     if (!el) return
     const i = Math.round(el.scrollTop / el.clientHeight)
     if (i !== index) setIndex(i)
-    if (i >= drops.length - 4) {
-      setDrops(prev => [...prev, ...makeDrops(PAGE, prev.length)])
-    }
+    if (i >= drops.length - 4) loadMore()
   }
 
   useEffect(() => {
@@ -335,6 +359,39 @@ export function DropsScreen() {
           scrollSnapType: 'y mandatory',
           scrollbarWidth: 'none',
         }}>
+        {drops.length === 0 ? (
+          <div
+            style={{
+              height: '100%',
+              display: 'grid',
+              placeItems: 'center',
+              color: '#fff',
+              textAlign: 'center',
+              fontSize: 15,
+            }}>
+            {isError ? (
+              <div style={{display: 'grid', gap: 12, justifyItems: 'center'}}>
+                Não foi possível carregar os drops.
+                <button
+                  type="button"
+                  onClick={() => refetch()}
+                  style={{
+                    background: AQUA,
+                    color: '#fff',
+                    border: 0,
+                    borderRadius: 99,
+                    padding: '10px 20px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                  }}>
+                  Tentar de novo
+                </button>
+              </div>
+            ) : (
+              <span>{isLoading ? 'Carregando drops…' : 'Buscando drops…'}</span>
+            )}
+          </div>
+        ) : null}
         {drops.map((drop, i) => (
           <Slide
             key={drop.id}
@@ -342,8 +399,6 @@ export function DropsScreen() {
             active={i === index}
             near={Math.abs(i - index) <= 1}
             muted={muted}
-            liked={liked.has(drop.id)}
-            onLike={onLike}
             onToggleMute={() => setMuted(m => !m)}
           />
         ))}

@@ -1,5 +1,6 @@
 import {memo, useCallback, useEffect, useRef, useState} from 'react'
 import {
+  ActivityIndicator,
   FlatList,
   type LayoutChangeEvent,
   Pressable,
@@ -13,21 +14,19 @@ import {LinearGradient} from 'expo-linear-gradient'
 import {useVideoPlayer, VideoView} from 'expo-video'
 
 import {useHaptics} from '#/lib/haptics'
-import {useSaveVideoToMediaLibrary} from '#/lib/media/save-video'
-import {logger} from '#/logger'
-import {isNative} from '#/platform/detection'
-import {Download_Stroke2_Corner0_Rounded as DownloadIcon} from '#/components/icons/Download'
+import {POST_TOMBSTONE, usePostShadow} from '#/state/cache/post-shadow'
 import {
   Heart2_Filled_Stroke2_Corner0_Rounded as HeartFilled,
   Heart2_Stroke2_Corner0_Rounded as Heart,
 } from '#/components/icons/Heart2'
-import {type Drop, makeDrops} from './data'
+import {type Drop} from './data'
+import {useDropLike} from './useDropLike'
+import {useDropsFeed} from './useDropsFeed'
 
 /** Likes in Drops are orange. */
 const LIKE = '#FF7A00'
 const AQUA = '#1185FE'
 const DOUBLE_TAP_MS = 250
-const PAGE = 12
 
 const compact = (n: number) =>
   n >= 1000 ? `${(n / 1000).toFixed(n >= 10000 ? 0 : 1)} mil` : String(n)
@@ -51,30 +50,39 @@ function DropVideo({uri, active}: {uri: string; active: boolean}) {
   )
 }
 
-const DropPage = memo(function DropPage({
+const DropPage = memo(function DropPage(props: {
+  drop: Drop
+  height: number
+  active: boolean
+  near: boolean
+}) {
+  const shadow = usePostShadow(props.drop.post)
+  if (shadow === POST_TOMBSTONE) return null
+  return <DropPageInner {...props} post={shadow} />
+})
+
+function DropPageInner({
   drop,
   height,
   active,
   near,
-  liked,
-  onLike,
+  post,
 }: {
   drop: Drop
   height: number
   active: boolean
   near: boolean
-  liked: boolean
-  onLike: (id: string, force?: boolean) => void
+  post: Parameters<typeof useDropLike>[0]
 }) {
   const lastTap = useRef(0)
   const playHaptic = useHaptics()
-  const saveVideo = useSaveVideoToMediaLibrary()
+  const {liked, likeCount, toggle} = useDropLike(post)
   const onTap = () => {
     const now = Date.now()
     if (now - lastTap.current < DOUBLE_TAP_MS) {
       lastTap.current = 0
       playHaptic()
-      onLike(drop.id, true)
+      toggle(true)
     } else {
       lastTap.current = now
     }
@@ -82,13 +90,15 @@ const DropPage = memo(function DropPage({
   const LikeIcon = liked ? HeartFilled : Heart
   return (
     <View style={[styles.page, {height}]}>
-      <Image
-        source={{uri: drop.poster}}
-        style={StyleSheet.absoluteFill}
-        contentFit="cover"
-        accessibilityIgnoresInvertColors
-      />
-      {near ? <DropVideo uri={drop.uri} active={active} /> : null}
+      {drop.poster ? (
+        <Image
+          source={{uri: drop.poster}}
+          style={StyleSheet.absoluteFill}
+          contentFit="cover"
+          accessibilityIgnoresInvertColors
+        />
+      ) : null}
+      {near ? <DropVideo uri={drop.playlist} active={active} /> : null}
       <Pressable
         style={StyleSheet.absoluteFill}
         onPress={onTap}
@@ -103,7 +113,9 @@ const DropPage = memo(function DropPage({
       />
       <View style={styles.rail}>
         <View style={styles.avatar}>
-          <Text style={styles.avatarText}>{drop.author[0].toUpperCase()}</Text>
+          <Text style={styles.avatarText}>
+            {drop.authorName[0]?.toUpperCase() ?? '?'}
+          </Text>
         </View>
         <Pressable
           style={styles.action}
@@ -113,73 +125,55 @@ const DropPage = memo(function DropPage({
           accessibilityHint=""
           onPress={() => {
             playHaptic()
-            onLike(drop.id)
+            toggle()
           }}>
           <LikeIcon width={32} style={{color: liked ? LIKE : '#fff'}} />
-          <Text style={styles.count}>
-            {compact(drop.likes + (liked ? 1 : 0))}
-          </Text>
+          <Text style={styles.count}>{compact(likeCount)}</Text>
         </Pressable>
-        {isNative ? (
-          <Pressable
-            style={styles.action}
-            hitSlop={10}
-            accessibilityRole="button"
-            accessibilityLabel="Salvar na galeria"
-            accessibilityHint=""
-            onPress={() => {
-              playHaptic()
-              saveVideo(drop.uri)
-            }}>
-            <DownloadIcon width={30} style={{color: '#fff'}} />
-            <Text style={styles.count}>Salvar</Text>
-          </Pressable>
-        ) : null}
       </View>
       <View style={styles.meta} pointerEvents="none">
-        <Text style={styles.author}>@{drop.author}</Text>
-        <Text style={styles.caption} numberOfLines={2}>
-          {drop.caption}
-        </Text>
+        <Text style={styles.author}>@{drop.authorHandle}</Text>
+        {drop.caption ? (
+          <Text style={styles.caption} numberOfLines={2}>
+            {drop.caption}
+          </Text>
+        ) : null}
       </View>
     </View>
   )
-})
+}
 
 export function DropsScreen() {
   const [height, setHeight] = useState(0)
-  const [drops, setDrops] = useState<Drop[]>(() => makeDrops(PAGE))
   const [activeIndex, setActiveIndex] = useState(0)
-  const [liked, setLiked] = useState<Set<string>>(() => new Set())
+  const {drops, isLoading, isError, loadMore, refetch} = useDropsFeed()
 
   const onLayout = (e: LayoutChangeEvent) =>
     setHeight(e.nativeEvent.layout.height)
-
-  const onLike = useCallback((id: string, force?: boolean) => {
-    setLiked(prev => {
-      if (force && prev.has(id)) return prev
-      const next = new Set(prev)
-      if (next.has(id)) next.delete(id)
-      else next.add(id)
-      return next
-    })
-  }, [])
 
   const onViewable = useRef(({viewableItems}: {viewableItems: ViewToken[]}) => {
     const first = viewableItems.find(v => v.isViewable)
     if (first?.index != null) setActiveIndex(first.index)
   }).current
 
-  const loadMore = useCallback(() => {
-    logger.debug('Drops: loading more example drops')
-    setDrops(prev => [...prev, ...makeDrops(PAGE, prev.length)])
-  }, [])
+  const renderItem = useCallback(
+    ({item, index}: {item: Drop; index: number}) => (
+      <DropPage
+        drop={item}
+        height={height}
+        active={index === activeIndex}
+        near={Math.abs(index - activeIndex) <= 1}
+      />
+    ),
+    [height, activeIndex],
+  )
 
   return (
     <View style={styles.root} onLayout={onLayout}>
-      {height > 0 ? (
+      {height > 0 && drops.length > 0 ? (
         <FlatList
           data={drops}
+          extraData={activeIndex}
           keyExtractor={d => d.id}
           pagingEnabled
           snapToInterval={height}
@@ -198,18 +192,29 @@ export function DropsScreen() {
           onEndReachedThreshold={0.5}
           onViewableItemsChanged={onViewable}
           viewabilityConfig={{itemVisiblePercentThreshold: 80}}
-          renderItem={({item, index}) => (
-            <DropPage
-              drop={item}
-              height={height}
-              active={index === activeIndex}
-              near={Math.abs(index - activeIndex) <= 1}
-              liked={liked.has(item.id)}
-              onLike={onLike}
-            />
-          )}
+          renderItem={renderItem}
         />
-      ) : null}
+      ) : (
+        <View style={styles.state}>
+          {isError ? (
+            <>
+              <Text style={styles.stateText}>
+                Não foi possível carregar os drops.
+              </Text>
+              <Pressable
+                onPress={() => refetch()}
+                accessibilityRole="button"
+                accessibilityLabel="Tentar de novo"
+                accessibilityHint=""
+                style={styles.retry}>
+                <Text style={styles.retryText}>Tentar de novo</Text>
+              </Pressable>
+            </>
+          ) : isLoading || drops.length === 0 ? (
+            <ActivityIndicator color="#fff" />
+          ) : null}
+        </View>
+      )}
       <View style={styles.top} pointerEvents="none">
         <Text style={styles.topText}>Drops</Text>
         <View style={styles.topDot} />
@@ -222,6 +227,15 @@ const styles = StyleSheet.create({
   root: {flex: 1, backgroundColor: '#000'},
   page: {width: '100%', backgroundColor: '#000', overflow: 'hidden'},
   shade: {position: 'absolute', left: 0, right: 0, bottom: 0, height: '40%'},
+  state: {flex: 1, alignItems: 'center', justifyContent: 'center', gap: 14},
+  stateText: {color: '#fff', fontSize: 15},
+  retry: {
+    backgroundColor: AQUA,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 99,
+  },
+  retryText: {color: '#fff', fontWeight: '700'},
   top: {
     position: 'absolute',
     top: 54,
