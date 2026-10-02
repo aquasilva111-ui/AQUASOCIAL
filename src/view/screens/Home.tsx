@@ -220,6 +220,8 @@ function HomeScreenReady({
   )
 
   const [demoMode] = useDemoMode()
+  // Real height of the (fixed) home header, so the feed starts right below it.
+  const [headerHeight, setHeaderHeight] = React.useState(0)
 
   const renderTabBar = React.useCallback(
     (props: RenderTabBarFnProps) => {
@@ -230,6 +232,7 @@ function HomeScreenReady({
             {...props}
             testID="homeScreenFeedTabs"
             onPressSelected={onPressSelected}
+            onHeightChange={setHeaderHeight}
             // @ts-ignore
             feeds={[{displayName: 'Following'}, {displayName: 'Discover'}]}
           />
@@ -241,6 +244,7 @@ function HomeScreenReady({
           {...props}
           testID="homeScreenFeedTabs"
           onPressSelected={onPressSelected}
+          onHeightChange={setHeaderHeight}
           feeds={pinnedFeedInfos}
         />
       )
@@ -323,6 +327,7 @@ function HomeScreenReady({
                   rightNavVisible ? undefined : StoriesTrayHeader
                 }
                 feedInfo={feedInfo}
+                measuredHeaderHeight={headerHeight}
               />
             )
           }
@@ -337,6 +342,7 @@ function HomeScreenReady({
               renderEmptyState={renderCustomFeedEmptyState}
               savedFeedConfig={savedFeedConfig}
               feedInfo={feedInfo}
+              measuredHeaderHeight={headerHeight}
             />
           )
         })
@@ -357,6 +363,7 @@ function HomeScreenReady({
         feed={`feedgen|${PROD_DEFAULT_FEED('whats-hot')}`}
         renderEmptyState={renderCustomFeedEmptyState}
         feedInfo={pinnedFeedInfos[0]}
+        measuredHeaderHeight={headerHeight}
       />
     </Pager>
   )

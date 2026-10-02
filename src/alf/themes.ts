@@ -4,10 +4,17 @@ import {
   DEFAULT_SUBDUED_PALETTE,
 } from '@bsky.app/alf'
 
-const DEFAULT_THEMES = createThemes({
+const BASE_THEMES = createThemes({
   defaultPalette: DEFAULT_PALETTE,
   subduedPalette: DEFAULT_SUBDUED_PALETTE,
 })
+
+// Aqua uses a true black background: "dim" (the navy dark variant) gets the
+// pure black dark palette while keeping its name so theme checks still work.
+const DEFAULT_THEMES = {
+  ...BASE_THEMES,
+  dim: {...BASE_THEMES.dark, name: BASE_THEMES.dim.name},
+}
 
 export const themes = {
   lightPalette: DEFAULT_THEMES.light.palette,
