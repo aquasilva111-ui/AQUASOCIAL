@@ -11,11 +11,14 @@ import {
   CHAPTER_COLLECTION,
   chapterPath,
   type ChapterRecord,
+  LIMITS,
   newReadingRecord,
   normalizeBook,
   normalizeChapter,
   normalizeReading,
   parseBookUri,
+  partExcerpt,
+  partUrl,
   publishChapter,
   READING_COLLECTION,
   rkeyOf,
@@ -622,5 +625,83 @@ export function useRemoveFromReadingMutation() {
       })
     },
     onSuccess: () => qc.invalidateQueries({queryKey: [ROOT, 'reading']}),
+  })
+}
+
+/* ------------------------------------------------------------------ */
+/* Reads feed: parts of a chapter as cards                             */
+/* ------------------------------------------------------------------ */
+
+/** "Repost thread": a post with the part's excerpt and a card that deep-links to it. */
+export function useRepostPartMutation() {
+  const agent = useAgent()
+  const {currentAccount} = useSession()
+  return useMutation({
+    mutationFn: async (input: {
+      authorHandle: string
+      item: BookWithLatest
+      index: number
+      text: string
+      comment?: string
+    }) => {
+      if (!currentAccount) throw new Error('not_signed_in')
+      const {item, index} = input
+      const latest = item.latest
+      if (!latest || item.book.visibility !== 'public')
+        throw new Error('not_shareable')
+      const card = buildShareCard({
+        book: item.book,
+        chapter: latest.chapter,
+        url: partUrl(
+          BOOKS_WEB_ORIGIN,
+          chapterPath(input.authorHandle, item.rkey, latest.rkey),
+          index,
+        ),
+      })
+      // The card shows the excerpt itself so the repost reads on its own.
+      card.description = partExcerpt(input.text, LIMITS.sharePreview)
+      const uri = await createCardPost(
+        agent,
+        currentAccount.did,
+        (input.comment ?? '').trim().slice(0, 300),
+        card,
+      )
+      return {uri}
+    },
+  })
+}
+
+/** Like state of a chapter's announcement post (its comment thread). */
+export function useChapterPostQuery(threadUri: string | undefined) {
+  const agent = useAgent()
+  return useQuery({
+    queryKey: [ROOT, 'chapter-post', threadUri ?? ''],
+    enabled: !!threadUri,
+    staleTime: 60_000,
+    queryFn: async () => {
+      const {data} = await agent.app.bsky.feed.getPosts({uris: [threadUri!]})
+      const p = data.posts[0]
+      if (!p) return null
+      return {
+        uri: p.uri,
+        cid: p.cid,
+        likeCount: p.likeCount ?? 0,
+        likeUri: p.viewer?.like,
+      }
+    },
+  })
+}
+
+/** Per-part likes would need an indexer; likes go to the chapter post. */
+export function useToggleChapterLikeMutation(threadUri: string | undefined) {
+  const agent = useAgent()
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (post: {uri: string; cid: string; likeUri?: string}) => {
+      if (post.likeUri) await agent.deleteLike(post.likeUri)
+      else await agent.like(post.uri, post.cid)
+    },
+    onSuccess: () =>
+      qc.invalidateQueries({queryKey: [ROOT, 'chapter-post', threadUri ?? '']}),
   })
 }

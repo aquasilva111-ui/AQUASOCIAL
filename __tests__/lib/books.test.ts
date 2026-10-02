@@ -4,6 +4,7 @@ import {
   buildShareCard,
   chapterAccess,
   chapterPath,
+  chapterToCards,
   countWords,
   neighbors,
   newBookRecord,
@@ -12,6 +13,8 @@ import {
   normalizeBook,
   normalizeChapter,
   orderedChapters,
+  partExcerpt,
+  partUrl,
   publishChapter,
   readingMinutes,
   splitIntoParts,
@@ -282,5 +285,31 @@ describe('reading list', () => {
     expect(normalizeReading(rec)?.book).toBe(uri)
     expect(normalizeReading({book: 'nope'})).toBeUndefined()
     expect(normalizeReading(null)).toBeUndefined()
+  })
+})
+
+describe('reads feed parts', () => {
+  const ch = newChapterRecord({
+    book: BOOK,
+    number: 1,
+    title: 'Um',
+    body: 'Primeiro parágrafo.\n\nSegundo parágrafo ' + 'x'.repeat(700),
+  })
+  it('turns a chapter into ordered cards with stable ids', () => {
+    const cards = chapterToCards('at://d/c/1', ch)
+    expect(cards.length).toBeGreaterThan(1)
+    expect(cards[0].id).toBe('at://d/c/1#1')
+    expect(cards.every(c => c.total === cards.length)).toBe(true)
+  })
+  it('keeps excerpts within the post limit', () => {
+    const e = partExcerpt('palavra '.repeat(100))
+    expect(e.length).toBeLessThanOrEqual(280)
+    expect(e.endsWith('…')).toBe(true)
+    expect(partExcerpt('curto')).toBe('curto')
+  })
+  it('builds a deep link to a part', () => {
+    expect(partUrl('https://x.y', '/books/a/b/c', 2)).toBe(
+      'https://x.y/books/a/b/c#parte-3',
+    )
   })
 })

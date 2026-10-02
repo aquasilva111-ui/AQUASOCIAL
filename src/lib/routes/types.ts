@@ -109,6 +109,7 @@ export type CommonNavigatorParams = {
   ViewLive: undefined
   ViewList: {kind: string; name: string; rkey: string}
   Music: undefined
+  Reads: undefined
   Books: undefined
   BooksStudio: undefined
   BookEdit: {book: string}

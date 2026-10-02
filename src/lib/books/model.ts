@@ -394,6 +394,48 @@ export function splitIntoParts(body: string, size = LIMITS.partSize): string[] {
 }
 
 /* ------------------------------------------------------------------ */
+/* Reads feed (thread parts as cards)                                  */
+/* ------------------------------------------------------------------ */
+
+/** Post text limit for a part excerpt (leaves room for the card). */
+export const PART_POST_MAX = 280
+
+export type ReadsCardPart = {
+  /** Stable id: `<chapter uri>#<index>`. */
+  id: string
+  index: number
+  total: number
+  text: string
+}
+
+/** One card per thread part, in reading order, for the Reads feed. */
+export function chapterToCards(
+  chapterUri: string,
+  chapter: ChapterRecord,
+): ReadsCardPart[] {
+  const parts = splitIntoParts(chapter.body)
+  return parts.map((text, index) => ({
+    id: `${chapterUri}#${index + 1}`,
+    index,
+    total: parts.length,
+    text,
+  }))
+}
+
+/** Excerpt that fits in a post; cut on a word and marked with an ellipsis. */
+export function partExcerpt(text: string, max = PART_POST_MAX) {
+  const flat = text.replace(/\s+/g, ' ').trim()
+  if (flat.length <= max) return flat
+  const cut = flat.lastIndexOf(' ', max - 1)
+  return `${flat.slice(0, cut > max * 0.5 ? cut : max - 1).trimEnd()}…`
+}
+
+/** Deep link to one part of a chapter; the reader scrolls to `#parte-N`. */
+export function partUrl(origin: string, chapterUrlPath: string, index: number) {
+  return `${origin}${chapterUrlPath}#parte-${index + 1}`
+}
+
+/* ------------------------------------------------------------------ */
 /* Routes & sharing                                                    */
 /* ------------------------------------------------------------------ */
 

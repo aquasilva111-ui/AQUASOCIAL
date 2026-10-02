@@ -667,7 +667,7 @@ export function DesktopLeftNav() {
       {hasSession && (
         <>
           <NavItem
-            href="/books"
+            href="/reads"
             icon={
               <Book
                 aria-hidden={true}
@@ -682,7 +682,7 @@ export function DesktopLeftNav() {
                 style={pal.text}
               />
             }
-            label="Books"
+            label="Reads"
           />
           <NavItem
             href="/music"

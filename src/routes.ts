@@ -40,6 +40,7 @@ export const router = new Router<AllNavigatableRoutes>({
   ViewList: '/views/list/:kind/:name/:rkey',
   // AQUA Books — static segments first; each pattern matches an exact depth
   Music: '/music',
+  Reads: '/reads',
   Books: '/books',
   BooksStudio: '/books/studio',
   BookEdit: '/books/studio/book/:book',

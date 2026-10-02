@@ -1,4 +1,7 @@
-# AQUA Books
+# AQUA Reads (antes AQUA Books)
+
+O produto passou a se chamar **Reads**. Rotas, records (`place.aqua.book.*`) e
+arquivos continuam com o prefixo `books` por compatibilidade; só o nome visível mudou.
 
 Publicação serializada de livros (estilo Wattpad) dentro do AQUA. Segue o mesmo
 padrão do View Channel: não é uma conta; identidade, seguidores e moderação vêm
@@ -87,3 +90,22 @@ Ainda não feito:
 - Entrada de Livros no menu mobile.
 - Feed global (precisa de indexador).
 - Comentários por parte do thread (v1 comenta o capítulo inteiro).
+
+## Fase 4 — Feed Reads (feita, sem teste em dispositivo)
+
+`/reads` (`ReadsFeedScreen.tsx`): feed vertical estilo Threads. Cada card é uma
+parte (`splitIntoParts`) do último capítulo de livros de quem você segue; "Biblioteca"
+leva a `/books`. Menu desktop: "Reads" → `/reads`.
+
+| Ação | Como funciona |
+| --- | --- |
+| Curtir | curte o post-anúncio do capítulo (`threadUri`); contagem é do capítulo, não da parte |
+| Republicar thread | novo post com card (título + trecho ≤280) apontando para `#parte-N` |
+| Publicar no story | `StoryPartCard` (1080x1920) → `react-native-view-shot` → `useCreateStoryMutation` |
+
+Doadores de referência (só padrões, nenhum código copiado — são backends
+Postgres/Next, o AQUA é PDS): Aaccraa para lógica de publicação/engajamento,
+Rantale para descoberta e UX do leitor.
+
+Pendente: curtida **por parte** (precisa indexador), o leitor rolar até `#parte-N`,
+paginação/mais capítulos no feed, ícones no lugar dos rótulos, item no menu mobile.

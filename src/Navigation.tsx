@@ -95,6 +95,7 @@ import {
   BooksHomeScreen,
   BooksStudioScreen,
   ChapterEditScreen,
+  ReadsFeedScreen,
 } from '#/screens/Books'
 import {CreativeHubScreen} from '#/screens/CreativeHub'
 import {DocEditorScreen, DocsHomeScreen} from '#/screens/Docs'
@@ -729,9 +730,14 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
         options={{title: 'Música'}}
       />
       <Stack.Screen
+        name="Reads"
+        component={ReadsFeedScreen}
+        options={{title: 'Reads'}}
+      />
+      <Stack.Screen
         name="Books"
         component={BooksHomeScreen}
-        options={{title: 'Livros'}}
+        options={{title: 'Reads · Biblioteca'}}
       />
       <Stack.Screen
         name="BooksStudio"
