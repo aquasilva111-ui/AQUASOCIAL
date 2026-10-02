@@ -54,6 +54,7 @@ export function FeedPage({
   feedParams,
   renderEmptyState,
   renderEndOfFeed,
+  ListHeaderComponent,
   savedFeedConfig,
   feedInfo,
 }: {
@@ -64,6 +65,7 @@ export function FeedPage({
   isPageAdjacent: boolean
   renderEmptyState: () => JSX.Element
   renderEndOfFeed?: () => JSX.Element
+  ListHeaderComponent?: () => JSX.Element
   savedFeedConfig?: AppBskyActorDefs.SavedFeed
   feedInfo: FeedSourceInfo
 }) {
@@ -223,6 +225,7 @@ export function FeedPage({
             onHasNew={onHasNew}
             renderEmptyState={renderEmptyState}
             renderEndOfFeed={renderEndOfFeed}
+            ListHeaderComponent={ListHeaderComponent}
             headerOffset={headerOffset}
             savedFeedConfig={savedFeedConfig}
             isVideoFeed={isVideoFeed}

@@ -37,9 +37,12 @@ import {FollowingEmptyState} from '#/view/com/posts/FollowingEmptyState'
 import {FollowingEndOfFeed} from '#/view/com/posts/FollowingEndOfFeed'
 import {NoFeedsPinned} from '#/screens/Home/NoFeedsPinned'
 import * as Layout from '#/components/Layout'
+import {StoriesTray} from '#/components/stories/StoriesTray'
 import {useDemoMode} from '#/storage/hooks/demo-mode'
 
 type Props = NativeStackScreenProps<HomeTabNavigatorParams, 'Home' | 'Start'>
+
+const StoriesTrayHeader = () => <StoriesTray />
 
 const FOR_YOU_FEED = `feedgen|${PROD_DEFAULT_FEED('whats-hot')}`
 
@@ -314,6 +317,7 @@ function HomeScreenReady({
                 feedParams={homeFeedParams}
                 renderEmptyState={renderFollowingEmptyState}
                 renderEndOfFeed={FollowingEndOfFeed}
+                ListHeaderComponent={StoriesTrayHeader}
                 feedInfo={feedInfo}
               />
             )

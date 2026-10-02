@@ -1,7 +1,6 @@
 import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
 
 import {
-  getPdsEndpoint,
   HIGHLIGHT_COLLECTION,
   type HighlightView,
   newHighlightRecord,
@@ -9,6 +8,7 @@ import {
   type StoryView,
   validateHighlightDraft,
 } from '#/lib/stories/model'
+import {ensurePdsEndpoint} from '#/state/queries/stories'
 import {useAgent, useSession} from '#/state/session'
 
 const RQKEY_ROOT = 'story-highlights'
@@ -21,21 +21,20 @@ export const RQKEY = (did: string) => [RQKEY_ROOT, did]
  */
 export function useHighlightsQuery(did: string | undefined) {
   const agent = useAgent()
+  const queryClient = useQueryClient()
   return useQuery<HighlightView[]>({
     queryKey: RQKEY(did ?? ''),
     enabled: !!did,
     staleTime: 60_000,
     queryFn: async () => {
       if (!did) return []
-      const [res, repoDesc] = await Promise.all([
+      const [res, pdsUrl] = await Promise.all([
         agent.com.atproto.repo
           .listRecords({repo: did, collection: HIGHLIGHT_COLLECTION, limit: 50})
           .catch(() => undefined),
-        agent.com.atproto.repo.describeRepo({repo: did}).catch(() => undefined),
+        ensurePdsEndpoint(agent, queryClient, did).catch(() => null),
       ])
-      if (!res) return []
-      const pdsUrl = repoDesc && getPdsEndpoint(repoDesc.data.didDoc)
-      if (!pdsUrl) return []
+      if (!res || !pdsUrl) return []
       const views: HighlightView[] = []
       for (const rec of res.data.records) {
         const view = normalizeHighlight(rec, {did, pdsUrl})

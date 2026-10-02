@@ -85,10 +85,8 @@ export function StoriesItems({
 
       {viewerIndex !== null && stories && stories[viewerIndex] && (
         <StoryViewer
-          author={profile}
-          stories={stories}
-          initialIndex={viewerIndex}
-          isMe={isMe}
+          groups={[{author: profile, stories, isMe}]}
+          initial={{group: 0, index: viewerIndex}}
           onClose={() => setViewerIndex(null)}
         />
       )}

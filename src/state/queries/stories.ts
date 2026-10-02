@@ -1,5 +1,10 @@
-import {type BlobRef} from '@atproto/api'
-import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
+import {type BlobRef, type BskyAgent} from '@atproto/api'
+import {
+  type QueryClient,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query'
 
 import {uploadBlob} from '#/lib/api'
 import {compressIfNeeded} from '#/lib/media/manip'
@@ -42,32 +47,55 @@ export function useStoriesQuery(
   {includeExpired = false}: {includeExpired?: boolean} = {},
 ) {
   const agent = useAgent()
+  const queryClient = useQueryClient()
   return useQuery<StoryView[]>({
     queryKey: RQKEY(did ?? '', includeExpired),
     enabled: !!did,
     staleTime: 30_000,
     refetchInterval: includeExpired ? false : 60_000,
+    queryFn: () =>
+      did ? fetchStories(agent, queryClient, did, includeExpired) : [],
+  })
+}
+
+/** A repo's PDS rarely changes, so it is cached for an hour per DID. */
+export function ensurePdsEndpoint(
+  agent: BskyAgent,
+  queryClient: QueryClient,
+  did: string,
+) {
+  return queryClient.ensureQueryData({
+    queryKey: ['pds-endpoint', did],
+    staleTime: 60 * 60 * 1000,
     queryFn: async () => {
-      if (!did) return []
-      const [res, repoDesc] = await Promise.all([
-        agent.com.atproto.repo
-          .listRecords({repo: did, collection: STORY_COLLECTION, limit: 100})
-          .catch(() => undefined),
-        agent.com.atproto.repo.describeRepo({repo: did}).catch(() => undefined),
-      ])
-      if (!res) return []
-      const pdsUrl = repoDesc && getPdsEndpoint(repoDesc.data.didDoc)
-      if (!pdsUrl) return []
-      const views: StoryView[] = []
-      for (const rec of res.data.records) {
-        const view = normalizeStory(rec, {did, pdsUrl})
-        if (!view) continue
-        if (!includeExpired && isExpired(view.createdAt)) continue
-        views.push(view)
-      }
-      return views.sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+      const desc = await agent.com.atproto.repo.describeRepo({repo: did})
+      return getPdsEndpoint(desc.data.didDoc) ?? null
     },
   })
+}
+
+/** Shared by the profile row and the home tray (same cache key). */
+export async function fetchStories(
+  agent: BskyAgent,
+  queryClient: QueryClient,
+  did: string,
+  includeExpired = false,
+): Promise<StoryView[]> {
+  const [res, pdsUrl] = await Promise.all([
+    agent.com.atproto.repo
+      .listRecords({repo: did, collection: STORY_COLLECTION, limit: 100})
+      .catch(() => undefined),
+    ensurePdsEndpoint(agent, queryClient, did).catch(() => null),
+  ])
+  if (!res || !pdsUrl) return []
+  const views: StoryView[] = []
+  for (const rec of res.data.records) {
+    const view = normalizeStory(rec, {did, pdsUrl})
+    if (!view) continue
+    if (!includeExpired && isExpired(view.createdAt)) continue
+    views.push(view)
+  }
+  return views.sort((a, b) => a.createdAt.localeCompare(b.createdAt))
 }
 
 export function useCreateStoryMutation() {

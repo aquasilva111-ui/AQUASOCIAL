@@ -102,11 +102,9 @@ export function HighlightsItems({
       )}
       {playing && (
         <StoryViewer
-          author={profile}
-          stories={playing.items}
-          initialIndex={0}
-          isMe={isMe}
+          groups={[{author: profile, stories: playing.items, isMe}]}
           allowDelete={false}
+          allowReply={false}
           onClose={() => setPlaying(undefined)}
         />
       )}
