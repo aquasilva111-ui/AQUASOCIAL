@@ -42,6 +42,39 @@ const circle: React.CSSProperties = {
   padding: 0,
 }
 
+/**
+ * Rounded, filled speaker: with an X when muted, with three waves when the
+ * sound is on. Drawn on a 24px grid, white, so it follows the button size.
+ */
+function SoundIcon({on, size = 20}: {on: boolean; size?: number}) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+      focusable="false">
+      <path
+        d="M3.5 9.6c0-.9.7-1.6 1.6-1.6h2.6l4.2-3.5a.95.95 0 0 1 1.55.73v13.54a.95.95 0 0 1-1.55.73L7.7 16H5.1a1.6 1.6 0 0 1-1.6-1.6V9.6Z"
+        fill="#fff"
+      />
+      {on ? (
+        <g stroke="#fff" strokeWidth="1.9" strokeLinecap="round">
+          <path d="M15.9 9.7a3.5 3.5 0 0 1 0 4.6" />
+          <path d="M18.3 7.5a6.6 6.6 0 0 1 0 9" />
+          <path d="M20.6 5.5a9.6 9.6 0 0 1 0 13" />
+        </g>
+      ) : (
+        <g stroke="#fff" strokeWidth="1.9" strokeLinecap="round">
+          <path d="M16.6 9.6l4.8 4.8" />
+          <path d="M21.4 9.6l-4.8 4.8" />
+        </g>
+      )}
+    </svg>
+  )
+}
+
 function Slide(props: {
   drop: Drop
   active: boolean
@@ -209,9 +242,8 @@ function SlideInner({
             top: 12,
             left: 12,
             background: 'rgba(0,0,0,0.4)',
-            fontSize: 16,
           }}>
-          {muted ? '🔇' : '🔊'}
+          <SoundIcon on={!muted} />
         </button>
         {paused ? (
           <div
