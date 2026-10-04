@@ -543,7 +543,11 @@ function PlaceholderNavItem({icon, label}: {icon: JSX.Element; label: string}) {
   )
 }
 
-export function DesktopLeftNav() {
+/**
+ * `embedded`: render inside a column (e.g. IU & AI's collapsible) instead of
+ * floating fixed over the page, so it pushes content rather than covering it.
+ */
+export function DesktopLeftNav({embedded = false}: {embedded?: boolean} = {}) {
   const {hasSession} = useSession()
   const pal = usePalette('default')
   const {_} = useLingui()
@@ -562,27 +566,29 @@ export function DesktopLeftNav() {
       role="navigation"
       style={[
         a.px_xl,
-        styles.leftNav,
+        embedded ? styles.leftNavEmbedded : styles.leftNav,
         leftNavMinimal && styles.leftNavMinimal,
-        leftNavMinimal
-          ? {
-              transform: [
-                {
-                  translateX:
-                    -CENTER_COLUMN_HALF_WIDTH +
-                    (centerColumnOffset ? CENTER_COLUMN_OFFSET : 0),
-                },
-                {translateX: '-100%'},
-                ...a.scrollbar_offset.transform,
-              ],
-            }
-          : // Plenty of guaranteed room in this (already-wide) breakpoint,
-            // so anchor near the true left edge instead of the feed-relative
-            // offset — avoids a growing dead margin on wide screens.
-            {
-              left: getNavEdgeInset(windowWidth, LEFT_NAV_WIDTH),
-              transform: a.scrollbar_offset.transform,
-            },
+        embedded
+          ? null
+          : leftNavMinimal
+            ? {
+                transform: [
+                  {
+                    translateX:
+                      -CENTER_COLUMN_HALF_WIDTH +
+                      (centerColumnOffset ? CENTER_COLUMN_OFFSET : 0),
+                  },
+                  {translateX: '-100%'},
+                  ...a.scrollbar_offset.transform,
+                ],
+              }
+            : // Plenty of guaranteed room in this (already-wide) breakpoint,
+              // so anchor near the true left edge instead of the feed-relative
+              // offset — avoids a growing dead margin on wide screens.
+              {
+                left: getNavEdgeInset(windowWidth, LEFT_NAV_WIDTH),
+                transform: a.scrollbar_offset.transform,
+              },
       ]}>
       {hasSession ? (
         <ProfileCard />
@@ -838,6 +844,15 @@ const styles = StyleSheet.create({
     width: LEFT_NAV_WIDTH,
     // @ts-expect-error web only
     maxHeight: '100vh',
+    overflowY: 'auto',
+  },
+  leftNavEmbedded: {
+    position: 'relative',
+    paddingTop: 10,
+    paddingBottom: 40,
+    width: LEFT_NAV_WIDTH,
+    height: '100%',
+    // @ts-expect-error web only
     overflowY: 'auto',
   },
   leftNavMinimal: {
