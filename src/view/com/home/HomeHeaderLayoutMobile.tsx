@@ -12,8 +12,8 @@ import {isWeb} from '#/platform/detection'
 import {emitSoftReset} from '#/state/events'
 import {useSession} from '#/state/session'
 import {useShellLayout} from '#/state/shell/shell-layout'
-import {Logo} from '#/view/icons/Logo'
 import {atoms as a, useTheme} from '#/alf'
+import {AquaEyeLogo} from '#/components/AquaEyeLogo'
 import {ButtonIcon} from '#/components/Button'
 import {Hashtag_Stroke2_Corner0_Rounded as FeedsIcon} from '#/components/icons/Hashtag'
 import * as Layout from '#/components/Layout'
@@ -76,7 +76,9 @@ export function HomeHeaderLayoutMobile({
               playHaptic('Light')
               emitSoftReset()
             }}>
-            <Logo width={30} />
+            {({hovered, pressed}) => (
+              <AquaEyeLogo size={30} active={hovered || pressed} />
+            )}
           </Link>
         </View>
 

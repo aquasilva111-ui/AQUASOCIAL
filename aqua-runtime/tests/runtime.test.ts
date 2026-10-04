@@ -431,3 +431,106 @@ test('music: note editing, solo and clamps', async () => {
   s.removeTrack(b)
   assert.equal(s.state.tracks.length, 1)
 })
+
+import { docStatsFromBytes, docStatsFromXml, editSessions, wordSeries } from '../src/index'
+import * as YY from 'yjs'
+
+test('doc analytics: counts, structure, readability, keywords, sessions', () => {
+  const xml =
+    '<blockgroup>' +
+    '<blockcontainer id="1"><heading level="1" textColor="default">Meu título</heading></blockcontainer>' +
+    '<blockcontainer id="2"><paragraph>O gato dorme no sofá. O gato <bold>acorda</bold> cedo! Será que o gato come?</paragraph></blockcontainer>' +
+    '<blockcontainer id="3"><heading level="2">Lista</heading></blockcontainer>' +
+    '<blockcontainer id="4"><bulletListItem>primeiro gato</bulletListItem></blockcontainer>' +
+    '<blockcontainer id="5"><numberedListItem>segundo</numberedListItem></blockcontainer>' +
+    '<blockcontainer id="6"><checkListItem checked="true">feito</checkListItem></blockcontainer>' +
+    '<blockcontainer id="7"><checkListItem checked="false">falta</checkListItem></blockcontainer>' +
+    '<blockcontainer id="8"><image url="data:x"></image></blockcontainer>' +
+    '<blockcontainer id="9"><codeBlock>const nao = contar</codeBlock></blockcontainer>' +
+    '<blockcontainer id="10"><paragraph></paragraph></blockcontainer>' +
+    '</blockgroup>'
+  const s = docStatsFromXml(xml)
+  assert.deepEqual(s.headings, [{ level: 1, text: 'Meu título' }, { level: 2, text: 'Lista' }])
+  assert.equal(s.sentences, 3) // the heading and the code are not sentences
+  assert.equal(s.paragraphs, 1) // the empty paragraph does not count
+  assert.deepEqual([s.bullets, s.numbered, s.images, s.codeBlocks], [1, 1, 1, 1])
+  assert.deepEqual(s.checks, { done: 1, total: 2 })
+  assert.equal(s.keywords[0].word, 'gato')
+  assert.equal(s.keywords[0].count, 4) // 3 in the paragraph + 1 in the list
+  assert.ok(!s.keywords.some((k) => k.word === 'contar')) // code is excluded
+  assert.ok(s.words > 15 && s.readingMin > 0 && s.speakingMin > s.readingMin)
+  assert.ok(s.uniqueRatio > 0 && s.uniqueRatio < 1)
+  assert.ok(['muito fácil', 'fácil'].includes(s.readingLevel)) // short sentences, short words
+  assert.equal(docStatsFromXml('').words, 0)
+  assert.equal(docStatsFromXml('').readingLevel, '—')
+
+  // from real stored bytes
+  const doc = new YY.Doc()
+  const frag = doc.getXmlFragment(DOCS_FRAGMENT)
+  const para = new YY.XmlElement('paragraph')
+  para.insert(0, [new YY.XmlText('uma frase simples aqui.')])
+  const bc = new YY.XmlElement('blockcontainer')
+  bc.insert(0, [para])
+  const bg = new YY.XmlElement('blockgroup')
+  bg.insert(0, [bc])
+  frag.insert(0, [bg])
+  const fromBytes = docStatsFromBytes(docsAdapter.open(YY.encodeStateAsUpdate(doc)).serialize())
+  assert.equal(fromBytes.words, 4)
+  assert.equal(fromBytes.sentences, 1)
+
+  const series = wordSeries([{ at: '2026-01-02T00:00:00Z', message: 'b', words: 30 }, { at: '2026-01-01T00:00:00Z', message: 'a', words: 10 }])
+  assert.deepEqual(series.map((p) => [p.words, p.delta]), [[10, 10], [30, 20]])
+  const ed = editSessions(['2026-01-01T10:00:00Z', '2026-01-01T10:10:00Z', '2026-01-01T15:00:00Z', '2026-01-01T15:05:00Z'])
+  assert.equal(ed.sessions, 2)
+  assert.equal(ed.activeMin, 15)
+  assert.deepEqual(editSessions([]), { sessions: 0, activeMin: 0 })
+})
+
+import { clipRange } from '../src/index'
+
+test('mix: copy/paste, duplicate, cut a range, reorder tracks, clip names', async () => {
+  const rt = new CreativeRuntime({ project: createProject('M'), store: new MemoryAssetStore(), adapters: [mixAdapter()] })
+  const item = await rt.create('mix', 'Mix')
+  const s = (await rt.openItem(item.id)) as MixSession
+  const a = s.addTrack('A')
+  const b = s.addTrack('B')
+  const c = s.addClip(a, 'h', 10, 2, 'voz.wav')
+  assert.equal(s.state.tracks[0].clips[0].name, 'voz.wav')
+  s.update((d) => Object.assign(d.tracks[0].clips[0], { fadeIn: 1, fadeOut: 2, gainDb: -3 }))
+
+  // range copy keeps the audio window and drops fades that are no longer at the clip's ends
+  const mid = clipRange(s.state.tracks[0].clips[0], 4, 7)
+  assert.deepEqual([mid.start, mid.in, mid.out, mid.fadeIn, mid.fadeOut, mid.gainDb, mid.name], [4, 2, 5, 0, 0, -3, 'voz.wav'])
+  const head = clipRange(s.state.tracks[0].clips[0], 0, 5) // starts before the clip: clamped to it
+  assert.deepEqual([head.start, head.in, head.out, head.fadeIn], [2, 0, 3, 1])
+  assert.throws(() => clipRange(s.state.tracks[0].clips[0], 4, 4.01), /too short/)
+  const pasted = s.pasteClip(b, mid, 20)
+  assert.deepEqual(s.state.tracks[1].clips.map((x) => [x.id === pasted, x.start, x.in, x.out]), [[true, 20, 2, 5]])
+  assert.notEqual(pasted, c)
+
+  const dup = s.duplicateClip(c)
+  assert.equal(s.state.tracks[0].clips.length, 2)
+  assert.equal(s.state.tracks[0].clips[1].id, dup)
+  assert.equal(s.state.tracks[0].clips[1].start, 12) // right after the original (2 + 10)
+  s.removeClip(dup)
+
+  // cutting the middle leaves two pieces in place; the right one keeps its audio alignment
+  s.removeRange(c, 4, 7)
+  assert.deepEqual(s.state.tracks[0].clips.map((x) => [x.start, x.in, x.out, x.fadeIn, x.fadeOut]), [[2, 0, 2, 1, 0], [7, 5, 10, 0, 2]])
+  // cutting from the left edge shifts start and in together
+  const right = s.state.tracks[0].clips[1].id
+  s.removeRange(right, 7, 8)
+  assert.deepEqual([s.state.tracks[0].clips[1].start, s.state.tracks[0].clips[1].in, s.state.tracks[0].clips[1].out], [8, 6, 10])
+  s.removeRange(right, 11, 20) // beyond the end is clamped: cuts the tail
+  assert.deepEqual([s.state.tracks[0].clips[1].start, s.state.tracks[0].clips[1].out], [8, 9])
+  s.removeRange(right, 0, 100) // the whole clip
+  assert.equal(s.state.tracks[0].clips.length, 1)
+  assert.throws(() => s.removeRange(s.state.tracks[0].clips[0].id, 3, 3.01), /too short/)
+  assert.throws(() => s.removeRange('nope', 0, 1), /Clip not found/)
+
+  s.moveTrack(b, 0)
+  assert.deepEqual(s.state.tracks.map((t) => t.name), ['B', 'A'])
+  s.moveTrack(b, 99) // clamped to the end
+  assert.deepEqual(s.state.tracks.map((t) => t.name), ['A', 'B'])
+  assert.throws(() => s.moveTrack('nope', 0), /Track not found/)
+})

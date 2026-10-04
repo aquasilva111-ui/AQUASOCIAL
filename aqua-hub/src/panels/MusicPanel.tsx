@@ -6,6 +6,8 @@ import { renderSong } from 'aqua-runtime/src/render/music'
 import { download, runtime } from '../hub'
 import { playOnce, usePlayer } from './audio-play'
 import { UndoRedo, useSession } from './hooks'
+import { IconButton } from './Icon'
+import MelodyLab from './MelodyLab'
 
 const LOW = 36 // C2
 const HIGH = 96 // C7 (exclusive)
@@ -15,7 +17,7 @@ const RULER = 20
 const EDGE = 7 // px at a note's right edge that resize instead of move
 const NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 const BLACK = new Set([1, 3, 6, 8, 10])
-const COLORS = ['#002BEF', '#F04C24', '#0A8F6A', '#9333EA', '#C2410C', '#0E7490']
+const COLORS = ['#ff5a8a', '#ffb703', '#2ee6a6', '#4cc9f0', '#b388ff', '#ff8a4c']
 
 type Drag = { mode: 'move' | 'resize'; index: number; x0: number; y0: number; note: Note }
 
@@ -30,6 +32,7 @@ export default function MusicPanel({ itemId }: { itemId: string }) {
   const [snap, setSnap] = useState(0.25) // beats
   const [bw, setBw] = useState(56) // pixels per beat
   const [url, setUrl] = useState<string | null>(null)
+  const [lab, setLab] = useState(false)
   const cv = useRef<HTMLCanvasElement>(null)
   const scroller = useRef<HTMLDivElement>(null)
   const drag = useRef<Drag | null>(null)
@@ -59,15 +62,15 @@ export default function MusicPanel({ itemId }: { itemId: string }) {
     const g = c.getContext('2d')!
     g.clearRect(0, 0, W, H)
     for (let p = LOW; p < HIGH; p++) {
-      g.fillStyle = BLACK.has(p % 12) ? '#EFF2F6' : '#fff'
+      g.fillStyle = BLACK.has(p % 12) ? '#11151c' : '#171c26'
       g.fillRect(KEYS, yOf(p), W - KEYS, ROW)
       if (p % 12 === 0) {
-        g.fillStyle = '#DCE2EA'
+        g.fillStyle = '#2b3547'
         g.fillRect(KEYS, yOf(p) + ROW - 1, W - KEYS, 1)
       }
     }
     for (let b = 0; b <= beats; b += snap) {
-      g.strokeStyle = b % song.beatsPerBar === 0 ? '#9FB0C6' : b % 1 === 0 ? '#DCE2EA' : '#EFF2F6'
+      g.strokeStyle = b % song.beatsPerBar === 0 ? '#3d4a63' : b % 1 === 0 ? '#232c3c' : '#1b2230'
       g.lineWidth = 1
       g.beginPath()
       g.moveTo(xOf(b) + 0.5, RULER)
@@ -75,16 +78,16 @@ export default function MusicPanel({ itemId }: { itemId: string }) {
       g.stroke()
     }
     // ruler (bars) + piano
-    g.fillStyle = '#EFF2F6'
+    g.fillStyle = '#10141b'
     g.fillRect(0, 0, W, RULER)
-    g.fillStyle = '#405168'
+    g.fillStyle = '#8a97ad'
     g.font = '11px sans-serif'
     for (let b = 0; b < beats; b += song.beatsPerBar) g.fillText(String(b / song.beatsPerBar + 1), xOf(b) + 4, 14)
     for (let p = LOW; p < HIGH; p++) {
-      g.fillStyle = BLACK.has(p % 12) ? '#1C2736' : '#fff'
-      g.fillRect(0, yOf(p), KEYS, ROW - 1)
+      g.fillStyle = BLACK.has(p % 12) ? '#0b0e13' : '#d9dee8'
+      g.fillRect(0, yOf(p), KEYS - (BLACK.has(p % 12) ? 14 : 0), ROW - 1)
       if (p % 12 === 0) {
-        g.fillStyle = '#405168'
+        g.fillStyle = '#3d4a63'
         g.fillText(`C${Math.floor(p / 12) - 1}`, 6, yOf(p) + 12)
       }
     }
@@ -93,19 +96,24 @@ export default function MusicPanel({ itemId }: { itemId: string }) {
       t.notes.forEach((n, i) => {
         if (n.pitch < LOW || n.pitch >= HIGH) return
         const color = COLORS[ti % COLORS.length]
-        g.globalAlpha = t.muted ? 0.15 : active ? 1 : 0.3
+        g.globalAlpha = t.muted ? 0.15 : active ? 0.55 + n.velocity * 0.45 : 0.28
+        const [nx, ny, nw, nh] = [xOf(n.beat) + 1, yOf(n.pitch) + 1, Math.max(4, n.length * bw - 2), ROW - 2]
         g.fillStyle = color
-        g.fillRect(xOf(n.beat) + 1, yOf(n.pitch) + 1, Math.max(4, n.length * bw - 2), ROW - 2)
+        g.beginPath()
+        g.roundRect(nx, ny, nw, nh, 4)
+        g.fill()
         g.globalAlpha = 1
         if (active && i === sel) {
-          g.strokeStyle = '#000'
+          g.strokeStyle = '#fff'
           g.lineWidth = 2
-          g.strokeRect(xOf(n.beat) + 1, yOf(n.pitch) + 1, Math.max(4, n.length * bw - 2), ROW - 2)
+          g.beginPath()
+          g.roundRect(nx, ny, nw, nh, 4)
+          g.stroke()
         }
       })
     })
     const px = xOf(player.pos / secPerBeat)
-    g.fillStyle = '#F04C24'
+    g.fillStyle = '#ff5a36'
     g.fillRect(px, 0, 2, H)
   })
 
@@ -185,68 +193,89 @@ export default function MusicPanel({ itemId }: { itemId: string }) {
   const selected = track && sel !== null ? track.notes[sel] : undefined
   const setTrack = (id: string, f: Partial<Track>) => session.update((d) => void Object.assign(d.tracks.find((t) => t.id === id)!, f))
 
+  const beatNo = Math.floor(player.pos / secPerBeat)
+  const lcd = `${Math.floor(beatNo / song.beatsPerBar) + 1}.${(beatNo % song.beatsPerBar) + 1}`
+  const go = () => (player.playing ? player.stop() : void player.play(player.pos))
+
   return (
     <div
+      className="studio"
       tabIndex={0}
       style={{ outline: 'none' }}
       onKeyDown={(e) => {
         if (['INPUT', 'SELECT'].includes((e.target as HTMLElement).tagName)) return
-        if (e.key === ' ') (e.preventDefault(), player.playing ? player.stop() : void player.play(player.pos))
+        if (e.key === ' ') (e.preventDefault(), go())
         else if (e.key === 'Delete' || e.key === 'Backspace') remove()
       }}
     >
-      <div className="row">
-        <button className="primary" onClick={() => (player.playing ? player.stop() : void player.play(player.pos))}>{player.playing ? 'Parar' : 'Tocar'}</button>
-        <button onClick={() => (player.stop(), player.seek(0))}>Início</button>
-        <label className="field">BPM <input type="number" min={40} max={240} value={song.bpm} style={{ width: 64 }} onChange={(e) => session.update((d) => void (d.bpm = Math.max(40, Math.min(240, +e.target.value || 120))))} /></label>
-        <label className="field">Compassos <input type="number" min={1} max={64} value={song.bars} style={{ width: 64 }} onChange={(e) => session.update((d) => void (d.bars = Math.max(1, Math.min(64, +e.target.value || 8))))} /></label>
-        <label className="field">Grade
+      <div className="transport">
+        <IconButton icon="toStart" label="Voltar ao início" onClick={() => (player.stop(), player.seek(0))} />
+        <IconButton variant="play" icon={player.playing ? 'stop' : 'play'} label="Tocar / parar (espaço)" active={player.playing} onClick={go} />
+        <div className="lcd">{lcd}<small>{player.pos.toFixed(1)} s</small></div>
+        <label className="pill">BPM <input type="number" min={40} max={240} value={song.bpm} onChange={(e) => session.update((d) => void (d.bpm = Math.max(40, Math.min(240, +e.target.value || 120))))} /></label>
+        <label className="pill">Compassos <input type="number" min={1} max={64} value={song.bars} onChange={(e) => session.update((d) => void (d.bars = Math.max(1, Math.min(64, +e.target.value || 8))))} /></label>
+        <label className="pill">Grade
           <select value={snap} onChange={(e) => setSnap(+e.target.value)}>
             <option value={1}>1/4</option><option value={0.5}>1/8</option><option value={0.25}>1/16</option><option value={0.125}>1/32</option>
           </select>
         </label>
-        <label className="field">Zoom <input type="range" min={24} max={140} value={bw} onChange={(e) => setBw(+e.target.value)} /></label>
+        <label className="pill">Zoom <input type="range" min={24} max={140} value={bw} onChange={(e) => setBw(+e.target.value)} /></label>
+        <span className="spacer" />
+        <IconButton variant={lab ? 'primary' : 'pill'} icon="mic" text="Melody Lab" label="Melody Lab: cantar uma ideia" active={lab} onClick={() => setLab((v) => !v)} />
         <UndoRedo itemId={itemId} refresh={refresh} />
         <button onClick={async () => {
           const out = await runtime.exportForLaunch(itemId, 'audio')
           if (out) setUrl(URL.createObjectURL(new Blob([out.bytes as BlobPart], { type: out.mime })))
         }}>Gerar áudio</button>
-        <button onClick={async () => {
+        <button className="primary" onClick={async () => {
           const out = await runtime.exportForLaunch(itemId, 'audio')
           if (out) download(out.bytes, 'musica.wav', out.mime)
         }}>Baixar WAV</button>
       </div>
-      {url && <audio controls src={url} />}
+      {url && <div style={{ padding: '10px 16px 0' }}><audio controls src={url} style={{ width: '100%' }} /></div>}
 
-      <div style={{ margin: '8px 0' }}>
-        {song.tracks.map((t, ti) => (
-          <div className="row" key={t.id} style={{ borderLeft: `4px solid ${COLORS[ti % COLORS.length]}`, paddingLeft: 8, background: t.id === track?.id ? 'var(--surface)' : undefined, borderRadius: 6 }} onPointerDown={() => setTrackId(t.id)}>
-            <input value={t.name} style={{ width: 110 }} onChange={(e) => setTrack(t.id, { name: e.target.value })} />
-            <select value={t.instrument} onChange={(e) => setTrack(t.id, { instrument: e.target.value as Track['instrument'] })}>
-              <option value="synth">Synth</option><option value="pluck">Pluck</option><option value="membrane">Percussão</option><option value="sampler">Quadrada</option>
-            </select>
-            <label className="field">Volume <input type="range" min={-30} max={6} step={1} value={t.volumeDb} onChange={(e) => setTrack(t.id, { volumeDb: +e.target.value })} /> {t.volumeDb} dB</label>
-            <button style={t.muted ? { background: 'var(--orange)', color: '#fff' } : undefined} onClick={() => setTrack(t.id, { muted: !t.muted })}>M</button>
-            <button style={t.solo ? { background: 'var(--blue)', color: '#fff' } : undefined} onClick={() => setTrack(t.id, { solo: !t.solo })}>S</button>
-            <button onClick={() => { session.removeTrack(t.id); setTrackId(undefined); setSel(null) }}>Remover</button>
-          </div>
-        ))}
-        <div className="row">
-          <button onClick={() => { setTrackId(session.addTrack(`Faixa ${song.tracks.length + 1}`)); setSel(null) }}>+ Faixa</button>
-          {selected && (
-            <>
-              <span className="note">Nota: {NAMES[selected.pitch % 12]}{Math.floor(selected.pitch / 12) - 1}</span>
-              <label className="field">Intensidade <input type="range" min={0.1} max={1} step={0.05} value={selected.velocity} onChange={(e) => session.updateNote(track!.id, sel!, { velocity: +e.target.value })} /></label>
-              <button onClick={remove}>Apagar nota</button>
-            </>
-          )}
+      {lab && (
+        <MelodyLab
+          session={session}
+          onClose={() => setLab(false)}
+          onSent={(id, notes) => {
+            // Show what was just sent: select the new track and scroll the roll to the notes.
+            setTrackId(id)
+            setSel(null)
+            const mid = notes.length ? notes.reduce((a, n) => a + n.pitch, 0) / notes.length : 72
+            setTimeout(() => scroller.current?.scrollTo({ top: Math.max(0, yOf(mid) - 190), behavior: 'smooth' }), 150)
+          }}
+        />
+      )}
+
+      {song.tracks.map((t, ti) => (
+        <div className={'trackrow' + (t.id === track?.id ? ' on' : '')} key={t.id} style={{ ['--c' as string]: COLORS[ti % COLORS.length] }} onPointerDown={() => setTrackId(t.id)}>
+          <input className="tname" value={t.name} onChange={(e) => setTrack(t.id, { name: e.target.value })} />
+          <select value={t.instrument} onChange={(e) => setTrack(t.id, { instrument: e.target.value as Track['instrument'] })}>
+            <option value="synth">Synth</option><option value="pluck">Pluck</option><option value="membrane">Percussão</option><option value="sampler">Quadrada</option>
+          </select>
+          <button className={'chip' + (t.muted ? ' on-m' : '')} title="Mudo" onClick={() => setTrack(t.id, { muted: !t.muted })}>M</button>
+          <button className={'chip' + (t.solo ? ' on-s' : '')} title="Solo" onClick={() => setTrack(t.id, { solo: !t.solo })}>S</button>
+          <label className="pill" style={{ border: 0, background: 'transparent' }}>vol <input type="range" min={-30} max={6} step={1} value={t.volumeDb} onChange={(e) => setTrack(t.id, { volumeDb: +e.target.value })} /> {t.volumeDb} dB</label>
+          <span className="spacer" />
+          <IconButton variant="round" className="sm danger" icon="trash" label="Remover faixa" onClick={() => { session.removeTrack(t.id); setTrackId(undefined); setSel(null) }} />
         </div>
+      ))}
+      <div className="transport" style={{ position: 'static', background: 'transparent', borderBottom: 0, paddingTop: 10 }}>
+        <IconButton variant="pill" icon="plus" text="Adicionar faixa" label="Adicionar faixa" onClick={() => { setTrackId(session.addTrack(`Faixa ${song.tracks.length + 1}`)); setSel(null) }} />
+        {selected && (
+          <>
+            <span className="pill">Nota {NAMES[selected.pitch % 12]}{Math.floor(selected.pitch / 12) - 1}</span>
+            <label className="pill">Intensidade <input type="range" min={0.1} max={1} step={0.05} value={selected.velocity} onChange={(e) => session.updateNote(track!.id, sel!, { velocity: +e.target.value })} /></label>
+            <IconButton variant="pill" icon="trash" text="Apagar nota" label="Apagar nota" onClick={remove} />
+          </>
+        )}
       </div>
       {!song.tracks.length ? (
-        <p className="note">Adicione uma faixa. Clique na grade para criar notas e arraste para esticar; arraste uma nota para movê-la, pela borda direita para redimensionar; clique no teclado para ouvir; clique na régua para posicionar o cursor. Espaço toca, Delete apaga.</p>
+        <div className="empty-hint">Adicione uma faixa para começar. Clique na grade para criar notas e arraste para esticar; arraste uma nota para movê-la, pela borda direita para redimensionar; clique no teclado para ouvir; clique na régua para posicionar. Espaço toca, Delete apaga.</div>
       ) : (
-        <div ref={scroller} style={{ overflow: 'auto', maxHeight: 420, border: '1px solid var(--line)', borderRadius: 8 }}>
-          <canvas ref={cv} onPointerDown={down} onPointerMove={move} onPointerUp={up} style={{ cursor: 'crosshair', maxWidth: 'none', border: 0, borderRadius: 0, display: 'block', touchAction: 'none' }} />
+        <div className="roll" ref={scroller} style={{ maxHeight: 440 }}>
+          <canvas ref={cv} onPointerDown={down} onPointerMove={move} onPointerUp={up} style={{ cursor: 'crosshair', maxWidth: 'none', border: 0, borderRadius: 0, display: 'block', touchAction: 'none', background: 'transparent' }} />
         </div>
       )}
     </div>

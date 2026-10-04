@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 1100" role="img" aria-label="Aqua">
+  <style>
+    .eye { transform-box: fill-box; transform-origin: center; animation: blink-load 0.4s ease-in-out 0.3s 1; }
+    svg:hover .eye { animation: blink-hover 0.4s ease-in-out 1; }
+    @keyframes blink-load  { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(0.05); } }
+    @keyframes blink-hover { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(0.05); } }
+    @media (prefers-reduced-motion: reduce) { .eye { animation: none !important; } }
+  </style>
+  <circle cx="550" cy="550" r="510" fill="#002AF0"/>
+  <g class="eye">
+    <circle cx="550" cy="500" r="320" fill="#fff"/>
+    <circle cx="550" cy="500" r="205" fill="#00A0FF"/>
+    <circle cx="550" cy="500" r="96" fill="#000"/>
+  </g>
+</svg>

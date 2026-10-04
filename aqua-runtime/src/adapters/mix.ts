@@ -11,6 +11,8 @@ import { jsonSession, parseJson, type JsonSession } from './json'
 export interface MixClip {
   id: string
   asset: string
+  /** Label shown on the clip (usually the file name). */
+  name?: string
   /** Seconds on the timeline where the clip starts. */
   start: number
   /** Window inside the source, seconds. */
@@ -41,7 +43,14 @@ export interface Mix {
 export type MixSession = JsonSession<Mix> & {
   addTrack(name?: string): string
   removeTrack(trackId: string): void
-  addClip(trackId: string, asset: string, durationSec: number, start?: number): string
+  addClip(trackId: string, asset: string, durationSec: number, start?: number, name?: string): string
+  /** Puts a copy of `clip` (as returned by `clipRange` or taken from the mix) on a track at `start`; returns the new id. */
+  pasteClip(trackId: string, clip: Omit<MixClip, 'id'>, start: number): string
+  /** Copy of a clip right after it on the same track; returns the new id. */
+  duplicateClip(clipId: string): string
+  /** Cuts the timeline range out of a clip, leaving what is before and after it where it was (no ripple). */
+  removeRange(clipId: string, fromSec: number, toSec: number): void
+  moveTrack(trackId: string, toIndex: number): void
   /** Moves a clip on the timeline and optionally to another track. */
   moveClip(clipId: string, start: number, toTrackId?: string): void
   /** Changes the source window; the clip stays in place against the audio (start shifts with `in`). */
@@ -54,6 +63,15 @@ export type MixSession = JsonSession<Mix> & {
 }
 
 export const defaultMix = (title: string): Mix => ({ title, masterDb: 0, tracks: [] })
+
+/** The part of a clip between two timeline seconds, as clip data (for copy and paste). */
+export function clipRange(clip: MixClip, fromSec: number, toSec: number): Omit<MixClip, 'id'> {
+  const a = Math.max(clip.start, Math.min(fromSec, toSec))
+  const b = Math.min(clip.start + (clip.out - clip.in), Math.max(fromSec, toSec))
+  if (b - a < 0.05) throw new Error('Range too short')
+  const { id: _id, ...rest } = clip
+  return { ...rest, start: a, in: clip.in + (a - clip.start), out: clip.in + (b - clip.start), fadeIn: a === clip.start ? clip.fadeIn : 0, fadeOut: b === clip.start + (clip.out - clip.in) ? clip.fadeOut : 0 }
+}
 
 export const mixDuration = (m: Mix) => m.tracks.flatMap((t) => t.clips).reduce((d, c) => Math.max(d, c.start + (c.out - c.in)), 0)
 
@@ -101,11 +119,57 @@ export function mixAdapter(opts: MixAdapterOptions = {}): ToolAdapter {
       return tid
     }
     s.removeTrack = (tid) => s.update((d) => void (d.tracks = d.tracks.filter((t) => t.id !== tid)))
-    s.addClip = (tid, asset, durationSec, start = 0) => {
+    s.addClip = (tid, asset, durationSec, start = 0, name) => {
       const cid = id('clp')
-      s.update((d) => void track(d, tid).clips.push({ id: cid, asset, start: Math.max(0, start), in: 0, out: durationSec, gainDb: 0, fadeIn: 0, fadeOut: 0 }))
+      s.update((d) => void track(d, tid).clips.push({ id: cid, asset, ...(name ? { name } : {}), start: Math.max(0, start), in: 0, out: durationSec, gainDb: 0, fadeIn: 0, fadeOut: 0 }))
       return cid
     }
+    s.pasteClip = (tid, clip, start) => {
+      const cid = id('clp')
+      s.update((d) => void track(d, tid).clips.push({ ...structuredClone(clip), id: cid, start: Math.max(0, start) }))
+      return cid
+    }
+    s.duplicateClip = (clipId) => {
+      const cid = id('clp')
+      s.update((d) => {
+        const { track: t, clip } = find(d, clipId)
+        t.clips.push({ ...structuredClone(clip), id: cid, start: clip.start + (clip.out - clip.in) })
+      })
+      return cid
+    }
+    s.removeRange = (clipId, fromSec, toSec) => {
+      const nid = id('clp')
+      s.update((d) => {
+        const { track: t, index, clip } = find(d, clipId)
+        const end = clip.start + (clip.out - clip.in)
+        const a = Math.max(clip.start, Math.min(fromSec, toSec))
+        const b = Math.min(end, Math.max(fromSec, toSec))
+        if (b - a < 0.05) throw new Error('Range too short')
+        const leftLen = a - clip.start
+        const rightLen = end - b
+        if (leftLen < 0.05 && rightLen < 0.05) return void t.clips.splice(index, 1) // the range is the whole clip
+        if (leftLen < 0.05) {
+          clip.in += b - clip.start // cut from the left: the rest stays where it was heard
+          clip.start = b
+          clip.fadeIn = 0
+        } else if (rightLen < 0.05) {
+          clip.out = clip.in + leftLen
+          clip.fadeOut = 0
+        } else {
+          const right: MixClip = { ...structuredClone(clip), id: nid, start: b, in: clip.in + (b - clip.start), fadeIn: 0 }
+          clip.out = clip.in + leftLen
+          clip.fadeOut = 0
+          t.clips.splice(index + 1, 0, right)
+        }
+      })
+    }
+    s.moveTrack = (tid, toIndex) =>
+      s.update((d) => {
+        const from = d.tracks.findIndex((x) => x.id === tid)
+        if (from < 0) throw new Error(`Track not found: ${tid}`)
+        const [t] = d.tracks.splice(from, 1)
+        d.tracks.splice(Math.max(0, Math.min(toIndex, d.tracks.length)), 0, t)
+      })
     s.moveClip = (cid, start, toTrackId) =>
       s.update((d) => {
         const f = find(d, cid)

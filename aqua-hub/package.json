@@ -12,8 +12,13 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@blocknote/core": "^0.55.0",
+    "@blocknote/mantine": "^0.55.0",
+    "@blocknote/react": "^0.55.0",
     "@fontsource/inter": "^5.0.0",
     "@huggingface/transformers": "^4.3.0",
+    "@mantine/core": "^8.3.18",
+    "@mantine/hooks": "^8.3.18",
     "@univerjs/preset-sheets-core": "*",
     "@univerjs/presets": "*",
     "aqua-design-core": "file:../aqua-design-core",
@@ -21,7 +26,8 @@
     "aqua-runtime": "file:../aqua-runtime",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "reveal.js": "^6.0.2"
+    "reveal.js": "^6.0.2",
+    "yjs": "^13.6.33"
   },
   "devDependencies": {
     "@types/react": "^18.3.0",

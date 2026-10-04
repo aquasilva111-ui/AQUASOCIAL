@@ -5,6 +5,8 @@ import {
   chapterAccess,
   chapterPath,
   chapterToCards,
+  collectionColumns,
+  collectionItems,
   countWords,
   filterByGenre,
   genreLabel,
@@ -345,5 +347,25 @@ describe('characters and audience', () => {
     const b = normalizeBook({title: 'T', audience: 'x'})
     expect(b?.audience).toBeUndefined()
     expect(b?.characters).toEqual([])
+  })
+})
+
+describe('collection grid', () => {
+  it('merges tabs without duplicates', () => {
+    const r = [{uri: 'a'}, {uri: 'b'}]
+    const m = [{uri: 'b'}, {uri: 'c'}]
+    expect(collectionItems(r, m, 'all').map(x => x.uri)).toEqual([
+      'a',
+      'b',
+      'c',
+    ])
+    expect(collectionItems(r, m, 'mine')).toHaveLength(2)
+    expect(collectionItems(r, m, 'reading')).toHaveLength(2)
+  })
+  it('picks columns by width', () => {
+    expect(collectionColumns(360)).toBe(2)
+    expect(collectionColumns(500)).toBe(3)
+    expect(collectionColumns(700)).toBe(4)
+    expect(collectionColumns(1000)).toBe(5)
   })
 })

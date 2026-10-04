@@ -90,6 +90,15 @@
         "cd /Users/aequasamuel/Downloads/workspace-01a0ae04-5060-7695-9f01-6d4cc7927cd3/AQUASOCIAL/aqua-shops && AQUA_SHOPS_API=http://127.0.0.1:9100 node node_modules/nuxt/bin/nuxt.mjs dev --port 5194"
       ],
       "port": 5194
+    },
+    {
+      "name": "aqua-docs",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": [
+        "-c",
+        "cd aqua-docs && ./node_modules/.bin/vite --port 5193"
+      ],
+      "port": 5193
     }
   ]
 }

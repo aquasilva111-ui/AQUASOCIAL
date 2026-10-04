@@ -6,4 +6,8 @@ export default defineConfig({
   server: {
     port: 5174,
   },
+  // Uma única cópia do Yjs: sem isso o pré-empacotamento embute outra dentro do chunk do BlockNote e
+  // as edições do editor nunca chegam ao Y.Doc ("Unexpected content type in insert operation").
+  resolve: {dedupe: ['yjs']},
+  optimizeDeps: {include: ['yjs']},
 })

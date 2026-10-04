@@ -60,6 +60,7 @@ export function BooksHomeScreen() {
           <PillLink to="/reads" label="Feed Reads" />
           {hasSession && (
             <>
+              <PillLink to="/books/collection" label="Minha coleção" />
               <PillLink to="/books/studio" label="Escrever" primary={false} />
               <PillLink
                 to="/books/studio/book/new"

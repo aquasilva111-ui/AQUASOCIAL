@@ -96,6 +96,7 @@ import {
   BookChapterScreen,
   BookDetailScreen,
   BookEditScreen,
+  BooksCollectionScreen,
   BooksHomeScreen,
   BooksStudioScreen,
   ChapterEditScreen,
@@ -131,6 +132,7 @@ import {ModerationScreen} from '#/screens/Moderation'
 import {Screen as ModerationVerificationSettings} from '#/screens/Moderation/VerificationSettings'
 import {Screen as ModerationInteractionSettings} from '#/screens/ModerationInteractionSettings'
 import {MusicScreen} from '#/screens/Music'
+import {NewsAtlasScreen} from '#/screens/NewsAtlas'
 import {NotificationsActivityListScreen} from '#/screens/Notifications/ActivityList'
 import {PostLikedByScreen} from '#/screens/Post/PostLikedBy'
 import {PostQuotesScreen} from '#/screens/Post/PostQuotes'
@@ -734,6 +736,11 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
         options={{title: 'Música'}}
       />
       <Stack.Screen
+        name="NewsAtlas"
+        component={NewsAtlasScreen}
+        options={{title: 'Notícias e Convenções'}}
+      />
+      <Stack.Screen
         name="Reads"
         component={ReadsFeedScreen}
         options={{title: 'Reads'}}
@@ -742,6 +749,11 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
         name="Books"
         component={BooksHomeScreen}
         options={{title: 'Reads · Biblioteca'}}
+      />
+      <Stack.Screen
+        name="BooksCollection"
+        component={BooksCollectionScreen}
+        options={{title: 'Minha coleção', requireAuth: true}}
       />
       <Stack.Screen
         name="BooksStudio"

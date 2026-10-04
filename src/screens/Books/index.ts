@@ -1,6 +1,7 @@
 export {BookChapterScreen} from './BookChapterScreen'
 export {BookDetailScreen} from './BookDetailScreen'
 export {BookEditScreen} from './BookEditScreen'
+export {BooksCollectionScreen} from './BooksCollectionScreen'
 export {BooksHomeScreen} from './BooksHomeScreen'
 export {BooksStudioScreen} from './BooksStudioScreen'
 export {ChapterEditScreen} from './ChapterEditScreen'

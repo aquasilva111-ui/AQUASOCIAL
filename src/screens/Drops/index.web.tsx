@@ -1,25 +1,30 @@
 /* eslint-disable bsky-internal/avoid-unwrapped-text -- plain DOM elements, web only */
 import {useEffect, useRef, useState} from 'react'
 import {View} from 'react-native'
+import {AtUri} from '@atproto/api'
 import {useNavigation} from '@react-navigation/native'
 
 import {type NavigationProp} from '#/lib/routes/types'
 import {POST_TOMBSTONE, usePostShadow} from '#/state/cache/post-shadow'
 import {ThemeProvider, useBreakpoints} from '#/alf'
 import {SearchInput} from '#/components/forms/SearchInput'
+import {Bubble_Stroke2_Corner2_Rounded as CommentIcon} from '#/components/icons/Bubble'
 import {
   Heart2_Filled_Stroke2_Corner0_Rounded as HeartFilled,
   Heart2_Stroke2_Corner0_Rounded as Heart,
 } from '#/components/icons/Heart2'
+import {Repost_Stroke2_Corner2_Rounded as RepostIcon} from '#/components/icons/Repost'
 import {StoriesTray} from '#/components/stories/StoriesTray'
 import {loadHls} from '#/components/view-watch/hls.web'
 import {type Drop} from './data'
 import {useDropLike} from './useDropLike'
+import {useDropRepost} from './useDropRepost'
 import {useDropsFeed} from './useDropsFeed'
 
 /** Web layout, like TikTok on desktop: a centered 9:16 card with the actions beside it. */
 
 const LIKE = '#FF7A00'
+const REPOST = '#20BC07'
 const AQUA = '#1185FE'
 /** The fixed bottom dock overlays the feed; keep the card clear of it. */
 const DOCK_CLEARANCE = 128
@@ -40,6 +45,39 @@ const circle: React.CSSProperties = {
   placeItems: 'center',
   cursor: 'pointer',
   padding: 0,
+}
+
+/**
+ * Rounded, filled speaker: with an X when muted, with three waves when the
+ * sound is on. Drawn on a 24px grid, white, so it follows the button size.
+ */
+function SoundIcon({on, size = 20}: {on: boolean; size?: number}) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+      focusable="false">
+      <path
+        d="M3.5 9.6c0-.9.7-1.6 1.6-1.6h2.6l4.2-3.5a.95.95 0 0 1 1.55.73v13.54a.95.95 0 0 1-1.55.73L7.7 16H5.1a1.6 1.6 0 0 1-1.6-1.6V9.6Z"
+        fill="#fff"
+      />
+      {on ? (
+        <g stroke="#fff" strokeWidth="1.9" strokeLinecap="round">
+          <path d="M15.9 9.7a3.5 3.5 0 0 1 0 4.6" />
+          <path d="M18.3 7.5a6.6 6.6 0 0 1 0 9" />
+          <path d="M20.6 5.5a9.6 9.6 0 0 1 0 13" />
+        </g>
+      ) : (
+        <g stroke="#fff" strokeWidth="1.9" strokeLinecap="round">
+          <path d="M16.6 9.6l4.8 4.8" />
+          <path d="M21.4 9.6l-4.8 4.8" />
+        </g>
+      )}
+    </svg>
+  )
 }
 
 function Slide(props: {
@@ -70,6 +108,13 @@ function SlideInner({
   post: Parameters<typeof useDropLike>[0]
 }) {
   const {liked, likeCount, toggle} = useDropLike(post)
+  const {reposted, repostCount, toggle: toggleRepost} = useDropRepost(post)
+  const navigation = useNavigation<NavigationProp>()
+  const openComments = () =>
+    navigation.navigate('PostThread', {
+      name: post.author.handle,
+      rkey: new AtUri(post.uri).rkey,
+    })
   const video = useRef<HTMLVideoElement>(null)
   const bar = useRef<HTMLDivElement>(null)
   const [paused, setPaused] = useState(false)
@@ -209,9 +254,8 @@ function SlideInner({
             top: 12,
             left: 12,
             background: 'rgba(0,0,0,0.4)',
-            fontSize: 16,
           }}>
-          {muted ? '🔇' : '🔊'}
+          <SoundIcon on={!muted} />
         </button>
         {paused ? (
           <div
@@ -299,6 +343,33 @@ function SlideInner({
           </button>
           <span style={{fontSize: 12, fontWeight: 600}}>
             {compact(likeCount)}
+          </span>
+        </div>
+        <div style={{display: 'grid', justifyItems: 'center', gap: 4}}>
+          <button
+            type="button"
+            aria-label="Comentários"
+            onClick={openComments}
+            style={circle}>
+            <CommentIcon width={26} style={{color: '#fff'}} />
+          </button>
+          <span style={{fontSize: 12, fontWeight: 600}}>
+            {compact(post.replyCount ?? 0)}
+          </span>
+        </div>
+        <div style={{display: 'grid', justifyItems: 'center', gap: 4}}>
+          <button
+            type="button"
+            aria-label={reposted ? 'Desfazer republicação' : 'Republicar'}
+            onClick={toggleRepost}
+            style={circle}>
+            <RepostIcon
+              width={26}
+              style={{color: reposted ? REPOST : '#fff'}}
+            />
+          </button>
+          <span style={{fontSize: 12, fontWeight: 600}}>
+            {compact(repostCount)}
           </span>
         </div>
         <div style={{display: 'grid', justifyItems: 'center', gap: 4}}>

@@ -25,18 +25,30 @@ export function BookCover({
   title,
   url,
   width,
+  ratio = 1.45,
+  flat,
 }: {
   title: string
   url?: string
   width: number
+  /** height / width */
+  ratio?: number
+  /** Square corners and a soft shadow, for the collection grid. */
+  flat?: boolean
 }) {
-  const height = Math.round(width * 1.45)
+  const height = Math.round(width * ratio)
   return (
     <View
       style={[
-        a.rounded_sm,
+        flat ? null : a.rounded_sm,
         a.overflow_hidden,
         {width, height, backgroundColor: colorFor(title)},
+        flat && {
+          shadowColor: '#000',
+          shadowOpacity: 0.18,
+          shadowRadius: 8,
+          shadowOffset: {width: 0, height: 4},
+        },
       ]}
       accessibilityLabel={`Capa de ${title}`}
       accessibilityHint=""

@@ -1,0 +1,1 @@
+export {NewsAtlasScreen} from './NewsAtlasScreen'

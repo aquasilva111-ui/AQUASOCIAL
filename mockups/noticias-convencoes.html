@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Notícias e Convenções — Aqua</title>
+<style>
+/* Wireframe-driven: editorial, asymmetric. NOTÍCIAS = material/factual (blocks). CONVENÇÕES = abstract/relational (network art on dark). */
+:root{
+  --bg:#f8f8f8; --ink:#000; --muted:#5d6675; --line:#d9dde6;
+  --aqua:#00a0ff; --aqua-deep:#002af0; --btn:#0045f0;
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font)}
+.page{max-width:1366px;margin:0 auto;padding:28px 40px 80px}
+
+/* header */
+.head{display:grid;grid-template-columns:1fr minmax(260px,340px) 1fr;align-items:start;gap:24px;min-height:150px}
+.brand{width:68px;height:68px;display:block}
+.search{display:flex;align-items:center;gap:10px;height:40px;border:2px solid var(--ink);border-radius:99px;padding:0 14px;background:#fff;margin-top:6px}
+.search svg{width:20px;height:20px;flex:none}
+.search input{border:0;outline:0;background:transparent;flex:1;min-width:0;font:500 15px var(--font)}
+.globe{justify-self:end;position:relative;width:240px;height:200px;margin-top:-4px}
+.globe canvas{width:100%;height:100%}
+
+h2.sec{margin:0;font-size:52px;line-height:1;letter-spacing:-.045em;font-weight:900;color:var(--aqua)}
+.sec-wrap{display:flex;align-items:baseline;gap:16px;margin:0 0 18px}
+.sec-wrap small{color:var(--muted);font-size:13px;max-width:44ch;line-height:1.4}
+
+/* NEWS mosaic */
+.news-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:28px 24px;align-items:start;margin-bottom:70px}
+.n{transition:opacity .2s}
+.n h3{margin:0 0 6px;font-size:19px;line-height:1.18;letter-spacing:-.02em;font-weight:900}
+.n .meta{font-size:12px;color:var(--muted);margin-bottom:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.n .meta b{color:var(--ink)}
+.live-dot{width:7px;height:7px;border-radius:50%;background:#ff3b30;display:inline-block;animation:pu 1.3s infinite}
+@keyframes pu{50%{opacity:.25}}
+.n p{margin:0 0 10px;font-size:13.5px;line-height:1.45;color:#222}
+.rel{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.rel span{font-size:11px;font-weight:700;padding:3px 9px;border-radius:99px;background:#000;color:#fff;cursor:pointer;transition:background .15s}
+.rel span:hover{background:var(--aqua-deep)}
+.img{border:2px solid var(--ink);border-radius:22px;background:#fff;overflow:hidden;position:relative}
+.img.art:before{content:"";position:absolute;inset:0;background:var(--g)}
+.img.art:after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(118deg,#ffffff30 0 2px,transparent 2px 12px)}
+.img.empty{background:#fff}
+.img i{position:absolute;left:12px;bottom:10px;font:800 11px var(--font);letter-spacing:.08em;color:#fff;text-transform:uppercase;z-index:1;mix-blend-mode:normal}
+.n.dim{opacity:.28}
+.n.hl .img{box-shadow:0 0 0 4px var(--aqua)}
+
+/* CONVENTION mosaic */
+.conv-grid{display:grid;grid-template-columns:repeat(12,1fr);grid-auto-rows:54px;grid-auto-flow:dense;gap:14px 20px}
+.c{display:flex;flex-direction:column;min-height:0;transition:opacity .2s}
+.c h3{margin:0 0 6px 6px;font-size:19px;letter-spacing:-.02em;font-weight:900;display:flex;justify-content:space-between;align-items:baseline;gap:8px;white-space:nowrap}
+.c h3{overflow:hidden}.c h3 em{overflow:hidden;text-overflow:ellipsis;font-style:normal;font:600 11px ui-monospace,Menlo,monospace;color:var(--muted)}
+.card{flex:1;min-height:0;border-radius:34px;overflow:hidden;background:#05070d;position:relative;cursor:pointer;transition:box-shadow .2s,transform .2s}
+.card canvas{width:100%;height:100%;display:block}
+.card .tip{position:absolute;left:14px;right:14px;bottom:12px;color:#dfe8ff;font-size:11.5px;opacity:0;transform:translateY(6px);transition:.2s;text-shadow:0 1px 6px #000}
+.card:hover .tip{opacity:1;transform:none}
+.c.dim{opacity:.3}
+.c.hl .card{box-shadow:0 0 0 4px var(--aqua)}
+.c:hover .card{transform:scale(1.015)}
+
+.foot{margin-top:60px;padding-top:20px;border-top:1px solid var(--line);color:var(--muted);font-size:12.5px;display:flex;gap:24px;flex-wrap:wrap}
+.foot b{color:var(--ink)}
+.leg{display:flex;align-items:center;gap:6px}
+.leg i{width:10px;height:10px;border-radius:3px;background:var(--aqua)}
+
+@media(max-width:900px){
+  .page{padding:20px 16px 60px}
+  .head{grid-template-columns:auto 1fr;grid-template-areas:"b g" "s s"}
+  .brand{grid-area:b}.globe{grid-area:g;width:150px;height:130px}.search{grid-area:s}
+  h2.sec{font-size:40px}
+  .news-grid{grid-template-columns:1fr 1fr;margin-bottom:50px}
+  .news-grid .n{grid-column:span 2!important;margin-top:0!important}
+  .conv-grid{grid-template-columns:repeat(2,1fr);grid-auto-rows:60px}
+  .conv-grid .c{grid-column:span 2!important;grid-row:span 5!important}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+ <header class="head">
+  <svg class="brand" viewBox="0 0 1100 1100" role="img" aria-label="Aqua">
+    <style>.eye{transform-box:fill-box;transform-origin:center;animation:bl .4s ease-in-out .3s 1}svg:hover .eye{animation:bl .4s ease-in-out 1}@keyframes bl{50%{transform:scaleY(.05)}}</style>
+    <circle cx="550" cy="550" r="510" fill="#002AF0"/><g class="eye"><circle cx="550" cy="500" r="320" fill="#fff"/><circle cx="550" cy="500" r="205" fill="#00A0FF"/><circle cx="550" cy="500" r="96"/></g>
+  </svg>
+  <label class="search"><svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7.5"/><path d="m20.5 20.5-4.2-4.2"/></svg>
+    <input id="q" type="search" placeholder="Buscar na realidade: notícias e convenções" aria-label="Buscar"></label>
+  <div class="globe"><canvas id="globe"></canvas></div>
+ </header>
+
+ <div class="sec-wrap"><h2 class="sec">Notícias</h2><small>O que está acontecendo agora. Passe o mouse numa notícia para ver as Convenções que ela ativa.</small></div>
+ <div class="news-grid" id="news"></div>
+
+ <div class="sec-wrap"><h2 class="sec">Convenções</h2><small>Estruturas de significado da realidade. Cada rede mostra uma Convenção e suas relações.</small></div>
+ <div class="conv-grid" id="convs"></div>
+
+ <div class="foot">
+  <span><b>Notícias</b> = temporais · isto aconteceu / está acontecendo</span>
+  <span><b>Convenções</b> = persistentes · isto existe e se relaciona assim</span>
+  <span class="leg"><i></i>muitos-para-muitos: uma notícia ativa várias Convenções e uma Convenção reúne várias notícias</span>
+ </div>
+</div>
+
+<script>
+/* ---------- data (placeholder content) ---------- */
+const CONV=[
+ {id:'dem',n:'Democracia',v:'sphere',pal:['#9ad0ff','#ffffff','#ffb86b'],s:3,sp:[5,5],rel:['Eleição','Governo','Voto']},
+ {id:'ia', n:'Inteligência Artificial',v:'hex',pal:['#4da3ff','#ffffff','#7cf3ff'],s:5,sp:[3,5],rel:['Trabalho','Dados','Ética']},
+ {id:'mig',n:'Migração',v:'flows',pal:['#ff3b30','#ffe83a','#2a8bff'],s:7,sp:[4,4],rel:['Território','Economia','Guerra']},
+ {id:'ene',n:'Energia',v:'radial',pal:['#8fa8ff','#ffffff','#ffd24d'],s:9,sp:[4,5],rel:['Economia','Clima','Território']},
+ {id:'ter',n:'Território',v:'dotworld',pal:['#69b5ff','#c8e4ff','#ffffff'],s:11,sp:[5,4],rel:['Migração','Guerra','País']},
+ {id:'gue',n:'Guerra',v:'tree',pal:['#ff4d2e','#ff9a2e','#ffe83a'],s:13,sp:[3,4],rel:['Território','Migração','Energia']},
+ {id:'eco',n:'Economia',v:'flows',pal:['#2bff7a','#ffe83a','#27d9ff'],s:17,sp:[4,4],rel:['Energia','Trabalho','Mercado']},
+ {id:'cul',n:'Cultura',v:'sphere',pal:['#ff6ab0','#ffd24d','#6ad1ff'],s:19,sp:[4,5],rel:['Religião','Música','Identidade']},
+ {id:'rel',n:'Religião',v:'radial',pal:['#d6a8ff','#ffffff','#6ad1ff'],s:23,sp:[3,3],rel:['Cultura','Território','Democracia']}
+];
+const NEWS=[
+ {t:'Eleições no Brasil entram na reta final e movimentam o mercado',src:'Agência Aqua',ago:'há 12 min',live:1,x:'Pesquisas mostram disputa acirrada; analistas observam reação da bolsa e do câmbio.',cv:['dem','eco'],sp:4,mt:0,ar:'16/10',g:'linear-gradient(135deg,#1185fe,#7cf3ff)',tag:'Política'},
+ {t:'Nova geração de modelos de IA chega a celulares',src:'Tech Aqua',ago:'há 1 h',x:'Rodar IA no aparelho reduz custo e reforça a discussão sobre privacidade.',cv:['ia','eco'],sp:3,mt:34,ar:'4/3',g:'linear-gradient(135deg,#6a2cff,#27d9ff)',tag:'Tecnologia'},
+ {t:'Cúpula discute transição energética',src:'Mundo',ago:'há 2 h',x:'Países divergem sobre metas e prazos.',cv:['ene','ter'],sp:3,mt:8,ar:'1/1',g:'linear-gradient(135deg,#ffd24d,#ff7a00)',tag:'Energia'},
+ {t:'Fluxo migratório volta ao centro do debate europeu',src:'Mundo',ago:'há 3 h',x:'Governos revisam regras de fronteira.',cv:['mig','ter','dem'],sp:2,mt:60,ar:'3/4',g:'linear-gradient(135deg,#ff3b30,#ffe83a)',tag:'Sociedade'},
+ {t:'Festival reúne artistas e debate identidade cultural',src:'Cultura',ago:'há 5 h',x:'Programação mistura música, religião e memória.',cv:['cul','rel'],sp:3,mt:0,ar:'4/3',g:'linear-gradient(135deg,#ff6ab0,#ffd24d)',tag:'Cultura'},
+ {t:'Cessar-fogo é anunciado após semanas de conflito',src:'Agência Aqua',ago:'há 6 h',live:1,x:'Mediadores internacionais confirmam trégua inicial de 72 horas. Mapa de áreas afetadas atualizado.',cv:['gue','ter','mig'],sp:5,mt:20,ar:'21/9',g:'linear-gradient(135deg,#2a3a55,#ff4d2e)',tag:'Mundo'},
+ {t:'Petróleo oscila com tensão geopolítica',src:'Economia',ago:'há 8 h',x:'Mercado reage a ruído político.',cv:['eco','ene','gue'],sp:4,mt:0,ar:'16/9',g:'linear-gradient(135deg,#2bff7a,#27d9ff)',tag:'Economia'},
+ {t:'Debate sobre fé e espaço público',src:'Sociedade',ago:'ontem',x:'Especialistas comparam modelos de laicidade.',cv:['rel','dem'],sp:3,mt:36,empty:1,ag:1,tag:'Religião'}
+];
+
+/* ---------- build DOM ---------- */
+const nEl=document.getElementById('news'),cEl=document.getElementById('convs');
+const byId=Object.fromEntries(CONV.map(c=>[c.id,c]));
+nEl.innerHTML=NEWS.map((n,i)=>`
+ <article class="n" data-i="${i}" style="grid-column:span ${n.sp};margin-top:${n.mt}px">
+  <h3>${n.t}</h3>
+  <div class="meta">${n.live?'<span class="live-dot"></span>':''}<b>${n.src}</b> · ${n.ago} · ${n.tag}</div>
+  <p>${n.x}</p>
+  <div class="rel">${n.cv.map(id=>`<span data-c="${id}">${byId[id].n}</span>`).join('')}</div>
+  <div class="img ${n.empty?'empty':'art'}" style="aspect-ratio:${n.ar||'16/10'};--g:${n.g||'none'}"><i>${n.empty?'':'mídia'}</i></div>
+ </article>`).join('');
+const newsCount=Object.fromEntries(CONV.map(c=>[c.id,NEWS.filter(n=>n.cv.includes(c.id)).length]));
+cEl.innerHTML=CONV.map(c=>`
+ <div class="c" data-c="${c.id}" style="grid-column:span ${c.sp[0]};grid-row:span ${c.sp[1]}">
+  <h3>${c.n}<em>${c.rel.length+3} relações · ${newsCount[c.id]} notícias</em></h3>
+  <div class="card"><canvas></canvas><div class="tip">↔ ${c.rel.join(' · ')}</div></div>
+ </div>`).join('');
+
+/* ---------- many-to-many highlighting ---------- */
+function focus(newsIdx,convId){
+  const nd=[...nEl.children],cd=[...cEl.children];
+  const rc=new Set(newsIdx!=null?NEWS[newsIdx].cv:convId?[convId,...CONV.filter(c=>c.rel.includes(byId[convId].n)).map(c=>c.id)].slice(0,1):[]);
+  const rn=new Set(convId?NEWS.map((n,i)=>n.cv.includes(convId)?i:-1).filter(i=>i>=0):newsIdx!=null?[newsIdx]:[]);
+  const on=newsIdx!=null||convId;
+  nd.forEach((e,i)=>{e.classList.toggle('dim',on&&!rn.has(i));e.classList.toggle('hl',on&&rn.has(i)&&convId)});
+  cd.forEach(e=>{const id=e.dataset.c;e.classList.toggle('dim',on&&!rc.has(id));e.classList.toggle('hl',on&&rc.has(id))})}
+nEl.addEventListener('pointerover',e=>{const a=e.target.closest('.n');if(a)focus(+a.dataset.i,null)});
+nEl.addEventListener('pointerleave',()=>focus(null,null));
+cEl.addEventListener('pointerover',e=>{const c=e.target.closest('.c');if(c)focus(null,c.dataset.c)});
+cEl.addEventListener('pointerleave',()=>focus(null,null));
+nEl.addEventListener('click',e=>{const s=e.target.closest('.rel span');if(s)document.querySelector(`.c[data-c="${s.dataset.c}"]`).scrollIntoView({block:'center'})});
+document.getElementById('q').addEventListener('input',e=>{const q=e.target.value.trim().toLowerCase();
+  [...nEl.children].forEach((el,i)=>{const n=NEWS[i];el.style.display=!q||(n.t+n.x+n.cv.map(id=>byId[id].n).join(' ')).toLowerCase().includes(q)?'':'none'});
+  [...cEl.children].forEach(el=>{const c=byId[el.dataset.c];el.style.display=!q||(c.n+c.rel.join(' ')).toLowerCase().includes(q)?'':'none'})});
+
+/* ---------- network art ---------- */
+function rng(s){return()=>(s=(s*16807)%2147483647)/2147483647}
+const TAU=Math.PI*2;
+const V={
+ sphere(c,w,h,t,o){const R=Math.min(w,h)*.4,cx=w/2,cy=h/2,pts=o.pts;
+  const ca=Math.cos(t*.25),sa=Math.sin(t*.25);
+  const P=pts.map(p=>{const x=p[0]*ca+p[2]*sa,z=-p[0]*sa+p[2]*ca;return[cx+x*R,cy+p[1]*R,z]});
+  c.lineWidth=.6;o.edges.forEach(([a,b])=>{const A=P[a],B=P[b],z=(A[2]+B[2])/2;c.strokeStyle=hx(o.pal[(a+b)%3],.12+.4*(z+1)/2);c.beginPath();c.moveTo(A[0],A[1]);c.lineTo(B[0],B[1]);c.stroke()});
+  P.forEach((p,i)=>{c.fillStyle=hx(o.pal[i%3],.35+.65*(p[2]+1)/2);c.beginPath();c.arc(p[0],p[1],1+1.4*(p[2]+1)/2,0,TAU);c.fill()})},
+ radial(c,w,h,t,o){const cx=w/2,cy=h/2,M=Math.min(w,h)*.46;
+  for(let r=0;r<o.rings;r++){const rad=M*(.18+.82*r/o.rings),n=Math.round(10+r*9),dir=r%2?1:-1;
+   for(let k=0;k<n;k++){const a=k/n*TAU+t*.08*dir*(1+r*.02),x=cx+Math.cos(a)*rad,y=cy+Math.sin(a)*rad;
+    c.fillStyle=hx(o.pal[(r+k)%3],.35+.65*o.r[(r*37+k)%o.r.length]);c.beginPath();c.arc(x,y,1.2+o.r[(r*11+k)%o.r.length]*2.2,0,TAU);c.fill()}}
+  c.fillStyle='#000';c.beginPath();c.arc(cx,cy,M*.12,0,TAU);c.fill()},
+ flows(c,w,h,t,o){const C=o.cl;c.lineCap='round';
+  o.st.forEach(s=>{const A=C[s.a],B=C[s.b],ax=A[0]*w,ay=A[1]*h,bx=B[0]*w+s.j[0]*w,by=B[1]*h+s.j[1]*h;
+   const mx=(ax+bx)/2,my=(ay+by)/2-s.k*h*.25;c.strokeStyle=hx(o.pal[s.a%3],.16);c.lineWidth=s.lw;c.beginPath();c.moveTo(ax,ay);c.quadraticCurveTo(mx,my,bx,by);c.stroke()});
+  C.forEach((p,i)=>{const g=c.createRadialGradient(p[0]*w,p[1]*h,0,p[0]*w,p[1]*h,p[2]*Math.min(w,h));g.addColorStop(0,hx(o.pal[i%3],.9));g.addColorStop(1,hx(o.pal[i%3],0));c.fillStyle=g;c.beginPath();c.arc(p[0]*w,p[1]*h,p[2]*Math.min(w,h),0,TAU);c.fill()})},
+ dotworld(c,w,h,t,o){const gx=o.gx,gy=o.gy,sx=w/gx,sy=h*.9/gy;
+  for(let j=0;j<gy;j++)for(let i=0;i<gx;i++){const v=o.m[j*gx+i];if(v<.5)continue;
+   const tw=.6+.4*Math.sin(t*1.5+i*.7+j*1.3);c.fillStyle=hx(o.pal[(i+j)%3],(.35+.6*v)*tw);c.beginPath();c.arc(i*sx+sx/2,h*.05+j*sy+sy/2,Math.min(sx,sy)*.32,0,TAU);c.fill()}},
+ hex(c,w,h,t,o){const R=Math.min(w,h)*.46,cx=w/2,cy=h/2,sz=R/9.2;
+  o.hx.forEach((q,i)=>{const x=cx+q[0]*sz*1.75,y=cy+q[1]*sz*1.52,pulse=.6+.4*Math.sin(t*1.2+i);
+   c.fillStyle=hx(o.pal[i%3],q[2]*pulse);c.beginPath();for(let k=0;k<6;k++){const a=k/6*TAU+Math.PI/6;c.lineTo(x+Math.cos(a)*sz*q[3],y+Math.sin(a)*sz*q[3])}c.closePath();c.fill()})},
+ tree(c,w,h,t,o){const cx=w/2,cy=h/2,R=Math.min(w,h)*.46;c.lineCap='round';
+  o.br.forEach(b=>{const a=b.a+Math.sin(t*.4+b.p)*.03;c.strokeStyle=hx(o.pal[b.c],.55);c.lineWidth=b.w;c.beginPath();
+   c.moveTo(cx+Math.cos(b.a0)*b.r0*R,cy+Math.sin(b.a0)*b.r0*R);c.lineTo(cx+Math.cos(a)*b.r1*R,cy+Math.sin(a)*b.r1*R);c.stroke()});
+  c.strokeStyle='#ffffff25';c.lineWidth=1;c.beginPath();c.arc(cx,cy,R,0,TAU);c.stroke()}
+};
+function hx(h,a){const n=parseInt(h.slice(1),16);return`rgba(${n>>16},${n>>8&255},${n&255},${Math.max(0,Math.min(1,a))})`}
+// per-card preprocessed data
+function prep(c){const r=rng(c.s*977+3),o={pal:c.pal,r:Array.from({length:97},r)};
+ if(c.v==='sphere'){const N=170;o.pts=[];for(let i=0;i<N;i++){const y=1-2*(i+.5)/N,rr=Math.sqrt(1-y*y),th=i*2.399963;o.pts.push([Math.cos(th)*rr,y,Math.sin(th)*rr])}
+  o.edges=[];o.pts.forEach((p,i)=>{const d=[];o.pts.forEach((q,j)=>{if(j>i){const dd=(p[0]-q[0])**2+(p[1]-q[1])**2+(p[2]-q[2])**2;if(dd<.13)d.push([j,dd])}});d.slice(0,4).forEach(e=>o.edges.push([i,e[0]]))})}
+ if(c.v==='radial')o.rings=14;
+ if(c.v==='flows'){o.cl=[[.2,.5,.16],[.5,.4,.13],[.82,.5,.14],[.55,.78,.07]];o.st=[];for(let i=0;i<420;i++){const a=r()*4|0;let b=r()*4|0;if(b===a)b=(a+1)%4;o.st.push({a,b,j:[(r()-.5)*.08,(r()-.5)*.08],k:r()-.5,lw:.4+r()*.9})}}
+ if(c.v==='dotworld'){o.gx=64;o.gy=30;o.m=[];for(let j=0;j<o.gy;j++)for(let i=0;i<o.gx;i++){const x=i/o.gx*TAU,y=j/o.gy*Math.PI;
+   const v=Math.sin(x*1.3+c.s)*Math.sin(y*2.1)+.6*Math.sin(x*3.1-y*1.7+c.s)+.4*Math.cos(x*5.3+y*3.9)-.25;o.m.push(v>.35?Math.min(1,.4+v*.5):0)}}
+ if(c.v==='hex'){o.hx=[];for(let q=-8;q<=8;q++)for(let p=-8;p<=8;p++){const x=q+p*.5,y=p*.866/1.0*.87,d=Math.hypot(x,y*1.15);if(d>7.4||r()<.25)continue;o.hx.push([x,y,.25+r()*.75*(1-d/9),.35+r()*.5])}}
+ if(c.v==='tree'){o.br=[];const hubs=[.3,.9,1.7,2.6,3.5,4.4,5.3];const grow=(a0,r0,a,len,d,col)=>{if(d>5)return;const n=d<2?3:2;for(let i=0;i<n;i++){const na=a+(r()-.5)*.9,r1=Math.min(1,r0+len*(.6+r()*.6));o.br.push({a0,r0,a:na,r1,c:r()<.7?col:(r()*3|0),w:Math.max(.4,2-d*.4),p:r()*6});if(r1<1)grow(na,r1,na,len*.75,d+1,col)}};
+  hubs.forEach((a,i)=>{grow(a,.05+r()*.1,a,.22,0,i%3)})}
+ return o}
+const cards=[...cEl.querySelectorAll('.c')].map(el=>{const c=byId[el.dataset.c],cv=el.querySelector('canvas');return{c,cv,ctx:cv.getContext('2d'),o:prep(c),w:0,h:0}});
+const ro=new ResizeObserver(es=>es.forEach(e=>{const k=cards.find(k=>k.cv.parentElement===e.target);if(!k)return;const d=Math.min(devicePixelRatio||1,2),r=e.contentRect;k.w=r.width;k.h=r.height;k.cv.width=r.width*d;k.cv.height=r.height*d;k.ctx.setTransform(d,0,0,d,0,0)}));
+cards.forEach(k=>ro.observe(k.cv.parentElement));
+
+/* ---------- globe (top-right): light dot sphere with labelled relations ---------- */
+const gc=document.getElementById('globe'),gx=gc.getContext('2d');let gw,gh;
+const gr=rng(5),G=[];for(let i=0;i<900;i++){const y=1-2*(i+.5)/900,rr=Math.sqrt(1-y*y),th=i*2.399963;
+  const lon=Math.atan2(Math.sin(th)*rr,Math.cos(th)*rr),lat=Math.asin(y),v=Math.sin(lon*1.7+1)*Math.cos(lat*2.2)+.5*Math.sin(lon*3.3-lat*2)-.1;
+  if(v>.25)G.push([Math.cos(th)*rr,y,Math.sin(th)*rr])}
+const GL=[['eleição',0.4,-.3],['energia',-.5,.1],['IA',.1,.5],['migração',.7,.35],['guerra',-.2,-.55],['cultura',-.7,-.2],['clima',.3,-.7]];
+const HOT=[[.35,-.2,.9],[-.45,.2,.86],[.55,.4,.7]];
+function resizeG(){const d=Math.min(devicePixelRatio||1,2),r=gc.getBoundingClientRect();gw=r.width;gh=r.height;gc.width=gw*d;gc.height=gh*d;gx.setTransform(d,0,0,d,0,0)}
+addEventListener('resize',resizeG);resizeG();
+function drawGlobe(t){gx.clearRect(0,0,gw,gh);const R=Math.min(gw,gh)*.46,cx=gw/2,cy=gh/2,ca=Math.cos(t*.12),sa=Math.sin(t*.12);
+  const s=gx.createRadialGradient(cx-R*.3,cy-R*.3,R*.1,cx,cy,R);s.addColorStop(0,'#fff');s.addColorStop(1,'#e2e5eb');gx.fillStyle=s;gx.beginPath();gx.arc(cx,cy,R,0,TAU);gx.fill();
+  G.forEach(p=>{const x=p[0]*ca+p[2]*sa,z=-p[0]*sa+p[2]*ca;if(z<0)return;gx.fillStyle=`rgba(90,100,115,${.15+.35*z})`;gx.beginPath();gx.arc(cx+x*R,cy+p[1]*R,1.1,0,TAU);gx.fill()});
+  HOT.forEach((p,i)=>{const x=p[0]*ca+p[2]*sa*0,y=p[1];const a=t*.12;const X=Math.sin(a+p[0]*3)*.55,Y=p[1],Z=Math.cos(a+p[0]*3);if(Z<0)return;
+    const px=cx+X*R,py=cy+Y*R;gx.fillStyle='#d9ff3a';gx.beginPath();gx.arc(px,py,4+Math.sin(t*3+i)*1,0,TAU);gx.fill()});
+  gx.font='600 9px ui-monospace,Menlo,monospace';GL.forEach((l,i)=>{const a=t*.12+i;const X=Math.sin(a)*.75,Z=Math.cos(a);if(Z<-.1)return;
+    const px=cx+X*R,py=cy+l[2]*R*1.2,w=gx.measureText(l[0]).width+12;gx.fillStyle='#fff';gx.strokeStyle='#cfd4de';gx.beginPath();gx.roundRect(px-w/2,py-8,w,16,8);gx.fill();gx.stroke();
+    gx.fillStyle='#333';gx.fillText(l[0],px-w/2+6,py+3)})}
+
+/* ---------- loop ---------- */
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+function loop(ms){const t=reduce?0:ms/1000;
+  cards.forEach(k=>{if(!k.w)return;const r=k.cv.getBoundingClientRect();if(r.bottom<0||r.top>innerHeight)return;
+    k.ctx.clearRect(0,0,k.w,k.h);k.ctx.fillStyle='#05070d';k.ctx.fillRect(0,0,k.w,k.h);V[k.c.v](k.ctx,k.w,k.h,t,k.o)});
+  drawGlobe(t);requestAnimationFrame(loop)}
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

@@ -3,6 +3,7 @@ import { useEffect, useReducer, useState } from 'react'
 import type { ToolSession } from 'aqua-runtime/src/types'
 
 import { runtime } from '../hub'
+import { IconButton } from './Icon'
 
 /** Opens an item and re-renders the panel on every change of its session. */
 export function useSession<S extends ToolSession>(itemId: string) {
@@ -28,7 +29,7 @@ export function useSession<S extends ToolSession>(itemId: string) {
 /** Snapshot undo restores state without a change event, so the panel is told to redraw. */
 export const UndoRedo = ({ itemId, refresh }: { itemId: string; refresh: () => void }) => (
   <>
-    <button onClick={() => (runtime.undo(itemId), refresh())}>Desfazer</button>
-    <button onClick={() => (runtime.redo(itemId), refresh())}>Refazer</button>
+    <IconButton icon="undo" label="Desfazer" onClick={() => (runtime.undo(itemId), refresh())} />
+    <IconButton icon="redo" label="Refazer" onClick={() => (runtime.redo(itemId), refresh())} />
   </>
 )
