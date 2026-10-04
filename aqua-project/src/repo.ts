@@ -19,6 +19,16 @@ export function renameItem(project: Project, itemId: string, name: string, now =
   return mapItem(project, itemId, (i) => ({ ...i, name: name.trim() || i.name, updatedAt: now }), now)
 }
 
+/** Puts an item at `toIndex` in the list (clamped); the order is how the project lists its items. */
+export function moveItem(project: Project, itemId: string, toIndex: number, now = new Date().toISOString()): Project {
+  const from = project.items.findIndex((i) => i.id === itemId)
+  if (from < 0) throw new Error(`Item not found: ${itemId}`)
+  const items = [...project.items]
+  const [it] = items.splice(from, 1)
+  items.splice(Math.max(0, Math.min(toIndex, items.length)), 0, it)
+  return { ...project, updatedAt: now, items }
+}
+
 export function removeItem(project: Project, itemId: string, now = new Date().toISOString()): Project {
   return {
     ...project,

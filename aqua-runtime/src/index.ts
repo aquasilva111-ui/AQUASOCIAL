@@ -18,3 +18,4 @@ export { sheetAdapter, type SheetDoc, type SheetSession, type SheetAdapterOption
 
 export { docStats, docStatsFromXml, docStatsFromBytes, wordSeries, editSessions, type DocStats, type Heading, type VersionPoint } from './analytics/doc'
 export * from './melody/index'
+export * from './import/table'

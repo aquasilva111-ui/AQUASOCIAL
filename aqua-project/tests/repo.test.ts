@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 
-import { MemoryAssetStore, addItem, createProject, launchableFor, linkItem, listVersions, liveHashes, removeItem, restoreVersion, saveItem, usedBy } from '../src/index.ts'
+import { MemoryAssetStore, moveItem, addItem, createProject, launchableFor, linkItem, listVersions, liveHashes, removeItem, restoreVersion, saveItem, usedBy } from '../src/index.ts'
 
 const bytes = (s: string) => new TextEncoder().encode(s)
 
@@ -64,4 +64,21 @@ test('IdbAssetStore: dedupes by hash, round-trips bytes, collects orphans', asyn
   assert.equal(await store.collect(new Set([a.hash])), 1)
   assert.equal(await store.has(b.hash), false)
   assert.equal(await store.has(a.hash), true)
+})
+
+test('moveItem reorders without mutating the input and clamps the index', () => {
+  let p = createProject('P')
+  const ids: string[] = []
+  for (const n of ['a', 'b', 'c']) {
+    const r = addItem(p, 'doc', n)
+    p = r.project
+    ids.push(r.item.id)
+  }
+  const names = (x: typeof p) => x.items.map((i) => i.name).join('')
+  assert.equal(names(moveItem(p, ids[2], 0)), 'cab')
+  assert.equal(names(moveItem(p, ids[0], 99)), 'bca')
+  assert.equal(names(moveItem(p, ids[1], -5)), 'bac')
+  assert.equal(names(moveItem(p, ids[1], 1)), 'abc') // same place
+  assert.equal(names(p), 'abc') // input untouched
+  assert.throws(() => moveItem(p, 'nope', 0), /Item not found/)
 })

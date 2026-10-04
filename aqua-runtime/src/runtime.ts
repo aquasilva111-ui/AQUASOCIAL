@@ -4,6 +4,7 @@ import {
   launchableFor,
   linkItem,
   removeItem,
+  moveItem,
   renameItem,
   saveItem,
   type AssetRef,
@@ -140,6 +141,11 @@ export class CreativeRuntime {
 
   rename(itemId: string, name: string): void {
     this.setProject(renameItem(this.project, itemId, name))
+  }
+
+  /** Reorders the project's item list (drag and drop in the sidebar). */
+  move(itemId: string, toIndex: number): void {
+    this.setProject(moveItem(this.project, itemId, toIndex))
   }
 
   async remove(itemId: string): Promise<void> {
