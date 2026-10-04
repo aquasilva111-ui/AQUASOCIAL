@@ -2,6 +2,7 @@ import { createProject, IdbAssetStore, type ItemKind, type Project } from 'aqua-
 import { FabricRenderer } from 'aqua-design-core/src/fabric/renderer'
 import { audioAdapter } from 'aqua-runtime/src/adapters/audio'
 import { chartAdapter } from 'aqua-runtime/src/adapters/chart'
+import { docsAdapter } from 'aqua-runtime/src/adapters/docs'
 import { designAdapter } from 'aqua-runtime/src/adapters/design'
 import { mixAdapter } from 'aqua-runtime/src/adapters/mix'
 import { musicAdapter } from 'aqua-runtime/src/adapters/music'
@@ -91,6 +92,7 @@ export const runtime = new CreativeRuntime({
     listeners.forEach((l) => l())
   },
   adapters: [
+    docsAdapter,
     designAdapter('design', { renderPng }),
     designAdapter('presentation', { renderPng }),
     chartAdapter({ rasterize }),
@@ -102,6 +104,7 @@ export const runtime = new CreativeRuntime({
   ]
 })
 export const KIND_LABEL: Partial<Record<ItemKind, string>> = {
+  doc: 'Documento',
   design: 'Design',
   presentation: 'Apresentação',
   sheet: 'Planilha',

@@ -4,6 +4,7 @@ import type { ItemKind } from 'aqua-project/src/index'
 
 import { KIND_LABEL, onProjectChange, runtime } from './hub'
 
+const Doc = lazy(() => import('./panels/DocPanel'))
 const Design = lazy(() => import('./panels/DesignPanel'))
 const Slides = lazy(() => import('./panels/PresentationPanel'))
 const Chart = lazy(() => import('./panels/ChartPanel'))
@@ -14,6 +15,7 @@ const Video = lazy(() => import('./panels/VideoPanel'))
 const Sheet = lazy(() => import('./panels/SheetPanel'))
 
 const PANELS: Partial<Record<ItemKind, React.LazyExoticComponent<React.ComponentType<{ itemId: string }>>>> = {
+  doc: Doc,
   design: Design,
   presentation: Slides,
   chart: Chart,
