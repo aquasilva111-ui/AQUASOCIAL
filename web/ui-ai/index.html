@@ -110,6 +110,11 @@
                   background: var(--fundo); color: var(--tinta); font: 15px var(--pesada); text-transform: uppercase; }
   .parear button { padding: 0 16px; }
   [hidden] { display: none !important; }
+  .conectar { display: flex; gap: 8px; margin-top: 14px; }
+  .conectar input { flex: 1; min-width: 0; height: 44px; box-sizing: border-box; padding: 0 14px; border-radius: 999px;
+                    border: 1px dashed var(--borda); background: var(--fundo); color: var(--tinta); font: 14px var(--texto); }
+  .conectar button { width: 44px; padding: 0; font-size: 20px; line-height: 1; }
+  #cartao-chats.solte { outline: 2px dashed var(--azul); outline-offset: 4px; }
 
   /* Cabeçalho do programa: situação da U.I. e o botão de baixar ao lado */
   .topo .acoes-topo { margin-left: auto; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
@@ -178,10 +183,15 @@
       <div class="sub" id="automatos-estado">em repouso</div>
     </section>
 
-    <section class="cartao">
+    <section class="cartao" id="cartao-chats">
       <h2>Chats conectados</h2>
       <ul id="chats"><li><small>carregando…</small></li></ul>
-      <p class="dica">Conecte com<br><code>conectar &lt;endereço&gt; como gpt</code></p>
+      <form class="conectar" id="form-conectar">
+        <input id="campo-link" type="url" inputmode="url" autocomplete="off"
+               placeholder="Cole ou arraste o link de uma conversa" aria-label="Link da conversa para conectar">
+        <button type="submit" aria-label="Conectar chat">+</button>
+      </form>
+      <p class="dica">ChatGPT, Kimi, Claude ou Gemini: abra a conversa e copie o endereço da barra do navegador.</p>
     </section>
 
     <section class="cartao" id="cartao-codigo" hidden>
@@ -321,6 +331,50 @@
       if (err.message !== "não pareada") situacao("ausente");
     }
   }
+
+  // Conectar um chat: colar, arrastar ou digitar o link no cartão "Chats conectados".
+  async function conectarLink(link) {
+    link = (link || "").trim();
+    if (!/^https?:\/\//.test(link)) return;
+    $("campo-link").value = "";
+    balao("conectar " + link, "eu");
+    if (!encontrada) {
+      balao("A U.I. ainda não está neste computador. Baixe o software no botão acima, " +
+            "ligue a U.I. e volte aqui para conectar seus chats.", "ui", "aguardando_ajuda");
+      return;
+    }
+    pensando(true);
+    try {
+      const r = await fetch(UI + "consola", {
+        method: "POST", headers: cabecalhos(),
+        body: JSON.stringify({ texto: "conectar " + link, sessao }),
+      });
+      const dados = await r.json();
+      if (!r.ok) throw new Error(dados.erro || r.statusText);
+      balao(dados.texto, "ui", dados.estado);
+    } catch (err) {
+      balao("Não consegui conectar: " + err.message, "ui", "aguardando_ajuda");
+    } finally {
+      pensando(false);
+      atualizarEstado();
+    }
+  }
+  $("form-conectar").addEventListener("submit", (ev) => {
+    ev.preventDefault();
+    conectarLink($("campo-link").value);
+  });
+  $("campo-link").addEventListener("paste", () => {
+    setTimeout(() => conectarLink($("campo-link").value), 0);   // colou: já conecta
+  });
+  const cartaoChats = $("cartao-chats");
+  cartaoChats.addEventListener("dragover", (ev) => { ev.preventDefault(); cartaoChats.classList.add("solte"); });
+  cartaoChats.addEventListener("dragleave", () => cartaoChats.classList.remove("solte"));
+  cartaoChats.addEventListener("drop", (ev) => {
+    ev.preventDefault();
+    cartaoChats.classList.remove("solte");
+    const link = ev.dataTransfer.getData("text/uri-list") || ev.dataTransfer.getData("text/plain");
+    conectarLink(link.split("\n")[0]);
+  });
 
   $("form-parear").addEventListener("submit", (ev) => {
     ev.preventDefault();
