@@ -101,7 +101,8 @@ canvas:not(.upper-canvas):not(.lower-canvas) { max-width:100%; border:1px solid 
 /* ───────── Analytics do documento: bento (cartões brancos, azul elétrico, cartão preto) ───────── */
 .an { --a-blue: #0b5cff; --a-ink: #0c0c0d; --a-grey: #e3e4e6; --a-line: #d3d5d9;
   display: grid; grid-template-columns: 232px 1fr; min-height: 640px; background: var(--a-grey); color: var(--a-ink); font-family: Inter, system-ui, sans-serif; }
-.an-side { background: #000; color: #fff; display: flex; flex-direction: column; }
+.an-side { background: #000; color: #fff; }
+.an-sticky { position: sticky; top: 46px; display: flex; flex-direction: column; min-height: 420px; max-height: calc(100vh - 46px); overflow: auto; }
 .an-profile { background: var(--a-blue); padding: 18px 16px 20px; }
 .an-profile small { opacity: .75; display: block; margin-top: 2px; font-size: 12px; }
 .an-profile b { font-size: 15px; display: block; line-height: 1.25; word-break: break-word; }
@@ -164,7 +165,7 @@ canvas:not(.upper-canvas):not(.lower-canvas) { max-width:100%; border:1px solid 
 .an-pm { display: flex; gap: 6px; }
 @media (max-width: 900px) {
   .an { grid-template-columns: 1fr; }
-  .an-side { flex-direction: row; align-items: stretch; flex-wrap: wrap; }
+  .an-sticky { position: static; flex-direction: row; flex-wrap: wrap; min-height: 0; max-height: none; }
   .an-profile { flex: 1 1 100%; } .an-nav { flex-direction: row; flex-wrap: wrap; padding: 8px; } .an-foot { display: none; }
   .an-metric, .an-hero, .an-black, .an-wide { grid-column: span 12; }
 }

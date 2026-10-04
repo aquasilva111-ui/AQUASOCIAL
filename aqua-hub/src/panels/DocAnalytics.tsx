@@ -135,6 +135,7 @@ export default function DocAnalytics({ session, itemId, onEdit }: { session: Doc
   return (
     <div className="an">
       <aside className="an-side">
+        <div className="an-sticky">
         <div className="an-profile">
           <div className="an-avatar">{(item?.name || 'D').slice(0, 1).toUpperCase()}</div>
           <b>{item?.name || 'Sem título'}</b>
@@ -147,6 +148,7 @@ export default function DocAnalytics({ session, itemId, onEdit }: { session: Doc
           <button onClick={onEdit}><span className="ic">✎</span>Voltar ao editor</button>
         </nav>
         <div className="an-foot">{item ? `Atualizado ${when(item.updatedAt)}` : ''}</div>
+        </div>
       </aside>
 
       <section className="an-main">
