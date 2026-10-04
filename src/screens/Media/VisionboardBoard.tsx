@@ -1,5 +1,5 @@
 import {useMemo} from 'react'
-import {View} from 'react-native'
+import {Pressable, ScrollView, View} from 'react-native'
 
 import {
   type Interest,
@@ -12,7 +12,7 @@ import {type FeedPostSliceItem} from '#/state/queries/post-feed'
 import {usePreferencesQuery} from '#/state/queries/preferences'
 import {useSession} from '#/state/session'
 import {useLoggedOutViewControls} from '#/state/shell/logged-out'
-import {atoms as a, useTheme, web} from '#/alf'
+import {atoms as a, useTheme} from '#/alf'
 import {Button, ButtonText} from '#/components/Button'
 import * as Layout from '#/components/Layout'
 import {Text} from '#/components/Typography'
@@ -23,7 +23,6 @@ import {
 } from '#/components/visionboard/VisionboardTopBar'
 
 const MAX_CHIPS = 12
-const ACTIVE_GRADIENT = 'linear-gradient(135deg, #0048ff 0%, #2b8cff 100%)'
 
 export type VisionboardStatus = 'loading' | 'error' | 'empty' | 'idle' | 'ready'
 
@@ -85,25 +84,30 @@ export function VisionboardBoard<T extends string>({
   }, [preferences?.interests.tags])
 
   const header = (
-    <View style={[a.gap_lg, {paddingTop: 28, paddingBottom: 22}]}>
-      <Text style={[{fontSize: 34, fontWeight: '800', letterSpacing: -0.5}]}>
-        {query ? `Resultados para “${query}”` : 'Explorar'}
-      </Text>
-      <View style={[a.flex_row, a.flex_wrap, a.gap_sm]}>
-        <Chip
+    <View style={[a.gap_md, {paddingTop: 12, paddingBottom: 18}]}>
+      {!!query && (
+        <Text style={[{fontSize: 30, fontWeight: '700', letterSpacing: -0.5}]}>
+          Resultados para “{query}”
+        </Text>
+      )}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{gap: 28, paddingHorizontal: 4}}>
+        <Tab
           label="Todos"
           active={!interest && !query}
           onPress={() => onSelectInterest(undefined, '')}
         />
         {chips.map(value => (
-          <Chip
+          <Tab
             key={value}
             label={names[value]}
             active={interest === value}
             onPress={() => onSelectInterest(value, names[value])}
           />
         ))}
-      </View>
+      </ScrollView>
       {status !== 'ready' && (
         <View style={[a.flex_row, a.align_center, a.gap_md]}>
           <Text style={[a.text_md, t.atoms.text_contrast_medium]}>
@@ -152,13 +156,7 @@ export function VisionboardBoard<T extends string>({
         onSubmitSearch={onSubmitSearch}
         onClearSearch={onClearSearch}
       />
-      <View
-        style={[
-          a.w_full,
-          a.pl_xl,
-          // runs to half an inch (48px) from the right edge of the page
-          {paddingRight: 48},
-        ]}>
+      <View style={[a.w_full, a.px_lg]}>
         <VisionboardMasonry
           variant="board"
           header={header}
@@ -171,7 +169,8 @@ export function VisionboardBoard<T extends string>({
   )
 }
 
-function Chip({
+/** Category tab: quiet text with an underline on the active one. */
+function Tab({
   label,
   active,
   onPress,
@@ -182,27 +181,27 @@ function Chip({
 }) {
   const t = useTheme()
   return (
-    <Button
-      label={label}
-      size="small"
-      variant="outline"
-      color="secondary"
+    <Pressable
+      accessibilityRole="tab"
+      accessibilityState={{selected: active}}
+      accessibilityLabel={label}
+      accessibilityHint=""
       onPress={onPress}
       style={[
-        a.rounded_full,
-        a.px_lg,
-        {height: 42},
-        active && [
-          {borderColor: 'transparent'},
-          web({
-            backgroundImage: ACTIVE_GRADIENT,
-            boxShadow: '0 6px 16px rgba(0, 72, 255, 0.25)',
-          }),
-        ],
+        {
+          paddingVertical: 6,
+          borderBottomWidth: 3,
+          borderBottomColor: active ? t.palette.contrast_900 : 'transparent',
+        },
       ]}>
-      <ButtonText style={[a.text_md, active ? {color: '#fff'} : t.atoms.text]}>
+      <Text
+        style={[
+          a.text_lg,
+          {fontWeight: active ? '600' : '500'},
+          active ? t.atoms.text : t.atoms.text_contrast_medium,
+        ]}>
         {label}
-      </ButtonText>
-    </Button>
+      </Text>
+    </Pressable>
   )
 }

@@ -1,4 +1,15 @@
 import {type Aesthetic, normalizeAesthetic} from '#/lib/visionboard/aesthetics'
+import {
+  type BoardFont,
+  type BoardFrame,
+  type BoardLayout,
+  type BoardTheme,
+  musicEmbed,
+  normalizeFont,
+  normalizeFrame,
+  normalizeLayout,
+  normalizeTheme,
+} from '#/lib/visionboard/look'
 
 /**
  * Visionboard folders live in the user's own PDS repo, like Books:
@@ -21,6 +32,13 @@ export type BoardRecord = {
   visibility: BoardVisibility
   /** Pin whose image is the cover. Defaults to the most recent pin. */
   coverPin?: string
+  /** Look of the board; absent means the defaults in look.ts. */
+  theme?: BoardTheme
+  font?: BoardFont
+  frame?: BoardFrame
+  layout?: BoardLayout
+  /** Spotify / YouTube / SoundCloud link; only those hosts are ever embedded. */
+  music?: string
   createdAt: string
   updatedAt: string
 }
@@ -138,6 +156,14 @@ export function normalizeBoard(raw: unknown): BoardRecord | undefined {
     description: clampText(r.description, LIMITS.description),
     visibility: VISIBILITIES.has(r.visibility) ? r.visibility : 'public',
     coverPin: typeof r.coverPin === 'string' ? r.coverPin : undefined,
+    theme: normalizeTheme(r.theme),
+    font: normalizeFont(r.font),
+    frame: normalizeFrame(r.frame),
+    layout: normalizeLayout(r.layout),
+    music:
+      typeof r.music === 'string' && musicEmbed(r.music)
+        ? r.music.trim().slice(0, 300)
+        : undefined,
     createdAt: typeof r.createdAt === 'string' ? r.createdAt : '',
     updatedAt: typeof r.updatedAt === 'string' ? r.updatedAt : '',
   }

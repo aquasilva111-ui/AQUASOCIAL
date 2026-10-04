@@ -64,7 +64,9 @@ export function DesktopRightNav({routeName}: {routeName: string}) {
   if (
     !rightNavVisible ||
     routeName === 'VideoWatch' ||
-    routeName === 'ImageDetail'
+    routeName === 'ImageDetail' ||
+    routeName === 'VisionboardBoards' ||
+    routeName === 'VisionboardBoardView'
   ) {
     return null
   }

@@ -124,6 +124,8 @@ import {
 import {ImageDetailScreen} from '#/screens/Media/MediaDetail'
 import {ImagesScreen, VideosScreen} from '#/screens/Media/MediaHome'
 import {VideoLiveScreen} from '#/screens/Media/VideoLive'
+import {VisionboardBoardsScreen} from '#/screens/Media/VisionboardBoards'
+import {VisionboardBoardViewScreen} from '#/screens/Media/VisionboardBoardView'
 import {MessagesScreen} from '#/screens/Messages/ChatList'
 import {MessagesConversationScreen} from '#/screens/Messages/Conversation'
 import {MessagesInboxScreen} from '#/screens/Messages/Inbox'
@@ -699,6 +701,16 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
       <Stack.Screen
         name="ImageDetailLegacy"
         component={LegacyImageDetailRedirect}
+        options={{title: 'Visionboard'}}
+      />
+      <Stack.Screen
+        name="VisionboardBoards"
+        component={VisionboardBoardsScreen}
+        options={{title: 'Seus Visionboards', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="VisionboardBoardView"
+        component={VisionboardBoardViewScreen}
         options={{title: 'Visionboard'}}
       />
       <Stack.Screen

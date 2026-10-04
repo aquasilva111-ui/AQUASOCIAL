@@ -52,6 +52,8 @@ const FULL_PAGE_ROUTES = [
   'Videos',
   'Images',
   'ImageDetail',
+  'VisionboardBoards',
+  'VisionboardBoardView',
   'VideoWatch',
   'ViewChannel',
   'ViewChannelCreate',
@@ -70,6 +72,7 @@ const FULL_PAGE_ROUTES = [
   'CreativeHub',
   'CreativeHubTab',
   'UIAI',
+  'NewsAtlas',
 ]
 
 /** Full-page experiences that also hide the bottom dock (it would cover them). */

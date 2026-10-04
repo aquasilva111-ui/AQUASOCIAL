@@ -13,8 +13,7 @@ import {Moon_Stroke2_Corner0_Rounded as MoonIcon} from '#/components/icons/Moon'
 import {Sun_Stroke2_Corner0_Rounded as SunIcon} from '#/components/icons/Sun'
 import {Link} from '#/components/Link'
 import {Text} from '#/components/Typography'
-
-const ACTIVE_GRADIENT = 'linear-gradient(135deg, #0048ff 0%, #2b8cff 100%)'
+import {Capsule} from './VisionboardCapsule'
 
 export type VisionboardTab<T extends string> = {value: T; label: string}
 
@@ -76,22 +75,21 @@ export function VisionboardTopBar<T extends string>({
                 accessibilityLabel={tab.label}
                 accessibilityHint=""
                 onPress={() => onSelectTab(tab.value)}
-                style={({hovered}: {hovered?: boolean}) => [
-                  a.rounded_full,
-                  a.px_lg,
-                  {paddingVertical: 10},
-                  !active && hovered && t.atoms.bg_contrast_25,
-                  active &&
-                    web({
-                      backgroundImage: ACTIVE_GRADIENT,
-                      boxShadow: '0 6px 16px rgba(0, 72, 255, 0.25)',
-                    }),
+                style={[
+                  {
+                    paddingVertical: 8,
+                    paddingHorizontal: 14,
+                    borderBottomWidth: 3,
+                    borderBottomColor: active
+                      ? t.palette.contrast_900
+                      : 'transparent',
+                  },
                 ]}>
                 <Text
                   style={[
                     a.text_md,
                     a.font_semi_bold,
-                    active ? {color: '#fff'} : t.atoms.text,
+                    active ? t.atoms.text : t.atoms.text_contrast_medium,
                   ]}>
                   {tab.label}
                 </Text>
@@ -113,6 +111,12 @@ export function VisionboardTopBar<T extends string>({
         </View>
       </View>
 
+      <Capsule
+        label="Meus Visionboards"
+        to="/visionboard/boards"
+        compact
+        text="Meus Visionboards"
+      />
       <ThemeToggle />
       <Account />
     </View>

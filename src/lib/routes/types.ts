@@ -147,6 +147,8 @@ export type CommonNavigatorParams = {
   AdultSettings: undefined
   AdultCreatorDashboard: undefined
   ImageDetail: {name: string; rkey: string}
+  VisionboardBoards: undefined
+  VisionboardBoardView: {name: string; rkey: string}
   ImageDetailLegacy: {name: string; rkey: string}
   /** `t`: share-at-time start position ("192", "3m12s"). */
   VideoWatch: {name: string; rkey: string; t?: string}

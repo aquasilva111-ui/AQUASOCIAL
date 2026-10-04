@@ -48,6 +48,24 @@ type MasonryBlock = {
   columns: VisionboardItem[][]
 }
 
+/** Deals items into the shortest column, estimated from image aspect ratio. */
+export function dealIntoColumns(
+  items: VisionboardItem[],
+  columns: number,
+): VisionboardItem[][] {
+  const cols: VisionboardItem[][] = Array.from({length: columns}, () => [])
+  const heights = Array.from({length: columns}, () => 0)
+  for (const item of items) {
+    let target = 0
+    for (let c = 1; c < columns; c++) {
+      if (heights[c] < heights[target]) target = c
+    }
+    cols[target].push(item)
+    heights[target] += itemWeight(item)
+  }
+  return cols
+}
+
 /**
  * True masonry: items are dealt into the shortest column (estimated from the
  * real image aspect ratio, so no fake card heights and no layout jumps).
@@ -62,7 +80,7 @@ export function VisionboardMasonry({
   variant = 'feed',
   header,
 }: VisionboardMasonryProps) {
-  const gap = variant === 'board' ? 18 : 8
+  const gap = 8
   const {width} = useWindowDimensions()
   const columns = columnCount(width, variant)
   const blocks = useMemo(() => {
@@ -70,17 +88,10 @@ export function VisionboardMasonry({
     const result: MasonryBlock[] = []
     for (let start = 0; start < items.length; start += perBlock) {
       const slice = items.slice(start, start + perBlock)
-      const cols: VisionboardItem[][] = Array.from({length: columns}, () => [])
-      const heights = Array.from({length: columns}, () => 0)
-      for (const item of slice) {
-        let target = 0
-        for (let c = 1; c < columns; c++) {
-          if (heights[c] < heights[target]) target = c
-        }
-        cols[target].push(item)
-        heights[target] += itemWeight(item)
-      }
-      result.push({key: slice[0]?.id ?? `block-${start}`, columns: cols})
+      result.push({
+        key: slice[0]?.id ?? `block-${start}`,
+        columns: dealIntoColumns(slice, columns),
+      })
     }
     return result
   }, [items, columns])

@@ -9,7 +9,6 @@ import {
 
 import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
 import {makeProfileLink} from '#/lib/routes/links'
-import {cleanError} from '#/lib/strings/errors'
 import {getPostTextAndFacets} from '#/lib/strings/long-post'
 import {type VisionboardItem} from '#/lib/visionboard/model'
 import {
@@ -17,20 +16,17 @@ import {
   type Shadow,
   usePostShadow,
 } from '#/state/cache/post-shadow'
-import {useBookmarkMutation} from '#/state/queries/bookmarks/useBookmarkMutation'
-import {useRequireAuth} from '#/state/session'
 import {IMAGE_BORDER_RADIUS} from '#/view/com/util/images/constants'
 import {PostMeta} from '#/view/com/util/PostMeta'
 import {PreviewableUserAvatar, UserAvatar} from '#/view/com/util/UserAvatar'
 import {atoms as a, useTheme, web} from '#/alf'
-import {Button, ButtonText} from '#/components/Button'
 import {MediaMask} from '#/components/feeds/MediaCard'
 import {useInteractionState} from '#/components/hooks/useInteractionState'
 import {Link} from '#/components/Link'
 import * as Hider from '#/components/moderation/Hider'
 import {PostControls} from '#/components/PostControls'
-import * as toast from '#/components/Toast'
 import {Text} from '#/components/Typography'
+import {SaveToBoardButton} from './SaveToBoardButton'
 
 export type VisionboardCardVariant = 'feed' | 'board'
 
@@ -71,7 +67,7 @@ function getAspectRatio(item: VisionboardItem) {
     : 1
 }
 
-const BOARD_RADIUS = 22
+const BOARD_RADIUS = 28
 
 function VisionboardBoardCard({
   item,
@@ -91,7 +87,7 @@ function VisionboardBoardCard({
   return (
     <View
       testID="visionboard-card"
-      style={[a.pb_md]}
+      style={[{paddingBottom: 8}]}
       // @ts-expect-error web only
       onMouseEnter={onIn}
       onMouseLeave={onOut}>
@@ -141,7 +137,7 @@ function VisionboardBoardCard({
                   transition: 'opacity 150ms ease',
                 }),
               ]}>
-              <SaveButton post={post} />
+              <SaveButton post={post} item={item} />
             </View>
           </View>
           {!!item.title && (
@@ -179,41 +175,19 @@ function VisionboardBoardCard({
   )
 }
 
-/** Visionboard Save = AQUA Saved (bookmarks), never a separate store. */
-function SaveButton({post}: {post: Shadow<AppBskyFeedDefs.PostView>}) {
-  const {mutateAsync: bookmark, isPending} = useBookmarkMutation()
-  const requireAuth = useRequireAuth()
-  const saved = !!post.viewer?.bookmarked
-
-  const onPress = () =>
-    requireAuth(async () => {
-      try {
-        if (saved) {
-          await bookmark({action: 'delete', uri: post.uri})
-          toast.show('Removido dos salvos')
-        } else {
-          await bookmark({action: 'create', post})
-          toast.show('Salvo', {type: 'success'})
-        }
-      } catch (e) {
-        toast.show(cleanError(e), {type: 'error'})
-      }
-    })
-
+/** Save opens the board picker; it also keeps the image in AQUA Saved. */
+function SaveButton({
+  post,
+  item,
+}: {
+  post: Shadow<AppBskyFeedDefs.PostView>
+  item: VisionboardItem
+}) {
   return (
-    <Button
-      label={saved ? 'Remover dos salvos' : 'Salvar'}
-      size="small"
-      variant="solid"
-      color={saved ? 'secondary' : 'primary'}
-      disabled={isPending}
-      onPress={onPress}
-      style={[
-        a.rounded_full,
-        web({boxShadow: '0 6px 16px rgba(0, 72, 255, 0.28)'}),
-      ]}>
-      <ButtonText>{saved ? 'Salvo' : 'Salvar'}</ButtonText>
-    </Button>
+    <SaveToBoardButton
+      compact
+      target={{post, imageIndex: 0, thumbUrl: item.thumbnailUrl}}
+    />
   )
 }
 

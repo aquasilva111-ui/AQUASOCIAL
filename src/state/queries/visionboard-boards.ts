@@ -1,3 +1,4 @@
+import {type AppBskyFeedDefs} from '@atproto/api'
 import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
 
 import {type Aesthetic} from '#/lib/visionboard/aesthetics'
@@ -72,6 +73,55 @@ export function useBoardsQuery(did: string | undefined) {
         .map(({r, board}) => ({uri: r.uri, rkey: rkeyOf(r.uri), did, board}))
         .sort((a, b) => b.board.updatedAt.localeCompare(a.board.updatedAt))
       return visibleBoards(boards, isOwner)
+    },
+  })
+}
+
+/** One folder by rkey; undefined when missing, private for a stranger, or invalid. */
+export function useBoardQuery(did: string | undefined, rkey: string) {
+  const agent = useAgent()
+  const {currentAccount} = useSession()
+  const isOwner = !!did && currentAccount?.did === did
+  return useQuery<StoredBoard | undefined>({
+    queryKey: [...RQKEY.boards(did ?? ''), 'one', rkey, isOwner],
+    enabled: !!did,
+    staleTime: 30_000,
+    queryFn: async () => {
+      if (!did) return undefined
+      try {
+        const {data} = await agent.com.atproto.repo.getRecord({
+          repo: did,
+          collection: BOARD_COLLECTION,
+          rkey,
+        })
+        const board = normalizeBoard(data.value)
+        if (!board) return undefined
+        const stored = {uri: data.uri, rkey, did, board}
+        return visibleBoards([stored], isOwner)[0]
+      } catch {
+        return undefined
+      }
+    },
+  })
+}
+
+/** The AQUA posts behind a set of pins, 25 per request (getPosts' limit). */
+export function usePinPostsQuery(uris: string[]) {
+  const agent = useAgent()
+  const unique = [...new Set(uris)].sort()
+  return useQuery<Map<string, AppBskyFeedDefs.PostView>>({
+    queryKey: [ROOT, 'posts', unique.join(',')],
+    enabled: unique.length > 0,
+    staleTime: 5 * 60_000,
+    queryFn: async () => {
+      const out = new Map<string, AppBskyFeedDefs.PostView>()
+      for (let i = 0; i < unique.length; i += 25) {
+        const {data} = await agent.app.bsky.feed.getPosts({
+          uris: unique.slice(i, i + 25),
+        })
+        for (const post of data.posts) out.set(post.uri, post)
+      }
+      return out
     },
   })
 }

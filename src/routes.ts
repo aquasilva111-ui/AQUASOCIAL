@@ -16,6 +16,8 @@ export const router = new Router<AllNavigatableRoutes>({
   Videos: '/views',
   VideosLegacy: '/videos',
   ImageDetail: '/visionboard/view/:name/:rkey',
+  VisionboardBoards: '/visionboard/boards',
+  VisionboardBoardView: '/visionboard/boards/:name/:rkey',
   ImageDetailLegacy: '/images/view/:name/:rkey',
   VideoWatch: '/views/watch/:name/:rkey',
   VideoWatchLegacy: '/videos/watch/:name/:rkey',
