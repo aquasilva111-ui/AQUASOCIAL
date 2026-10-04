@@ -7,10 +7,11 @@ import type { Pcm } from 'aqua-runtime/src/render/wav'
 import { decodeAny, download, runtime, store } from '../hub'
 import { usePlayer } from './audio-play'
 import { useSession } from './hooks'
+import { Icon, IconButton } from './Icon'
 import { Knob } from './Knob'
 
 const HEAD = 188 // track header width, px
-const ROW = 92 // track height, px
+const ROW = 104 // track height, px
 const BINS = 200 // waveform peaks per second
 const COLORS = ['#ff6a2b', '#7c5cff', '#ff2d6f', '#2f8cff', '#19c37d', '#ffb703', '#17c3d9']
 const MIN = 0.05
@@ -347,20 +348,21 @@ export default function MixPanel({ itemId }: { itemId: string }) {
     >
       <div className="mx-top">
         <div className="mx-tools" role="toolbar" aria-label="Ferramentas">
-          <button className={'mx-tool' + (tool === 'select' ? ' on' : '')} title="Selecionar e mover (V)" onClick={() => setTool('select')}>↖</button>
-          <button className={'mx-tool' + (tool === 'range' ? ' on' : '')} title="Selecionar trecho dentro do clipe (I)" onClick={() => setTool('range')}>Ⅰ</button>
-          <button className={'mx-tool' + (tool === 'split' ? ' on' : '')} title="Dividir clicando no clipe" onClick={() => setTool('split')}>✂</button>
+          <IconButton variant="tool" icon="cursor" label="Selecionar e mover (V)" active={tool === 'select'} onClick={() => setTool('select')} />
+          <IconButton variant="tool" icon="ibeam" label="Selecionar trecho dentro do clipe (I)" active={tool === 'range'} onClick={() => setTool('range')} />
+          <IconButton variant="tool" icon="scissors" label="Dividir clicando no clipe" active={tool === 'split'} onClick={() => setTool('split')} />
         </div>
-        <button onClick={() => setTrackId(session.addTrack())}>＋ Faixa</button>
+        <IconButton variant="pill" icon="plus" text="Faixa" label="Adicionar faixa" onClick={() => setTrackId(session.addTrack())} />
         <label className="pill">+ Áudio <input type="file" accept="audio/*,video/*" multiple onChange={(e) => e.target.files && addFiles([...e.target.files], track?.id, player.pos)} /></label>
         <span className="spacer" />
-        <button className="primary" disabled={!mix.tracks.some((t) => t.clips.length)} onClick={async () => {
+        <IconButton variant="primary" icon="download" text="Exportar WAV" label="Exportar WAV" disabled={!mix.tracks.some((t) => t.clips.length)} onClick={async () => {
           const out = await runtime.exportForLaunch(itemId, 'audio')
           if (out) download(out.bytes, 'mixagem.wav', out.mime)
-        }}>Exportar WAV</button>
+        }} />
       </div>
       {err && <p className="note" style={{ color: '#ff8a6b', padding: '0 16px' }}>{err}</p>}
 
+      <div className="mx-wrap">
       <div className="mx-main">
         <div
           className="mx-stage"
@@ -422,15 +424,15 @@ export default function MixPanel({ itemId }: { itemId: string }) {
                               setTrackDrag({ id: t.id, over: ti })
                             }}
                             onDragEnd={() => setTrackDrag(null)}
-                          >⠿</span>
+                          ><Icon name="grip" size={16} /></span>
                           <input className="mx-name" value={t.name} onChange={(e) => setTrack(t.id, { name: e.target.value })} />
                           <button className={'mx-pill m' + (t.muted ? ' on' : '')} title="Mudo" onClick={() => setTrack(t.id, { muted: !t.muted })}>M</button>
                           <button className={'mx-pill s' + (t.solo ? ' on' : '')} title="Solo" onClick={() => setTrack(t.id, { solo: !t.solo })}>S</button>
                         </div>
                         <div className="mx-knobs">
-                          <Knob label="vol" size={40} value={t.volumeDb} min={-30} max={6} defaultValue={0} color={c} format={(v) => `${v}dB`} onChange={(v) => setTrack(t.id, { volumeDb: v })} />
-                          <Knob label="pan" size={40} value={t.pan} min={-1} max={1} step={0.05} bipolar color={c} format={(v) => (Math.abs(v) < 0.03 ? 'C' : `${v < 0 ? 'L' : 'R'}${Math.round(Math.abs(v) * 100)}`)} onChange={(v) => setTrack(t.id, { pan: v })} />
-                          <button className="chip" title="Remover faixa" style={{ marginLeft: 'auto' }} onClick={() => { session.removeTrack(t.id); setSel(null) }}>✕</button>
+                          <Knob label="vol" compact size={36} value={t.volumeDb} min={-30} max={6} defaultValue={0} color={c} format={(v) => `${v}dB`} onChange={(v) => setTrack(t.id, { volumeDb: v })} />
+                          <Knob label="pan" compact size={36} value={t.pan} min={-1} max={1} step={0.05} bipolar color={c} format={(v) => (Math.abs(v) < 0.03 ? 'C' : `${v < 0 ? 'L' : 'R'}${Math.round(Math.abs(v) * 100)}`)} onChange={(v) => setTrack(t.id, { pan: v })} />
+                          <IconButton variant="round" className="sm danger" icon="trash" label="Remover faixa" style={{ marginLeft: 'auto' }} onClick={() => { session.removeTrack(t.id); setSel(null) }} />
                         </div>
                       </div>
                       <div
@@ -465,7 +467,7 @@ export default function MixPanel({ itemId }: { itemId: string }) {
                               <span className="edge" style={{ left: 0 }} onPointerDown={(e) => startTrim(e, cl, 'in')} />
                               <span className="edge" style={{ right: 0 }} onPointerDown={(e) => startTrim(e, cl, 'out')} />
                               {r && Math.abs(r.to - r.from) >= MIN && (
-                                <span className="mx-range" style={{ left: (Math.min(r.from, r.to) - cl.start) * pps, width: Math.abs(r.to - r.from) * pps }}><i title="Limpar seleção" onPointerDown={(e) => (e.stopPropagation(), setRange(null))}>✕</i></span>
+                                <span className="mx-range" style={{ left: (Math.min(r.from, r.to) - cl.start) * pps, width: Math.abs(r.to - r.from) * pps }}><i title="Limpar seleção" onPointerDown={(e) => (e.stopPropagation(), setRange(null))}><Icon name="close" size={11} /></i></span>
                               )}
                             </div>
                           )
@@ -474,7 +476,7 @@ export default function MixPanel({ itemId }: { itemId: string }) {
                     </div>
                   )
                 })}
-                <div className="mx-add"><button onClick={() => setTrackId(session.addTrack())}>＋ Adicionar faixa</button></div>
+                <div className="mx-add"><IconButton variant="pill" icon="plus" text="Adicionar faixa" label="Adicionar faixa" onClick={() => setTrackId(session.addTrack())} /></div>
                 <div className="mx-playhead" style={{ left: HEAD + player.pos * pps }} />
               </div>
             </div>
@@ -533,6 +535,8 @@ export default function MixPanel({ itemId }: { itemId: string }) {
         </aside>
       </div>
 
+      </div>
+
       <div className="mx-overview" onPointerDown={(e) => { seekOverview(e); const mv = (ev: PointerEvent) => seekOverview(ev as unknown as React.PointerEvent<HTMLDivElement>); const up = () => (window.removeEventListener('pointermove', mv), window.removeEventListener('pointerup', up)); window.addEventListener('pointermove', mv); window.addEventListener('pointerup', up) }}>
         <canvas ref={overview} />
         <div className="mx-window" style={{ left: `${Math.min(98, (view.left / (HEAD + total * pps)) * 100)}%`, width: `${Math.min(100, (view.width / (HEAD + total * pps)) * 100)}%` }} />
@@ -540,15 +544,15 @@ export default function MixPanel({ itemId }: { itemId: string }) {
 
       <div className="mx-bottom">
         <div className="mx-time">{clock(player.pos)} <span>/ {clock(total)}</span></div>
-        <button className="round" title="Desfazer" onClick={() => (runtime.undo(itemId), refresh())}>↶</button>
-        <button className="round" title="Refazer" onClick={() => (runtime.redo(itemId), refresh())}>↷</button>
+        <IconButton icon="undo" label="Desfazer" onClick={() => (runtime.undo(itemId), refresh())} />
+        <IconButton icon="redo" label="Refazer" onClick={() => (runtime.redo(itemId), refresh())} />
         <div className="mx-transport">
-          <button className="round" title="Voltar ao início" onClick={() => (player.stop(), player.seek(0))}>⏮</button>
-          <button className="round" title="−5 s" onClick={() => jump(-5)}>⏪</button>
-          <button className="play" title="Tocar / parar (espaço)" onClick={go}>{player.playing ? '■' : '▶'}</button>
-          <button className="round" title="+5 s" onClick={() => jump(5)}>⏩</button>
+          <IconButton icon="toStart" label="Voltar ao início" onClick={() => (player.stop(), player.seek(0))} />
+          <IconButton icon="rewind" label="Voltar 5 segundos" onClick={() => jump(-5)} />
+          <IconButton variant="play" icon={player.playing ? 'stop' : 'play'} label="Tocar / parar (espaço)" active={player.playing} onClick={go} />
+          <IconButton icon="forward" label="Avançar 5 segundos" onClick={() => jump(5)} />
         </div>
-        <div className="mx-zoom">−<input type="range" min={10} max={160} value={pps} onChange={(e) => setPps(+e.target.value)} />+</div>
+        <div className="mx-zoom"><Icon name="minus" size={13} /><input type="range" min={10} max={160} value={pps} onChange={(e) => setPps(+e.target.value)} /><Icon name="plus" size={13} /></div>
       </div>
       <p className="note" style={{ padding: '10px 16px 0' }}>A pré-escuta usa o mesmo cálculo da exportação (WAV estéreo 44,1 kHz). Edições durante a reprodução reiniciam o som de onde estava.</p>
 

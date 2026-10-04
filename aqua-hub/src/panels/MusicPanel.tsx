@@ -6,6 +6,7 @@ import { renderSong } from 'aqua-runtime/src/render/music'
 import { download, runtime } from '../hub'
 import { playOnce, usePlayer } from './audio-play'
 import { UndoRedo, useSession } from './hooks'
+import { IconButton } from './Icon'
 import MelodyLab from './MelodyLab'
 
 const LOW = 36 // C2
@@ -208,8 +209,8 @@ export default function MusicPanel({ itemId }: { itemId: string }) {
       }}
     >
       <div className="transport">
-        <button className="round" title="Voltar ao início" onClick={() => (player.stop(), player.seek(0))}>⏮</button>
-        <button className="play" title="Tocar / parar (espaço)" onClick={go}>{player.playing ? '■' : '▶'}</button>
+        <IconButton icon="toStart" label="Voltar ao início" onClick={() => (player.stop(), player.seek(0))} />
+        <IconButton variant="play" icon={player.playing ? 'stop' : 'play'} label="Tocar / parar (espaço)" active={player.playing} onClick={go} />
         <div className="lcd">{lcd}<small>{player.pos.toFixed(1)} s</small></div>
         <label className="pill">BPM <input type="number" min={40} max={240} value={song.bpm} onChange={(e) => session.update((d) => void (d.bpm = Math.max(40, Math.min(240, +e.target.value || 120))))} /></label>
         <label className="pill">Compassos <input type="number" min={1} max={64} value={song.bars} onChange={(e) => session.update((d) => void (d.bars = Math.max(1, Math.min(64, +e.target.value || 8))))} /></label>
@@ -220,7 +221,7 @@ export default function MusicPanel({ itemId }: { itemId: string }) {
         </label>
         <label className="pill">Zoom <input type="range" min={24} max={140} value={bw} onChange={(e) => setBw(+e.target.value)} /></label>
         <span className="spacer" />
-        <button className={lab ? 'primary' : ''} onClick={() => setLab((v) => !v)}>🎙 Melody Lab</button>
+        <IconButton variant={lab ? 'primary' : 'pill'} icon="mic" text="Melody Lab" label="Melody Lab: cantar uma ideia" active={lab} onClick={() => setLab((v) => !v)} />
         <UndoRedo itemId={itemId} refresh={refresh} />
         <button onClick={async () => {
           const out = await runtime.exportForLaunch(itemId, 'audio')
@@ -251,22 +252,22 @@ export default function MusicPanel({ itemId }: { itemId: string }) {
         <div className={'trackrow' + (t.id === track?.id ? ' on' : '')} key={t.id} style={{ ['--c' as string]: COLORS[ti % COLORS.length] }} onPointerDown={() => setTrackId(t.id)}>
           <input className="tname" value={t.name} onChange={(e) => setTrack(t.id, { name: e.target.value })} />
           <select value={t.instrument} onChange={(e) => setTrack(t.id, { instrument: e.target.value as Track['instrument'] })}>
-            <option value="synth">🎹 Synth</option><option value="pluck">🎸 Pluck</option><option value="membrane">🥁 Percussão</option><option value="sampler">🔔 Quadrada</option>
+            <option value="synth">Synth</option><option value="pluck">Pluck</option><option value="membrane">Percussão</option><option value="sampler">Quadrada</option>
           </select>
           <button className={'chip' + (t.muted ? ' on-m' : '')} title="Mudo" onClick={() => setTrack(t.id, { muted: !t.muted })}>M</button>
           <button className={'chip' + (t.solo ? ' on-s' : '')} title="Solo" onClick={() => setTrack(t.id, { solo: !t.solo })}>S</button>
           <label className="pill" style={{ border: 0, background: 'transparent' }}>vol <input type="range" min={-30} max={6} step={1} value={t.volumeDb} onChange={(e) => setTrack(t.id, { volumeDb: +e.target.value })} /> {t.volumeDb} dB</label>
           <span className="spacer" />
-          <button className="chip" title="Remover faixa" onClick={() => { session.removeTrack(t.id); setTrackId(undefined); setSel(null) }}>✕</button>
+          <IconButton variant="round" className="sm danger" icon="trash" label="Remover faixa" onClick={() => { session.removeTrack(t.id); setTrackId(undefined); setSel(null) }} />
         </div>
       ))}
       <div className="transport" style={{ position: 'static', background: 'transparent', borderBottom: 0, paddingTop: 10 }}>
-        <button onClick={() => { setTrackId(session.addTrack(`Faixa ${song.tracks.length + 1}`)); setSel(null) }}>＋ Adicionar faixa</button>
+        <IconButton variant="pill" icon="plus" text="Adicionar faixa" label="Adicionar faixa" onClick={() => { setTrackId(session.addTrack(`Faixa ${song.tracks.length + 1}`)); setSel(null) }} />
         {selected && (
           <>
             <span className="pill">Nota {NAMES[selected.pitch % 12]}{Math.floor(selected.pitch / 12) - 1}</span>
             <label className="pill">Intensidade <input type="range" min={0.1} max={1} step={0.05} value={selected.velocity} onChange={(e) => session.updateNote(track!.id, sel!, { velocity: +e.target.value })} /></label>
-            <button onClick={remove}>Apagar nota</button>
+            <IconButton variant="pill" icon="trash" text="Apagar nota" label="Apagar nota" onClick={remove} />
           </>
         )}
       </div>

@@ -11,6 +11,7 @@ import type { Pcm } from 'aqua-runtime/src/render/wav'
 
 import { decodeAny } from '../hub'
 import { audioContext, usePlayer } from './audio-play'
+import { Icon, IconButton } from './Icon'
 
 type Op = { id: number; label: string; run: (m: Melody) => Melody }
 type Listen = 'take' | 'orig' | 'final'
@@ -258,19 +259,19 @@ export default function MelodyLab({ session, onClose, onSent }: { session: Music
   return (
     <div className="lab">
       <div className="lab-head">
-        <h3>🎙 Melody Lab</h3>
+        <h3 style={{ display: 'flex', alignItems: 'center', gap: 8 }}><Icon name="mic" size={18} /> Melody Lab</h3>
         <div className="lab-tabs">
-          <button className={'lab-tab' + (tab === 'sing' ? ' on' : '')} onClick={() => setTab('sing')}>🎙 Cantar</button>
-          <button className={'lab-tab' + (tab === 'math' ? ' on' : '')} onClick={() => setTab('math')} disabled={!final}>🔢 Matemática</button>
+          <IconButton variant="pill" className="lab-tab" icon="mic" text="Cantar" label="Cantar" active={tab === 'sing'} onClick={() => setTab('sing')} />
+          <IconButton variant="pill" className="lab-tab" icon="chart" text="Matemática" label="Matemática" active={tab === 'math'} onClick={() => setTab('math')} disabled={!final} />
         </div>
         <span className="spacer" />
         <span className="note">sua voz é o lápis: a gravação original nunca é alterada</span>
-        <button className="chip" title="Fechar" onClick={onClose}>✕</button>
+        <IconButton variant="round" className="sm" icon="close" label="Fechar" onClick={onClose} />
       </div>
 
       <div className="lab-body">
         <div className="lab-row">
-          <button className={'rec' + (recording ? ' live' : '')} title={recording ? 'Parar e analisar' : 'Cantar ideia'} onClick={recording ? stopRec : startRec} disabled={!!busy}>{recording ? '■' : '●'}</button>
+          <IconButton variant="round" className="rec" icon={recording ? 'stop' : 'record'} size={24} label={recording ? 'Parar e analisar' : 'Cantar ideia'} active={recording} onClick={recording ? stopRec : startRec} disabled={!!busy} />
           <div style={{ flex: 1, minWidth: 140 }}>
             <b>{recording ? 'Gravando… cante uma nota por vez' : 'Cantar ideia'}</b>
             <div className="meter" style={{ marginTop: 8 }}><i style={{ width: `${level * 100}%` }} /></div>
@@ -326,10 +327,10 @@ export default function MelodyLab({ session, onClose, onSent }: { session: Music
                 </select>
               </label>
               <span className="spacer" />
-              <button onClick={() => play('take')}>{player.playing && listen === 'take' ? '■' : '▶'} Gravação</button>
-              <button onClick={() => play('orig')}>{player.playing && listen === 'orig' ? '■' : '▶'} Original</button>
-              <button onClick={() => play('final')}>{player.playing && listen === 'final' ? '■' : '▶'} Interpretada</button>
-              <button className="primary" onClick={sendToRoll} disabled={!final.notes.length}>Enviar ao piano roll</button>
+              <IconButton variant="pill" icon={player.playing && listen === 'take' ? 'stop' : 'play'} text="Gravação" label="Ouvir gravação" onClick={() => play('take')} />
+              <IconButton variant="pill" icon={player.playing && listen === 'orig' ? 'stop' : 'play'} text="Original" label="Ouvir original" onClick={() => play('orig')} />
+              <IconButton variant="pill" icon={player.playing && listen === 'final' ? 'stop' : 'play'} text="Interpretada" label="Ouvir interpretada" onClick={() => play('final')} />
+              <IconButton variant="primary" icon="plus" text="Enviar ao piano roll" label="Enviar ao piano roll" onClick={sendToRoll} disabled={!final.notes.length} />
             </div>
             {sent && <p className="note" style={{ color: '#2ee6a6' }}>{sent}</p>}
           </>
@@ -412,10 +413,10 @@ export default function MelodyLab({ session, onClose, onSent }: { session: Music
                 </div>)}
             </div>
             <div className="lab-row">
-              <button onClick={() => play('orig')}>{player.playing && listen === 'orig' ? '■' : '▶'} Original</button>
-              <button onClick={() => play('final')}>{player.playing && listen === 'final' ? '■' : '▶'} Resultado</button>
+              <IconButton variant="pill" icon={player.playing && listen === 'orig' ? 'stop' : 'play'} text="Original" label="Ouvir original" onClick={() => play('orig')} />
+              <IconButton variant="pill" icon={player.playing && listen === 'final' ? 'stop' : 'play'} text="Resultado" label="Ouvir o resultado" onClick={() => play('final')} />
               <span className="spacer" />
-              <button className="primary" onClick={sendToRoll} disabled={!final.notes.length}>Enviar ao piano roll</button>
+              <IconButton variant="primary" icon="plus" text="Enviar ao piano roll" label="Enviar ao piano roll" onClick={sendToRoll} disabled={!final.notes.length} />
             </div>
             {sent && <p className="note" style={{ color: '#2ee6a6' }}>{sent}</p>}
           </>

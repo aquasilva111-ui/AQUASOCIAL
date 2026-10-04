@@ -5,6 +5,7 @@ import { docStats, docStatsFromBytes, editSessions, wordSeries, type DocStats, t
 import { DOCS_FRAGMENT, type docSession } from 'aqua-runtime/src/adapters/docs'
 
 import { runtime, store } from '../hub'
+import { Icon, IconButton } from './Icon'
 
 type DocSession = ReturnType<typeof docSession>
 type View = 'overview' | 'structure' | 'history'
@@ -142,10 +143,10 @@ export default function DocAnalytics({ session, itemId, onEdit }: { session: Doc
           <small>{versions.length} {versions.length === 1 ? 'versão' : 'versões'} · {stats.words} palavras</small>
         </div>
         <nav className="an-nav">
-          {([['overview', '⌂', 'Visão geral'], ['structure', '☰', 'Estrutura'], ['history', '◷', 'Histórico']] as const).map(([id, ic, label]) => (
-            <button key={id} className={view === id ? 'on' : ''} onClick={() => setView(id)}><span className="ic">{ic}</span>{label}</button>
+          {([['overview', 'home', 'Visão geral'], ['structure', 'list', 'Estrutura'], ['history', 'clock', 'Histórico']] as const).map(([id, ic, label]) => (
+            <button key={id} className={view === id ? 'on' : ''} onClick={() => setView(id)}><span className="ic"><Icon name={ic} size={15} /></span>{label}</button>
           ))}
-          <button onClick={onEdit}><span className="ic">✎</span>Voltar ao editor</button>
+          <button onClick={onEdit}><span className="ic"><Icon name="edit" size={15} /></span>Voltar ao editor</button>
         </nav>
         <div className="an-foot">{item ? `Atualizado ${when(item.updatedAt)}` : ''}</div>
         </div>
@@ -169,7 +170,7 @@ export default function DocAnalytics({ session, itemId, onEdit }: { session: Doc
             <div className="an-card an-hero">
               <span className="tag">Legibilidade: {level}{stats.words ? ` · ${Math.round(stats.fleschPt)}` : ''}</span>
               <h2>{item?.name || 'Sem título'}</h2>
-              <div className="acts"><button className="an-round" title="Editar" onClick={onEdit}>✎</button></div>
+              <div className="acts"><button className="an-round" title="Editar" aria-label="Editar" onClick={onEdit}><Icon name="edit" size={18} /></button></div>
             </div>
             <div className="an-card an-black">
               <div className="top" style={{ display: 'flex', alignItems: 'center', gap: 10 }}><span className="an-ic" style={{ background: '#1b1c1f' }}>↗</span><span className="lbl">Palavras por versão</span></div>
@@ -226,7 +227,7 @@ export default function DocAnalytics({ session, itemId, onEdit }: { session: Doc
         )}
 
         <div className="an-time">
-          <div className="an-pm"><button className="an-round dark" title="Ampliar período" onClick={() => zoom(1)}>+</button><button className="an-round dark" title="Ver mais" onClick={() => zoom(-1)}>−</button></div>
+          <div className="an-pm"><button className="an-round dark" title="Ampliar período" aria-label="Ampliar período" onClick={() => zoom(1)}><Icon name="plus" size={16} /></button><button className="an-round dark" title="Ver mais" aria-label="Ver mais" onClick={() => zoom(-1)}><Icon name="minus" size={16} /></button></div>
           <div className="track" aria-label="Linha do tempo das versões">
             <div className="line" />
             {shown.length > 1 && <div className="win" style={{ left: '2%', right: '2%', background: 'transparent', color: '#8a8d94', top: 'auto', bottom: -4 }}>{when(shown[0].at)} → {when(shown[shown.length - 1].at)}</div>}

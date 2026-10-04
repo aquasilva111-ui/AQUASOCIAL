@@ -10,6 +10,7 @@ import { DOCS_FRAGMENT, docSession } from 'aqua-runtime/src/adapters/docs'
 
 import { download, onProjectChange, runtime } from '../hub'
 import DocAnalytics from './DocAnalytics'
+import { IconButton } from './Icon'
 import { useSession } from './hooks'
 
 type DocSession = ReturnType<typeof docSession>
@@ -48,12 +49,12 @@ function Page({ session, itemId }: { session: DocSession; itemId: string }) {
   return (
     <div className="docwrap">
       <div className="doctools">
-        <button className="seg" style={tab === 'edit' ? { background: '#e8f0fe', color: '#1a56db', fontWeight: 600 } : undefined} onClick={() => setTab('edit')}>✎ Editor</button>
-        <button className="seg" style={tab === 'analytics' ? { background: '#e8f0fe', color: '#1a56db', fontWeight: 600 } : undefined} onClick={() => setTab('analytics')}>▦ Analytics</button>
+        <IconButton variant="ghost" icon="edit" text="Editor" label="Editor" active={tab === 'edit'} onClick={() => setTab('edit')} />
+        <IconButton variant="ghost" icon="chart" text="Analytics" label="Analytics do documento" active={tab === 'analytics'} onClick={() => setTab('analytics')} />
         <span style={{ width: 1, height: 20, background: '#e3e5e8' }} />
-        <button onClick={() => download(enc(editor.blocksToMarkdownLossy()), `${file}.md`, 'text/markdown')}>⬇ Markdown</button>
-        <button onClick={async () => download(enc(await editor.blocksToHTMLLossy()), `${file}.html`, 'text/html')}>⬇ HTML</button>
-        <button onClick={() => window.print()}>🖨 Imprimir</button>
+        <IconButton variant="ghost" icon="download" text="Markdown" label="Baixar como Markdown" onClick={() => download(enc(editor.blocksToMarkdownLossy()), `${file}.md`, 'text/markdown')} />
+        <IconButton variant="ghost" icon="download" text="HTML" label="Baixar como HTML" onClick={async () => download(enc(await editor.blocksToHTMLLossy()), `${file}.html`, 'text/html')} />
+        <IconButton variant="ghost" icon="print" text="Imprimir" label="Imprimir" onClick={() => window.print()} />
         <span className="status">{saving ? 'Salvando…' : item ? `✓ Salvo às ${clock(item.updatedAt)}` : ''}</span>
       </div>
       {tab === 'analytics' && <DocAnalytics session={session} itemId={itemId} onEdit={() => setTab('edit')} />}
