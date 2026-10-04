@@ -22,9 +22,16 @@ import {
 import {useDocsApi} from '#/state/docs/store'
 import {useWikiEntry, useWikiSearch} from '#/state/queries/wiki'
 import * as Layout from '#/components/Layout'
+import {CountryPanel, MoleculePanel, NasaPanel} from './SourcePanels'
 import {bliss, oskon} from './theme'
 
-function Glass({children, style}: {children: React.ReactNode; style?: object}) {
+export function Glass({
+  children,
+  style,
+}: {
+  children: React.ReactNode
+  style?: object
+}) {
   return (
     <BlurView intensity={30} tint="light" style={[s.glass, style]}>
       {children}
@@ -32,7 +39,7 @@ function Glass({children, style}: {children: React.ReactNode; style?: object}) {
   )
 }
 
-function GlossyButton({
+export function GlossyButton({
   label,
   onPress,
   colors,
@@ -62,9 +69,18 @@ function GlossyButton({
   )
 }
 
+type Source = 'wikipedia' | 'nasa' | 'molecules' | 'countries'
+const SOURCES: [Source, string][] = [
+  ['wikipedia', 'Wikipedia'],
+  ['nasa', 'NASA'],
+  ['molecules', 'Moléculas'],
+  ['countries', 'Países'],
+]
+
 export function WikiHomeScreen() {
   const navigation = useNavigation<NavigationProp>()
   const {createDoc} = useDocsApi()
+  const [source, setSource] = useState<Source>('wikipedia')
   const [lang, setLang] = useState(DEFAULT_WIKI_LANG)
   const [input, setInput] = useState('')
   const [query, setQuery] = useState('')
@@ -126,27 +142,45 @@ export function WikiHomeScreen() {
           />
         </Glass>
 
-        <Glass style={s.card}>
-          <Text style={s.small}>
-            {WIKI_LANGUAGES.length} idiomas · wikipedia.org
-          </Text>
-          <View style={s.chips}>
-            {WIKI_LANGUAGES.map(l => (
-              <GlossyButton
-                key={l.code}
-                label={l.name}
-                colors={bliss.pill}
-                on={l.code === lang}
-                onPress={() => {
-                  setLang(l.code)
-                  setTitle(undefined)
-                }}
-              />
-            ))}
-          </View>
-        </Glass>
+        <View style={s.chips}>
+          {SOURCES.map(([id, label]) => (
+            <GlossyButton
+              key={id}
+              label={label}
+              colors={bliss.go}
+              on={id === source}
+              onPress={() => setSource(id)}
+            />
+          ))}
+        </View>
 
-        {query.trim().length >= 2 && !title && (
+        {source === 'nasa' && <NasaPanel query={query} />}
+        {source === 'molecules' && <MoleculePanel query={query} />}
+        {source === 'countries' && <CountryPanel query={query} />}
+
+        {source === 'wikipedia' && (
+          <Glass style={s.card}>
+            <Text style={s.small}>
+              {WIKI_LANGUAGES.length} idiomas · wikipedia.org
+            </Text>
+            <View style={s.chips}>
+              {WIKI_LANGUAGES.map(l => (
+                <GlossyButton
+                  key={l.code}
+                  label={l.name}
+                  colors={bliss.pill}
+                  on={l.code === lang}
+                  onPress={() => {
+                    setLang(l.code)
+                    setTitle(undefined)
+                  }}
+                />
+              ))}
+            </View>
+          </Glass>
+        )}
+
+        {source === 'wikipedia' && query.trim().length >= 2 && !title && (
           <Glass style={s.card}>
             {search.isLoading && <Text style={s.body}>A procurar…</Text>}
             {search.isError && (
@@ -176,7 +210,7 @@ export function WikiHomeScreen() {
           </Glass>
         )}
 
-        {title && (
+        {source === 'wikipedia' && title && (
           <Glass style={s.card}>
             {entry.isLoading && <Text style={s.body}>A carregar…</Text>}
             {entry.isError && (
@@ -237,7 +271,7 @@ export function WikiHomeScreen() {
   )
 }
 
-const s = StyleSheet.create({
+export const s = StyleSheet.create({
   content: {padding: 16, gap: 14, paddingBottom: 80},
   grass: {
     position: 'absolute',
