@@ -44,6 +44,7 @@ export const router = new Router<AllNavigatableRoutes>({
   Reads: '/reads',
   Books: '/books',
   BooksStudio: '/books/studio',
+  BooksCollection: '/books/collection',
   BookEdit: '/books/studio/book/:book',
   ChapterEdit: '/books/studio/book/:book/chapter/:chapter',
   BookDetail: '/books/:handle/:book',

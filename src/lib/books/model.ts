@@ -432,6 +432,25 @@ export function genreLabel(id: string) {
   return GENRES.find(g => g.id === id)?.label ?? id
 }
 
+export type CollectionTab = 'all' | 'reading' | 'mine'
+
+/** Merge reading list and own books for the collection, no duplicates. */
+export function collectionItems<T extends {uri: string}>(
+  reading: T[],
+  mine: T[],
+  tab: CollectionTab,
+): T[] {
+  const list =
+    tab === 'reading' ? reading : tab === 'mine' ? mine : [...reading, ...mine]
+  const seen = new Set<string>()
+  return list.filter(i => (seen.has(i.uri) ? false : !!seen.add(i.uri)))
+}
+
+/** Number of grid columns for a container width. */
+export function collectionColumns(width: number) {
+  return width >= 900 ? 5 : width >= 640 ? 4 : width >= 420 ? 3 : 2
+}
+
 /* ------------------------------------------------------------------ */
 /* Reads feed (thread parts as cards)                                  */
 /* ------------------------------------------------------------------ */

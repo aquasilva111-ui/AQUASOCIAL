@@ -96,6 +96,7 @@ import {
   BookChapterScreen,
   BookDetailScreen,
   BookEditScreen,
+  BooksCollectionScreen,
   BooksHomeScreen,
   BooksStudioScreen,
   ChapterEditScreen,
@@ -748,6 +749,11 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
         name="Books"
         component={BooksHomeScreen}
         options={{title: 'Reads · Biblioteca'}}
+      />
+      <Stack.Screen
+        name="BooksCollection"
+        component={BooksCollectionScreen}
+        options={{title: 'Minha coleção', requireAuth: true}}
       />
       <Stack.Screen
         name="BooksStudio"

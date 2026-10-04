@@ -113,6 +113,7 @@ export type CommonNavigatorParams = {
   Reads: undefined
   Books: undefined
   BooksStudio: undefined
+  BooksCollection: undefined
   BookEdit: {book: string}
   ChapterEdit: {book: string; chapter: string}
   BookDetail: {handle: string; book: string}
