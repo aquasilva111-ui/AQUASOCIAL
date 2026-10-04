@@ -8,7 +8,7 @@ export { chartAdapter, chartToSvg, toEchartsOption, defaultChart, type ChartSpec
 export { musicAdapter, defaultSong, type Song, type Track, type Note, type MusicSession, type MusicAdapterOptions } from './adapters/music'
 export { audioAdapter, defaultAudio, type AudioEdit, type AudioRegion, type AudioSession, type AudioAdapterOptions } from './adapters/audio'
 export { encodeWav, decodeWav, type Pcm } from './render/wav'
-export { mixAdapter, defaultMix, mixDuration, type Mix, type MixTrack, type MixClip, type MixSession, type MixAdapterOptions } from './adapters/mix'
+export { mixAdapter, defaultMix, mixDuration, clipRange, type Mix, type MixTrack, type MixClip, type MixSession, type MixAdapterOptions } from './adapters/mix'
 export { renderMix, resample } from './render/mix'
 export { renderSong } from './render/music'
 export { applyAudioEdit } from './render/audio'

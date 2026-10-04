@@ -485,3 +485,52 @@ test('doc analytics: counts, structure, readability, keywords, sessions', () => 
   assert.equal(ed.activeMin, 15)
   assert.deepEqual(editSessions([]), { sessions: 0, activeMin: 0 })
 })
+
+import { clipRange } from '../src/index'
+
+test('mix: copy/paste, duplicate, cut a range, reorder tracks, clip names', async () => {
+  const rt = new CreativeRuntime({ project: createProject('M'), store: new MemoryAssetStore(), adapters: [mixAdapter()] })
+  const item = await rt.create('mix', 'Mix')
+  const s = (await rt.openItem(item.id)) as MixSession
+  const a = s.addTrack('A')
+  const b = s.addTrack('B')
+  const c = s.addClip(a, 'h', 10, 2, 'voz.wav')
+  assert.equal(s.state.tracks[0].clips[0].name, 'voz.wav')
+  s.update((d) => Object.assign(d.tracks[0].clips[0], { fadeIn: 1, fadeOut: 2, gainDb: -3 }))
+
+  // range copy keeps the audio window and drops fades that are no longer at the clip's ends
+  const mid = clipRange(s.state.tracks[0].clips[0], 4, 7)
+  assert.deepEqual([mid.start, mid.in, mid.out, mid.fadeIn, mid.fadeOut, mid.gainDb, mid.name], [4, 2, 5, 0, 0, -3, 'voz.wav'])
+  const head = clipRange(s.state.tracks[0].clips[0], 0, 5) // starts before the clip: clamped to it
+  assert.deepEqual([head.start, head.in, head.out, head.fadeIn], [2, 0, 3, 1])
+  assert.throws(() => clipRange(s.state.tracks[0].clips[0], 4, 4.01), /too short/)
+  const pasted = s.pasteClip(b, mid, 20)
+  assert.deepEqual(s.state.tracks[1].clips.map((x) => [x.id === pasted, x.start, x.in, x.out]), [[true, 20, 2, 5]])
+  assert.notEqual(pasted, c)
+
+  const dup = s.duplicateClip(c)
+  assert.equal(s.state.tracks[0].clips.length, 2)
+  assert.equal(s.state.tracks[0].clips[1].id, dup)
+  assert.equal(s.state.tracks[0].clips[1].start, 12) // right after the original (2 + 10)
+  s.removeClip(dup)
+
+  // cutting the middle leaves two pieces in place; the right one keeps its audio alignment
+  s.removeRange(c, 4, 7)
+  assert.deepEqual(s.state.tracks[0].clips.map((x) => [x.start, x.in, x.out, x.fadeIn, x.fadeOut]), [[2, 0, 2, 1, 0], [7, 5, 10, 0, 2]])
+  // cutting from the left edge shifts start and in together
+  const right = s.state.tracks[0].clips[1].id
+  s.removeRange(right, 7, 8)
+  assert.deepEqual([s.state.tracks[0].clips[1].start, s.state.tracks[0].clips[1].in, s.state.tracks[0].clips[1].out], [8, 6, 10])
+  s.removeRange(right, 11, 20) // beyond the end is clamped: cuts the tail
+  assert.deepEqual([s.state.tracks[0].clips[1].start, s.state.tracks[0].clips[1].out], [8, 9])
+  s.removeRange(right, 0, 100) // the whole clip
+  assert.equal(s.state.tracks[0].clips.length, 1)
+  assert.throws(() => s.removeRange(s.state.tracks[0].clips[0].id, 3, 3.01), /too short/)
+  assert.throws(() => s.removeRange('nope', 0, 1), /Clip not found/)
+
+  s.moveTrack(b, 0)
+  assert.deepEqual(s.state.tracks.map((t) => t.name), ['B', 'A'])
+  s.moveTrack(b, 99) // clamped to the end
+  assert.deepEqual(s.state.tracks.map((t) => t.name), ['A', 'B'])
+  assert.throws(() => s.moveTrack('nope', 0), /Track not found/)
+})
