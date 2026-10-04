@@ -31,8 +31,24 @@ function forAccount(did: string): RelationshipState {
 }
 
 let snapshotVersion = 0
+let cachedSnapshot: {
+  state: RelationshipState | null
+  version: number
+} | null = null
+/**
+ * useSyncExternalStore compares snapshots by identity, so the same object
+ * must be returned until something changes. A fresh object per call makes
+ * React re-render forever (error #185).
+ */
 function snapshot() {
-  return {state, version: snapshotVersion}
+  if (
+    !cachedSnapshot ||
+    cachedSnapshot.state !== state ||
+    cachedSnapshot.version !== snapshotVersion
+  ) {
+    cachedSnapshot = {state, version: snapshotVersion}
+  }
+  return cachedSnapshot
 }
 
 export function subscribeAdultRelationships(listener: () => void) {
