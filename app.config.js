@@ -296,6 +296,13 @@ module.exports = function (_config) {
               './assets/fonts/trueno/truenosbd.otf',
               './assets/fonts/trueno/truenobd.otf',
               './assets/fonts/trueno/truenobdit.otf',
+              // AQUA WIKI display font (ZT Bros Oskon 90s, commercial licence)
+              './assets/fonts/oskon/ZTBrosOskon90s-ExtraLight.otf',
+              './assets/fonts/oskon/ZTBrosOskon90s-ExtLtIta.otf',
+              './assets/fonts/oskon/ZTBrosOskon90s-Light.otf',
+              './assets/fonts/oskon/ZTBrosOskon90s-LightItalic.otf',
+              './assets/fonts/oskon/ZTBrosOskon90s-Regular.otf',
+              './assets/fonts/oskon/ZTBrosOskon90s-Italic.otf',
             ],
           },
         ],

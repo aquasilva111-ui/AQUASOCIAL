@@ -313,6 +313,28 @@ let DrawerContent = ({}: React.PropsWithoutRef<{}>): React.ReactNode => {
           />
         )}
         {hasSession && (
+          <MenuItem
+            icon={
+              <Image
+                accessibilityIgnoresInvertColors
+                source={wikiIcon}
+                style={[
+                  {
+                    width: iconWidth,
+                    height: iconWidth,
+                    tintColor: t.atoms.text.color,
+                  },
+                ]}
+              />
+            }
+            label="Wiki"
+            onPress={() => {
+              navigation.navigate('WikiHome')
+              setDrawerOpen(false)
+            }}
+          />
+        )}
+        {hasSession && (
           <>
             {/* Same entries as the desktop sidebar. */}
             <MenuItem

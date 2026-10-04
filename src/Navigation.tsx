@@ -200,6 +200,7 @@ import {ViewPaidScreen} from '#/screens/ViewLibrary/PaidScreen'
 import {ViewSubscriptionsScreen} from '#/screens/ViewLibrary/SubscriptionsScreen'
 import {ViewWatchLaterScreen} from '#/screens/ViewLibrary/WatchLaterScreen'
 import {ViewWatchScreen} from '#/screens/ViewWatch/WatchScreen'
+import {WikiHomeScreen} from '#/screens/Wiki'
 import {type Theme, useTheme} from '#/alf'
 import {
   EmailDialogScreenID,
@@ -889,6 +890,11 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
         name="DocEditor"
         component={DocEditorScreen}
         options={{title: 'AQUA DOCS', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="WikiHome"
+        component={WikiHomeScreen}
+        options={{title: 'AQUA WIKI'}}
       />
       <Stack.Screen
         name="AdultHome"

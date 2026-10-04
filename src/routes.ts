@@ -58,6 +58,8 @@ export const router = new Router<AllNavigatableRoutes>({
   // AQUA DOCS (block documents)
   DocsHome: '/docs',
   DocEditor: '/docs/:id',
+  // AQUA WIKI (Wikipedia browser)
+  WikiHome: '/wiki',
   // AQUA +18 (gated adult environment)
   AdultHome: '/adult',
   AdultFeed: '/adult/feed',

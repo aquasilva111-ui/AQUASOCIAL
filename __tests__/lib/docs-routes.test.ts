@@ -16,3 +16,9 @@ describe('docs routes', () => {
     expect(router.build('DocEditor', {id: 'xyz'})).toBe('/docs/xyz')
   })
 })
+
+describe('wiki routes', () => {
+  it('resolves the wiki home', () => {
+    expect(router.matchPath('/wiki')[0]).toBe('WikiHome')
+  })
+})

@@ -126,6 +126,7 @@ export type CommonNavigatorParams = {
   UIAI: undefined
   DocsHome: undefined
   DocEditor: {id: string}
+  WikiHome: undefined
   AdultHome: undefined
   AdultFeed: undefined
   AdultCreators: undefined
