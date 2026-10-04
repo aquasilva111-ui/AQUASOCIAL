@@ -6,6 +6,7 @@ import { renderSong } from 'aqua-runtime/src/render/music'
 import { download, runtime } from '../hub'
 import { playOnce, usePlayer } from './audio-play'
 import { UndoRedo, useSession } from './hooks'
+import MelodyLab from './MelodyLab'
 
 const LOW = 36 // C2
 const HIGH = 96 // C7 (exclusive)
@@ -30,6 +31,7 @@ export default function MusicPanel({ itemId }: { itemId: string }) {
   const [snap, setSnap] = useState(0.25) // beats
   const [bw, setBw] = useState(56) // pixels per beat
   const [url, setUrl] = useState<string | null>(null)
+  const [lab, setLab] = useState(false)
   const cv = useRef<HTMLCanvasElement>(null)
   const scroller = useRef<HTMLDivElement>(null)
   const drag = useRef<Drag | null>(null)
@@ -218,6 +220,7 @@ export default function MusicPanel({ itemId }: { itemId: string }) {
         </label>
         <label className="pill">Zoom <input type="range" min={24} max={140} value={bw} onChange={(e) => setBw(+e.target.value)} /></label>
         <span className="spacer" />
+        <button className={lab ? 'primary' : ''} onClick={() => setLab((v) => !v)}>🎙 Melody Lab</button>
         <UndoRedo itemId={itemId} refresh={refresh} />
         <button onClick={async () => {
           const out = await runtime.exportForLaunch(itemId, 'audio')
@@ -229,6 +232,8 @@ export default function MusicPanel({ itemId }: { itemId: string }) {
         }}>Baixar WAV</button>
       </div>
       {url && <div style={{ padding: '10px 16px 0' }}><audio controls src={url} style={{ width: '100%' }} /></div>}
+
+      {lab && <MelodyLab session={session} onClose={() => setLab(false)} />}
 
       {song.tracks.map((t, ti) => (
         <div className={'trackrow' + (t.id === track?.id ? ' on' : '')} key={t.id} style={{ ['--c' as string]: COLORS[ti % COLORS.length] }} onPointerDown={() => setTrackId(t.id)}>
