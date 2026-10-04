@@ -9,6 +9,7 @@ import { useEffect, useState, useSyncExternalStore } from 'react'
 import { DOCS_FRAGMENT, docSession } from 'aqua-runtime/src/adapters/docs'
 
 import { download, onProjectChange, runtime } from '../hub'
+import DocAnalytics from './DocAnalytics'
 import { useSession } from './hooks'
 
 type DocSession = ReturnType<typeof docSession>
@@ -28,6 +29,7 @@ function Page({ session, itemId }: { session: DocSession; itemId: string }) {
   const project = useSyncExternalStore(onProjectChange, () => runtime.project)
   const item = project.items.find((i) => i.id === itemId)
   const [saving, setSaving] = useState(false)
+  const [tab, setTab] = useState<'edit' | 'analytics'>('edit')
   useEffect(() => session.onChange(() => setSaving(true)), [session])
   useEffect(() => onProjectChange(() => setSaving(false)), [])
 
@@ -46,12 +48,16 @@ function Page({ session, itemId }: { session: DocSession; itemId: string }) {
   return (
     <div className="docwrap">
       <div className="doctools">
+        <button className="seg" style={tab === 'edit' ? { background: '#e8f0fe', color: '#1a56db', fontWeight: 600 } : undefined} onClick={() => setTab('edit')}>✎ Editor</button>
+        <button className="seg" style={tab === 'analytics' ? { background: '#e8f0fe', color: '#1a56db', fontWeight: 600 } : undefined} onClick={() => setTab('analytics')}>▦ Analytics</button>
+        <span style={{ width: 1, height: 20, background: '#e3e5e8' }} />
         <button onClick={() => download(enc(editor.blocksToMarkdownLossy()), `${file}.md`, 'text/markdown')}>⬇ Markdown</button>
         <button onClick={async () => download(enc(await editor.blocksToHTMLLossy()), `${file}.html`, 'text/html')}>⬇ HTML</button>
         <button onClick={() => window.print()}>🖨 Imprimir</button>
         <span className="status">{saving ? 'Salvando…' : item ? `✓ Salvo às ${clock(item.updatedAt)}` : ''}</span>
       </div>
-      <article className="paper">
+      {tab === 'analytics' && <DocAnalytics session={session} itemId={itemId} onEdit={() => setTab('edit')} />}
+      <article className="paper" style={tab === 'analytics' ? { display: 'none' } : undefined}>
         <input
           className="doctitle"
           placeholder="Sem título"
