@@ -27,7 +27,6 @@ import {Button, ButtonIcon, ButtonText} from '#/components/Button'
 import {Divider} from '#/components/Divider'
 import {AquaLogo} from '#/components/icons/AquaLogo'
 import {CirclePlus_Stroke2_Corner0_Rounded as CirclePlusIcon} from '#/components/icons/CirclePlus'
-import {Globe_Stroke2_Corner0_Rounded as GlobeIcon} from '#/components/icons/Globe'
 import {
   HomeOpen_Filled_Corner0_Rounded as HomeFilled,
   HomeOpen_Stoke2_Corner0_Rounded as Home,
@@ -346,14 +345,6 @@ let DrawerContent = ({}: React.PropsWithoutRef<{}>): React.ReactNode => {
               }}
             />
             <MenuItem
-              icon={<GlobeIcon width={iconWidth} style={t.atoms.text} />}
-              label="Notícias"
-              onPress={() => {
-                navigation.navigate('NewsAtlas')
-                setDrawerOpen(false)
-              }}
-            />
-            <MenuItem
               icon={<MusicNote width={iconWidth} style={t.atoms.text} />}
               label="Música"
               onPress={() => {
@@ -374,7 +365,10 @@ let DrawerContent = ({}: React.PropsWithoutRef<{}>): React.ReactNode => {
             <MenuItem
               icon={tintedIcon(newsConventionsIcon, t.atoms.text.color)}
               label="News & Conventions"
-              onPress={() => {}}
+              onPress={() => {
+                navigation.navigate('NewsAtlas')
+                setDrawerOpen(false)
+              }}
             />
             <MenuItem
               icon={tintedIcon(portalsIcon, t.atoms.text.color)}
