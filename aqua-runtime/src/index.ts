@@ -17,3 +17,4 @@ export { vegaLiteToSvg, plotToSvg, type PlotSpec } from './adapters/dataviz'
 export { sheetAdapter, type SheetDoc, type SheetSession, type SheetAdapterOptions } from './adapters/sheet'
 
 export { docStats, docStatsFromXml, docStatsFromBytes, wordSeries, editSessions, type DocStats, type Heading, type VersionPoint } from './analytics/doc'
+export * from './melody/index'
