@@ -105,7 +105,9 @@ export function HomeScreen(props: Props) {
 
   if (preferences && homeFeedInfos && !isPinnedFeedsLoading) {
     return (
-      <Layout.Screen testID="HomeScreen">
+      // On web the fixed header carries the top safe-area inset itself (see
+      // HomeHeaderLayoutMobile), so the screen must not pad the feed again.
+      <Layout.Screen testID="HomeScreen" noInsetTop={isWeb}>
         <HomeScreenReady
           {...props}
           preferences={preferences}

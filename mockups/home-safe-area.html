@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Home — Dynamic Island / safe area</title>
+<style>
+  :root {
+    --page: #0b0d10; --card: #14181d; --line: #262c33; --text: #e8ecf0; --muted: #8b96a1;
+    --bad: #ff5a5f; --good: #2fd27f; --aqua: #3e5bff;
+    --inset: 54px; /* iPhone safe-area top (Dynamic Island) */
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--text); font: 15px/1.5 -apple-system, "Inter", system-ui, sans-serif; }
+  main { max-width: 980px; margin: 0 auto; padding: 32px 16px 56px; }
+  h1 { font-size: 22px; margin: 0 0 6px; }
+  p.lead { color: var(--muted); margin: 0 0 28px; max-width: 62ch; }
+  .row { display: flex; flex-wrap: wrap; gap: 32px; justify-content: center; }
+  figure { margin: 0; text-align: center; }
+  figcaption { margin-top: 14px; font-weight: 600; }
+  figcaption small { display: block; color: var(--muted); font-weight: 400; max-width: 300px; margin: 4px auto 0; }
+  .tag { display: inline-block; padding: 2px 10px; border-radius: 99px; font-size: 12px; font-weight: 700; margin-bottom: 8px; }
+  .tag.bad { background: #3a1c1e; color: var(--bad); } .tag.good { background: #11301f; color: var(--good); }
+
+  .phone { position: relative; width: 300px; height: 620px; border-radius: 46px; background: #000; border: 8px solid #2a2f36; overflow: hidden; margin: 0 auto; }
+  .island { position: absolute; top: 11px; left: 50%; width: 92px; height: 27px; margin-left: -46px; background: #000; border-radius: 20px; z-index: 30; box-shadow: 0 0 0 1px #1a1a1a; }
+  .status { position: absolute; top: 0; left: 0; right: 0; height: var(--inset); z-index: 25; display: flex; justify-content: space-between; align-items: flex-start; padding: 17px 26px 0; font-size: 12px; font-weight: 700; pointer-events: none; }
+  .zone { position: absolute; top: 0; left: 0; right: 0; height: var(--inset); z-index: 5; }
+  .zone.bad { background: repeating-linear-gradient(135deg, rgba(255,90,95,.28) 0 6px, transparent 6px 12px); }
+  .zone.good { background: repeating-linear-gradient(135deg, rgba(47,210,127,.22) 0 6px, transparent 6px 12px); }
+
+  .hdr { position: absolute; left: 0; right: 0; z-index: 10; background: #000; }
+  .hdr .bar { height: 48px; display: flex; align-items: center; justify-content: space-between; padding: 0 14px; }
+  .logo { width: 28px; height: 28px; border-radius: 50%; background: var(--aqua); box-shadow: inset 0 0 0 7px #fff, inset 0 0 0 14px var(--aqua); }
+  .ico { width: 20px; height: 14px; border-top: 2px solid #aab4be; border-bottom: 2px solid #aab4be; position: relative; }
+  .ico::after { content: ""; position: absolute; left: 0; right: 0; top: 4px; border-top: 2px solid #aab4be; }
+  .hash { font-size: 22px; color: #aab4be; line-height: 1; }
+  .tabs { height: 38px; border-bottom: 1px solid var(--line); display: flex; justify-content: center; gap: 24px; align-items: center; font-size: 13px; font-weight: 700; color: #7d8791; }
+  .tabs b { color: #3e5bff; }
+  .pill { height: 46px; display: flex; align-items: center; justify-content: center; }
+  .pill span { border: 1px solid var(--line); border-radius: 99px; padding: 3px 12px; font-size: 12px; color: #aab4be; }
+
+  .feed { position: absolute; left: 0; right: 0; bottom: 0; z-index: 1; background: #000; }
+  .post { padding: 12px 14px; border-top: 1px solid var(--line); font-size: 12px; color: #cfd6dd; }
+  .post i { display: block; height: 8px; border-radius: 4px; background: #1d232a; margin-top: 6px; }
+  .post i:first-child { width: 40%; background: #2b333c; margin: 0 0 8px; }
+
+  .gap { position: absolute; left: 0; right: 0; z-index: 2; background: repeating-linear-gradient(135deg, rgba(255,90,95,.28) 0 6px, transparent 6px 12px); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: var(--bad); }
+  .callout { position: absolute; z-index: 40; font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 6px; }
+  .callout.bad { background: var(--bad); color: #fff; } .callout.good { background: var(--good); color: #04210f; }
+
+  /* ANTES: header at top:0 under the island; list padded by inset => gap */
+  .before .hdr { top: 0; }
+  .before .feed { top: calc(48px + 38px + 46px + var(--inset)); }
+  .before .gap { top: calc(48px + 38px + 46px); height: var(--inset); }
+  /* DEPOIS: header padded by inset; list starts right below it */
+  .after .hdr { top: 0; padding-top: var(--inset); }
+  .after .feed { top: calc(var(--inset) + 48px + 38px + 46px); }
+
+  .notes { margin: 36px auto 0; max-width: 760px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px; }
+  .notes h2 { font-size: 16px; margin: 0 0 8px; }
+  .notes ul { margin: 0; padding-left: 20px; color: #c3ccd5; }
+  .notes li { margin: 6px 0; }
+  code { background: #1d232a; padding: 1px 6px; border-radius: 5px; font-size: 13px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Home no iPhone: Dynamic Island cobrindo a logo</h1>
+  <p class="lead">O header da Home no web é <code>position: fixed; top: 0</code>, então ignora a safe area do topo e fica por baixo da Dynamic Island. A lista, por outro lado, é empurrada pela safe area, o que deixa um vão em branco abaixo do header.</p>
+
+  <div class="row">
+    <figure class="before">
+      <span class="tag bad">ANTES</span>
+      <div class="phone">
+        <div class="island"></div>
+        <div class="status"><span>5:10</span><span>5G ▮▮▮</span></div>
+        <div class="zone bad"></div>
+        <div class="hdr">
+          <div class="bar"><span class="ico"></span><span class="logo"></span><span class="hash">#</span></div>
+          <div class="tabs"><span>Following</span><b>For You</b></div>
+          <div class="pill"><span>⌂ ⌄</span></div>
+        </div>
+        <div class="gap">vão em branco</div>
+        <div class="feed">
+          <div class="post"><i></i><i></i><i style="width:80%"></i></div>
+          <div class="post"><i></i><i></i><i style="width:60%"></i></div>
+          <div class="post"><i></i><i></i></div>
+          <div class="post"><i></i><i></i></div>
+        </div>
+      </div>
+      <figcaption>Logo sob a ilha, vão abaixo do header<small>Header em y=0, feed em inset + altura do header.</small></figcaption>
+    </figure>
+
+    <figure class="after">
+      <span class="tag good">DEPOIS</span>
+      <div class="phone">
+        <div class="island"></div>
+        <div class="status"><span>5:10</span><span>5G ▮▮▮</span></div>
+        <div class="zone good"></div>
+        <div class="hdr">
+          <div class="bar"><span class="ico"></span><span class="logo"></span><span class="hash">#</span></div>
+          <div class="tabs"><span>Following</span><b>For You</b></div>
+          <div class="pill"><span>⌂ ⌄</span></div>
+        </div>
+        <div class="feed">
+          <div class="post"><i></i><i></i><i style="width:80%"></i></div>
+          <div class="post"><i></i><i></i><i style="width:60%"></i></div>
+          <div class="post"><i></i><i></i></div>
+          <div class="post"><i></i><i></i></div>
+        </div>
+      </div>
+      <figcaption>Header começa abaixo da safe area<small>O fundo preto cobre a área da ilha; logo e menu ficam livres; o feed começa colado no header.</small></figcaption>
+    </figure>
+  </div>
+
+  <section class="notes">
+    <h2>O que muda no código</h2>
+    <ul>
+      <li><code>HomeHeaderLayoutMobile.tsx</code>: no web, o header ganha <code>paddingTop</code> igual ao inset do topo (<code>env(safe-area-inset-top)</code>). A altura medida passa a incluir o inset.</li>
+      <li><code>Home.tsx</code>: no web, a tela usa <code>noInsetTop</code>, para a lista não aplicar o inset uma segunda vez (isso era o vão em branco).</li>
+      <li>No app nativo nada muda: a tela já é inset pelo sistema e o header fica dentro do Pager.</li>
+    </ul>
+  </section>
+</main>
+</body>
+</html>

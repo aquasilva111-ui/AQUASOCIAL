@@ -1,12 +1,14 @@
 import {type JSX} from 'react'
 import {View} from 'react-native'
 import Animated from 'react-native-reanimated'
+import {useSafeAreaInsets} from 'react-native-safe-area-context'
 import {msg} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 
 import {HITSLOP_10} from '#/lib/constants'
 import {useHaptics} from '#/lib/haptics'
 import {useMinimalShellHeaderTransform} from '#/lib/hooks/useMinimalShellTransform'
+import {isWeb} from '#/platform/detection'
 import {emitSoftReset} from '#/state/events'
 import {useSession} from '#/state/session'
 import {useShellLayout} from '#/state/shell/shell-layout'
@@ -31,6 +33,10 @@ export function HomeHeaderLayoutMobile({
   const headerMinimalShellTransform = useMinimalShellHeaderTransform()
   const {hasSession} = useSession()
   const playHaptic = useHaptics()
+  // On web the header is `position: fixed`, which ignores the screen's top
+  // padding, so it would sit under the status bar / Dynamic Island. Pad it
+  // by the safe-area inset instead (native is already inset by the screen).
+  const {top: topInset} = useSafeAreaInsets()
 
   return (
     <Animated.View
@@ -43,6 +49,7 @@ export function HomeHeaderLayoutMobile({
           left: 0,
           right: 0,
         },
+        isWeb && {paddingTop: topInset},
         headerMinimalShellTransform,
       ]}
       onLayout={e => {
