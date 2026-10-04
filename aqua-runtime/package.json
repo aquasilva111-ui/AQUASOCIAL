@@ -1,0 +1,27 @@
+{
+  "name": "aqua-runtime",
+  "private": true,
+  "version": "0.1.0",
+  "description": "AQUA Shared Runtime: one session that opens, edits, saves, collaborates on and launches items of any Creative Hub tool",
+  "type": "module",
+  "main": "./src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test tests/*.test.ts"
+  },
+  "dependencies": {
+    "@observablehq/plot": "^0.6.17",
+    "aqua-design-core": "file:../aqua-design-core",
+    "aqua-project": "file:../aqua-project",
+    "echarts": "^6.1.0",
+    "linkedom": "^0.18.13",
+    "vega": "^6.4.0",
+    "vega-lite": "^6.4.3",
+    "yjs": "^13.6.33"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  }
+}

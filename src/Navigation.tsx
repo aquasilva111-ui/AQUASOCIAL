@@ -74,18 +74,22 @@ import {
   AdultCreatorDashboardScreen,
   AdultCreatorScreen,
   AdultCreatorsScreen,
+  AdultDropsScreen,
   AdultFeedScreen,
   AdultHomeScreen,
   AdultLibraryScreen,
   AdultLiveScreen,
   AdultLiveStreamScreen,
   AdultMessagesScreen,
+  AdultReadScreen,
+  AdultReadsScreen,
   AdultSettingsScreen,
   AdultStudioScreen,
   AdultStudiosScreen,
   AdultTitleScreen,
   AdultVideoScreen,
   AdultViewsScreen,
+  AdultVisionboardScreen,
 } from '#/screens/Adult'
 import {BookmarksScreen} from '#/screens/Bookmarks'
 import {
@@ -95,6 +99,7 @@ import {
   BooksHomeScreen,
   BooksStudioScreen,
   ChapterEditScreen,
+  ReadsFeedScreen,
 } from '#/screens/Books'
 import {CreativeHubScreen} from '#/screens/CreativeHub'
 import {DocEditorScreen, DocsHomeScreen} from '#/screens/Docs'
@@ -729,9 +734,14 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
         options={{title: 'Música'}}
       />
       <Stack.Screen
+        name="Reads"
+        component={ReadsFeedScreen}
+        options={{title: 'Reads'}}
+      />
+      <Stack.Screen
         name="Books"
         component={BooksHomeScreen}
-        options={{title: 'Livros'}}
+        options={{title: 'Reads · Biblioteca'}}
       />
       <Stack.Screen
         name="BooksStudio"
@@ -927,6 +937,26 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
         name="AdultLibrary"
         component={AdultLibraryScreen}
         options={{title: 'Biblioteca +18', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="AdultDrops"
+        component={AdultDropsScreen}
+        options={{title: 'Drops +18', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="AdultVisionboard"
+        component={AdultVisionboardScreen}
+        options={{title: 'Visionboard +18', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="AdultReads"
+        component={AdultReadsScreen}
+        options={{title: 'Reads +18', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="AdultRead"
+        component={AdultReadScreen}
+        options={{title: 'Reads +18', requireAuth: true}}
       />
       <Stack.Screen
         name="AdultMessages"

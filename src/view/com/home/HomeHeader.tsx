@@ -20,6 +20,7 @@ export function HomeHeader(
     testID?: string
     onPressSelected: () => void
     feeds: FeedSourceInfo[]
+    onHeightChange?: (height: number) => void
   },
 ) {
   const {feeds, onSelect: onSelectProp} = props
@@ -60,7 +61,9 @@ export function HomeHeader(
   )
 
   return (
-    <HomeHeaderLayout tabBarAnchor={props.tabBarAnchor}>
+    <HomeHeaderLayout
+      tabBarAnchor={props.tabBarAnchor}
+      onHeightChange={props.onHeightChange}>
       {hasSession ? (
         <>
           <HomeFeedTabs

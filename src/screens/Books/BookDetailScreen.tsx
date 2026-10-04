@@ -1,6 +1,7 @@
 import {View} from 'react-native'
 
 import {
+  AUDIENCE_LABELS,
   bookAccess,
   type BookRecord,
   chapterPath,
@@ -166,6 +167,22 @@ function BookPage({handle, rkey}: {handle: string; rkey: string}) {
         )}
       </View>
 
+      {(book.characters.length > 0 || book.audience) && (
+        <View style={[a.gap_2xs]}>
+          {book.characters.length > 0 && (
+            <Text style={[a.text_sm]}>
+              <Text style={[a.text_sm, a.font_bold]}>Personagens: </Text>
+              {book.characters.join(', ')}
+            </Text>
+          )}
+          {book.audience && (
+            <Text style={[a.text_sm]}>
+              <Text style={[a.text_sm, a.font_bold]}>Público: </Text>
+              {AUDIENCE_LABELS[book.audience]}
+            </Text>
+          )}
+        </View>
+      )}
       {book.synopsis && (
         <Text style={[a.text_md, a.leading_snug]}>{book.synopsis}</Text>
       )}

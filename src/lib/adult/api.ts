@@ -98,6 +98,57 @@ export function syncAdultBlock(
   })
 }
 
+/** Mirrors a +18 follow or mute so it survives reloads and devices. */
+export function syncAdultRelation(
+  agent: BskyAgent,
+  kind: 'follows' | 'mutes',
+  targetDid: string,
+  on: boolean,
+) {
+  return adultApi(agent, `/me/adult/${kind}/${encodeURIComponent(targetDid)}`, {
+    method: on ? 'PUT' : 'DELETE',
+  })
+}
+
+/** The server copy of the user's follows, mutes and blocks. */
+export async function fetchAdultRelations(agent: BskyAgent) {
+  const [follows, mutes, blocks] = await Promise.all([
+    adultApi<{follows: {did: string}[]}>(agent, '/me/adult/follows'),
+    adultApi<{mutes: {did: string}[]}>(agent, '/me/adult/mutes'),
+    adultApi<{blocks: {did: string}[]}>(agent, '/me/adult/blocks'),
+  ])
+  return {
+    follows: follows.follows.map(r => r.did),
+    mutes: mutes.mutes.map(r => r.did),
+    blocks: blocks.blocks.map(r => r.did),
+  }
+}
+
+export type AdultDrop = {
+  id: string
+  title: string
+  creator: {id: string; did: string; handle: string | null}
+  accessPolicy: string
+  previewDurationMs: number | null
+  publishedAt: string
+  posterUrl: string | null
+}
+
+export type AdultBoard = {
+  id: string
+  name: string
+  visibility: 'private' | 'public'
+  itemCount?: number
+}
+
+export type AdultBook = {
+  id: string
+  title: string
+  description: string | null
+  parts: number
+  author: {did: string; handle: string | null}
+}
+
 /** Media URLs from the API are relative, signed and short-lived. */
 export function adultMediaUrl(path: string | null | undefined) {
   return path ? `${ADULT_API_URL}${path}` : undefined

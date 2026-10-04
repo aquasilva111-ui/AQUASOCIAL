@@ -463,7 +463,7 @@ function Field({
 
 function ErrorText({error}: {error: unknown}) {
   if (!error) return null
-  return <Text style={[a.text_sm, {color: '#d6336c'}]}>{errorText(error)}</Text>
+  return <Text style={[a.text_sm, {color: '#c2570c'}]}>{errorText(error)}</Text>
 }
 
 function useSection<T>(base: string, path: string) {
@@ -1084,7 +1084,7 @@ function NewVideo({base, onDone}: {base: string; onDone: () => void}) {
           placeholder="2026-10-01 20:00"
         />
       )}
-      {local && <Text style={[a.text_sm, {color: '#d6336c'}]}>{local}</Text>}
+      {local && <Text style={[a.text_sm, {color: '#c2570c'}]}>{local}</Text>}
       <ErrorText error={act.error} />
       <Button
         label="Salvar vídeo"
@@ -1298,7 +1298,7 @@ function SubscriptionsTab({base, seller}: {base: string; seller: SellerRef}) {
               />
             </View>
             {local && (
-              <Text style={[a.text_sm, {color: '#d6336c'}]}>{local}</Text>
+              <Text style={[a.text_sm, {color: '#c2570c'}]}>{local}</Text>
             )}
             <Button
               label="Criar nível"
@@ -1620,7 +1620,7 @@ function PayoutsTab({base, home}: {base: string; home: Home}) {
                 placeholder="100,00"
               />
               {local && (
-                <Text style={[a.text_sm, {color: '#d6336c'}]}>{local}</Text>
+                <Text style={[a.text_sm, {color: '#c2570c'}]}>{local}</Text>
               )}
               <Button
                 label="Solicitar"

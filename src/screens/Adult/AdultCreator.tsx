@@ -4,7 +4,7 @@ import {View} from 'react-native'
 import {Image} from 'expo-image'
 import {useIsFocused} from '@react-navigation/native'
 
-import {syncAdultBlock} from '#/lib/adult/api'
+import {syncAdultBlock, syncAdultRelation} from '#/lib/adult/api'
 import {toAdultPosts} from '#/lib/adult/content'
 import {toAdultCreatorProfile} from '#/lib/adult/creator'
 import {
@@ -143,11 +143,17 @@ function AdultCreatorInner({handle}: {handle: string}) {
               size="small"
               variant={following ? 'ghost' : 'solid'}
               color="secondary"
-              onPress={() =>
-                following
-                  ? unfollowAdultCreator(did, creator.userId)
-                  : followAdultCreator(did, creator.userId)
-              }>
+              onPress={() => {
+                if (following) unfollowAdultCreator(did, creator.userId)
+                else followAdultCreator(did, creator.userId)
+                // Durable server copy; the local state already updated.
+                syncAdultRelation(
+                  agent,
+                  'follows',
+                  creator.userId,
+                  !following,
+                ).catch(() => {})
+              }}>
               <ButtonText>{following ? 'Seguindo' : 'Seguir'}</ButtonText>
             </Button>
             <Button

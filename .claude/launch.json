@@ -9,6 +9,87 @@
         "cd drops/example && CI=1 ./node_modules/.bin/expo start --web --port 19120"
       ],
       "port": 19120
+    },
+    {
+      "name": "aqua-studio",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": [
+        "-c",
+        "cd aqua-studio && ./node_modules/.bin/vite --port 5188"
+      ],
+      "port": 5188
+    },
+    {
+      "name": "aqua-web",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": [
+        "-c",
+        "NODE_OPTIONS=--max-old-space-size=8192 BROWSER=none ./node_modules/.bin/expo start --web"
+      ],
+      "port": 19006
+    },
+    {
+      "name": "aqua-design-core",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": [
+        "-c",
+        "cd aqua-design-core && ./node_modules/.bin/vite --port 5190"
+      ],
+      "port": 5190
+    },
+    {
+      "name": "aqua-shops",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": [
+        "-c",
+        "cd /Users/aequasamuel/Downloads/workspace-01a0ae04-5060-7695-9f01-6d4cc7927cd3/AQUASOCIAL/aqua-shops && node node_modules/nuxt/bin/nuxt.mjs dev --port 5192"
+      ],
+      "port": 5192
+    },
+    {
+      "name": "aqua-sheets",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": [
+        "-c",
+        "cd aqua-sheets && ./node_modules/.bin/vite preview --port 5191"
+      ],
+      "port": 5191
+    },
+    {
+      "name": "aqua-hub",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": [
+        "-c",
+        "cd aqua-hub && npm run prep && ./node_modules/.bin/vite --port 5192"
+      ],
+      "port": 5192
+    },
+    {
+      "name": "aqua-shops-backend",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": [
+        "-c",
+        "cd /Users/aequasamuel/Downloads/workspace-01a0ae04-5060-7695-9f01-6d4cc7927cd3/AQUASOCIAL/aqua-shops-backend/mercur/packages/api && MEDUSA_DISABLE_TELEMETRY=1 MERCUR_DISABLE_TELEMETRY=true npx medusa develop"
+      ],
+      "port": 9000
+    },
+    {
+      "name": "aqua-shops-api",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": [
+        "-c",
+        "cd /Users/aequasamuel/Downloads/workspace-01a0ae04-5060-7695-9f01-6d4cc7927cd3/AQUASOCIAL/aqua-shops-backend/api && node node_modules/tsx/dist/cli.mjs --env-file=.env src/server.ts"
+      ],
+      "port": 9100
+    },
+    {
+      "name": "aqua-shops-live",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": [
+        "-c",
+        "cd /Users/aequasamuel/Downloads/workspace-01a0ae04-5060-7695-9f01-6d4cc7927cd3/AQUASOCIAL/aqua-shops && AQUA_SHOPS_API=http://127.0.0.1:9100 node node_modules/nuxt/bin/nuxt.mjs dev --port 5194"
+      ],
+      "port": 5194
     }
   ]
 }

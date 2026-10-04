@@ -33,6 +33,8 @@ export type OnPostSuccessData =
     }
   | undefined
 
+export type ComposerKind = 'post' | 'story'
+
 export interface ComposerOpts {
   replyTo?: ComposerOptsPostRef
   onPost?: (postUri: string | undefined) => void
@@ -44,6 +46,8 @@ export interface ComposerOpts {
   imageUris?: {uri: string; width: number; height: number; altText?: string}[]
   videoUri?: {uri: string; width: number; height: number}
   openGallery?: boolean
+  /** What the composer publishes. Defaults to a regular post. */
+  kind?: ComposerKind
 }
 
 type StateContext = ComposerOpts | undefined

@@ -74,6 +74,21 @@ function AdultHomeInner() {
       description: 'Estúdios, séries e filmes',
     },
     {
+      to: '/adult/drops',
+      title: 'Drops +18',
+      description: 'Clipes curtos de criadores verificados',
+    },
+    {
+      to: '/adult/visionboard',
+      title: 'Visionboard +18',
+      description: 'Boards privados de imagens',
+    },
+    {
+      to: '/adult/reads',
+      title: 'Reads +18',
+      description: 'Histórias em partes',
+    },
+    {
       to: '/adult/library',
       title: 'Minha biblioteca',
       description: 'Conteúdo adquirido e salvo',

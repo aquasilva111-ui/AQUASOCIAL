@@ -36,6 +36,7 @@ import {CustomFeedEmptyState} from '#/view/com/posts/CustomFeedEmptyState'
 import {FollowingEmptyState} from '#/view/com/posts/FollowingEmptyState'
 import {FollowingEndOfFeed} from '#/view/com/posts/FollowingEndOfFeed'
 import {NoFeedsPinned} from '#/screens/Home/NoFeedsPinned'
+import {useLayoutBreakpoints} from '#/alf'
 import * as Layout from '#/components/Layout'
 import {StoriesTray} from '#/components/stories/StoriesTray'
 import {useDemoMode} from '#/storage/hooks/demo-mode'
@@ -141,6 +142,7 @@ function HomeScreenReady({
   const selectedIndex = Math.max(0, maybeFoundIndex)
   const maybeSelectedFeed: FeedDescriptor | undefined = allFeeds[selectedIndex]
   const requestNotificationsPermission = useRequestNotificationsPermission()
+  const {rightNavVisible} = useLayoutBreakpoints()
 
   useSetTitle(pinnedFeedInfos[selectedIndex]?.displayName)
   useOTAUpdates()
@@ -218,6 +220,8 @@ function HomeScreenReady({
   )
 
   const [demoMode] = useDemoMode()
+  // Real height of the (fixed) home header, so the feed starts right below it.
+  const [headerHeight, setHeaderHeight] = React.useState(0)
 
   const renderTabBar = React.useCallback(
     (props: RenderTabBarFnProps) => {
@@ -228,6 +232,7 @@ function HomeScreenReady({
             {...props}
             testID="homeScreenFeedTabs"
             onPressSelected={onPressSelected}
+            onHeightChange={setHeaderHeight}
             // @ts-ignore
             feeds={[{displayName: 'Following'}, {displayName: 'Discover'}]}
           />
@@ -239,6 +244,7 @@ function HomeScreenReady({
           {...props}
           testID="homeScreenFeedTabs"
           onPressSelected={onPressSelected}
+          onHeightChange={setHeaderHeight}
           feeds={pinnedFeedInfos}
         />
       )
@@ -317,8 +323,11 @@ function HomeScreenReady({
                 feedParams={homeFeedParams}
                 renderEmptyState={renderFollowingEmptyState}
                 renderEndOfFeed={FollowingEndOfFeed}
-                ListHeaderComponent={StoriesTrayHeader}
+                ListHeaderComponent={
+                  rightNavVisible ? undefined : StoriesTrayHeader
+                }
                 feedInfo={feedInfo}
+                measuredHeaderHeight={headerHeight}
               />
             )
           }
@@ -333,6 +342,7 @@ function HomeScreenReady({
               renderEmptyState={renderCustomFeedEmptyState}
               savedFeedConfig={savedFeedConfig}
               feedInfo={feedInfo}
+              measuredHeaderHeight={headerHeight}
             />
           )
         })
@@ -353,6 +363,7 @@ function HomeScreenReady({
         feed={`feedgen|${PROD_DEFAULT_FEED('whats-hot')}`}
         renderEmptyState={renderCustomFeedEmptyState}
         feedInfo={pinnedFeedInfos[0]}
+        measuredHeaderHeight={headerHeight}
       />
     </Pager>
   )

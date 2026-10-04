@@ -1,0 +1,19 @@
+{
+  "name": "aqua-sheets",
+  "private": true,
+  "version": "0.1.0",
+  "description": "AQUA Sheets spike: Univer (Apache-2.0) boot and bundle size",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0",
+    "vite": "^6.0.0"
+  },
+  "dependencies": {
+    "@univerjs/preset-sheets-core": "^1.0.3",
+    "@univerjs/presets": "^1.0.3"
+  }
+}

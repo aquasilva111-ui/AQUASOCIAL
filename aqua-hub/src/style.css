@@ -1,0 +1,28 @@
+:root { --blue:#002BEF; --orange:#F04C24; --ink:#0F172A; --muted:#405168; --line:#DCE2EA; --surface:#EFF2F6; --bg:#fff; }
+@media (prefers-color-scheme: dark) { :root { --ink:#E8EEF7; --muted:#9FB0C6; --line:#2B3A4F; --surface:#1C2736; --bg:#151D28; } }
+* { box-sizing: border-box }
+body { margin:0; font-family: Inter, system-ui, sans-serif; color:var(--ink); background:var(--bg) }
+.app { display:grid; grid-template-columns: 240px 1fr; height:100vh }
+.side { border-right:1px solid var(--line); padding:12px; overflow:auto; background:var(--surface) }
+.side h1 { font-size:16px; margin:0 0 12px; color:var(--blue) }
+.new { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px }
+button, select, input, textarea { font:inherit; color:inherit }
+button { border:1px solid var(--line); background:var(--bg); border-radius:10px; padding:6px 10px; cursor:pointer }
+button.primary { background:var(--blue); color:#fff; border-color:var(--blue) }
+button:disabled { opacity:.5; cursor:default }
+.item { display:block; width:100%; text-align:left; margin-bottom:4px; border-radius:10px }
+.item.on { border-color:var(--blue); box-shadow:0 0 0 1px var(--blue) }
+.item small { display:block; color:var(--muted) }
+.main { display:flex; flex-direction:column; min-width:0; overflow:hidden }
+.bar { display:flex; gap:8px; align-items:center; padding:10px 14px; border-bottom:1px solid var(--line); flex-wrap:wrap }
+.bar h2 { margin:0 8px 0 0; font-size:16px }
+.body { padding:14px; overflow:auto; flex:1 }
+.empty { color:var(--muted); padding:40px; text-align:center }
+.field { display:inline-flex; gap:6px; align-items:center; color:var(--muted); font-size:13px }
+.field input, .field select { border:1px solid var(--line); border-radius:8px; padding:4px 8px; background:var(--bg) }
+canvas:not(.upper-canvas):not(.lower-canvas) { max-width:100%; border:1px solid var(--line); border-radius:8px; background:#fff }
+.canvas-container { border:1px solid var(--line); border-radius:8px; overflow:hidden }
+.note { color:var(--muted); font-size:13px }
+.timeline { display:flex; height:46px; border:1px solid var(--line); border-radius:8px; overflow:hidden; margin:10px 0 }
+.clip { background:var(--blue); color:#fff; font-size:12px; padding:4px 6px; border-right:2px solid var(--bg); overflow:hidden; white-space:nowrap }
+.row { display:flex; gap:8px; align-items:center; margin:6px 0; flex-wrap:wrap }

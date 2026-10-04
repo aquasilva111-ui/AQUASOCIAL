@@ -25,6 +25,10 @@ import {
   Bell_Stroke2_Corner0_Rounded as Bell,
 } from '#/components/icons/Bell'
 import {
+  Drop_Filled_Corner0_Rounded as DropFilled,
+  Drop_Stroke2_Corner0_Rounded as Drop,
+} from '#/components/icons/Drop'
+import {
   HomeOpen_Filled_Corner0_Rounded as HomeFilled,
   HomeOpen_Stoke2_Corner0_Rounded as Home,
 } from '#/components/icons/HomeOpen'
@@ -32,10 +36,6 @@ import {
   Message_Stroke2_Corner0_Rounded as Message,
   Message_Stroke2_Corner0_Rounded_Filled as MessageFilled,
 } from '#/components/icons/Message'
-import {
-  Play_Filled_Corner2_Rounded as PlayFilled,
-  Play_Stroke2_Corner2_Rounded as Play,
-} from '#/components/icons/Play'
 import {PlusLarge_Stroke2_Corner0_Rounded as PlusIcon} from '#/components/icons/Plus'
 import {
   UserCircle_Filled_Corner0_Rounded as UserCircleFilled,
@@ -119,7 +119,7 @@ export function BottomBarWeb() {
             label="Drops"
             showLabel={showLabels}>
             {({isActive}) => {
-              const Icon = isActive ? PlayFilled : Play
+              const Icon = isActive ? DropFilled : Drop
               return (
                 <Icon
                   aria-hidden={true}

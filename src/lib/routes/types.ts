@@ -109,6 +109,7 @@ export type CommonNavigatorParams = {
   ViewLive: undefined
   ViewList: {kind: string; name: string; rkey: string}
   Music: undefined
+  Reads: undefined
   Books: undefined
   BooksStudio: undefined
   BookEdit: {book: string}
@@ -135,6 +136,10 @@ export type CommonNavigatorParams = {
   AdultStudio: {handle: string}
   AdultTitle: {type: 'movie' | 'series'; id: string}
   AdultLibrary: undefined
+  AdultDrops: undefined
+  AdultVisionboard: undefined
+  AdultReads: undefined
+  AdultRead: {bookId: string}
   AdultMessages: undefined
   AdultSettings: undefined
   AdultCreatorDashboard: undefined

@@ -33,7 +33,7 @@ import {audit} from './lib/audit.js'
 import {ApiError, badRequest, forbidden, notFound} from './lib/errors.js'
 import {newId} from './lib/ids.js'
 import {MoneyError} from './lib/money.js'
-import {enforce, RateLimiter} from './lib/rateLimit.js'
+import {enforce, SharedRateLimiter} from './lib/rateLimit.js'
 import {MediaEngine} from './media/engine.js'
 import {LocalPrivateStorage} from './media/storage.js'
 import {installRoutes} from './registry.js'
@@ -171,9 +171,9 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
   })
 
   // Generous per-client limits on abuse-prone routes; normal use never hits them.
-  const limiters = new Map<string, RateLimiter>()
+  const limiters = new Map<string, SharedRateLimiter>()
   for (const [route, limit, windowMs] of RATE_LIMITS)
-    limiters.set(route, new RateLimiter(limit, windowMs))
+    limiters.set(route, new SharedRateLimiter(db, limit, windowMs))
   app.addHook('onRequest', async req => {
     const pattern = req.routeOptions?.url
     if (!pattern) return
@@ -181,7 +181,7 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
     const limiter =
       limiters.get(key) ??
       (pattern.startsWith('/admin/') ? limiters.get('* /admin/*') : undefined)
-    if (limiter) enforce(limiter, `${key}|${req.ip}`)
+    if (limiter) await enforce(limiter, `${key}|${req.ip}`)
   })
 
   app.setErrorHandler((err, _req, reply) => {

@@ -10,12 +10,12 @@ import {
 import {useTheme} from '#/alf'
 import {ChevronBottom_Stroke2_Corner0_Rounded as Chevron} from '#/components/icons/Chevron'
 import {DotGrid_Stroke2_Corner0_Rounded as DotGrid} from '#/components/icons/DotGrid'
+import {Drop_Filled_Corner0_Rounded as Drops} from '#/components/icons/Drop'
 import {Grid_Stroke2_Corner0_Rounded as Grid} from '#/components/icons/Grid'
 import {HomeOpen_Stoke2_Corner0_Rounded as Social} from '#/components/icons/HomeOpen'
 import {Image_Stroke2_Corner0_Rounded as Images} from '#/components/icons/Image'
 import {Message_Stroke2_Corner0_Rounded as Streams} from '#/components/icons/Message'
 import {Newspaper_Stroke2_Corner2_Rounded as Editorial} from '#/components/icons/Newspaper'
-import {Play_Filled_Corner0_Rounded as Drops} from '#/components/icons/Play'
 import {VideoClip_Stroke2_Corner0_Rounded as Video} from '#/components/icons/VideoClip'
 
 const icons = {

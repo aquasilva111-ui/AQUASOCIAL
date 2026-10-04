@@ -55,6 +55,7 @@ export function FeedPage({
   renderEmptyState,
   renderEndOfFeed,
   ListHeaderComponent,
+  measuredHeaderHeight,
   savedFeedConfig,
   feedInfo,
 }: {
@@ -66,6 +67,8 @@ export function FeedPage({
   renderEmptyState: () => JSX.Element
   renderEndOfFeed?: () => JSX.Element
   ListHeaderComponent?: () => JSX.Element
+  /** Measured height of the fixed header; falls back to an estimate. */
+  measuredHeaderHeight?: number
   savedFeedConfig?: AppBskyActorDefs.SavedFeed
   feedInfo: FeedSourceInfo
 }) {
@@ -83,7 +86,8 @@ export function FeedPage({
   const upPillTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
   const isScrolledDownRef = useRef(false)
   const baseHeaderOffset = useHeaderOffset()
-  const headerOffset = baseHeaderOffset > 0 ? baseHeaderOffset + 46 : 0
+  const headerOffset =
+    baseHeaderOffset > 0 ? measuredHeaderHeight || baseHeaderOffset + 46 : 0
   const experienceMode = useFeedExperience()
   const feedFeedback = useFeedFeedback(feedInfo, hasSession)
   const scrollElRef = useRef<ListMethods>(null)

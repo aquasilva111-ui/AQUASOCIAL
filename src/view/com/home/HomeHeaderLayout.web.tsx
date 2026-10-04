@@ -19,6 +19,7 @@ import {Link} from '#/components/Link'
 export function HomeHeaderLayout(props: {
   children: React.ReactNode
   tabBarAnchor: JSX.Element | null | undefined
+  onHeightChange?: (height: number) => void
 }) {
   const {gtMobile} = useBreakpoints()
   if (!gtMobile) {
@@ -34,6 +35,7 @@ function HomeHeaderLayoutDesktopAndTablet({
 }: {
   children: React.ReactNode
   tabBarAnchor: JSX.Element | null | undefined
+  onHeightChange?: (height: number) => void
 }) {
   const t = useTheme()
   const {headerHeight} = useShellLayout()
