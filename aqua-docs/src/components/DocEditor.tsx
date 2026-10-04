@@ -1,7 +1,8 @@
 import {pt} from '@blocknote/core/locales'
+import {withCollaboration} from '@blocknote/core/yjs'
 import {BlockNoteView} from '@blocknote/mantine'
 import {BlockNoteContext, useCreateBlockNote} from '@blocknote/react'
-import {memo, useEffect, useMemo} from 'react'
+import {memo, useEffect, useState} from 'react'
 import * as Y from 'yjs'
 import {IndexeddbPersistence} from 'y-indexeddb'
 import {WebrtcProvider} from 'y-webrtc'
@@ -37,42 +38,56 @@ export type EditorHandle = {
   exportHtml: () => string
 }
 
-export const DocEditor = memo(function DocEditor(props: {
+type Props = {
   docId: string
   room: string | null
   mode: Mode
   onReady: (handle: EditorHandle) => void
   onChange: () => void
-}) {
-  const {docId, room, mode} = props
+}
 
-  // Um Y.Doc por documento: conteúdo persistido no IndexedDB (y-indexeddb);
-  // com ?room=, um provider y-webrtc sincroniza em tempo real.
-  const collab = useMemo(() => {
+type Collab = {fragment: Y.XmlFragment; provider: WebrtcProvider | null}
+
+export const DocEditor = memo(function DocEditor(props: Props) {
+  const {docId, room} = props
+  const [collab, setCollab] = useState<Collab | null>(null)
+
+  // Um Y.Doc por documento: conteúdo persistido no IndexedDB (y-indexeddb); com ?room=, um provider
+  // y-webrtc sincroniza em tempo real. Tudo é criado e destruído no mesmo efeito (o StrictMode roda
+  // o cleanup uma vez antes de valer), e o editor só monta depois que o IndexedDB carregou o
+  // documento: criado antes, o BlockNote insere um primeiro bloco vazio que colide com o conteúdo salvo.
+  useEffect(() => {
+    let live = true
+    setCollab(null)
     const ydoc = new Y.Doc()
     const persistence = new IndexeddbPersistence(docDbName(docId), ydoc)
     // A sala de colaboração tem escopo por documento, para não misturar docs.
     const provider = room
       ? new WebrtcProvider(`aqua-docs:${room}:${docId}`, ydoc)
       : null
-    return {
-      ydoc,
-      persistence,
-      provider,
-      fragment: ydoc.getXmlFragment('document-store'),
+    void persistence.whenSynced.then(() => {
+      if (live)
+        setCollab({fragment: ydoc.getXmlFragment('document-store'), provider})
+    })
+    return () => {
+      live = false
+      provider?.destroy()
+      void persistence.destroy()
+      ydoc.destroy()
     }
   }, [docId, room])
 
-  useEffect(() => {
-    return () => {
-      collab.provider?.destroy()
-      collab.persistence.destroy()
-      collab.ydoc.destroy()
-    }
-  }, [collab])
+  return collab ? (
+    <EditorBody key={`${docId}:${room}`} collab={collab} {...props} />
+  ) : null
+})
 
+function EditorBody(props: Props & {collab: Collab}) {
+  const {mode, collab} = props
+
+  // BlockNote 0.55 só liga ao Yjs via withCollaboration; a opção `collaboration` solta é ignorada.
   const editor = useCreateBlockNote(
-    {
+    withCollaboration({
       dictionary: pt,
       uploadFile,
       tables: {
@@ -87,8 +102,7 @@ export const DocEditor = memo(function DocEditor(props: {
         provider: collab.provider ?? undefined,
         showCursorLabels: 'activity',
       },
-    },
-    [docId, room],
+    }),
   )
 
   useEffect(() => {
@@ -109,4 +123,4 @@ export const DocEditor = memo(function DocEditor(props: {
       />
     </BlockNoteContext.Provider>
   )
-})
+}
