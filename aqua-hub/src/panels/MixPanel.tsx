@@ -11,7 +11,7 @@ import { UndoRedo, useSession } from './hooks'
 const HEAD = 200 // track header width, px
 const LANE = 64 // track height, px
 const BINS = 200 // peak bins per second
-const COLORS = ['#002BEF', '#F04C24', '#0A8F6A', '#9333EA', '#C2410C', '#0E7490']
+const COLORS = ['#ff5a8a', '#ffb703', '#2ee6a6', '#4cc9f0', '#b388ff', '#ff8a4c']
 const MIN = 0.05
 
 /** min/max per bin of the first channel, for drawing waveforms without touching the samples again. */
@@ -181,6 +181,7 @@ export default function MixPanel({ itemId }: { itemId: string }) {
 
   return (
     <div
+      className="studio"
       tabIndex={0}
       style={{ outline: 'none' }}
       onKeyDown={(e) => {
@@ -190,25 +191,27 @@ export default function MixPanel({ itemId }: { itemId: string }) {
         else if (e.key === 'Delete' || e.key === 'Backspace') remove()
       }}
     >
-      <div className="row">
-        <button className="primary" onClick={() => (player.playing ? player.stop() : void player.play(player.pos))}>{player.playing ? 'Parar' : 'Tocar'}</button>
-        <button onClick={() => (player.stop(), player.seek(0))}>Início</button>
-        <button onClick={() => setTrackId(session.addTrack())}>+ Faixa</button>
-        <label className="field">+ Áudio <input type="file" accept="audio/*" onChange={(e) => e.target.files?.[0] && addFile(e.target.files[0])} /></label>
+      <div className="transport">
+        <button className="round" title="Voltar ao início" onClick={() => (player.stop(), player.seek(0))}>⏮</button>
+        <button className="play" title="Tocar / parar (espaço)" onClick={() => (player.playing ? player.stop() : void player.play(player.pos))}>{player.playing ? '■' : '▶'}</button>
+        <div className="lcd">{Math.floor(player.pos / 60)}:{(player.pos % 60).toFixed(1).padStart(4, '0')}<small>de {Math.floor(total / 60)}:{(total % 60).toFixed(0).padStart(2, '0')}</small></div>
+        <button onClick={() => setTrackId(session.addTrack())}>＋ Faixa</button>
+        <label className="pill">+ Áudio <input type="file" accept="audio/*" onChange={(e) => e.target.files?.[0] && addFile(e.target.files[0])} /></label>
         <button disabled={!mix.tracks.length} onClick={split}>Dividir (S)</button>
         <button disabled={!sel} onClick={remove}>Apagar clipe</button>
+        <span className="spacer" />
         <UndoRedo itemId={itemId} refresh={refresh} />
-        <label className="field">Zoom <input type="range" min={10} max={160} value={pps} onChange={(e) => setPps(+e.target.value)} /></label>
-        <label className="field">Master <input type="range" min={-24} max={6} step={1} value={mix.masterDb} onChange={(e) => session.update((d) => void (d.masterDb = +e.target.value))} /> {mix.masterDb} dB</label>
+        <label className="pill">Zoom <input type="range" min={10} max={160} value={pps} onChange={(e) => setPps(+e.target.value)} /></label>
+        <label className="pill">Master <input type="range" min={-24} max={6} step={1} value={mix.masterDb} onChange={(e) => session.update((d) => void (d.masterDb = +e.target.value))} /> {mix.masterDb} dB</label>
         <button className="primary" disabled={!mix.tracks.some((t) => t.clips.length)} onClick={async () => {
           const out = await runtime.exportForLaunch(itemId, 'audio')
           if (out) download(out.bytes, 'mixagem.wav', out.mime)
         }}>Baixar WAV</button>
       </div>
-      {err && <p className="note" style={{ color: 'var(--orange)' }}>{err}</p>}
+      {err && <p className="note" style={{ color: '#ff8a6b', padding: '0 16px' }}>{err}</p>}
 
       {/* Always rendered with a fixed height: selecting a clip must not shift the tracks mid-drag. */}
-      <div className="row" style={{ minHeight: 40 }}>
+      <div className="transport" style={{ position: 'static', background: 'transparent', borderBottom: 0, minHeight: 52 }}>
         {!found && <span className="note">Selecione um clipe para ajustar ganho e fades.</span>}
         {found && (<>
           <b>Clipe</b>
@@ -220,12 +223,12 @@ export default function MixPanel({ itemId }: { itemId: string }) {
       </div>
 
       {!mix.tracks.length ? (
-        <p className="note">Adicione uma faixa e um arquivo de áudio. Arraste os clipes (também entre faixas) e as bordas para cortar; S divide no cursor; clique na régua para posicionar. Volume, pan, M (mudo) e S (solo) valem na pré-escuta e na exportação.</p>
+        <p className="empty-hint">Adicione uma faixa e um arquivo de áudio. Arraste os clipes (também entre faixas) e as bordas para cortar; S divide no cursor; clique na régua para posicionar. Volume, pan, M (mudo) e S (solo) valem na pré-escuta e na exportação.</p>
       ) : (
-        <div style={{ overflowX: 'auto', border: '1px solid var(--line)', borderRadius: 8 }}>
+        <div className="mixlanes">
           <div style={{ position: 'relative', width: HEAD + total * pps, minWidth: '100%' }}>
             <div
-              style={{ display: 'flex', height: 22, background: 'var(--surface)', cursor: 'pointer' }}
+              style={{ display: 'flex', height: 22, background: '#10141b', cursor: 'pointer' }}
               onPointerDown={(e) => {
                 const r = e.currentTarget.getBoundingClientRect()
                 const p = Math.max(0, (e.clientX - r.left - HEAD) / pps)
@@ -233,14 +236,14 @@ export default function MixPanel({ itemId }: { itemId: string }) {
                 if (player.playing) void player.play(p)
               }}
             >
-              <div style={{ width: HEAD, flex: 'none', position: 'sticky', left: 0, background: 'var(--surface)', zIndex: 3 }} />
+              <div style={{ width: HEAD, flex: 'none', position: 'sticky', left: 0, background: '#10141b', zIndex: 3 }} />
               <div style={{ position: 'relative', flex: 1 }}>
-                {ticks.map((i) => <span key={i} style={{ position: 'absolute', left: i * pps, fontSize: 10, color: 'var(--muted)', borderLeft: '1px solid var(--line)', paddingLeft: 2, height: 22 }}>{i}s</span>)}
+                {ticks.map((i) => <span key={i} style={{ position: 'absolute', left: i * pps, fontSize: 10, color: '#8a97ad', borderLeft: '1px solid #263042', paddingLeft: 2, height: 22 }}>{i}s</span>)}
               </div>
             </div>
             {mix.tracks.map((t, ti) => (
-              <div key={t.id} style={{ display: 'flex', height: LANE, borderTop: '1px solid var(--line)' }}>
-                <div onPointerDown={() => setTrackId(t.id)} style={{ width: HEAD, flex: 'none', position: 'sticky', left: 0, zIndex: 3, background: t.id === track?.id ? 'var(--surface)' : 'var(--bg)', borderRight: `4px solid ${COLORS[ti % COLORS.length]}`, padding: '4px 8px', fontSize: 12 }}>
+              <div key={t.id} style={{ display: 'flex', height: LANE, borderTop: '1px solid #263042' }}>
+                <div onPointerDown={() => setTrackId(t.id)} style={{ width: HEAD, flex: 'none', position: 'sticky', left: 0, zIndex: 3, background: t.id === track?.id ? '#1d2430' : '#161b24', borderRight: `4px solid ${COLORS[ti % COLORS.length]}`, padding: '4px 8px', fontSize: 12 }}>
                   <div style={{ display: 'flex', gap: 4 }}>
                     <input value={t.name} style={{ width: 80, fontSize: 12 }} onChange={(e) => setTrack(t.id, { name: e.target.value })} />
                     <button style={{ padding: '0 6px', ...(t.muted ? { background: 'var(--orange)', color: '#fff' } : {}) }} onClick={() => setTrack(t.id, { muted: !t.muted })}>M</button>
@@ -250,12 +253,12 @@ export default function MixPanel({ itemId }: { itemId: string }) {
                   <label style={{ display: 'flex', gap: 4, alignItems: 'center' }}>vol <input type="range" min={-30} max={6} value={t.volumeDb} style={{ width: 90 }} onChange={(e) => setTrack(t.id, { volumeDb: +e.target.value })} /> {t.volumeDb}</label>
                   <label style={{ display: 'flex', gap: 4, alignItems: 'center' }}>pan <input type="range" min={-1} max={1} step={0.1} value={t.pan} style={{ width: 90 }} onChange={(e) => setTrack(t.id, { pan: +e.target.value })} /></label>
                 </div>
-                <div ref={(el) => void (lanes.current[t.id] = el)} style={{ position: 'relative', flex: 1, background: t.muted ? 'repeating-linear-gradient(45deg,transparent 0 6px,var(--surface) 6px 12px)' : undefined }}>
+                <div ref={(el) => void (lanes.current[t.id] = el)} style={{ position: 'relative', flex: 1, background: t.muted ? 'repeating-linear-gradient(45deg,transparent 0 6px,#1b2230 6px 12px)' : undefined }}>
                   {t.clips.map((c) => (
                     <div
                       key={c.id}
                       onPointerDown={(e) => startMove(e, c)}
-                      style={{ position: 'absolute', left: c.start * pps, width: Math.max(4, (c.out - c.in) * pps), top: 3, height: LANE - 6, borderRadius: 6, overflow: 'hidden', cursor: 'grab', background: COLORS[ti % COLORS.length] + '33', border: `1px solid ${COLORS[ti % COLORS.length]}`, outline: c.id === sel ? '2px solid var(--orange)' : undefined, opacity: t.muted ? 0.4 : 1 }}
+                      style={{ position: 'absolute', left: c.start * pps, width: Math.max(4, (c.out - c.in) * pps), top: 3, height: LANE - 6, borderRadius: 6, overflow: 'hidden', cursor: 'grab', background: COLORS[ti % COLORS.length] + '26', border: `1px solid ${COLORS[ti % COLORS.length]}`, outline: c.id === sel ? '2px solid #fff' : undefined, opacity: t.muted ? 0.4 : 1 }}
                     >
                       <Wave peaks={peaks[c.asset]} from={c.in} to={c.out} width={(c.out - c.in) * pps} color={COLORS[ti % COLORS.length]} />
                       <span onPointerDown={(e) => startTrim(e, c, 'in')} style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 6, cursor: 'ew-resize', background: '#0003' }} />
@@ -265,11 +268,11 @@ export default function MixPanel({ itemId }: { itemId: string }) {
                 </div>
               </div>
             ))}
-            <div style={{ position: 'absolute', top: 0, bottom: 0, left: HEAD + player.pos * pps, width: 2, background: 'var(--orange)', pointerEvents: 'none', zIndex: 4 }} />
+            <div style={{ position: 'absolute', top: 0, bottom: 0, left: HEAD + player.pos * pps, width: 2, background: '#ff5a36', pointerEvents: 'none', zIndex: 4 }} />
           </div>
         </div>
       )}
-      <p className="note">A pré-escuta usa o mesmo cálculo da exportação (WAV estéreo 44,1 kHz). Edições durante a reprodução reiniciam o som de onde estava.</p>
+      <p className="note" style={{ padding: "10px 16px" }}>A pré-escuta usa o mesmo cálculo da exportação (WAV estéreo 44,1 kHz). Edições durante a reprodução reiniciam o som de onde estava.</p>
     </div>
   )
 }
