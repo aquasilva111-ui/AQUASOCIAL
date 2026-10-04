@@ -114,6 +114,8 @@
   .conectar input { flex: 1; min-width: 0; height: 44px; box-sizing: border-box; padding: 0 14px; border-radius: 999px;
                     border: 1px dashed var(--borda); background: var(--fundo); color: var(--tinta); font: 14px var(--texto); }
   .conectar button { width: 44px; padding: 0; font-size: 20px; line-height: 1; }
+  li .entrar { margin-left: auto; padding: 0 12px; min-height: 30px; font-size: 11px; }
+  li .plat { color: var(--tinta-2); font-size: 13px; }
   #cartao-chats.solte { outline: 2px dashed var(--azul); outline-offset: 4px; }
 
   /* Cabeçalho do programa: situação da U.I. e o botão de baixar ao lado */
@@ -318,9 +320,14 @@
       }
       for (const [nome, c] of nomes) {
         const li = document.createElement("li");
+        li.style.alignItems = "center";
         const b = document.createElement("b"); b.textContent = "@" + nome;
-        const s = document.createElement("small"); s.textContent = c.plataforma;
-        li.append(b, s);
+        const s = document.createElement("span"); s.className = "plat"; s.textContent = c.plataforma;
+        const entrar = document.createElement("button");     // abre o site para o login
+        entrar.type = "button"; entrar.className = "entrar"; entrar.textContent = "Entrar";
+        entrar.setAttribute("aria-label", "Fazer login no " + c.plataforma + " de @" + nome);
+        entrar.addEventListener("click", () => enviar("entrar @" + nome));
+        li.append(b, s, entrar);
         ul.appendChild(li);
       }
       $("n-convencoes").textContent = e.base.convencoes;
@@ -332,32 +339,36 @@
     }
   }
 
-  // Conectar um chat: colar, arrastar ou digitar o link no cartão "Chats conectados".
-  async function conectarLink(link) {
-    link = (link || "").trim();
-    if (!/^https?:\/\//.test(link)) return;
-    $("campo-link").value = "";
-    balao("conectar " + link, "eu");
+  // Um botão ou campo da lateral manda uma diretriz como se fosse digitada.
+  async function enviar(texto) {
+    balao(texto, "eu");
     if (!encontrada) {
       balao("A U.I. ainda não está neste computador. Baixe o software no botão acima, " +
-            "ligue a U.I. e volte aqui para conectar seus chats.", "ui", "aguardando_ajuda");
+            "ligue a U.I. e volte aqui.", "ui", "aguardando_ajuda");
       return;
     }
     pensando(true);
     try {
       const r = await fetch(UI + "consola", {
         method: "POST", headers: cabecalhos(),
-        body: JSON.stringify({ texto: "conectar " + link, sessao }),
+        body: JSON.stringify({ texto, sessao }),
       });
       const dados = await r.json();
       if (!r.ok) throw new Error(dados.erro || r.statusText);
       balao(dados.texto, "ui", dados.estado);
     } catch (err) {
-      balao("Não consegui conectar: " + err.message, "ui", "aguardando_ajuda");
+      balao("Não consegui falar com a U.I.: " + err.message, "ui", "aguardando_ajuda");
     } finally {
       pensando(false);
       atualizarEstado();
     }
+  }
+  // Conectar um chat: colar, arrastar ou digitar o link no cartão "Chats conectados".
+  function conectarLink(link) {
+    link = (link || "").trim();
+    if (!/^https?:\/\//.test(link)) return;
+    $("campo-link").value = "";
+    enviar("conectar " + link);
   }
   $("form-conectar").addEventListener("submit", (ev) => {
     ev.preventDefault();
