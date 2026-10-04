@@ -4,10 +4,11 @@ import { BlockNoteView } from '@blocknote/mantine'
 import { useCreateBlockNote } from '@blocknote/react'
 import '@blocknote/core/fonts/inter.css'
 import '@blocknote/mantine/style.css'
+import { useEffect, useState, useSyncExternalStore } from 'react'
 
 import { DOCS_FRAGMENT, docSession } from 'aqua-runtime/src/adapters/docs'
 
-import { download } from '../hub'
+import { download, onProjectChange, runtime } from '../hub'
 import { useSession } from './hooks'
 
 type DocSession = ReturnType<typeof docSession>
@@ -21,7 +22,15 @@ const uploadFile = (file: File) =>
     r.readAsDataURL(file)
   })
 
-function Editor({ session, name }: { session: DocSession; name: string }) {
+const clock = (iso: string) => new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+
+function Page({ session, itemId }: { session: DocSession; itemId: string }) {
+  const project = useSyncExternalStore(onProjectChange, () => runtime.project)
+  const item = project.items.find((i) => i.id === itemId)
+  const [saving, setSaving] = useState(false)
+  useEffect(() => session.onChange(() => setSaving(true)), [session])
+  useEffect(() => onProjectChange(() => setSaving(false)), [])
+
   // BlockNote 0.55 only binds to Yjs through withCollaboration; a bare `collaboration` option is ignored.
   const editor = useCreateBlockNote(
     withCollaboration({
@@ -31,21 +40,33 @@ function Editor({ session, name }: { session: DocSession; name: string }) {
       collaboration: { fragment: session.doc.getXmlFragment(DOCS_FRAGMENT), user: { name: 'Você', color: '#002BEF' }, showCursorLabels: 'activity' }
     })
   )
-  const file = (name || 'documento').replace(/[^\w-]+/g, '_')
+  const file = (item?.name || 'documento').replace(/[^\w-]+/g, '_')
+  const enc = (s: string) => new TextEncoder().encode(s)
+
   return (
-    <>
-      <div className="row">
-        <button onClick={() => download(new TextEncoder().encode(editor.blocksToMarkdownLossy()), `${file}.md`, 'text/markdown')}>Baixar Markdown</button>
-        <button onClick={async () => download(new TextEncoder().encode(await editor.blocksToHTMLLossy()), `${file}.html`, 'text/html')}>Baixar HTML</button>
-        <span className="note">Desfazer/refazer: Ctrl/⌘+Z dentro do editor. Digite “/” para blocos.</span>
+    <div className="docwrap">
+      <div className="doctools">
+        <button onClick={() => download(enc(editor.blocksToMarkdownLossy()), `${file}.md`, 'text/markdown')}>⬇ Markdown</button>
+        <button onClick={async () => download(enc(await editor.blocksToHTMLLossy()), `${file}.html`, 'text/html')}>⬇ HTML</button>
+        <button onClick={() => window.print()}>🖨 Imprimir</button>
+        <span className="status">{saving ? 'Salvando…' : item ? `✓ Salvo às ${clock(item.updatedAt)}` : ''}</span>
       </div>
-      <BlockNoteView editor={editor} theme="light" />
-    </>
+      <article className="paper">
+        <input
+          className="doctitle"
+          placeholder="Sem título"
+          value={item?.name ?? ''}
+          onChange={(e) => runtime.rename(itemId, e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), editor.focus())}
+        />
+        <BlockNoteView editor={editor} theme="light" />
+      </article>
+    </div>
   )
 }
 
 export default function DocPanel({ itemId }: { itemId: string }) {
   const { session } = useSession<DocSession>(itemId)
   if (!session) return <p className="note">Abrindo…</p>
-  return <Editor session={session} name={itemId} />
+  return <Page session={session} itemId={itemId} />
 }

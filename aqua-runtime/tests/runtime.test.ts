@@ -431,3 +431,57 @@ test('music: note editing, solo and clamps', async () => {
   s.removeTrack(b)
   assert.equal(s.state.tracks.length, 1)
 })
+
+import { docStatsFromBytes, docStatsFromXml, editSessions, wordSeries } from '../src/index'
+import * as YY from 'yjs'
+
+test('doc analytics: counts, structure, readability, keywords, sessions', () => {
+  const xml =
+    '<blockgroup>' +
+    '<blockcontainer id="1"><heading level="1" textColor="default">Meu título</heading></blockcontainer>' +
+    '<blockcontainer id="2"><paragraph>O gato dorme no sofá. O gato <bold>acorda</bold> cedo! Será que o gato come?</paragraph></blockcontainer>' +
+    '<blockcontainer id="3"><heading level="2">Lista</heading></blockcontainer>' +
+    '<blockcontainer id="4"><bulletListItem>primeiro gato</bulletListItem></blockcontainer>' +
+    '<blockcontainer id="5"><numberedListItem>segundo</numberedListItem></blockcontainer>' +
+    '<blockcontainer id="6"><checkListItem checked="true">feito</checkListItem></blockcontainer>' +
+    '<blockcontainer id="7"><checkListItem checked="false">falta</checkListItem></blockcontainer>' +
+    '<blockcontainer id="8"><image url="data:x"></image></blockcontainer>' +
+    '<blockcontainer id="9"><codeBlock>const nao = contar</codeBlock></blockcontainer>' +
+    '<blockcontainer id="10"><paragraph></paragraph></blockcontainer>' +
+    '</blockgroup>'
+  const s = docStatsFromXml(xml)
+  assert.deepEqual(s.headings, [{ level: 1, text: 'Meu título' }, { level: 2, text: 'Lista' }])
+  assert.equal(s.sentences, 3) // the heading and the code are not sentences
+  assert.equal(s.paragraphs, 1) // the empty paragraph does not count
+  assert.deepEqual([s.bullets, s.numbered, s.images, s.codeBlocks], [1, 1, 1, 1])
+  assert.deepEqual(s.checks, { done: 1, total: 2 })
+  assert.equal(s.keywords[0].word, 'gato')
+  assert.equal(s.keywords[0].count, 4) // 3 in the paragraph + 1 in the list
+  assert.ok(!s.keywords.some((k) => k.word === 'contar')) // code is excluded
+  assert.ok(s.words > 15 && s.readingMin > 0 && s.speakingMin > s.readingMin)
+  assert.ok(s.uniqueRatio > 0 && s.uniqueRatio < 1)
+  assert.ok(['muito fácil', 'fácil'].includes(s.readingLevel)) // short sentences, short words
+  assert.equal(docStatsFromXml('').words, 0)
+  assert.equal(docStatsFromXml('').readingLevel, '—')
+
+  // from real stored bytes
+  const doc = new YY.Doc()
+  const frag = doc.getXmlFragment(DOCS_FRAGMENT)
+  const para = new YY.XmlElement('paragraph')
+  para.insert(0, [new YY.XmlText('uma frase simples aqui.')])
+  const bc = new YY.XmlElement('blockcontainer')
+  bc.insert(0, [para])
+  const bg = new YY.XmlElement('blockgroup')
+  bg.insert(0, [bc])
+  frag.insert(0, [bg])
+  const fromBytes = docStatsFromBytes(docsAdapter.open(YY.encodeStateAsUpdate(doc)).serialize())
+  assert.equal(fromBytes.words, 4)
+  assert.equal(fromBytes.sentences, 1)
+
+  const series = wordSeries([{ at: '2026-01-02T00:00:00Z', message: 'b', words: 30 }, { at: '2026-01-01T00:00:00Z', message: 'a', words: 10 }])
+  assert.deepEqual(series.map((p) => [p.words, p.delta]), [[10, 10], [30, 20]])
+  const ed = editSessions(['2026-01-01T10:00:00Z', '2026-01-01T10:10:00Z', '2026-01-01T15:00:00Z', '2026-01-01T15:05:00Z'])
+  assert.equal(ed.sessions, 2)
+  assert.equal(ed.activeMin, 15)
+  assert.deepEqual(editSessions([]), { sessions: 0, activeMin: 0 })
+})

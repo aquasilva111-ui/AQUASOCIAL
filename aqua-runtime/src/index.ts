@@ -15,3 +15,5 @@ export { applyAudioEdit } from './render/audio'
 export { videoAdapter, buildFfmpegArgs, keyframeExpr, parseSrt, clipLength, defaultVideo, videoDuration, type VideoProject, type VideoClip, type VideoOverlay, type VideoText, type Keyframe, type Cue, type VideoSession, type VideoAdapterOptions } from './adapters/video'
 export { vegaLiteToSvg, plotToSvg, type PlotSpec } from './adapters/dataviz'
 export { sheetAdapter, type SheetDoc, type SheetSession, type SheetAdapterOptions } from './adapters/sheet'
+
+export { docStats, docStatsFromXml, docStatsFromBytes, wordSeries, editSessions, type DocStats, type Heading, type VersionPoint } from './analytics/doc'
