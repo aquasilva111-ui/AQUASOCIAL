@@ -189,7 +189,7 @@ canvas:not(.upper-canvas):not(.lower-canvas) { max-width:100%; border:1px solid 
 .lab-chip small { display: block; color: var(--s-muted); font-size: 11px; text-transform: uppercase; letter-spacing: .6px; }
 .lab-chip b { font-size: 16px; }
 .lab-chip input, .lab-chip select { width: 72px; background: transparent !important; border: 0 !important; font: 700 16px inherit; color: var(--s-text); padding: 0; }
-.lab-view { border: 1px solid var(--s-line); border-radius: 12px; background: #0a0d12; width: 100%; display: block; }
+.studio canvas.lab-view { border: 1px solid var(--s-line); border-radius: 12px; background: #0a0d12; width: 100%; max-width: 100%; display: block; }
 .lab-sliders { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px 22px; }
 .lab-slider label { display: flex; justify-content: space-between; font-size: 13px; color: var(--s-muted); margin-bottom: 4px; }
 .lab-slider label b { color: var(--s-text); font-variant-numeric: tabular-nums; }

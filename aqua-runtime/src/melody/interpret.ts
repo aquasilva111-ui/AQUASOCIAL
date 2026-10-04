@@ -74,8 +74,16 @@ export function interpret(m: Melody, opts: Partial<Interpretation> = {}): Melody
   const p = clamp01(o.pitchCorrection) * human
   const g = o.grid > 0 ? o.grid : NEUTRAL.grid
 
-  const notes: MelodyNote[] = m.notes.map((n) => {
-    const idealBeat = Math.round(n.orig.beat / g) * g
+  // Ideal start of each note: the nearest grid line, but never on or before the previous note's line
+  // (a dense passage on a coarse grid pushes the later notes to the next line instead of stacking them).
+  let prevIdeal = -Infinity
+  const ideals = m.notes.map((n) => {
+    const ideal = Math.max(Math.round(n.orig.beat / g) * g, prevIdeal + g)
+    prevIdeal = ideal
+    return ideal
+  })
+  const notes: MelodyNote[] = m.notes.map((n, i) => {
+    const idealBeat = ideals[i]
     const idealLen = Math.max(g, Math.round(n.orig.beats / g) * g)
     const beat = n.orig.beat + (idealBeat - n.orig.beat) * q
     const beats = o.quantizeLength ? n.orig.beats + (idealLen - n.orig.beats) * q : n.orig.beats

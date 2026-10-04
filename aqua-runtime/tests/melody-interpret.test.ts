@@ -75,6 +75,20 @@ test('pitch correction: the brief (436.8 Hz toward A4 at 60% is ~438.72 Hz), sca
   assert.deepEqual(fixed.notes.map((n) => n.pitch), [62, 64])
 })
 
+test('dense notes on a coarse grid keep their order instead of stacking on one line', () => {
+  // the sung A3 C4 D4 E4 D4 of the brief: C4 and D4 both round to beat 1 on an eighth-note grid
+  const m = toMelody(seq([57, 60, 62, 64, 62], [0.84, 0.36, 0.38, 1.22, 0.44]), 120)
+  const q = interpret(m, { quantize: 1, grid: 0.5 })
+  const starts = q.notes.map((n) => n.beat)
+  for (let i = 1; i < starts.length; i++) assert.ok(starts[i] - starts[i - 1] >= 0.5 - 1e-9, `starts ${starts}`)
+  assert.ok(q.notes.every((n) => n.beats >= 0.5 - 1e-9), `lengths ${q.notes.map((n) => n.beats)}`)
+  const ratios = analyzeMelody(q).rhythm.ratios
+  assert.ok(Math.max(...ratios) / Math.min(...ratios) <= 4, `ratios ${ratios}`) // no more "16 : 8 : 1"
+  // an already clean passage is unchanged by the rule
+  const clean = interpret(toMelody(seq([60, 62, 64, 67], [1, 0.5, 0.5, 1]), 120), { quantize: 1, grid: 0.5 })
+  assert.deepEqual(clean.notes.map((n) => n.beat), [0, 1, 1.5, 2])
+})
+
 test('interpretation never creates overlaps and reports how far it moved', () => {
   // two quick notes that quantise onto the same grid line would collide
   const m = toMelody(seq([60, 62, 64], [0.3, 0.3, 1], 120, [0, 0.04, 0.2]), 120)
