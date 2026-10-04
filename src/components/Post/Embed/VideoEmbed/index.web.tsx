@@ -13,8 +13,8 @@ import {useLingui} from '@lingui/react'
 
 import {isFirefox} from '#/lib/browser'
 import {ErrorBoundary} from '#/view/com/util/ErrorBoundary'
-import {ConstrainedImage} from '#/view/com/util/images/AutoSizedImage'
-import {atoms as a, useTheme} from '#/alf'
+import {IMAGE_BORDER_RADIUS} from '#/view/com/util/images/constants'
+import {atoms as a} from '#/alf'
 import {useIsWithinMessage} from '#/components/dms/MessageContext'
 import {useFullscreen} from '#/components/hooks/useFullscreen'
 import {MediaInsetBorder} from '#/components/MediaInsetBorder'
@@ -27,7 +27,6 @@ import {useActiveVideoWeb} from './ActiveVideoWebContext'
 import * as VideoFallback from './VideoEmbedInner/VideoFallback'
 
 export function VideoEmbed({embed}: {embed: AppBskyEmbedVideo.View}) {
-  const t = useTheme()
   const ref = useRef<HTMLDivElement>(null)
   const {active, setActive, sendPosition, currentActiveView} =
     useActiveVideoWeb()
@@ -70,11 +69,10 @@ export function VideoEmbed({embed}: {embed: AppBskyEmbedVideo.View}) {
     }
   }
 
-  let constrained: number | undefined
-  if (aspectRatio !== undefined) {
-    const ratio = 1 / 2 // max of 1:2 ratio in feeds
-    constrained = Math.max(aspectRatio, ratio)
-  }
+  // Always render at the video's native ratio so there are no black bars.
+  // Tall videos are capped by height and narrowed (not letterboxed) instead.
+  const ratio = aspectRatio ?? 16 / 9
+  const MAX_HEIGHT = 640
 
   const contents = (
     <div
@@ -83,7 +81,6 @@ export function VideoEmbed({embed}: {embed: AppBskyEmbedVideo.View}) {
         display: 'flex',
         flex: 1,
         cursor: 'default',
-        backgroundColor: t.palette.black,
         backgroundImage: `url(${embed.thumbnail})`,
         backgroundSize: 'contain',
         backgroundPosition: 'center',
@@ -109,15 +106,19 @@ export function VideoEmbed({embed}: {embed: AppBskyEmbedVideo.View}) {
       <ViewportObserver
         sendPosition={sendPosition}
         isAnyViewActive={currentActiveView !== null}>
-        <ConstrainedImage
-          fullBleed
-          aspectRatio={constrained || 1}
-          // slightly smaller max height than images
-          // images use 16 / 9, for reference
-          minMobileAspectRatio={14 / 9}>
+        <View
+          style={[
+            a.w_full,
+            a.overflow_hidden,
+            {
+              aspectRatio: ratio,
+              maxWidth: MAX_HEIGHT * ratio,
+              borderRadius: IMAGE_BORDER_RADIUS,
+            },
+          ]}>
           {contents}
           <MediaInsetBorder />
-        </ConstrainedImage>
+        </View>
       </ViewportObserver>
     </View>
   )
