@@ -8,8 +8,8 @@ import {useKawaiiMode} from '#/state/preferences/kawaii'
 import {useSession} from '#/state/session'
 import {useShellLayout} from '#/state/shell/shell-layout'
 import {HomeHeaderLayoutMobile} from '#/view/com/home/HomeHeaderLayoutMobile'
-import {Logo} from '#/view/icons/Logo'
 import {atoms as a, useBreakpoints, useGutters, useTheme} from '#/alf'
+import {AquaEyeLogo} from '#/components/AquaEyeLogo'
 import {ButtonIcon} from '#/components/Button'
 import {FeedViewSwitcher} from '#/components/feeds/FeedViewSwitcher'
 import {Hashtag_Stroke2_Corner0_Rounded as FeedsIcon} from '#/components/icons/Hashtag'
@@ -69,7 +69,12 @@ function HomeHeaderLayoutDesktopAndTablet({
               color="secondary"
               shape="square"
               style={[a.justify_center, a.bg_transparent]}>
-              <Logo width={kawaii ? 60 : 28} />
+              {({hovered, pressed}) => (
+                <AquaEyeLogo
+                  size={kawaii ? 60 : 28}
+                  active={hovered || pressed}
+                />
+              )}
             </Link>
             <View
               style={[

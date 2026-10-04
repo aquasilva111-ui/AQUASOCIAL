@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 1100" role="img" aria-label="Aqua">
+  <style>
+    .layer { transform-box: fill-box; transform-origin: center; }
+
+    /* Entrada: cada anel "nasce" do centro */
+    .outer  { animation: pop 0.9s cubic-bezier(.2,1.4,.4,1) both; }
+    .white  { animation: pop 0.8s cubic-bezier(.2,1.4,.4,1) 0.25s both; }
+    .iris   { animation: pop 0.7s cubic-bezier(.2,1.4,.4,1) 0.5s both; }
+    .pupil  { animation: pop 0.6s cubic-bezier(.2,1.4,.4,1) 0.75s both; }
+    @keyframes pop { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+    /* Depois da entrada: o olho respira, olha em volta e pisca */
+    .eye   { animation: look 8s ease-in-out 1.6s infinite, blink 8s ease-in-out 1.6s infinite; transform-box: fill-box; transform-origin: center; }
+    .breathe { animation: breathe 4s ease-in-out 1.6s infinite; transform-box: fill-box; transform-origin: center; }
+    .pulse { animation: pulse 2.6s ease-in-out 1.6s infinite; }
+
+    @keyframes look {
+      0%, 12%   { transform: translate(0, 0); }
+      22%, 38%  { transform: translate(34px, -14px); }
+      48%, 62%  { transform: translate(-34px, 10px); }
+      72%, 100% { transform: translate(0, 0); }
+    }
+    @keyframes blink {
+      0%, 84%, 90%, 100% { transform: scaleY(1); }
+      87%               { transform: scaleY(0.06); }
+    }
+    @keyframes breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.025); } }
+    @keyframes pulse   { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.18); } }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { animation: none !important; }
+    }
+  </style>
+
+  <g class="breathe">
+    <circle class="layer outer" cx="550" cy="550" r="510" fill="#002AF0"/>
+    <g class="eye">
+      <circle class="layer white" cx="550" cy="500" r="320" fill="#fff"/>
+      <circle class="layer iris"  cx="550" cy="500" r="205" fill="#00A0FF"/>
+      <g class="pulse" style="transform-box: fill-box; transform-origin: center;">
+        <circle class="layer pupil" cx="550" cy="500" r="96" fill="#000"/>
+      </g>
+    </g>
+  </g>
+</svg>
