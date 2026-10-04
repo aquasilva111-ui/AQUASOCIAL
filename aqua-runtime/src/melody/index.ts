@@ -1,3 +1,6 @@
 export * from './pitch'
 export * from './melody'
 export * from './analysis'
+export * from './interpret'
+export * from './transform'
+export * from './patterns'
