@@ -25,6 +25,9 @@ import {NavSignupCard} from '#/view/shell/NavSignupCard'
 import {atoms as a, tokens, useTheme, web} from '#/alf'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
 import {Divider} from '#/components/Divider'
+import {AquaLogo} from '#/components/icons/AquaLogo'
+import {CirclePlus_Stroke2_Corner0_Rounded as CirclePlusIcon} from '#/components/icons/CirclePlus'
+import {Globe_Stroke2_Corner0_Rounded as GlobeIcon} from '#/components/icons/Globe'
 import {
   HomeOpen_Filled_Corner0_Rounded as HomeFilled,
   HomeOpen_Stoke2_Corner0_Rounded as Home,
@@ -34,7 +37,13 @@ import {LiveVideo_Stroke2_Corner0_Rounded as VideosIcon} from '#/components/icon
 import {MagnifyingGlass_Filled_Stroke2_Corner0_Rounded as MagnifyingGlassFilled} from '#/components/icons/MagnifyingGlass'
 import {MagnifyingGlass2_Stroke2_Corner0_Rounded as MagnifyingGlass} from '#/components/icons/MagnifyingGlass2'
 import {Message_Stroke2_Corner0_Rounded as Message} from '#/components/icons/Message'
+import {MusicNote_Stroke2_Corner0_Rounded as MusicNote} from '#/components/icons/MusicNote'
+import {PlusLarge_Stroke2_Corner0_Rounded as PlusIcon} from '#/components/icons/Plus'
+import {Reads_Filled_Corner2_Rounded as Book} from '#/components/icons/Reads'
 import {SettingsGear2_Stroke2_Corner0_Rounded as Settings} from '#/components/icons/SettingsGear2'
+import {Ticket_Stroke2_Corner0_Rounded as TicketIcon} from '#/components/icons/Ticket'
+import {Trending3_Stroke2_Corner1_Rounded as ChartsIcon} from '#/components/icons/Trending'
+import {UserCircle_Stroke2_Corner0_Rounded as UserCircle} from '#/components/icons/UserCircle'
 import {InlineLinkText} from '#/components/Link'
 import {Text} from '#/components/Typography'
 import {useSimpleVerificationState} from '#/components/verification'
@@ -43,6 +52,9 @@ import {VerificationCheck} from '#/components/verification/VerificationCheck'
 const iconWidth = 26
 const uiAiIcon = require('../../../assets/icons/ui-ai.png')
 const wikiIcon = require('../../../assets/icons/wiki.png')
+const shopIcon = require('../../../assets/icons/shop.png')
+const newsConventionsIcon = require('../../../assets/icons/news-conventions.png')
+const portalsIcon = require('../../../assets/icons/portals.png')
 
 let DrawerProfileCard = ({
   account,
@@ -258,6 +270,7 @@ let DrawerContent = ({}: React.PropsWithoutRef<{}>): React.ReactNode => {
           }
           label="IU & AI"
           onPress={() => {
+            navigation.navigate('UIAI')
             setDrawerOpen(false)
           }}
         />
@@ -298,6 +311,94 @@ let DrawerContent = ({}: React.PropsWithoutRef<{}>): React.ReactNode => {
               setDrawerOpen(false)
             }}
           />
+        )}
+        {hasSession && (
+          <>
+            {/* Same entries as the desktop sidebar. */}
+            <MenuItem
+              icon={<Book width={iconWidth} style={t.atoms.text} />}
+              label="Reads"
+              onPress={() => {
+                navigation.navigate('Reads')
+                setDrawerOpen(false)
+              }}
+            />
+            <MenuItem
+              icon={<GlobeIcon width={iconWidth} style={t.atoms.text} />}
+              label="Notícias"
+              onPress={() => {
+                navigation.navigate('NewsAtlas')
+                setDrawerOpen(false)
+              }}
+            />
+            <MenuItem
+              icon={<MusicNote width={iconWidth} style={t.atoms.text} />}
+              label="Música"
+              onPress={() => {
+                navigation.navigate('Music')
+                setDrawerOpen(false)
+              }}
+            />
+            <MenuItem
+              icon={tintedIcon(shopIcon, t.atoms.text.color)}
+              label="Shop"
+              onPress={() => {}}
+            />
+            <MenuItem
+              icon={<ChartsIcon width={iconWidth} style={t.atoms.text} />}
+              label="Charts"
+              onPress={() => {}}
+            />
+            <MenuItem
+              icon={tintedIcon(newsConventionsIcon, t.atoms.text.color)}
+              label="News & Conventions"
+              onPress={() => {}}
+            />
+            <MenuItem
+              icon={tintedIcon(portalsIcon, t.atoms.text.color)}
+              label="Portals"
+              onPress={() => {}}
+            />
+            <MenuItem
+              icon={<UserCircle width={iconWidth} style={t.atoms.text} />}
+              label="Communities"
+              onPress={() => {}}
+            />
+            <MenuItem
+              icon={<CirclePlusIcon width={iconWidth} style={t.atoms.text} />}
+              label="Fund"
+              onPress={() => {}}
+            />
+            <MenuItem
+              icon={<TicketIcon width={iconWidth} style={t.atoms.text} />}
+              label="Wallet"
+              onPress={() => {}}
+            />
+            <MenuItem
+              icon={<AquaLogo width={iconWidth} style={t.atoms.text} />}
+              label="+18 Content"
+              onPress={() => {
+                navigation.navigate('AdultHome')
+                setDrawerOpen(false)
+              }}
+            />
+            <MenuItem
+              icon={<PlusIcon width={iconWidth} style={t.atoms.text} />}
+              label="Creative Hub"
+              onPress={() => {
+                navigation.navigate('CreativeHub')
+                setDrawerOpen(false)
+              }}
+            />
+            <MenuItem
+              icon={<PlusIcon width={iconWidth} style={t.atoms.text} />}
+              label="Launch Hub"
+              onPress={() => {
+                navigation.navigate('LaunchHub')
+                setDrawerOpen(false)
+              }}
+            />
+          </>
         )}
         {hasSession ? (
           <>
@@ -450,6 +551,16 @@ let SettingsMenuItem = ({onPress}: {onPress: () => void}): React.ReactNode => {
   )
 }
 SettingsMenuItem = React.memo(SettingsMenuItem)
+
+function tintedIcon(source: number, color: string) {
+  return (
+    <Image
+      accessibilityIgnoresInvertColors
+      source={source}
+      style={{width: iconWidth, height: iconWidth, tintColor: color}}
+    />
+  )
+}
 
 function MenuItem({icon, label, count, bold, onPress}: MenuItemProps) {
   const t = useTheme()
