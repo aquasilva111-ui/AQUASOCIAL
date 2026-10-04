@@ -224,6 +224,7 @@ let DrawerContent = ({}: React.PropsWithoutRef<{}>): React.ReactNode => {
               insets.top + a.pt_xl.paddingTop,
               a.pt_xl.paddingTop,
             ),
+            paddingBottom: a.pb_xl.paddingBottom,
           },
         ]}>
         <View style={[a.px_xl]}>

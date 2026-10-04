@@ -172,6 +172,10 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     height: '100%',
+    // On iOS Safari `100%` of a fixed box can be taller than what is actually
+    // visible (browser toolbars), pushing the end of the menu offscreen.
+    // @ts-expect-error web only
+    maxHeight: '100dvh',
     width: 330,
     maxWidth: '80%',
   },
