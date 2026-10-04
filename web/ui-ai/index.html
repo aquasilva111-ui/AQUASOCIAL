@@ -116,6 +116,7 @@
   .conectar button { width: 44px; padding: 0; font-size: 20px; line-height: 1; }
   li .entrar { margin-left: auto; padding: 0 12px; min-height: 30px; font-size: 11px; }
   li .plat { color: var(--tinta-2); font-size: 13px; }
+  li .aberta { font-size: 11px; color: #1c5b3d; }
   #cartao-chats.solte { outline: 2px dashed var(--azul); outline-offset: 4px; }
 
   /* Cabeçalho do programa: situação da U.I. e o botão de baixar ao lado */
@@ -267,6 +268,13 @@
     $("cartao-parear").hidden = false;
     if (mensagem) $("parear-dica").textContent = mensagem;
   }
+  function mesmaConversa(a, b) {
+    try {
+      const pa = new URL(a), pb = new URL(b);
+      const host = (u) => u.hostname.replace(/^www\./, "");
+      return host(pa) === host(pb) && pa.pathname.replace(/\/$/, "") === pb.pathname.replace(/\/$/, "");
+    } catch (err) { return false; }
+  }
   let sessao;
   try {
     sessao = sessionStorage.getItem("ui-sessao") || crypto.randomUUID();
@@ -323,6 +331,12 @@
         li.style.alignItems = "center";
         const b = document.createElement("b"); b.textContent = "@" + nome;
         const s = document.createElement("span"); s.className = "plat"; s.textContent = c.plataforma;
+        const abertas = (e.extensao && e.extensao.abas) || [];
+        if (abertas.some((u) => mesmaConversa(u, c.url))) {     // a conversa está aberta no Chrome
+          s.textContent += " ";
+          const a = document.createElement("span"); a.className = "aberta"; a.textContent = "● aberta";
+          s.appendChild(a);
+        }
         const entrar = document.createElement("button");     // abre o site para o login
         entrar.type = "button"; entrar.className = "entrar"; entrar.textContent = "Entrar";
         entrar.setAttribute("aria-label", "Fazer login no " + c.plataforma + " de @" + nome);
