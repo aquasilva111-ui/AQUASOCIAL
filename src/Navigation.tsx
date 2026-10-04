@@ -131,6 +131,7 @@ import {ModerationScreen} from '#/screens/Moderation'
 import {Screen as ModerationVerificationSettings} from '#/screens/Moderation/VerificationSettings'
 import {Screen as ModerationInteractionSettings} from '#/screens/ModerationInteractionSettings'
 import {MusicScreen} from '#/screens/Music'
+import {NewsAtlasScreen} from '#/screens/NewsAtlas'
 import {NotificationsActivityListScreen} from '#/screens/Notifications/ActivityList'
 import {PostLikedByScreen} from '#/screens/Post/PostLikedBy'
 import {PostQuotesScreen} from '#/screens/Post/PostQuotes'
@@ -732,6 +733,11 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
         name="Music"
         component={MusicScreen}
         options={{title: 'Música'}}
+      />
+      <Stack.Screen
+        name="NewsAtlas"
+        component={NewsAtlasScreen}
+        options={{title: 'Notícias e Convenções'}}
       />
       <Stack.Screen
         name="Reads"
