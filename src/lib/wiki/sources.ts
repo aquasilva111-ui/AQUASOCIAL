@@ -15,8 +15,9 @@ export type SourceEntry = {
 
 export const NASA_LICENSE = 'Domínio público (NASA)'
 export const PUBCHEM_LICENSE = 'Domínio público (PubChem/NCBI)'
-// DEMO_KEY is rate limited (30 requests/hour per IP); swap in a real key.
-export const NASA_API_KEY = 'DEMO_KEY'
+// Free key from https://api.nasa.gov (1000 requests/hour). DEMO_KEY, the
+// fallback, is limited to 30 requests/hour per IP.
+export const NASA_API_KEY = process.env.EXPO_PUBLIC_NASA_API_KEY || 'DEMO_KEY'
 
 function clean(text: unknown, max = 500): string {
   const plain = String(text ?? '')
