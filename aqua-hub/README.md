@@ -18,6 +18,26 @@ cd aqua-hub && npm install && npm run dev      # http://localhost:5192
 | Vídeo | timeline com cursor, pré-visualização e reprodução; arrastar bordas (cortar) e clipes (reordenar); dividir (S); fade, brilho/contraste/saturação; textos; trilha de música; render no servidor `aqua-render` |
 | Planilha | Univer carregado só ao abrir a planilha; snapshot salvo no projeto |
 
+## Melody Lab ([AQUA-045], dentro da Música)
+
+Botão **🎙 Melody Lab** na barra da Música. Cante (microfone) ou importe um áudio: o sistema detecta
+altura, duração e dinâmica (YIN próprio, sem modelo de IA), mostra o que você fez e deixa organizar
+com matemática. A gravação original nunca é alterada; tudo parte dela e volta a ela.
+
+- **Cantar:** tonalidade estimada, BPM (digitável, com palpite), extensão; gráfico com o contorno da voz,
+  as notas originais (contorno) e as interpretadas (preenchidas); **quantização** (grade 1/4 a 1/32 e
+  tercinas), **correção de afinação** (semitons livres, tonalidade detectada ou escala escolhida) e
+  **Humano ←→ Matemático**; ouvir gravação, original ou interpretada; escolher instrumento; enviar ao piano roll.
+- **Matemática:** intervalos (+2 +2 +3 −3), frequências e razões (cantadas × temperadas), razões de ritmo
+  (×2, ÷2, inverso), acordes sugeridos com o papel de cada nota, padrões repetidos, transformações
+  reversíveis (transpor, espelhar, retrógrada, ritmo inverso, ×2, ÷2, repetir).
+- Motor em `aqua-runtime/src/melody/` (testado; ver testes `melody*.test.ts`).
+
+Limites: só **voz de uma nota por vez** (Basic Pitch/CREPE para polifonia não estão integrados); a tonalidade
+e os acordes são palpites matemáticos (a tela mostra a confiança); os modos **Tocar** e **Desenhar** do texto
+original ainda não existem; a gravação fica só na memória da aba (o que vai para o projeto são as notas
+enviadas ao piano roll); o microfone não foi testado no painel embutido (testei importando áudio).
+
 ## O que não é (ainda)
 
 - **Docs não está aqui**: o editor é o `aqua-docs/` (BlockNote) e não foi embutido.

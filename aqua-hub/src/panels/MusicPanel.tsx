@@ -233,7 +233,19 @@ export default function MusicPanel({ itemId }: { itemId: string }) {
       </div>
       {url && <div style={{ padding: '10px 16px 0' }}><audio controls src={url} style={{ width: '100%' }} /></div>}
 
-      {lab && <MelodyLab session={session} onClose={() => setLab(false)} />}
+      {lab && (
+        <MelodyLab
+          session={session}
+          onClose={() => setLab(false)}
+          onSent={(id, notes) => {
+            // Show what was just sent: select the new track and scroll the roll to the notes.
+            setTrackId(id)
+            setSel(null)
+            const mid = notes.length ? notes.reduce((a, n) => a + n.pitch, 0) / notes.length : 72
+            setTimeout(() => scroller.current?.scrollTo({ top: Math.max(0, yOf(mid) - 190), behavior: 'smooth' }), 150)
+          }}
+        />
+      )}
 
       {song.tracks.map((t, ti) => (
         <div className={'trackrow' + (t.id === track?.id ? ' on' : '')} key={t.id} style={{ ['--c' as string]: COLORS[ti % COLORS.length] }} onPointerDown={() => setTrackId(t.id)}>

@@ -32,7 +32,7 @@ interface Take {
   pcm: Pcm
 }
 
-export default function MelodyLab({ session, onClose }: { session: MusicSession; onClose: () => void }) {
+export default function MelodyLab({ session, onClose, onSent }: { session: MusicSession; onClose: () => void; onSent?: (trackId: string, notes: { beat: number; pitch: number }[]) => void }) {
   const [tab, setTab] = useState<'sing' | 'math'>('sing')
   const [take, setTake] = useState<Take | null>(null)
   const [busy, setBusy] = useState('')
@@ -233,6 +233,7 @@ export default function MelodyLab({ session, onClose }: { session: MusicSession;
       d.bars = Math.max(d.bars, barsFor(final))
     })
     setSent(`${notes.length} notas enviadas ao piano roll em uma nova faixa.`)
+    onSent?.(id, notes)
   }
   const importFile = async (f: File) => {
     setErr('')
