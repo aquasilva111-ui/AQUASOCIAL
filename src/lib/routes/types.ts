@@ -136,6 +136,10 @@ export type CommonNavigatorParams = {
   AdultStudio: {handle: string}
   AdultTitle: {type: 'movie' | 'series'; id: string}
   AdultLibrary: undefined
+  AdultDrops: undefined
+  AdultVisionboard: undefined
+  AdultReads: undefined
+  AdultRead: {bookId: string}
   AdultMessages: undefined
   AdultSettings: undefined
   AdultCreatorDashboard: undefined

@@ -69,7 +69,11 @@ const FULL_PAGE_ROUTES = [
   'ViewList',
   'CreativeHub',
   'CreativeHubTab',
+  'UIAI',
 ]
+
+/** Full-page experiences that also hide the bottom dock (it would cover them). */
+const ROUTES_WITHOUT_DOCK = ['UIAI']
 
 type NativeStackNavigationOptionsWithAuth = NativeStackNavigationOptions & {
   requireAuth?: boolean
@@ -194,7 +198,9 @@ function NativeStackNavigator({
       {isWeb && (
         <>
           {showLeftNav && !hasOwnChrome && <DesktopLeftNav />}
-          {showBottomBar && <BottomBarWeb />}
+          {showBottomBar && !ROUTES_WITHOUT_DOCK.includes(activeRoute.name) && (
+            <BottomBarWeb />
+          )}
           {!isMobile && !hasOwnChrome && (
             <DesktopRightNav routeName={activeRoute.name} />
           )}

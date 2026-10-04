@@ -1,9 +1,14 @@
-import {useCallback} from 'react'
+import {useCallback, useEffect} from 'react'
 import {View} from 'react-native'
 import {useNavigation} from '@react-navigation/native'
+import {useQuery} from '@tanstack/react-query'
 
+import {fetchAdultRelations} from '#/lib/adult/api'
+import {adultQueryKey} from '#/lib/adult/isolation'
 import {type NavigationProp} from '#/lib/routes/types'
 import {useAdultContext} from '#/state/adult/context'
+import {hydrateAdultRelationships} from '#/state/adult/relationships'
+import {useAgent} from '#/state/session'
 import {atoms as a, useTheme} from '#/alf'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
 import {ArrowBoxLeft_Stroke2_Corner0_Rounded as LeaveIcon} from '#/components/icons/ArrowBoxLeft'
@@ -12,7 +17,7 @@ import {Text} from '#/components/Typography'
 import {AdultGate} from './AdultGate'
 
 /** Subtle permanent marker that the user is inside the adult context. */
-const CONTEXT_ACCENT = '#d6336c'
+const CONTEXT_ACCENT = '#c2570c'
 
 /**
  * Visual/logical container of the AQUA +18 environment. Same AQUA chrome,
@@ -32,6 +37,20 @@ export function AdultShell({
   const t = useTheme()
   const navigation = useNavigation<NavigationProp>()
   const ctx = useAdultContext()
+  const agent = useAgent()
+  const did = ctx.identity?.did
+
+  // Follows, mutes and blocks are stored on the server; load them into the
+  // in-memory state so they survive reloads and other devices.
+  const relations = useQuery({
+    queryKey: adultQueryKey('relations', did),
+    queryFn: () => fetchAdultRelations(agent),
+    enabled: ctx.adultAccessEnabled && !!did,
+    staleTime: 5 * 60_000,
+  })
+  useEffect(() => {
+    if (did && relations.data) hydrateAdultRelationships(did, relations.data)
+  }, [did, relations.data])
 
   const exitAdult = useCallback(() => {
     ctx.exit()
@@ -61,7 +80,7 @@ export function AdultShell({
           <View
             style={[
               a.rounded_full,
-              {width: 10, height: 10, backgroundColor: CONTEXT_ACCENT},
+              {width: 10, height: 10, backgroundColor: '#ff8a1f'},
             ]}
           />
           <Text style={[a.text_sm, a.font_semi_bold, {color: CONTEXT_ACCENT}]}>

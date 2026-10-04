@@ -10,7 +10,7 @@ import {
 import {audit} from '../lib/audit.js'
 import {badRequest, conflict, forbidden, notFound} from '../lib/errors.js'
 import {newId} from '../lib/ids.js'
-import {enforce, RateLimiter} from '../lib/rateLimit.js'
+import {enforce, SharedRateLimiter} from '../lib/rateLimit.js'
 import {registerRoutes} from '../registry.js'
 import {installMatching} from './matching.js'
 import {
@@ -82,8 +82,8 @@ registerRoutes(ctx => {
     requireStaff(ctx, req, p)
 
   // Takedown form can be used without an AQUA account: limit by address.
-  const takedownLimiter = new RateLimiter(10, 3600_000)
-  const blockLimiter = new RateLimiter(120, 3600_000)
+  const takedownLimiter = new SharedRateLimiter(db, 10, 3600_000)
+  const blockLimiter = new SharedRateLimiter(db, 120, 3600_000)
 
   // ------------------------------------------------------------ reports
 
@@ -173,7 +173,7 @@ registerRoutes(ctx => {
 
   app.put('/me/adult/blocks/:did', async req => {
     const me = await ctx.user(req)
-    enforce(blockLimiter, me)
+    await enforce(blockLimiter, me)
     const {did: target} = z.object({did}).parse(req.params)
     if (target === me) throw badRequest('invalid_target')
     const [count] = await db.query(
@@ -281,7 +281,7 @@ registerRoutes(ctx => {
       req.headers.authorization || req.headers['x-aqua-dev-did']
         ? await ctx.user(req)
         : null
-    enforce(takedownLimiter, requester ?? `ip:${req.ip}`)
+    await enforce(takedownLimiter, requester ?? `ip:${req.ip}`)
     const body = takedownBody.parse(req.body)
     if (!requester && !body.contact) throw badRequest('contact_required')
     return createTakedown(req, requester, body)
@@ -290,7 +290,7 @@ registerRoutes(ctx => {
   /** Ownership disputes between parties (content rights). */
   app.post('/disputes', async req => {
     const requester = await ctx.user(req)
-    enforce(takedownLimiter, requester)
+    await enforce(takedownLimiter, requester)
     const body = takedownBody.omit({basis: true, contact: true}).parse(req.body)
     return createTakedown(req, requester, {...body, basis: 'ownership'})
   })

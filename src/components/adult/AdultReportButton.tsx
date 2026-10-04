@@ -165,7 +165,7 @@ export function AdultReportButton({
             />
           )}
           {error && (
-            <Text style={[a.text_sm, {color: '#d6336c'}]}>{error}</Text>
+            <Text style={[a.text_sm, {color: '#c2570c'}]}>{error}</Text>
           )}
           <Button
             label="Enviar denúncia"

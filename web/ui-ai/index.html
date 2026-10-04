@@ -110,23 +110,27 @@
                   background: var(--fundo); color: var(--tinta); font: 15px var(--pesada); text-transform: uppercase; }
   .parear button { padding: 0 16px; }
   [hidden] { display: none !important; }
+  .conectar { display: flex; gap: 8px; margin-top: 14px; }
+  .conectar input { flex: 1; min-width: 0; height: 44px; box-sizing: border-box; padding: 0 14px; border-radius: 999px;
+                    border: 1px dashed var(--borda); background: var(--fundo); color: var(--tinta); font: 14px var(--texto); }
+  .conectar button { width: 44px; padding: 0; font-size: 20px; line-height: 1; }
+  li .entrar { margin-left: auto; padding: 0 12px; min-height: 30px; font-size: 11px; }
+  li .plat { color: var(--tinta-2); font-size: 13px; }
+  li .aberta { font-size: 11px; color: #1c5b3d; }
+  #cartao-chats.solte { outline: 2px dashed var(--azul); outline-offset: 4px; }
 
-  /* Apresentação: a porta de entrada para quem ainda não tem a U.I. */
-  .apresentacao { min-height: calc(100vh - 4px); display: grid; place-items: center; padding: 32px 16px; }
-  .apresentacao .cartao { max-width: 640px; width: 100%; display: grid; gap: 22px; padding: 40px; text-align: center; }
-  .apresentacao img { width: 140px; height: 140px; justify-self: center; }
-  .apresentacao h1 { font-size: clamp(28px, 5vw, 44px); }
-  .apresentacao p { margin: 0; color: var(--tinta-2); line-height: 1.6; font-size: 16px; }
-  .passos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
-  .passos div { border: 1px solid var(--borda); border-radius: 16px; padding: 14px 10px; font-size: 14px; line-height: 1.4; }
-  .passos b { display: block; font-family: var(--pesada); font-size: 22px; margin-bottom: 4px; }
-  .acoes { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
-  .acoes a, .acoes button { display: inline-flex; align-items: center; min-height: 52px; padding: 0 26px; border-radius: 999px;
-                            font-family: var(--pesada); text-transform: uppercase; font-size: 14px; text-decoration: none; }
-  .acoes .principal { background: var(--tinta); color: var(--fundo); }
-  .acoes .principal[aria-disabled="true"] { opacity: .5; pointer-events: none; }
-  .acoes .secundaria { background: transparent; color: var(--tinta); border: 1px solid var(--tinta); }
-  @media (max-width: 560px) { .passos { grid-template-columns: 1fr; } .apresentacao .cartao { padding: 28px 20px; } }
+  /* Cabeçalho do programa: situação da U.I. e o botão de baixar ao lado */
+  .topo .acoes-topo { margin-left: auto; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+  .selo { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; border-radius: 999px; padding: 6px 12px;
+          background: #ececec; color: #3a3a3a; white-space: nowrap; }
+  .selo::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #8a8a8a; }
+  .selo.conectada { background: #e3f5ec; color: #1c5b3d; } .selo.conectada::before { background: var(--verde); }
+  .selo.parear { background: #fff0e8; color: #8a3a12; } .selo.parear::before { background: var(--laranja); }
+  .baixar { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 20px; border-radius: 999px;
+            background: var(--tinta); color: var(--fundo); font-family: var(--pesada); font-size: 13px;
+            text-transform: uppercase; text-decoration: none; white-space: nowrap; }
+  .baixar[aria-disabled="true"] { opacity: .45; pointer-events: none; }
+  @media (max-width: 560px) { .topo { flex-wrap: wrap; } .topo .acoes-topo { margin-left: 0; width: 100%; justify-content: flex-start; } }
 
   @media (max-width: 860px) {
     .grade { grid-template-columns: 1fr; }
@@ -138,24 +142,6 @@
 </head>
 <body>
 <div class="faixa"></div>
-<section class="apresentacao" id="apresentacao" hidden aria-labelledby="apresentacao-titulo">
-  <div class="cartao">
-    <img src="web/logo.svg" alt="">
-    <h1 id="apresentacao-titulo">Unidade de Inteligência</h1>
-    <p>Uma inteligência que aprende com você. Ela organiza o que sabe em Convenções de Realidade,
-       conecta os seus chats de IA para trabalharem juntos e age pelos Autômatos.
-       Roda no seu computador: o que ela aprende é seu.</p>
-    <div class="passos">
-      <div><b>1</b>Baixe e instale a U.I.</div>
-      <div><b>2</b>Ligue a U.I. no seu computador</div>
-      <div><b>3</b>Volte aqui e pareie esta página</div>
-    </div>
-    <div class="acoes">
-      <a class="principal" id="baixar" href="#">Baixar a U.I.</a>
-      <button class="secundaria" id="tentar" type="button">Já instalei</button>
-    </div>
-  </div>
-</section>
 <main class="grade" id="grade">
   <section class="cartao centro" aria-label="Centro de Entrada e Saída">
     <div class="topo" id="topo">
@@ -163,6 +149,13 @@
       <div>
         <h1>Centro de Entrada e Saída</h1>
         <div class="sub">Unidade de Inteligência · expresse sua intenção</div>
+      </div>
+      <div class="acoes-topo">
+        <span class="selo" id="selo">procurando a U.I.…</span>
+        <a class="baixar" id="baixar" href="#" hidden>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"></path></svg>
+          Baixar software
+        </a>
       </div>
     </div>
     <div id="conversa" aria-live="polite">
@@ -193,10 +186,15 @@
       <div class="sub" id="automatos-estado">em repouso</div>
     </section>
 
-    <section class="cartao">
+    <section class="cartao" id="cartao-chats">
       <h2>Chats conectados</h2>
       <ul id="chats"><li><small>carregando…</small></li></ul>
-      <p class="dica">Conecte com<br><code>conectar &lt;endereço&gt; como gpt</code></p>
+      <form class="conectar" id="form-conectar">
+        <input id="campo-link" type="url" inputmode="url" autocomplete="off"
+               placeholder="Cole ou arraste o link de uma conversa" aria-label="Link da conversa para conectar">
+        <button type="submit" aria-label="Conectar chat">+</button>
+      </form>
+      <p class="dica">ChatGPT, Kimi, Claude ou Gemini: abra a conversa e copie o endereço da barra do navegador.</p>
     </section>
 
     <section class="cartao" id="cartao-codigo" hidden>
@@ -242,19 +240,40 @@
     if (!LOCAL) h["X-UI-Pareamento"] = lerCodigo();
     return h;
   }
-  function apresentar(sim) {
-    $("apresentacao").hidden = !sim;
-    $("grade").hidden = sim;
+  let encontrada = false;          // a U.I. respondeu neste computador?
+  function situacao(tipo) {
+    const textos = {
+      conectada: "U.I. conectada · este computador",
+      parear: "U.I. instalada · falta parear",
+      ausente: "U.I. não instalada neste computador",
+    };
+    $("selo").className = "selo " + tipo;
+    $("selo").textContent = textos[tipo];
+    encontrada = tipo !== "ausente";
+    if (tipo === "ausente" && $("vazio")) {
+      $("vazio").textContent = "Este é o programa da Unidade de Inteligência. Ela roda no seu computador: " +
+        "baixe o software no botão acima, ligue e volte aqui para conversar.";
+    }
   }
-  if (DOWNLOAD) {
-    $("baixar").href = DOWNLOAD;
-  } else {
-    $("baixar").textContent = "Download em breve";
-    $("baixar").setAttribute("aria-disabled", "true");
+  if (!LOCAL) {                    // na página pública o botão de baixar fica ao lado do programa
+    $("baixar").hidden = false;
+    if (DOWNLOAD) {
+      $("baixar").href = DOWNLOAD;
+    } else {
+      $("baixar").setAttribute("aria-disabled", "true");
+      $("baixar").lastChild.textContent = " Baixar software · em breve";
+    }
   }
   function pedirPareamento(mensagem) {
     $("cartao-parear").hidden = false;
     if (mensagem) $("parear-dica").textContent = mensagem;
+  }
+  function mesmaConversa(a, b) {
+    try {
+      const pa = new URL(a), pb = new URL(b);
+      const host = (u) => u.hostname.replace(/^www\./, "");
+      return host(pa) === host(pb) && pa.pathname.replace(/\/$/, "") === pb.pathname.replace(/\/$/, "");
+    } catch (err) { return false; }
   }
   let sessao;
   try {
@@ -291,8 +310,8 @@
     try {
       const r = await fetch(UI + "consola/estado", { headers: cabecalhos() });
       const e = await r.json();
-      apresentar(false);
-      if (r.status === 401) { pedirPareamento(); throw new Error("não pareada"); }
+      if (r.status === 401) { situacao("parear"); pedirPareamento(); throw new Error("não pareada"); }
+      situacao("conectada");
       $("cartao-parear").hidden = true;
       if (e.pareamento) {
         $("cartao-codigo").hidden = false;
@@ -309,9 +328,20 @@
       }
       for (const [nome, c] of nomes) {
         const li = document.createElement("li");
+        li.style.alignItems = "center";
         const b = document.createElement("b"); b.textContent = "@" + nome;
-        const s = document.createElement("small"); s.textContent = c.plataforma;
-        li.append(b, s);
+        const s = document.createElement("span"); s.className = "plat"; s.textContent = c.plataforma;
+        const abertas = (e.extensao && e.extensao.abas) || [];
+        if (abertas.some((u) => mesmaConversa(u, c.url))) {     // a conversa está aberta no Chrome
+          s.textContent += " ";
+          const a = document.createElement("span"); a.className = "aberta"; a.textContent = "● aberta";
+          s.appendChild(a);
+        }
+        const entrar = document.createElement("button");     // abre o site para o login
+        entrar.type = "button"; entrar.className = "entrar"; entrar.textContent = "Entrar";
+        entrar.setAttribute("aria-label", "Fazer login no " + c.plataforma + " de @" + nome);
+        entrar.addEventListener("click", () => enviar("entrar @" + nome));
+        li.append(b, s, entrar);
         ul.appendChild(li);
       }
       $("n-convencoes").textContent = e.base.convencoes;
@@ -319,12 +349,57 @@
       $("n-experiencias").textContent = e.experiencias;
     } catch (err) {
       $("chats").innerHTML = '<li><small class="erro">U.I. não encontrada</small></li>';
-      // página pública sem U.I. neste computador: a porta de entrada
-      if (!LOCAL && err.message !== "não pareada") apresentar(true);
+      if (err.message !== "não pareada") situacao("ausente");
     }
   }
 
-  $("tentar").addEventListener("click", atualizarEstado);
+  // Um botão ou campo da lateral manda uma diretriz como se fosse digitada.
+  async function enviar(texto) {
+    balao(texto, "eu");
+    if (!encontrada) {
+      balao("A U.I. ainda não está neste computador. Baixe o software no botão acima, " +
+            "ligue a U.I. e volte aqui.", "ui", "aguardando_ajuda");
+      return;
+    }
+    pensando(true);
+    try {
+      const r = await fetch(UI + "consola", {
+        method: "POST", headers: cabecalhos(),
+        body: JSON.stringify({ texto, sessao }),
+      });
+      const dados = await r.json();
+      if (!r.ok) throw new Error(dados.erro || r.statusText);
+      balao(dados.texto, "ui", dados.estado);
+    } catch (err) {
+      balao("Não consegui falar com a U.I.: " + err.message, "ui", "aguardando_ajuda");
+    } finally {
+      pensando(false);
+      atualizarEstado();
+    }
+  }
+  // Conectar um chat: colar, arrastar ou digitar o link no cartão "Chats conectados".
+  function conectarLink(link) {
+    link = (link || "").trim();
+    if (!/^https?:\/\//.test(link)) return;
+    $("campo-link").value = "";
+    enviar("conectar " + link);
+  }
+  $("form-conectar").addEventListener("submit", (ev) => {
+    ev.preventDefault();
+    conectarLink($("campo-link").value);
+  });
+  $("campo-link").addEventListener("paste", () => {
+    setTimeout(() => conectarLink($("campo-link").value), 0);   // colou: já conecta
+  });
+  const cartaoChats = $("cartao-chats");
+  cartaoChats.addEventListener("dragover", (ev) => { ev.preventDefault(); cartaoChats.classList.add("solte"); });
+  cartaoChats.addEventListener("dragleave", () => cartaoChats.classList.remove("solte"));
+  cartaoChats.addEventListener("drop", (ev) => {
+    ev.preventDefault();
+    cartaoChats.classList.remove("solte");
+    const link = ev.dataTransfer.getData("text/uri-list") || ev.dataTransfer.getData("text/plain");
+    conectarLink(link.split("\n")[0]);
+  });
 
   $("form-parear").addEventListener("submit", (ev) => {
     ev.preventDefault();
@@ -339,6 +414,12 @@
     $("campo").value = "";
     $("campo").style.height = "";
     balao(texto, "eu");
+    if (!encontrada) {
+      balao("A U.I. ainda não está neste computador. Baixe o software no botão acima, " +
+            "ligue a U.I. e volte aqui: a conversa acontece com ela, no seu computador.", "ui", "aguardando_ajuda");
+      atualizarEstado();
+      return;
+    }
     pensando(true);
     try {
       const r = await fetch(UI + "consola", {

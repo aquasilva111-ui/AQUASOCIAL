@@ -4,8 +4,9 @@
  * These live ONLY inside the adult context — in memory, bound to the
  * account DID, cleared on exit/switch/logout. They are never written to the
  * public AT repo (a public app.bsky.graph.follow would expose exactly the
- * information this environment exists to keep private). Durable private
- * storage arrives with the +18 backend (FASE 8+).
+ * information this environment exists to keep private). The durable copy
+ * lives on aqua-adult-api (follows, mutes, blocks) and is hydrated into this
+ * in-memory state when the user enters +18.
  */
 
 type RelationshipState = {
@@ -93,6 +94,22 @@ export function muteAdultCreator(did: string, creatorDid: string): void {
 
 export function unmuteAdultCreator(did: string, creatorDid: string): void {
   forAccount(did).mutes.delete(creatorDid)
+  snapshotVersion++
+  emit()
+}
+
+/**
+ * Replaces the local relationships with the server copy (on entering +18).
+ * Local changes made while offline are kept only until the next hydrate.
+ */
+export function hydrateAdultRelationships(
+  did: string,
+  server: {follows: string[]; mutes: string[]; blocks: string[]},
+): void {
+  const s = forAccount(did)
+  s.follows = new Set(server.follows)
+  s.mutes = new Set(server.mutes)
+  s.blocks = new Set(server.blocks)
   snapshotVersion++
   emit()
 }
