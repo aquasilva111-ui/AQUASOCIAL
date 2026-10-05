@@ -1,0 +1,68 @@
+{
+  "general": { "go_back": "Go back", "loading": "Loading..." },
+  "theme": { "dark": "Dark", "light": "Light", "system": "System", "toggle": "Toggle theme" },
+  "nav": { "home": "Home", "categories": "Categories", "favorites": "Favorites", "products": "Products" },
+  "footer": { "part_of_aqua": "part of AQUA", "change_language": "Change language" },
+  "search": {
+    "placeholder": "Search...",
+    "placeholder_in_category": "Search in {category}...",
+    "no_results_for_query": "No results for",
+    "no_results_suggestion": "Check your spelling or try a more general keyword.",
+    "view_all_results": "View all results",
+    "new_products": "New arrivals",
+    "no_products_matching": "No products matching",
+    "no_products_found_matching": "No products found matching",
+    "no_products_found": "No products found",
+    "use_search_bar_above": "Use the search bar above to try different terms.",
+    "in": "in",
+    "reset_search": "Reset search"
+  },
+  "filter": {
+    "all_categories": "All categories",
+    "newest": "Newest",
+    "price_low_high": "Price: low to high",
+    "price_high_low": "Price: high to low"
+  },
+  "checkout": {
+    "title": "Checkout",
+    "demo_notice": "Demo mode: no payment is charged.",
+    "form": { "name": "Full name", "email": "Email", "phone": "Phone", "city": "City", "address": "Delivery address" },
+    "pay": {
+      "description": "Total of {total} ({items} pcs)",
+      "btn": "Pay {total}",
+      "secure": "payment via {method}",
+      "success": "Order received!",
+      "processed": "Thank you for your purchase! We are preparing your order.",
+      "total": "Total",
+      "order_number": "Order",
+      "date": "Date",
+      "payment_method": "Payment",
+      "pix": "Pix"
+    }
+  },
+  "product": {
+    "originally": "Was",
+    "quantity": "Quantity",
+    "condition": "Condition",
+    "new": "New",
+    "used": "Used",
+    "seller": "Sold by",
+    "view_store": "View store",
+    "stock_left": "{count} left",
+    "out_of_stock": "Sold out",
+    "featured_information": "About this product",
+    "shop_similar": "Similar products"
+  },
+  "cart": {
+    "empty": "Your cart is empty",
+    "notting_added": "You haven't added any items yet.",
+    "add_to_cart": "Add to cart",
+    "added_to_cart": "Added"
+  },
+  "favorites": {
+    "nothing_to_show_yet": "Nothing to show... yet!",
+    "wishlist_lives_here": "Products you favorite will live here.",
+    "remove": "Remove from favorites"
+  },
+  "errors": { "insufficient_stock": "Insufficient stock", "checkout_failed": "Could not complete the order. Please try again." }
+}

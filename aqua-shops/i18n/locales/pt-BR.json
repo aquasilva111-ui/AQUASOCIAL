@@ -1,0 +1,68 @@
+{
+  "general": { "go_back": "Voltar", "loading": "Carregando..." },
+  "theme": { "dark": "Escuro", "light": "Claro", "system": "Sistema", "toggle": "Alternar tema" },
+  "nav": { "home": "Início", "categories": "Categorias", "favorites": "Favoritos", "products": "Produtos" },
+  "footer": { "part_of_aqua": "parte do AQUA", "change_language": "Mudar idioma" },
+  "search": {
+    "placeholder": "Buscar...",
+    "placeholder_in_category": "Buscar em {category}...",
+    "no_results_for_query": "Nada encontrado para",
+    "no_results_suggestion": "Confira a ortografia ou tente uma palavra mais geral.",
+    "view_all_results": "Ver todos os resultados",
+    "new_products": "Novidades",
+    "no_products_matching": "Nenhum produto para",
+    "no_products_found_matching": "Nenhum produto encontrado para",
+    "no_products_found": "Nenhum produto encontrado",
+    "use_search_bar_above": "Use a busca acima para tentar outros termos.",
+    "in": "em",
+    "reset_search": "Limpar busca"
+  },
+  "filter": {
+    "all_categories": "Todas as categorias",
+    "newest": "Mais recentes",
+    "price_low_high": "Preço: menor para maior",
+    "price_high_low": "Preço: maior para menor"
+  },
+  "checkout": {
+    "title": "Finalizar compra",
+    "demo_notice": "Modo demonstração: nenhum pagamento é cobrado.",
+    "form": { "name": "Nome completo", "email": "E-mail", "phone": "Telefone", "city": "Cidade", "address": "Endereço de entrega" },
+    "pay": {
+      "description": "Total de {total} ({items} un.)",
+      "btn": "Pagar {total}",
+      "secure": "pagamento via {method}",
+      "success": "Pedido recebido!",
+      "processed": "Obrigado pela compra! Estamos preparando o seu pedido.",
+      "total": "Total",
+      "order_number": "Pedido",
+      "date": "Data",
+      "payment_method": "Pagamento",
+      "pix": "Pix"
+    }
+  },
+  "product": {
+    "originally": "De",
+    "quantity": "Quantidade",
+    "condition": "Condição",
+    "new": "Novo",
+    "used": "Usado",
+    "seller": "Vendido por",
+    "view_store": "Ver loja",
+    "stock_left": "Restam {count}",
+    "out_of_stock": "Esgotado",
+    "featured_information": "Sobre o produto",
+    "shop_similar": "Produtos parecidos"
+  },
+  "cart": {
+    "empty": "Seu carrinho está vazio",
+    "notting_added": "Você ainda não adicionou nenhum item.",
+    "add_to_cart": "Adicionar ao carrinho",
+    "added_to_cart": "Adicionado"
+  },
+  "favorites": {
+    "nothing_to_show_yet": "Nada por aqui... ainda!",
+    "wishlist_lives_here": "Os produtos que você favoritar ficam aqui.",
+    "remove": "Remover dos favoritos"
+  },
+  "errors": { "insufficient_stock": "Estoque insuficiente", "checkout_failed": "Não foi possível concluir o pedido. Tente de novo." }
+}

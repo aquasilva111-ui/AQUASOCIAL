@@ -1,0 +1,36 @@
+# Infra local da Aqua Shops (Mercur precisa de Postgres e Redis).
+# Só para desenvolvimento: as portas ficam presas ao localhost.
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: aqua
+      POSTGRES_PASSWORD: aqua_dev_only
+      POSTGRES_DB: aqua_shops
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - aqua-shops-pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aqua -d aqua_shops"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - aqua-shops-redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  aqua-shops-pg:
+  aqua-shops-redis:

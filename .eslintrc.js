@@ -119,6 +119,8 @@ module.exports = {
     '/aqua-render',
     '/aqua-hub',
     '/aqua-docs',
+    '/aqua-shops',
+    '/aqua-shops-backend',
     'bskyembed',
     'src/locale/locales/_build/',
     'src/locale/locales/**/*.js',
