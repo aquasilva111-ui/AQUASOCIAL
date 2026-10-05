@@ -2,6 +2,7 @@ import { serve } from '@hono/node-server';
 import { createApp } from './app.ts';
 import { createAsaasClient } from './asaas.ts';
 import { createCatalog } from './catalog.ts';
+import { createMercurCheckout } from './checkout.ts';
 import { createMercurClient } from './mercur.ts';
 import { createOrdersService } from './orders.ts';
 import { createPgStore } from './store.ts';
@@ -12,8 +13,9 @@ if (!env.MERCUR_PUBLISHABLE_KEY) {
   process.exit(1);
 }
 
+const mercurUrl = (env.MERCUR_URL ?? 'http://localhost:9000').replace(/\/+$/, '');
 const mercur = createMercurClient({
-  baseUrl: (env.MERCUR_URL ?? 'http://localhost:9000').replace(/\/+$/, ''),
+  baseUrl: mercurUrl,
   publishableKey: env.MERCUR_PUBLISHABLE_KEY,
   currency: env.CURRENCY ?? 'brl',
 });
@@ -26,6 +28,7 @@ if (env.ASAAS_API_KEY && env.DATABASE_URL && webhookToken) {
   const store = await createPgStore(env.DATABASE_URL);
   orders = createOrdersService({
     catalog,
+    checkout: createMercurCheckout({ baseUrl: mercurUrl, publishableKey: env.MERCUR_PUBLISHABLE_KEY, currency: env.CURRENCY ?? 'brl' }),
     store,
     asaas: createAsaasClient({ baseUrl: env.ASAAS_BASE_URL ?? 'https://api-sandbox.asaas.com/v3', apiKey: env.ASAAS_API_KEY }),
     split: { commissionBps: Number(env.COMMISSION_BPS ?? 1000), minCommissionCents: Number(env.MIN_COMMISSION_CENTS ?? 200) },

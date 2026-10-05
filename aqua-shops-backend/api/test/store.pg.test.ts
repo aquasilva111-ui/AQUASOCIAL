@@ -12,6 +12,8 @@ const order = (id: string): StoredOrder => ({
   items: [{ listingId: 'p~s', title: 'X', quantity: 1, unitCents: 1000, sellerId: 's', offerId: 'o', variantId: 'v' }],
   split: { totalCents: 1000, commissionCents: 200, sellers: [{ sellerId: 's', grossCents: 1000, commissionCents: 200, payoutCents: 800 }] },
   totalCents: 1000,
+  mercurCartId: 'cart_1',
+  shippingCents: 0,
   asaasPaymentId: `pay_${id}`,
   pixPayload: '000201',
   pixQrCode: 'B64',

@@ -3,6 +3,7 @@
 import type { CheckoutInput, Order } from '../../../aqua-shops/shared/types/index.ts';
 import type { AsaasClient } from './asaas.ts';
 import type { Catalog } from './catalog.ts';
+import type { MercurCheckout } from './checkout.ts';
 import { computeSplit, type SplitConfig } from './split.ts';
 import type { OrderItem, OrderStore, StoredOrder } from './store.ts';
 
@@ -18,11 +19,11 @@ export class OrderError extends Error {
 
 export interface OrdersDeps {
   catalog: Catalog;
+  /** Monta o carrinho no Mercur (com frete) e o finaliza depois do pagamento. */
+  checkout: MercurCheckout;
   store: OrderStore;
   asaas: Pick<AsaasClient, 'findOrCreateCustomer' | 'createPixCharge' | 'getPixQrCode' | 'refundPayment'>;
   split: SplitConfig;
-  /** Cria o pedido no Mercur depois do pagamento. Padrão: não faz nada. */
-  fulfill?: (order: StoredOrder) => Promise<{ orderGroupId?: string }>;
   now?: () => Date;
   newId?: () => string;
 }
@@ -51,6 +52,7 @@ const toContract = (o: StoredOrder): Order => ({
   id: o.id,
   number: o.number,
   totalCents: o.totalCents,
+  shippingCents: o.shippingCents,
   createdAt: o.createdAt,
   paymentMethod: 'pix',
   status: o.status,
@@ -88,8 +90,26 @@ export function createOrdersService(deps: OrdersDeps) {
         });
       }
 
+      // O carrinho no Mercur define o valor final (com frete). O Pix cobra exatamente esse total.
+      const cart = await deps.checkout
+        .prepare(
+          input.buyer,
+          items.map(i => ({ offerId: i.offerId, sellerId: i.sellerId, quantity: i.quantity, unitCents: i.unitCents })),
+        )
+        .catch(error => {
+          if (error instanceof OrderError) throw error;
+          const status = (error as { status?: number }).status === 409 ? 409 : 502;
+          throw new OrderError(error instanceof Error ? error.message : 'Falha ao montar o carrinho', status);
+        });
+
+      const grossBySeller = new Map<string, number>();
+      for (const i of items) grossBySeller.set(i.sellerId, (grossBySeller.get(i.sellerId) ?? 0) + i.unitCents * i.quantity);
+      for (const [sellerId, shipping] of Object.entries(cart.shippingBySeller)) grossBySeller.set(sellerId, (grossBySeller.get(sellerId) ?? 0) + shipping);
+      const expected = [...grossBySeller.values()].reduce((sum, v) => sum + v, 0);
+      if (expected !== cart.totalCents) throw new OrderError('O preço mudou durante o pedido. Tente novamente.', 409);
+
       const split = computeSplit(
-        items.map(i => ({ sellerId: i.sellerId, grossCents: i.unitCents * i.quantity })),
+        [...grossBySeller].map(([sellerId, grossCents]) => ({ sellerId, grossCents })),
         deps.split,
       );
 
@@ -130,6 +150,8 @@ export function createOrdersService(deps: OrdersDeps) {
         items,
         split,
         totalCents: split.totalCents,
+        mercurCartId: cart.cartId,
+        shippingCents: Object.values(cart.shippingBySeller).reduce((sum, v) => sum + v, 0),
         asaasPaymentId: charge.id,
         pixPayload: qr.payload,
         pixQrCode: qr.encodedImage,
@@ -157,8 +179,8 @@ export function createOrdersService(deps: OrdersDeps) {
         if (!(await deps.store.transition(orderId, 'pending_payment', 'paid'))) return 'duplicate';
         const order = (await deps.store.get(orderId))!;
         try {
-          const result = (await deps.fulfill?.(order)) ?? {};
-          if (result.orderGroupId) await deps.store.update(orderId, { mercurOrderGroupId: result.orderGroupId });
+          const { orderGroupId } = await deps.checkout.complete(order.mercurCartId);
+          await deps.store.update(orderId, { mercurOrderGroupId: orderGroupId });
         } catch (error) {
           // Pagou mas não conseguimos entregar (ex.: estoque acabou): devolve o dinheiro.
           await deps.store.update(orderId, { status: 'failed', failure: error instanceof Error ? error.message : 'Falha ao criar o pedido' });

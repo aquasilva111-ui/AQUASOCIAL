@@ -68,7 +68,8 @@
       "copy": "Copy Pix code",
       "copied": "Code copied!",
       "waiting": "Waiting for payment...",
-      "expires": "Valid until {date}"
+      "expires": "Valid until {date}",
+      "includes_shipping": "Includes shipping of {value}"
     }
   },
   "product": {

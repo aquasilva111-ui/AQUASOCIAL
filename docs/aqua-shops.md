@@ -71,8 +71,25 @@ inteiros** (BRL), sem ponto flutuante.
    `aqua-shops/shared/types` e troca para a API real definindo `AQUA_SHOPS_API`.
    Falta: painel do vendedor e abrir dentro do app (tela web embutida, como o Studio).
 4. Social: produto marcado em post e Drop, loja no perfil, avaliações.
-5. Busca e recomendações; depois pagamento real (Pix) e frete.
+5. Pedidos e pagamento: **Pix com split (Asaas) e pedido por vendedor no Mercur feitos e testados
+   com Asaas de mentira**; falta o sandbox real do Asaas. Depois: busca e recomendações.
+   Detalhes em `aqua-shops-backend/README.md`.
 6. Substituir módulos pelo código próprio conforme os gargalos aparecerem.
+
+## Pagamento sem CNPJ (descentralizado)
+
+O Pix com split do Asaas exige conta-mãe com CNPJ. Para um método aberto e global, sem empresa
+e sem KYC, a opção é **cripto** com o **BTCPay Server** (MIT, auto-hospedado, sem taxa de
+plataforma): Bitcoin, Lightning e, com plugin, stablecoins. O pedido, o carrinho no Mercur e a
+entrega são os mesmos; muda só o provedor de cobrança (a API precisa de uma interface de
+provedor de pagamento, hoje o Asaas está ligado direto). A decisão difícil é o repasse:
+
+- **Fatura por vendedor (sem custódia):** cada vendedor recebe direto na própria carteira; o
+  comprador paga uma fatura por vendedor e a comissão vira uma fatura à parte. Nada fica com a
+  plataforma, mas a experiência é pior com vários vendedores.
+- **Plataforma recebe e repassa (custódia):** uma fatura só, a Aqua paga os vendedores depois.
+  Melhor para o comprador, mas a Aqua passa a segurar dinheiro de terceiros (risco e obrigações
+  legais, inclusive tributárias e de criptoativos no Brasil; precisa de validação jurídica).
 
 ## Riscos abertos
 

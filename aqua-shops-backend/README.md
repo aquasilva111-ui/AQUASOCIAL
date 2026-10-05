@@ -46,9 +46,32 @@ Primeira vez, em `mercur/packages/api`: `npx medusa db:migrate`, `npm run seed` 
   URL do banco no compose leva `?sslmode=disable` (rede interna). O artefato do Mercur precisa dos
   mesmos `overrides` de versão da raiz e sem `devDependencies` (ver `mercur/Dockerfile`).
 
+## Pedidos e Pix (Asaas)
+
+Fluxo: `POST /orders` monta o carrinho no Mercur (itens por oferta e o frete mais barato de cada
+vendedor), cobra o total exato no Asaas com split por vendedor e devolve o QR Code. Quando o
+webhook `PAYMENT_RECEIVED`/`CONFIRMED` chega, o mesmo carrinho é finalizado no Mercur: sai um
+grupo de pedidos com um pedido por vendedor (aparecem no painel de cada um) e o estoque é
+reservado. Se o Mercur não conseguir finalizar depois do pagamento, o Asaas devolve o dinheiro.
+
+- Variáveis em `api/.env.example`: `ASAAS_API_KEY`, `ASAAS_BASE_URL` (sandbox por padrão),
+  `ASAAS_WEBHOOK_TOKEN`, `DATABASE_URL`, `COMMISSION_BPS`, `MIN_COMMISSION_CENTS`. Sem as três
+  primeiras a API serve só o catálogo e `/orders` responde 503.
+- No Asaas, cadastre a URL `https://SUA_API/webhooks/asaas` com o mesmo `authToken` do
+  `ASAAS_WEBHOOK_TOKEN`. A entrega é "pelo menos uma vez"; a API ignora repetições.
+- Pedidos ficam no esquema `aqua` do Postgres (`orders`, `webhook_events`, `seller_wallets`).
+  Vendedor sem linha em `seller_wallets` (carteira Asaas) não vende: a compra é recusada.
+- O Mercur precisa ter frete para o Brasil. `seed-brl.ts` acrescenta `br` às zonas de entrega de
+  exemplo; vendedores reais cadastram as suas no painel.
+- Testado com um Asaas de mentira local e o Mercur real. **Falta rodar contra o sandbox do
+  Asaas** (precisa da chave) e confirmar os campos exatos da API deles.
+
 ## O que falta
 
-- `POST /orders` na API devolve 501: carrinho/checkout do Mercur e pagamento Pix com split (passo 7).
-  A parte de split automático e KYC de vendedor é Enterprise no Mercur; para Pix será preciso um
-  provedor de pagamento próprio.
+- Rodar contra o sandbox do Asaas; script para criar as subcontas dos vendedores (a conta-mãe
+  precisa ser CNPJ para criar subcontas).
+- Escolha de variante (tamanho): hoje o pedido compra a oferta mais barata do anúncio.
+- Mostrar o frete antes de gerar o Pix (hoje ele aparece junto do QR Code).
+- CPF do comprador fica no banco: política de privacidade (LGPD) antes de abrir ao público.
+- Pagamento sem CNPJ (cripto), ver `docs/aqua-shops.md`.
 - Catálogo em memória (cache de 30 s). Quando virar gargalo, índice de busca próprio.

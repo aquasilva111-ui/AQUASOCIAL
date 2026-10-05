@@ -12,6 +12,7 @@ export default async function seedBrl({ container }: ExecArgs) {
   const storeModule = container.resolve(Modules.STORE);
   const regionModule = container.resolve(Modules.REGION);
   const pricingModule = container.resolve(Modules.PRICING);
+  const fulfillmentModule = container.resolve(Modules.FULFILLMENT);
 
   const [store] = await storeModule.listStores({}, { relations: ["supported_currencies"] });
   const current = store.supported_currencies ?? [];
@@ -74,4 +75,14 @@ export default async function seedBrl({ container }: ExecArgs) {
     added += eurPrices.length;
   }
   logger.info(`Preços em BRL recriados: ${added} (removidos antes: ${stale.length}).`);
+
+  // As zonas de entrega do seed só cobrem a Europa: sem "br" não há frete para o Brasil.
+  const zones = await fulfillmentModule.listServiceZones({}, { relations: ["geo_zones"] });
+  let zonesFixed = 0;
+  for (const zone of zones) {
+    if (zone.geo_zones?.some((g) => g.country_code === "br")) continue;
+    await fulfillmentModule.createGeoZones([{ service_zone_id: zone.id, type: "country", country_code: "br" }]);
+    zonesFixed++;
+  }
+  logger.info(`Zonas de entrega com Brasil adicionado: ${zonesFixed}.`);
 }

@@ -92,6 +92,8 @@ export interface Order {
   id: string;
   number: string;
   totalCents: number;
+  /** Parte do total que é frete. */
+  shippingCents?: number;
   createdAt: string;
   paymentMethod: 'pix';
   status: OrderStatus;

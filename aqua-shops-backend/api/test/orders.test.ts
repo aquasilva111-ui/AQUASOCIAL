@@ -10,14 +10,14 @@ const product = (title: string) => ({ title }) as never;
 let store: OrderStore;
 let asaas: { findOrCreateCustomer: ReturnType<typeof vi.fn>; createPixCharge: ReturnType<typeof vi.fn>; getPixQrCode: ReturnType<typeof vi.fn>; refundPayment: ReturnType<typeof vi.fn> };
 let catalog: Catalog;
-let fulfill: ReturnType<typeof vi.fn>;
+let checkout: { prepare: ReturnType<typeof vi.fn>; complete: ReturnType<typeof vi.fn> };
 
 const make = () =>
   createOrdersService({
     catalog,
     store,
     asaas,
-    fulfill,
+    checkout,
     split: { commissionBps: 1000, minCommissionCents: 200 },
     now: () => new Date('2026-10-05T12:00:00Z'),
     newId: () => '12345678-aaaa',
@@ -33,7 +33,16 @@ beforeEach(async () => {
     getPixQrCode: vi.fn().mockResolvedValue({ payload: '000201...', encodedImage: 'BASE64', expirationDate: '2026-10-06 23:59:59' }),
     refundPayment: vi.fn().mockResolvedValue({}),
   };
-  fulfill = vi.fn().mockResolvedValue({ orderGroupId: 'ordgrp_1' });
+  checkout = {
+    // frete de R$ 10 por vendedor; o total do carrinho é a soma dos itens com o frete
+    prepare: vi.fn(async (_buyer: unknown, lines: Array<{ sellerId: string; quantity: number; unitCents: number }>) => {
+      const sellers = [...new Set(lines.map(l => l.sellerId))];
+      const shippingBySeller = Object.fromEntries(sellers.map(s => [s, 1000]));
+      const items = lines.reduce((sum, l) => sum + l.quantity * l.unitCents, 0);
+      return { cartId: 'cart_1', shippingBySeller, totalCents: items + sellers.length * 1000 };
+    }),
+    complete: vi.fn().mockResolvedValue({ orderGroupId: 'ordgrp_1' }),
+  };
   catalog = {
     list: vi.fn(),
     get: vi.fn(),
@@ -49,17 +58,19 @@ beforeEach(async () => {
 describe('criar pedido', () => {
   it('calcula tudo no servidor e cobra com split por vendedor', async () => {
     const order = await make().create({ items: [{ productId: 'p~a', quantity: 2 }, { productId: 'p~b', quantity: 1 }], buyer, paymentMethod: 'pix' });
-    expect(order.totalCents).toBe(25000);
+    expect(order.totalCents).toBe(27000); // 25000 em itens + R$ 10 de frete de cada vendedor
+    expect(order.shippingCents).toBe(2000);
     expect(order.status).toBe('pending_payment');
     expect(order.pix?.payload).toBe('000201...');
     const charge = asaas.createPixCharge.mock.calls[0]![0];
-    expect(charge.valueCents).toBe(25000);
+    expect(charge.valueCents).toBe(27000);
     expect(charge.externalReference).toBe('ord_12345678-aaaa');
     expect(charge.dueDate).toBe('2026-10-06');
-    // comissão de 10% = 2500, repartida: a (20000) fica com 18000 e b (5000) com 4500
+    // O frete entra no valor de cada vendedor: a = 20000+1000, b = 5000+1000.
+    // Comissão de 10% de 27000 = 2700, repartida: a fica com 21000-2100 e b com 6000-600.
     expect(charge.splits).toEqual([
-      { walletId: 'wallet_a', fixedValueCents: 18000 },
-      { walletId: 'wallet_b', fixedValueCents: 4500 },
+      { walletId: 'wallet_a', fixedValueCents: 18900 },
+      { walletId: 'wallet_b', fixedValueCents: 5400 },
     ]);
     expect(asaas.findOrCreateCustomer.mock.calls[0]![0].cpfCnpj).toBe('12345678909');
   });
@@ -71,6 +82,17 @@ describe('criar pedido', () => {
     await expect(svc.create({ items: [{ productId: 'p~a', quantity: 1 }], buyer: { ...buyer, cpfCnpj: '123' }, paymentMethod: 'pix' })).rejects.toMatchObject({ status: 400 });
     await expect(svc.create({ items: [{ productId: 'p~a', quantity: 9 }], buyer, paymentMethod: 'pix' })).rejects.toMatchObject({ status: 409 });
     expect(asaas.createPixCharge).not.toHaveBeenCalled();
+  });
+
+  it('recusa se o total do Mercur não bate com o calculado (preço mudou no meio)', async () => {
+    checkout.prepare.mockResolvedValueOnce({ cartId: 'cart_1', shippingBySeller: { sel_a: 1000 }, totalCents: 99999 });
+    await expect(make().create({ items: [{ productId: 'p~a', quantity: 1 }], buyer, paymentMethod: 'pix' })).rejects.toMatchObject({ status: 409 });
+    expect(asaas.createPixCharge).not.toHaveBeenCalled();
+  });
+
+  it('repassa a recusa de frete do Mercur como 409', async () => {
+    checkout.prepare.mockRejectedValueOnce(Object.assign(new Error('Um dos vendedores não entrega neste endereço'), { status: 409 }));
+    await expect(make().create({ items: [{ productId: 'p~a', quantity: 1 }], buyer, paymentMethod: 'pix' })).rejects.toMatchObject({ status: 409 });
   });
 
   it('não vende de vendedor sem carteira Asaas', async () => {
@@ -97,7 +119,8 @@ describe('webhook', () => {
     expect(await svc.handleEvent(evt('e1', 'PAYMENT_RECEIVED'))).toBe('paid');
     expect(await svc.handleEvent(evt('e1', 'PAYMENT_RECEIVED'))).toBe('duplicate'); // mesma entrega
     expect(await svc.handleEvent(evt('e2', 'PAYMENT_CONFIRMED'))).toBe('duplicate'); // outro evento, já pago
-    expect(fulfill).toHaveBeenCalledTimes(1);
+    expect(checkout.complete).toHaveBeenCalledTimes(1);
+    expect(checkout.complete).toHaveBeenCalledWith('cart_1');
     const o = await store.get('ord_12345678-aaaa');
     expect(o?.status).toBe('paid');
     expect(o?.mercurOrderGroupId).toBe('ordgrp_1');
@@ -105,7 +128,7 @@ describe('webhook', () => {
 
   it('se não der para entregar, marca falha e devolve o dinheiro', async () => {
     await create();
-    fulfill.mockRejectedValue(new Error('Estoque acabou'));
+    checkout.complete.mockRejectedValue(new Error('Estoque acabou'));
     await make().handleEvent(evt('e1', 'PAYMENT_RECEIVED'));
     const o = await store.get('ord_12345678-aaaa');
     expect(o?.status).toBe('failed');

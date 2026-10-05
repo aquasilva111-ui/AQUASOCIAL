@@ -34,6 +34,7 @@ const expires = computed(() => (order.value?.pix?.expiresAt ? new Date(order.val
     <div class="text-sm text-neutral-500 dark:text-neutral-300">{{ $t('checkout.pix.scan') }}</div>
     <img v-if="order.pix?.qrCodeBase64" :src="`data:image/png;base64,${order.pix.qrCodeBase64}`" alt="QR Code Pix" class="w-52 h-52 rounded-2xl bg-white p-2" />
     <div class="font-bold text-xl">{{ formatMoney(order.totalCents) }}</div>
+    <div v-if="order.shippingCents" class="text-xs text-neutral-500 dark:text-neutral-400 -mt-2">{{ $t('checkout.pix.includes_shipping', { value: formatMoney(order.shippingCents) }) }}</div>
     <button type="button" @click="copy" class="w-full h-11 rounded-xl bg-aqua-700 text-white font-semibold active:scale-95 transition">
       {{ copied ? $t('checkout.pix.copied') : $t('checkout.pix.copy') }}
     </button>

@@ -35,6 +35,10 @@ export interface StoredOrder {
   pixPayload: string;
   pixQrCode: string;
   pixExpiresAt: string;
+  /** Carrinho criado no Mercur antes da cobrança; é finalizado quando o Pix for pago. */
+  mercurCartId: string;
+  /** Frete total incluído no valor cobrado, em centavos. */
+  shippingCents: number;
   mercurOrderGroupId?: string;
   failure?: string;
   createdAt: string;
