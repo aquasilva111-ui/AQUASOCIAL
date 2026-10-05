@@ -4,7 +4,8 @@ Stories de 24h e destaques permanentes. Não são posts: são records no PDS do 
 autor, lidos por `com.atproto.repo.listRecords` (sem indexador), como View Channel e Livros.
 
 ```
-at://<did>/place.aqua.actor.story/<tid>       media (blob de imagem), aspectRatio, createdAt
+at://<did>/place.aqua.actor.story/<tid>       createdAt, media? (blob de imagem), fit (cover|contain),
+                                              background? (#RRGGBB), overlays[] (≤12), aspectRatio
 at://<did>/place.aqua.actor.highlight/<tid>   title (≤24), items[{media, createdAt, aspectRatio}] (≤50)
 ```
 
@@ -23,6 +24,21 @@ O destaque guarda a referência ao mesmo blob do story, então a mídia sobreviv
 | Bandeja na home (aba Seguindo) | `src/components/stories/StoriesTray.tsx` |
 | Faixa no perfil (stories + destaques) | `src/components/stories/ProfileStoriesStrip.tsx` |
 | Testes | `__tests__/lib/{stories,story-player}.test.ts` |
+
+## Criar um story (`/stories/new`)
+
+- **Foto** (galeria) ou **Texto** (fundo colorido). O "+" da bandeja e do perfil abrem essa tela.
+- Texto arrastável (cor, "com fundo", editar), figurinhas emoji, A−/A+ para o tamanho, cor de fundo.
+- A tela de criação e o viewer renderizam o **mesmo `StoryFrame` 9:16**, então o que você monta é o que os outros veem.
+- Texto e figurinhas ficam **no record** (`overlays`, posição como fração do quadro), não achatados na foto.
+  Story só de texto exige cor de fundo + ao menos um item. Dados do repo são sempre normalizados (limites, cores, posições).
+- Stories antigos (sem `fit`/`overlays`) continuam funcionando, exibidos com `contain`.
+
+## Halo no avatar do perfil
+
+Quando a pessoa tem story ativo, a foto do perfil ganha um anel com **um arco por story** (colorido = não visto,
+apagado = visto; acima de 12 stories vira um arco único). Tocar na foto abre os stories a partir do primeiro não visto.
+Não aparece com live ativa, perfil bloqueado (nos dois sentidos) ou labeler.
 
 ## Comportamento do viewer
 

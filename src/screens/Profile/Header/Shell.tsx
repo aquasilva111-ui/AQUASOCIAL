@@ -1,4 +1,4 @@
-import {memo, useCallback, useEffect, useMemo} from 'react'
+import {memo, useCallback, useEffect, useMemo, useState} from 'react'
 import {TouchableWithoutFeedback, View} from 'react-native'
 import Animated, {
   measure,
@@ -18,10 +18,13 @@ import {useActorStatus} from '#/lib/actor-status'
 import {BACK_HITSLOP} from '#/lib/constants'
 import {useHaptics} from '#/lib/haptics'
 import {type NavigationProp} from '#/lib/routes/types'
+import {firstUnseenIndex} from '#/lib/stories/player'
+import {useStorySeenPredicate} from '#/lib/stories-seen'
 import {logger} from '#/logger'
 import {isIOS} from '#/platform/detection'
 import {type Shadow} from '#/state/cache/types'
 import {useLightboxControls} from '#/state/lightbox'
+import {useStoriesQuery} from '#/state/queries/stories'
 import {useSession} from '#/state/session'
 import {LoadingPlaceholder} from '#/view/com/util/LoadingPlaceholder'
 import {UserAvatar} from '#/view/com/util/UserAvatar'
@@ -35,6 +38,8 @@ import {LiveIndicator} from '#/components/live/LiveIndicator'
 import {LiveStatusDialog} from '#/components/live/LiveStatusDialog'
 import {LabelsOnMe} from '#/components/moderation/LabelsOnMe'
 import {ProfileHeaderAlerts} from '#/components/moderation/ProfileHeaderAlerts'
+import {RingArcs} from '#/components/stories/StoryRing'
+import {StoryViewer} from '#/components/stories/StoryViewer'
 import {GrowableAvatar} from './GrowableAvatar'
 import {GrowableBanner} from './GrowableBanner'
 import {StatusBarShadow} from './StatusBarShadow'
@@ -102,6 +107,17 @@ let ProfileHeaderShell = ({
 
   const live = useActorStatus(profile)
 
+  // Halo around the avatar when the person has active stories.
+  const stories = useStoriesQuery(profile.did).data
+  const isSeen = useStorySeenPredicate()
+  const [storiesOpen, setStoriesOpen] = useState(false)
+  const hasStories =
+    !!stories?.length &&
+    !profile.viewer?.blocking &&
+    !profile.viewer?.blockedBy &&
+    !live.isActive &&
+    !profile.associated?.labeler
+
   useEffect(() => {
     if (live.isActive) {
       logger.metric(
@@ -113,7 +129,9 @@ let ProfileHeaderShell = ({
   }, [live.isActive, profile.did])
 
   const onPressAvi = useCallback(() => {
-    if (live.isActive) {
+    if (hasStories) {
+      setStoriesOpen(true)
+    } else if (live.isActive) {
       playHaptic('Light')
       logger.metric(
         'live:card:open',
@@ -140,6 +158,7 @@ let ProfileHeaderShell = ({
     liveStatusControl,
     live,
     playHaptic,
+    hasStories,
   ])
 
   return (
@@ -233,12 +252,30 @@ let ProfileHeaderShell = ({
           />
         ))}
 
+      {storiesOpen && hasStories && stories && (
+        <StoryViewer
+          groups={[{author: profile, stories, isMe}]}
+          initial={{
+            group: 0,
+            index: firstUnseenIndex(
+              stories.map(s => s.uri),
+              isSeen,
+            ),
+          }}
+          onClose={() => setStoriesOpen(false)}
+        />
+      )}
+
       <GrowableAvatar style={[a.absolute, {top: 104, left: 10}]}>
         <TouchableWithoutFeedback
           testID="profileHeaderAviButton"
           onPress={onPressAvi}
           accessibilityRole="image"
-          accessibilityLabel={_(msg`View ${profile.handle}'s avatar`)}
+          accessibilityLabel={
+            hasStories
+              ? `Ver os stories de ${profile.handle}`
+              : _(msg`View ${profile.handle}'s avatar`)
+          }
           accessibilityHint="">
           <View
             style={[
@@ -254,6 +291,13 @@ let ProfileHeaderShell = ({
               },
               profile.associated?.labeler && a.rounded_md,
             ]}>
+            {hasStories && stories && (
+              <View
+                pointerEvents="none"
+                style={[a.absolute, {top: -11, left: -11}]}>
+                <RingArcs size={116} seen={stories.map(s => isSeen(s.uri))} />
+              </View>
+            )}
             <Animated.View ref={aviRef} collapsable={false}>
               <UserAvatar
                 type={profile.associated?.labeler ? 'labeler' : 'user'}
