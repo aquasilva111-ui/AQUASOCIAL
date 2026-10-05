@@ -36,7 +36,6 @@ import {LiveVideo_Stroke2_Corner0_Rounded as VideosIcon} from '#/components/icon
 import {MagnifyingGlass_Filled_Stroke2_Corner0_Rounded as MagnifyingGlassFilled} from '#/components/icons/MagnifyingGlass'
 import {MagnifyingGlass2_Stroke2_Corner0_Rounded as MagnifyingGlass} from '#/components/icons/MagnifyingGlass2'
 import {Message_Stroke2_Corner0_Rounded as Message} from '#/components/icons/Message'
-import {MusicNote_Stroke2_Corner0_Rounded as MusicNote} from '#/components/icons/MusicNote'
 import {PlusLarge_Stroke2_Corner0_Rounded as PlusIcon} from '#/components/icons/Plus'
 import {Reads_Filled_Corner2_Rounded as Book} from '#/components/icons/Reads'
 import {SettingsGear2_Stroke2_Corner0_Rounded as Settings} from '#/components/icons/SettingsGear2'
@@ -341,14 +340,6 @@ let DrawerContent = ({}: React.PropsWithoutRef<{}>): React.ReactNode => {
               label="Reads"
               onPress={() => {
                 navigation.navigate('Reads')
-                setDrawerOpen(false)
-              }}
-            />
-            <MenuItem
-              icon={<MusicNote width={iconWidth} style={t.atoms.text} />}
-              label="Música"
-              onPress={() => {
-                navigation.navigate('Music')
                 setDrawerOpen(false)
               }}
             />
