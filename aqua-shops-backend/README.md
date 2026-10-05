@@ -54,13 +54,19 @@ webhook `PAYMENT_RECEIVED`/`CONFIRMED` chega, o mesmo carrinho é finalizado no 
 grupo de pedidos com um pedido por vendedor (aparecem no painel de cada um) e o estoque é
 reservado. Se o Mercur não conseguir finalizar depois do pagamento, o Asaas devolve o dinheiro.
 
-- Variáveis em `api/.env.example`: `ASAAS_API_KEY`, `ASAAS_BASE_URL` (sandbox por padrão),
-  `ASAAS_WEBHOOK_TOKEN`, `DATABASE_URL`, `COMMISSION_BPS`, `MIN_COMMISSION_CENTS`. Sem as três
-  primeiras a API serve só o catálogo e `/orders` responde 503.
-- No Asaas, cadastre a URL `https://SUA_API/webhooks/asaas` com o mesmo `authToken` do
-  `ASAAS_WEBHOOK_TOKEN`. A entrega é "pelo menos uma vez"; a API ignora repetições.
+- **Provedores de pagamento são plugáveis** (`src/payments.ts`): a API só conhece a interface
+  `PaymentProvider` (criar cobrança com split, estornar, validar e traduzir webhook). Hoje existem
+  `asaas` e `fake` (desenvolvimento, não cobra nada); Woovi, Mercado Pago ou cripto entram como
+  novos adaptadores, sem mexer em pedidos nem no Mercur. Escolha com `PAYMENT_PROVIDER`.
+- Variáveis em `api/.env.example`: `PAYMENT_PROVIDER`, `ASAAS_API_KEY`, `ASAAS_BASE_URL` (sandbox
+  por padrão), `ASAAS_WEBHOOK_TOKEN`, `DATABASE_URL`, `COMMISSION_BPS`, `MIN_COMMISSION_CENTS`.
+  Sem provedor configurado a API serve só o catálogo e `/orders` responde 503.
+- Cada provedor recebe seus webhooks em `POST /webhooks/<nome>`. No Asaas, cadastre
+  `https://SUA_API/webhooks/asaas` com o mesmo `authToken` do `ASAAS_WEBHOOK_TOKEN`. A entrega é
+  "pelo menos uma vez"; a API ignora repetições (o id do evento é guardado com o nome do provedor).
 - Pedidos ficam no esquema `aqua` do Postgres (`orders`, `webhook_events`, `seller_wallets`).
-  Vendedor sem linha em `seller_wallets` (carteira Asaas) não vende: a compra é recusada.
+  `seller_wallets` guarda o recebedor de cada vendedor por provedor (carteira Asaas, subconta
+  Woovi...). Vendedor sem recebedor no provedor ativo não vende: a compra é recusada.
 - O Mercur precisa ter frete para o Brasil. `seed-brl.ts` acrescenta `br` às zonas de entrega de
   exemplo; vendedores reais cadastram as suas no painel.
 - Testado com um Asaas de mentira local e o Mercur real. **Falta rodar contra o sandbox do

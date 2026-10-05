@@ -1,9 +1,9 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import type { ProductQuery, SortOrder } from '../../../aqua-shops/shared/types/index.ts';
-import { timingSafeEqual } from 'node:crypto';
 import type { Catalog } from './catalog.ts';
 import { OrderError, type OrdersService } from './orders.ts';
+import type { PaymentProvider } from './payments.ts';
 
 const SORTS: SortOrder[] = ['new', 'price_asc', 'price_desc'];
 
@@ -11,18 +11,12 @@ export interface AppOptions {
   corsOrigins?: string[];
   /** Sem isso (pagamento não configurado) os pedidos respondem 503. */
   orders?: OrdersService;
-  /** Token que o Asaas envia no header asaas-access-token. */
-  webhookToken?: string;
+  /** Provedores de pagamento; cada um recebe seus webhooks em /webhooks/<nome>. */
+  providers?: PaymentProvider[];
 }
 
-const sameSecret = (a: string, b: string) => {
-  const x = Buffer.from(a);
-  const y = Buffer.from(b);
-  return x.length === y.length && timingSafeEqual(x, y);
-};
-
 export function createApp(catalog: Catalog, options: AppOptions = {}) {
-  const { corsOrigins = [], orders, webhookToken } = options;
+  const { corsOrigins = [], orders, providers = [] } = options;
   const app = new Hono();
   if (corsOrigins.length) app.use('*', cors({ origin: corsOrigins }));
 
@@ -61,12 +55,19 @@ export function createApp(catalog: Catalog, options: AppOptions = {}) {
     return order ? c.json(order) : c.json({ message: 'Pedido não encontrado' }, 404);
   });
 
-  app.post('/webhooks/asaas', async c => {
-    if (!orders || !webhookToken) return c.json({ message: 'Webhook não configurado' }, 503);
-    if (!sameSecret(c.req.header('asaas-access-token') ?? '', webhookToken)) return c.json({ message: 'Não autorizado' }, 401);
-    const event = await c.req.json().catch(() => undefined);
-    const result = await orders.handleEvent(event ?? {});
-    return c.json({ result });
+  app.post('/webhooks/:provider', async c => {
+    const provider = providers.find(p => p.name === c.req.param('provider'));
+    if (!orders || !provider) return c.json({ message: 'Webhook não configurado' }, 503);
+    const raw = await c.req.text();
+    if (!provider.verifyWebhook(name => c.req.header(name), raw)) return c.json({ message: 'Não autorizado' }, 401);
+    let body: unknown;
+    try {
+      body = JSON.parse(raw);
+    } catch {
+      return c.json({ message: 'Corpo inválido' }, 400);
+    }
+    const event = provider.parseWebhook(body);
+    return c.json({ result: event ? await orders.handleEvent(provider.name, event) : 'ignored' });
   });
 
   app.onError((err, c) => {

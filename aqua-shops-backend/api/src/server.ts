@@ -5,6 +5,7 @@ import { createCatalog } from './catalog.ts';
 import { createMercurCheckout } from './checkout.ts';
 import { createMercurClient } from './mercur.ts';
 import { createOrdersService } from './orders.ts';
+import { createAsaasProvider, createFakeProvider, type PaymentProvider } from './payments.ts';
 import { createPgStore } from './store.ts';
 
 const env = process.env;
@@ -21,27 +22,35 @@ const mercur = createMercurClient({
 });
 const catalog = createCatalog(mercur);
 
-// Pedidos só ligam com chave do Asaas, banco e token do webhook. Sem isso a API serve só o catálogo.
+// Pedidos só ligam com um provedor de pagamento e o banco configurados. Sem isso a API serve só o catálogo.
+// PAYMENT_PROVIDER: asaas (padrão) ou fake (desenvolvimento: não cobra nada).
 let orders;
-const webhookToken = env.ASAAS_WEBHOOK_TOKEN;
-if (env.ASAAS_API_KEY && env.DATABASE_URL && webhookToken) {
+const providers: PaymentProvider[] = [];
+const providerName = env.PAYMENT_PROVIDER ?? 'asaas';
+if (providerName === 'asaas' && env.ASAAS_API_KEY && env.ASAAS_WEBHOOK_TOKEN) {
+  providers.push(createAsaasProvider(createAsaasClient({ baseUrl: env.ASAAS_BASE_URL ?? 'https://api-sandbox.asaas.com/v3', apiKey: env.ASAAS_API_KEY }), env.ASAAS_WEBHOOK_TOKEN));
+} else if (providerName === 'fake') {
+  providers.push(createFakeProvider(env.FAKE_WEBHOOK_TOKEN));
+}
+
+if (providers.length && env.DATABASE_URL) {
   const store = await createPgStore(env.DATABASE_URL);
   orders = createOrdersService({
     catalog,
     checkout: createMercurCheckout({ baseUrl: mercurUrl, publishableKey: env.MERCUR_PUBLISHABLE_KEY, currency: env.CURRENCY ?? 'brl' }),
     store,
-    asaas: createAsaasClient({ baseUrl: env.ASAAS_BASE_URL ?? 'https://api-sandbox.asaas.com/v3', apiKey: env.ASAAS_API_KEY }),
+    payments: providers,
     split: { commissionBps: Number(env.COMMISSION_BPS ?? 1000), minCommissionCents: Number(env.MIN_COMMISSION_CENTS ?? 200) },
   });
-  console.log(`Pedidos ligados (Asaas: ${env.ASAAS_BASE_URL ?? 'sandbox'})`);
+  console.log(`Pedidos ligados (provedor: ${providers[0]!.name})`);
 } else {
-  console.log('Pedidos desligados: faltam ASAAS_API_KEY, DATABASE_URL ou ASAAS_WEBHOOK_TOKEN.');
+  console.log('Pedidos desligados: configure o provedor de pagamento (ASAAS_API_KEY e ASAAS_WEBHOOK_TOKEN, ou PAYMENT_PROVIDER=fake) e DATABASE_URL.');
 }
 
 const app = createApp(catalog, {
   corsOrigins: (env.CORS_ORIGINS ?? '').split(',').map(s => s.trim()).filter(Boolean),
   orders,
-  webhookToken,
+  providers,
 });
 
 const port = Number(env.PORT ?? 9100);

@@ -1,9 +1,9 @@
-// Pedidos: valida o carrinho, calcula preços e split no servidor, cobra no Asaas (Pix) e
-// reage ao webhook. Depois de pago, `fulfill` cria o pedido no Mercur (passo 7.4).
+// Pedidos: valida o carrinho, calcula preços e split no servidor, cobra pelo provedor de
+// pagamento (Pix) e reage ao webhook. Depois de pago, finaliza o carrinho no Mercur.
 import type { CheckoutInput, Order } from '../../../aqua-shops/shared/types/index.ts';
-import type { AsaasClient } from './asaas.ts';
 import type { Catalog } from './catalog.ts';
 import type { MercurCheckout } from './checkout.ts';
+import type { PaymentEvent, PaymentProvider } from './payments.ts';
 import { computeSplit, type SplitConfig } from './split.ts';
 import type { OrderItem, OrderStore, StoredOrder } from './store.ts';
 
@@ -22,7 +22,8 @@ export interface OrdersDeps {
   /** Monta o carrinho no Mercur (com frete) e o finaliza depois do pagamento. */
   checkout: MercurCheckout;
   store: OrderStore;
-  asaas: Pick<AsaasClient, 'findOrCreateCustomer' | 'createPixCharge' | 'getPixQrCode' | 'refundPayment'>;
+  /** Provedores de pagamento. O primeiro cobra os pedidos novos; todos podem confirmar/estornar os seus. */
+  payments: PaymentProvider[];
   split: SplitConfig;
   now?: () => Date;
   newId?: () => string;
@@ -63,6 +64,8 @@ const toContract = (o: StoredOrder): Order => ({
 const dueDate = (now: Date) => new Date(now.getTime() + 24 * 3600_000).toISOString().slice(0, 10);
 
 export function createOrdersService(deps: OrdersDeps) {
+  const active = deps.payments[0];
+  if (!active) throw new Error('Configure pelo menos um provedor de pagamento');
   const now = deps.now ?? (() => new Date());
   const newId = deps.newId ?? (() => crypto.randomUUID());
 
@@ -113,31 +116,23 @@ export function createOrdersService(deps: OrdersDeps) {
         deps.split,
       );
 
-      const wallets = await deps.store.walletsFor(split.sellers.map(s => s.sellerId));
+      const wallets = await deps.store.walletsFor(active.name, split.sellers.map(s => s.sellerId));
       const missing = split.sellers.filter(s => !wallets.has(s.sellerId));
       if (missing.length) throw new OrderError('Um dos vendedores ainda não pode receber pagamentos', 422);
 
       const id = `ord_${newId()}`;
       const createdAt = now().toISOString();
       let charge;
-      let qr;
       try {
-        const customerId = await deps.asaas.findOrCreateCustomer({
-          name: input.buyer.name,
-          email: input.buyer.email,
-          cpfCnpj: input.buyer.cpfCnpj,
-          mobilePhone: onlyDigits(input.buyer.phone ?? '') || undefined,
-        });
-        charge = await deps.asaas.createPixCharge({
-          customerId,
-          valueCents: split.totalCents,
-          dueDate: dueDate(now()),
-          externalReference: id,
+        charge = await active.createCharge({
+          orderId: id,
+          totalCents: split.totalCents,
           description: `Pedido AQUA Shops ${id.slice(4, 12)}`,
+          dueDate: dueDate(now()),
+          buyer: { name: input.buyer.name, email: input.buyer.email, cpfCnpj: input.buyer.cpfCnpj, phone: input.buyer.phone ?? '' },
           // Só os vendedores entram no split; o que sobra (comissão menos taxa) fica com a plataforma.
-          splits: split.sellers.filter(s => s.payoutCents > 0).map(s => ({ walletId: wallets.get(s.sellerId)!, fixedValueCents: s.payoutCents })),
+          splits: split.sellers.filter(s => s.payoutCents > 0).map(s => ({ recipientId: wallets.get(s.sellerId)!, amountCents: s.payoutCents })),
         });
-        qr = await deps.asaas.getPixQrCode(charge.id);
       } catch (error) {
         throw new OrderError(error instanceof Error ? error.message : 'Falha ao gerar o Pix', 502);
       }
@@ -152,10 +147,11 @@ export function createOrdersService(deps: OrdersDeps) {
         totalCents: split.totalCents,
         mercurCartId: cart.cartId,
         shippingCents: Object.values(cart.shippingBySeller).reduce((sum, v) => sum + v, 0),
-        asaasPaymentId: charge.id,
-        pixPayload: qr.payload,
-        pixQrCode: qr.encodedImage,
-        pixExpiresAt: qr.expirationDate,
+        paymentProvider: active.name,
+        paymentId: charge.paymentId,
+        pixPayload: charge.pix.payload,
+        pixQrCode: charge.pix.qrCodeBase64,
+        pixExpiresAt: charge.pix.expiresAt,
         createdAt,
       };
       await deps.store.insert(stored);
@@ -167,15 +163,14 @@ export function createOrdersService(deps: OrdersDeps) {
       return o ? toContract(o) : null;
     },
 
-    /** Processa um evento do Asaas. Seguro para repetir (o Asaas entrega "pelo menos uma vez"). */
-    async handleEvent(event: { id?: string; event?: string; payment?: { id?: string; externalReference?: string | null } }): Promise<'ignored' | 'duplicate' | 'paid' | 'closed'> {
-      if (!event.id || !event.event) return 'ignored';
-      const orderId = event.payment?.externalReference ?? undefined;
-      if (!orderId?.startsWith('ord_')) return 'ignored';
-      if (!(await deps.store.recordEvent(event.id))) return 'duplicate';
+    /** Processa um evento de pagamento. Seguro para repetir (provedores entregam "pelo menos uma vez"). */
+    async handleEvent(provider: string, event: PaymentEvent): Promise<'ignored' | 'duplicate' | 'paid' | 'closed'> {
+      const orderId = event.orderId;
+      if (!orderId.startsWith('ord_')) return 'ignored';
+      if (!(await deps.store.recordEvent(`${provider}:${event.eventId}`))) return 'duplicate';
 
-      if (event.event === 'PAYMENT_CONFIRMED' || event.event === 'PAYMENT_RECEIVED') {
-        // Só quem conseguir mudar de pending_payment para paid dispara o fulfillment.
+      if (event.kind === 'paid') {
+        // Só quem conseguir mudar de pending_payment para paid dispara a entrega.
         if (!(await deps.store.transition(orderId, 'pending_payment', 'paid'))) return 'duplicate';
         const order = (await deps.store.get(orderId))!;
         try {
@@ -184,19 +179,12 @@ export function createOrdersService(deps: OrdersDeps) {
         } catch (error) {
           // Pagou mas não conseguimos entregar (ex.: estoque acabou): devolve o dinheiro.
           await deps.store.update(orderId, { status: 'failed', failure: error instanceof Error ? error.message : 'Falha ao criar o pedido' });
-          await deps.asaas.refundPayment(order.asaasPaymentId).catch(() => {});
+          await deps.payments.find(p => p.name === order.paymentProvider)?.refund(order.paymentId).catch(() => {});
         }
         return 'paid';
       }
-      if (event.event === 'PAYMENT_OVERDUE') {
-        await deps.store.transition(orderId, 'pending_payment', 'expired');
-        return 'closed';
-      }
-      if (event.event === 'PAYMENT_DELETED' || event.event === 'PAYMENT_REFUNDED') {
-        await deps.store.transition(orderId, 'pending_payment', 'cancelled');
-        return 'closed';
-      }
-      return 'ignored';
+      await deps.store.transition(orderId, 'pending_payment', event.kind === 'expired' ? 'expired' : 'cancelled');
+      return 'closed';
     },
   };
 }

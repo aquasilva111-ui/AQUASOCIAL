@@ -14,7 +14,8 @@ const order = (id: string): StoredOrder => ({
   totalCents: 1000,
   mercurCartId: 'cart_1',
   shippingCents: 0,
-  asaasPaymentId: `pay_${id}`,
+  paymentProvider: 'asaas',
+  paymentId: `pay_${id}`,
   pixPayload: '000201',
   pixQrCode: 'B64',
   pixExpiresAt: '2026-10-06',
@@ -57,9 +58,11 @@ describe.skipIf(!url)('PgOrderStore (Postgres real)', () => {
   });
 
   it('guarda e busca carteiras de vendedores', async () => {
-    await store.setWallet(`sel_${uid}`, 'w1');
-    await store.setWallet(`sel_${uid}`, 'w2'); // atualiza
-    expect(await store.walletsFor([`sel_${uid}`, 'sem-carteira'])).toEqual(new Map([[`sel_${uid}`, 'w2']]));
-    expect(await store.walletsFor([])).toEqual(new Map());
+    await store.setWallet('asaas', `sel_${uid}`, 'w1');
+    await store.setWallet('asaas', `sel_${uid}`, 'w2'); // atualiza
+    await store.setWallet('woovi', `sel_${uid}`, 'subconta'); // outro provedor, outra carteira
+    expect(await store.walletsFor('asaas', [`sel_${uid}`, 'sem-carteira'])).toEqual(new Map([[`sel_${uid}`, 'w2']]));
+    expect(await store.walletsFor('woovi', [`sel_${uid}`])).toEqual(new Map([[`sel_${uid}`, 'subconta']]));
+    expect(await store.walletsFor('asaas', [])).toEqual(new Map());
   });
 });
