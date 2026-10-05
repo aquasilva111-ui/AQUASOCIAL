@@ -1,6 +1,10 @@
 import {type AppBskyFeedDefs} from '@atproto/api'
 import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
 
+import {uploadBlob} from '#/lib/api'
+import {POST_IMG_MAX} from '#/lib/constants'
+import {compressIfNeeded} from '#/lib/media/manip'
+import {type PickerImage} from '#/lib/media/picker.shared'
 import {type Aesthetic} from '#/lib/visionboard/aesthetics'
 import {
   BOARD_COLLECTION,
@@ -17,6 +21,13 @@ import {
   toWritable,
   visibleBoards,
 } from '#/lib/visionboard/boards'
+import {
+  newUploadRecord,
+  normalizeUpload,
+  type StoredUpload,
+  UPLOAD_COLLECTION,
+} from '#/lib/visionboard/uploads'
+import {ensurePdsEndpoint} from '#/state/queries/stories'
 import {useAgent, useSession} from '#/state/session'
 
 const ROOT = 'visionboard-boards'
@@ -195,8 +206,19 @@ export function useDeleteBoardMutation() {
   const ownDid = useOwnDid()
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async (input: {rkey: string; pinRkeys: string[]}) => {
+    mutationFn: async (input: {
+      rkey: string
+      pinRkeys: string[]
+      uploadRkeys?: string[]
+    }) => {
       const repo = ownDid()
+      for (const rkey of input.uploadRkeys ?? []) {
+        await agent.com.atproto.repo.deleteRecord({
+          repo,
+          collection: UPLOAD_COLLECTION,
+          rkey,
+        })
+      }
       // Pins first so a failure never leaves pins pointing at a missing folder.
       for (const rkey of input.pinRkeys) {
         await agent.com.atproto.repo.deleteRecord({
@@ -321,6 +343,114 @@ export function useReorderPinsMutation() {
           }) as unknown as Record<string, unknown>,
         })
       }
+    },
+    onSuccess: () => qc.invalidateQueries({queryKey: [ROOT]}),
+  })
+}
+
+/** Images dropped into boards, grouped by board (one query per author). */
+export function useUploadsByBoardQuery(did: string | undefined) {
+  const agent = useAgent()
+  return useQuery<Map<string, StoredUpload[]>>({
+    queryKey: [ROOT, 'uploads', did ?? ''],
+    enabled: !!did,
+    staleTime: 30_000,
+    queryFn: async () => {
+      const by = new Map<string, StoredUpload[]>()
+      if (!did) return by
+      const records = await listAll(agent, did, UPLOAD_COLLECTION, 30)
+      for (const r of records) {
+        const upload = normalizeUpload(r.value, did)
+        if (!upload) continue
+        const list = by.get(upload.board) ?? []
+        list.push({uri: r.uri, rkey: rkeyOf(r.uri), upload})
+        by.set(upload.board, list)
+      }
+      for (const list of by.values()) {
+        list.sort((a, b) =>
+          b.upload.createdAt.localeCompare(a.upload.createdAt),
+        )
+      }
+      return by
+    },
+  })
+}
+
+/** Where a repo's blobs are served from (its PDS), cached for an hour. */
+export function usePdsEndpointQuery(did: string | undefined) {
+  const agent = useAgent()
+  const qc = useQueryClient()
+  return useQuery<string | null>({
+    queryKey: ['pds-endpoint', did ?? ''],
+    enabled: !!did,
+    staleTime: 60 * 60 * 1000,
+    queryFn: () => ensurePdsEndpoint(agent, qc, did!),
+  })
+}
+
+export type UploadOutcome = {name: string; error?: string}
+
+/**
+ * Uploads images from the user's device into a board, one after the other
+ * (a failure never blocks the rest). Each image is compressed to the same
+ * size limit as post images, stored as a blob and referenced by an upload
+ * record; no post is created.
+ */
+export function useUploadImagesMutation() {
+  const agent = useAgent()
+  const ownDid = useOwnDid()
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (input: {
+      boardUri: string
+      images: {name: string; image: PickerImage}[]
+      onProgress?: (done: number, total: number) => void
+    }): Promise<UploadOutcome[]> => {
+      const repo = ownDid()
+      const outcomes: UploadOutcome[] = []
+      for (const [i, {name, image}] of input.images.entries()) {
+        try {
+          const compressed = await compressIfNeeded(image, POST_IMG_MAX.size)
+          const {data} = await uploadBlob(
+            agent,
+            compressed.path,
+            compressed.mime,
+          )
+          const record = toWritable(
+            newUploadRecord({
+              board: input.boardUri,
+              image: data.blob as never,
+              aspectRatio: {width: compressed.width, height: compressed.height},
+            }) as never,
+          )
+          await agent.com.atproto.repo.createRecord({
+            repo,
+            collection: UPLOAD_COLLECTION,
+            record: record as unknown as Record<string, unknown>,
+          })
+          outcomes.push({name})
+        } catch (e) {
+          outcomes.push({name, error: e instanceof Error ? e.message : 'erro'})
+        }
+        input.onProgress?.(i + 1, input.images.length)
+      }
+      return outcomes
+    },
+    onSuccess: () => qc.invalidateQueries({queryKey: [ROOT]}),
+  })
+}
+
+export function useRemoveUploadMutation() {
+  const agent = useAgent()
+  const ownDid = useOwnDid()
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (input: {rkey: string}) => {
+      await agent.com.atproto.repo.deleteRecord({
+        repo: ownDid(),
+        collection: UPLOAD_COLLECTION,
+        rkey: input.rkey,
+      })
     },
     onSuccess: () => qc.invalidateQueries({queryKey: [ROOT]}),
   })

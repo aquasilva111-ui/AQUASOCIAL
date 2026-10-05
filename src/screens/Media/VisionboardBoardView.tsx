@@ -1,7 +1,6 @@
 import {createElement, useMemo, useState} from 'react'
 import {Pressable, View} from 'react-native'
 import {Image} from 'expo-image'
-import {type AppBskyFeedDefs} from '@atproto/api'
 import {useNavigation} from '@react-navigation/native'
 
 import {
@@ -24,6 +23,12 @@ import {
   resolveLook,
 } from '#/lib/visionboard/look'
 import {type PinImage, pinImage} from '#/lib/visionboard/pin-image'
+import {fileToPickerImage} from '#/lib/visionboard/prepare-image'
+import {
+  selectDroppedFiles,
+  type StoredUpload,
+  uploadBlobUrl,
+} from '#/lib/visionboard/uploads'
 import {isWeb} from '#/platform/detection'
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {useResolveDidQuery} from '#/state/queries/resolve-uri'
@@ -31,10 +36,14 @@ import {
   type StoredBoard,
   useBoardQuery,
   useDeleteBoardMutation,
+  usePdsEndpointQuery,
   usePinPostsQuery,
   usePinsByBoardQuery,
   useRemovePinMutation,
+  useRemoveUploadMutation,
   useSaveBoardMutation,
+  useUploadImagesMutation,
+  useUploadsByBoardQuery,
 } from '#/state/queries/visionboard-boards'
 import {useSession} from '#/state/session'
 import {atoms as a, useTheme, web} from '#/alf'
@@ -46,6 +55,10 @@ import {Link} from '#/components/Link'
 import {Loader} from '#/components/Loader'
 import * as toast from '#/components/Toast'
 import {Text} from '#/components/Typography'
+import {
+  type DroppedFile,
+  ImageDropZone,
+} from '#/components/visionboard/ImageDropZone'
 import {Capsule} from '#/components/visionboard/VisionboardCapsule'
 import {VisionboardTopBar} from '#/components/visionboard/VisionboardTopBar'
 
@@ -63,6 +76,8 @@ export function VisionboardBoardViewScreen({
   const did = useResolveDidQuery(name)
   const board = useBoardQuery(did.data || undefined, rkey)
   const pins = usePinsByBoardQuery(did.data || undefined)
+  const uploads = useUploadsByBoardQuery(did.data || undefined)
+  const pds = usePdsEndpointQuery(did.data || undefined)
 
   return (
     <Layout.Screen testID="visionboard-board-view" hideCenterBorders>
@@ -94,7 +109,10 @@ export function VisionboardBoardViewScreen({
             </ButtonText>
           </Button>
         </View>
-        {board.isLoading || did.isLoading || pins.isLoading ? (
+        {board.isLoading ||
+        did.isLoading ||
+        pins.isLoading ||
+        uploads.isLoading ? (
           <View style={[a.align_center, a.p_xl]}>
             <Loader size="xl" />
           </View>
@@ -106,6 +124,8 @@ export function VisionboardBoardViewScreen({
           <BoardPage
             board={board.data}
             pins={pins.data?.get(board.data.uri) ?? []}
+            uploads={uploads.data?.get(board.data.uri) ?? []}
+            pdsUrl={pds.data ?? undefined}
           />
         )}
       </View>
@@ -113,7 +133,24 @@ export function VisionboardBoardViewScreen({
   )
 }
 
-function BoardPage({board, pins}: {board: StoredBoard; pins: StoredPin[]}) {
+type Tile = {
+  key: string
+  image: PinImage | undefined
+  href?: string
+  onRemove?: () => void
+}
+
+function BoardPage({
+  board,
+  pins,
+  uploads,
+  pdsUrl,
+}: {
+  board: StoredBoard
+  pins: StoredPin[]
+  uploads: StoredUpload[]
+  pdsUrl: string | undefined
+}) {
   const {currentAccount} = useSession()
   const moderationOpts = useModerationOpts()
   const isOwner = currentAccount?.did === board.did
@@ -124,23 +161,99 @@ function BoardPage({board, pins}: {board: StoredBoard; pins: StoredPin[]}) {
   const [musicOpen, setMusicOpen] = useState(false)
   const settings = Dialog.useDialogControl()
   const removePin = useRemovePinMutation()
+  const removeUpload = useRemoveUploadMutation()
+  const uploadImages = useUploadImagesMutation()
+  const [progress, setProgress] = useState<string | undefined>()
 
-  const tiles = ordered.map(p => ({
-    stored: p,
-    image: pinImage(
-      posts.data?.get(p.pin.subject.uri),
-      p.pin.imageIndex,
-      moderationOpts,
-    ),
-    post: posts.data?.get(p.pin.subject.uri),
-  }))
-
-  const remove = async (stored: StoredPin) => {
+  const guarded = async (fn: () => Promise<unknown>, done: string) => {
     try {
-      await removePin.mutateAsync({rkey: stored.rkey})
-      toast.show('Tirado do visionboard')
+      await fn()
+      toast.show(done)
     } catch (e) {
       toast.show(cleanError(e), {type: 'error'})
+    }
+  }
+
+  const pinTiles: Tile[] = ordered.map(p => {
+    const post = posts.data?.get(p.pin.subject.uri)
+    return {
+      key: p.uri,
+      image: pinImage(post, p.pin.imageIndex, moderationOpts),
+      href: post
+        ? `/visionboard/view/${post.author.did}/${post.uri.slice(post.uri.lastIndexOf('/') + 1)}`
+        : undefined,
+      onRemove: isOwner
+        ? () =>
+            guarded(
+              () => removePin.mutateAsync({rkey: p.rkey}),
+              'Tirado do visionboard',
+            )
+        : undefined,
+    }
+  })
+  const uploadTiles: Tile[] = uploads.flatMap(u => {
+    if (!pdsUrl) return []
+    const url = uploadBlobUrl(pdsUrl, board.did, u.upload.image.ref.$link)
+    const ar = u.upload.aspectRatio
+    return [
+      {
+        key: u.uri,
+        href: url,
+        image: {
+          thumb: url,
+          fullsize: url,
+          alt: u.upload.alt ?? '',
+          aspectRatio: ar ? ar.width / ar.height : 1,
+        },
+        onRemove: isOwner
+          ? () =>
+              guarded(
+                () => removeUpload.mutateAsync({rkey: u.rkey}),
+                'Imagem removida',
+              )
+          : undefined,
+      },
+    ]
+  })
+  // Newest uploads first, then the pinned posts in the board's own order.
+  const tiles = [...uploadTiles, ...pinTiles]
+
+  const onFiles = async (files: DroppedFile[]) => {
+    const {accepted, rejected} = selectDroppedFiles(files)
+    for (const {file, reason} of rejected.slice(0, 3)) {
+      toast.show(`${file.name}: ${reason}`, {type: 'error'})
+    }
+    if (!accepted.length) return
+    try {
+      const images = await Promise.all(
+        accepted.map(async f => ({
+          name: f.name,
+          image: await fileToPickerImage(f),
+        })),
+      )
+      setProgress(`0/${images.length}`)
+      const outcomes = await uploadImages.mutateAsync({
+        boardUri: board.uri,
+        images,
+        onProgress: (done, total) => setProgress(`${done}/${total}`),
+      })
+      const failed = outcomes.filter(o => o.error)
+      const ok = outcomes.length - failed.length
+      if (ok) {
+        toast.show(
+          ok === 1 ? '1 imagem adicionada' : `${ok} imagens adicionadas`,
+          {type: 'success'},
+        )
+      }
+      if (failed.length) {
+        toast.show(`Não foi possível enviar ${failed.length}.`, {
+          type: 'error',
+        })
+      }
+    } catch (e) {
+      toast.show(cleanError(e), {type: 'error'})
+    } finally {
+      setProgress(undefined)
     }
   }
 
@@ -238,11 +351,23 @@ function BoardPage({board, pins}: {board: StoredBoard; pins: StoredPin[]}) {
         </View>
       )}
 
+      {isOwner && (
+        <ImageDropZone
+          color={look.fg}
+          compact={!!tiles.length}
+          busy={uploadImages.isPending}
+          progress={progress}
+          onFiles={onFiles}
+        />
+      )}
+
       {!tiles.length ? (
-        <Text style={[a.text_md, {color: look.fg, opacity: 0.7, padding: 40}]}>
-          Este visionboard ainda está vazio. Use Salvar em qualquer imagem para
-          colocá-la aqui.
-        </Text>
+        !isOwner && (
+          <Text
+            style={[a.text_md, {color: look.fg, opacity: 0.7, padding: 40}]}>
+            Este visionboard ainda está vazio.
+          </Text>
+        )
       ) : look.layout === 'grid' ? (
         <GridLayout tiles={tiles} frame={look.frame} />
       ) : (
@@ -256,19 +381,24 @@ function BoardPage({board, pins}: {board: StoredBoard; pins: StoredPin[]}) {
           ]}>
           {tiles.map((tile, i) => (
             <MuralTile
-              key={tile.stored.uri}
+              key={tile.key}
               index={i}
               image={tile.image}
-              post={tile.post}
+              href={tile.href}
               frame={look.frame}
-              onRemove={isOwner ? () => remove(tile.stored) : undefined}
+              onRemove={tile.onRemove}
             />
           ))}
         </View>
       )}
 
       {isOwner && (
-        <SettingsDialog control={settings} board={board} pins={pins} />
+        <SettingsDialog
+          control={settings}
+          board={board}
+          pins={pins}
+          uploads={uploads}
+        />
       )}
     </View>
   )
@@ -277,20 +407,17 @@ function BoardPage({board, pins}: {board: StoredBoard; pins: StoredPin[]}) {
 function MuralTile({
   index,
   image,
-  post,
+  href,
   frame,
   onRemove,
 }: {
   index: number
   image: PinImage | undefined
-  post: AppBskyFeedDefs.PostView | undefined
+  href: string | undefined
   frame: BoardFrame
   onRemove?: () => void
 }) {
   const polaroid = frame === 'polaroid'
-  const href = post
-    ? `/visionboard/view/${post.author.did}/${post.uri.slice(post.uri.lastIndexOf('/') + 1)}`
-    : undefined
   const body = (
     <View
       style={[
@@ -375,17 +502,7 @@ function MuralTile({
   )
 }
 
-function GridLayout({
-  tiles,
-  frame,
-}: {
-  tiles: {
-    image: PinImage | undefined
-    post: AppBskyFeedDefs.PostView | undefined
-    stored: StoredPin
-  }[]
-  frame: BoardFrame
-}) {
+function GridLayout({tiles, frame}: {tiles: Tile[]; frame: BoardFrame}) {
   const COLUMNS = 4
   const columns = useMemo(() => {
     const cols: (typeof tiles)[] = Array.from({length: COLUMNS}, () => [])
@@ -409,9 +526,7 @@ function GridLayout({
       {columns.map((col, i) => (
         <View key={i} style={[a.flex_1, {gap: 8, minWidth: 0}]}>
           {col.map(tile => {
-            const href = tile.post
-              ? `/visionboard/view/${tile.post.author.did}/${tile.post.uri.slice(tile.post.uri.lastIndexOf('/') + 1)}`
-              : undefined
+            const href = tile.href
             const img = (
               <View
                 style={[
@@ -435,11 +550,11 @@ function GridLayout({
               </View>
             )
             return href ? (
-              <Link key={tile.stored.uri} to={href} label="Abrir imagem">
+              <Link key={tile.key} to={href} label="Abrir imagem">
                 {img}
               </Link>
             ) : (
-              <View key={tile.stored.uri}>{img}</View>
+              <View key={tile.key}>{img}</View>
             )
           })}
         </View>
@@ -452,10 +567,12 @@ function SettingsDialog({
   control,
   board,
   pins,
+  uploads,
 }: {
   control: Dialog.DialogControlProps
   board: StoredBoard
   pins: StoredPin[]
+  uploads: StoredUpload[]
 }) {
   const t = useTheme()
   const navigation = useNavigation<NavigationProp>()
@@ -499,7 +616,11 @@ function SettingsDialog({
 
   const onDelete = async () => {
     try {
-      await del.mutateAsync({rkey: board.rkey, pinRkeys: pins.map(p => p.rkey)})
+      await del.mutateAsync({
+        rkey: board.rkey,
+        pinRkeys: pins.map(p => p.rkey),
+        uploadRkeys: uploads.map(u => u.rkey),
+      })
       control.close(() => navigation.navigate('VisionboardBoards'))
     } catch (e) {
       toast.show(cleanError(e), {type: 'error'})

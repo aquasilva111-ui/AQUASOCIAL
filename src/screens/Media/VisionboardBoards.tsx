@@ -12,13 +12,16 @@ import {
   type StoredPin,
 } from '#/lib/visionboard/boards'
 import {pinImage} from '#/lib/visionboard/pin-image'
+import {type StoredUpload, uploadBlobUrl} from '#/lib/visionboard/uploads'
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {
   type StoredBoard,
   useBoardsQuery,
+  usePdsEndpointQuery,
   usePinPostsQuery,
   usePinsByBoardQuery,
   useSaveBoardMutation,
+  useUploadsByBoardQuery,
 } from '#/state/queries/visionboard-boards'
 import {useSession} from '#/state/session'
 import {useLoggedOutViewControls} from '#/state/shell/logged-out'
@@ -44,6 +47,8 @@ export function VisionboardBoardsScreen() {
   const [search, setSearch] = useState('')
   const boards = useBoardsQuery(currentAccount?.did)
   const pins = usePinsByBoardQuery(currentAccount?.did)
+  const uploads = useUploadsByBoardQuery(currentAccount?.did)
+  const pds = usePdsEndpointQuery(currentAccount?.did)
   const createControl = Dialog.useDialogControl()
 
   const coverUris = useMemo(() => {
@@ -56,10 +61,10 @@ export function VisionboardBoardsScreen() {
     return uris
   }, [boards.data, pins.data])
   const posts = usePinPostsQuery(coverUris)
-  const totalPins = [...(pins.data?.values() ?? [])].reduce(
-    (n, list) => n + list.length,
-    0,
-  )
+  const totalPins = [
+    ...(pins.data?.values() ?? []),
+    ...(uploads.data?.values() ?? []),
+  ].reduce((n, list) => n + list.length, 0)
 
   return (
     <Layout.Screen testID="visionboard-boards" hideCenterBorders>
@@ -121,6 +126,8 @@ export function VisionboardBoardsScreen() {
                 key={b.uri}
                 board={b}
                 pins={pins.data?.get(b.uri) ?? []}
+                uploads={uploads.data?.get(b.uri) ?? []}
+                pdsUrl={pds.data ?? undefined}
                 posts={posts.data}
               />
             ))}
@@ -176,17 +183,38 @@ function NewBoardTile() {
 function BoardCard({
   board,
   pins,
+  uploads,
+  pdsUrl,
   posts,
 }: {
   board: StoredBoard
   pins: StoredPin[]
+  uploads: StoredUpload[]
+  pdsUrl: string | undefined
   posts: Map<string, AppBskyFeedDefs.PostView> | undefined
 }) {
   const t = useTheme()
   const moderationOpts = useModerationOpts()
-  const covers = newest(orderedPins(pins), 3).map(p =>
-    pinImage(posts?.get(p.pin.subject.uri), p.pin.imageIndex, moderationOpts),
-  )
+  // Dropped images first (newest), then the pinned posts.
+  const uploaded = pdsUrl
+    ? uploads.slice(0, 3).map(u => {
+        const url = uploadBlobUrl(pdsUrl, board.did, u.upload.image.ref.$link)
+        const ar = u.upload.aspectRatio
+        return {
+          thumb: url,
+          fullsize: url,
+          alt: u.upload.alt ?? '',
+          aspectRatio: ar ? ar.width / ar.height : 1,
+        }
+      })
+    : []
+  const covers = [
+    ...uploaded,
+    ...newest(orderedPins(pins), 3).map(p =>
+      pinImage(posts?.get(p.pin.subject.uri), p.pin.imageIndex, moderationOpts),
+    ),
+  ].slice(0, 3)
+  const count = pins.length + uploads.length
   const label = board.board.visibility === 'private' ? 'Privado' : 'Público'
   return (
     <Link
@@ -215,7 +243,7 @@ function BoardCard({
           {board.board.title}
         </Text>
         <Text style={[a.text_sm, a.px_xs, {opacity: 0.6}]}>
-          {pins.length} {pins.length === 1 ? 'pin' : 'pins'}
+          {count} {count === 1 ? 'pin' : 'pins'}
         </Text>
       </View>
     </Link>
