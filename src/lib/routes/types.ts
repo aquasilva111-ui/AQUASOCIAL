@@ -99,6 +99,7 @@ export type CommonNavigatorParams = {
   ViewStudio: undefined
   ViewStudioCustomize: undefined
   ViewPaid: undefined
+  StoryCreate: undefined
   ViewSubscriptions: undefined
   ViewMyVideos: undefined
   ViewChannels: undefined

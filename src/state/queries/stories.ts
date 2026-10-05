@@ -12,9 +12,14 @@ import {type PickerImage} from '#/lib/media/picker.shared'
 import {
   getPdsEndpoint,
   isExpired,
+  isHexColor,
+  normalizeOverlays,
   normalizeStory,
   STORY_COLLECTION,
+  type StoryFit,
+  type StoryOverlay,
   type StoryView,
+  validateStoryDraft,
 } from '#/lib/stories/model'
 import {useAgent, useSession} from '#/state/session'
 
@@ -24,8 +29,11 @@ export {STORY_COLLECTION, STORY_TTL_MS} from '#/lib/stories/model'
 export interface StoryRecord {
   $type: string
   createdAt: string
-  media: BlobRef
+  media?: BlobRef
   aspectRatio?: {width: number; height: number}
+  fit?: StoryFit
+  background?: string
+  overlays?: StoryOverlay[]
 }
 
 const RQKEY_ROOT = 'stories'
@@ -104,16 +112,35 @@ export function useCreateStoryMutation() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (image: PickerImage) => {
+    mutationFn: async ({
+      image,
+      background,
+      overlays,
+    }: {
+      /** A photo story. Omit for a text-only story on a colour. */
+      image?: PickerImage
+      background?: string
+      overlays: StoryOverlay[]
+    }) => {
       if (!currentAccount) throw new Error('Not logged in')
-      const compressed = await compressIfNeeded(image)
-      const {data} = await uploadBlob(agent, compressed.path, compressed.mime)
+      const clean = normalizeOverlays(overlays)
+      if (validateStoryDraft({hasMedia: !!image, background, overlays: clean})) {
+        throw new Error('empty_story')
+      }
       const record: StoryRecord = {
         $type: STORY_COLLECTION,
         createdAt: new Date().toISOString(),
-        media: data.blob,
-        aspectRatio: {width: compressed.width, height: compressed.height},
+        // The creator frames photos in the 9:16 canvas, so viewers crop alike.
+        fit: 'cover',
+        ...(clean.length ? {overlays: clean} : {}),
       }
+      if (image) {
+        const compressed = await compressIfNeeded(image)
+        const {data} = await uploadBlob(agent, compressed.path, compressed.mime)
+        record.media = data.blob
+        record.aspectRatio = {width: compressed.width, height: compressed.height}
+      }
+      if (isHexColor(background)) record.background = background
       await agent.com.atproto.repo.createRecord({
         repo: currentAccount.did,
         collection: STORY_COLLECTION,
@@ -122,9 +149,7 @@ export function useCreateStoryMutation() {
     },
     onSuccess: () => {
       if (!currentAccount) return
-      queryClient.invalidateQueries({
-        queryKey: [RQKEY_ROOT, currentAccount.did],
-      })
+      queryClient.invalidateQueries({queryKey: [RQKEY_ROOT, currentAccount.did]})
     },
   })
 }

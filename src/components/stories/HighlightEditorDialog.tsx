@@ -1,11 +1,11 @@
 import {useMemo, useState} from 'react'
 import {View} from 'react-native'
-import {Image} from 'expo-image'
 
 import {
   HIGHLIGHT_ITEMS_MAX,
   HIGHLIGHT_TITLE_MAX,
   type HighlightView,
+  storyKey,
   validateHighlightDraft,
 } from '#/lib/stories/model'
 import {logger} from '#/logger'
@@ -21,6 +21,7 @@ import {Button, ButtonText} from '#/components/Button'
 import * as Dialog from '#/components/Dialog'
 import * as TextField from '#/components/forms/TextField'
 import {Loader} from '#/components/Loader'
+import {StoryPreview} from '#/components/stories/StoryFrame'
 import {Text} from '#/components/Typography'
 
 const THUMB = 88
@@ -59,15 +60,15 @@ function Inner({did, highlight}: {did: string; highlight?: HighlightView}) {
 
   const [title, setTitle] = useState(highlight?.title ?? '')
   const [selected, setSelected] = useState<Set<string>>(
-    () => new Set(highlight?.items.map(i => i.media.ref.$link)),
+    () => new Set(highlight?.items.map(i => storyKey(i))),
   )
 
   // Existing items whose story record is gone still belong to the album.
   const pool = useMemo(() => {
     const byCid = new Map<string, NonNullable<typeof archive>[number]>()
     for (const item of highlight?.items ?? [])
-      byCid.set(item.media.ref.$link, item)
-    for (const s of archive ?? []) byCid.set(s.media.ref.$link, s)
+      byCid.set(storyKey(item), item)
+    for (const s of archive ?? []) byCid.set(storyKey(s), s)
     return [...byCid.values()].sort((x, y) =>
       y.createdAt.localeCompare(x.createdAt),
     )
@@ -87,7 +88,7 @@ function Inner({did, highlight}: {did: string; highlight?: HighlightView}) {
   const onSave = async () => {
     // Keep chronological order regardless of tap order.
     const stories = pool
-      .filter(s => selected.has(s.media.ref.$link))
+      .filter(s => selected.has(storyKey(s)))
       .sort((x, y) => x.createdAt.localeCompare(y.createdAt))
     try {
       if (highlight) await update({highlight, title, stories})
@@ -143,7 +144,7 @@ function Inner({did, highlight}: {did: string; highlight?: HighlightView}) {
           ) : (
             <View style={[a.flex_row, a.flex_wrap, a.gap_sm]}>
               {pool.map(s => {
-                const cid = s.media.ref.$link
+                const cid = storyKey(s)
                 const on = selected.has(cid)
                 return (
                   <Button
@@ -161,14 +162,7 @@ function Inner({did, highlight}: {did: string; highlight?: HighlightView}) {
                         opacity: on ? 1 : 0.6,
                       },
                     ]}>
-                    <Image
-                      accessibilityIgnoresInvertColors
-                      accessibilityHint=""
-                      accessibilityLabel="Story"
-                      source={{uri: s.mediaUrl}}
-                      style={[a.flex_1]}
-                      contentFit="cover"
-                    />
+                    <StoryPreview story={s} />
                   </Button>
                 )
               })}

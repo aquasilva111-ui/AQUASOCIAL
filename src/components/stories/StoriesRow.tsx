@@ -1,17 +1,16 @@
 import {useState} from 'react'
 import {View} from 'react-native'
-import {Image} from 'expo-image'
+import {useNavigation} from '@react-navigation/native'
 import {type AppBskyActorDefs} from '@atproto/api'
 
-import {openPicker} from '#/lib/media/picker.shared'
 import {useIsStorySeen} from '#/lib/stories-seen'
-import {logger} from '#/logger'
-import {useCreateStoryMutation, useStoriesQuery} from '#/state/queries/stories'
-import * as Toast from '#/view/com/util/Toast'
+import {type NavigationProp} from '#/lib/routes/types'
+import {type StoryView} from '#/lib/stories/model'
+import {useStoriesQuery} from '#/state/queries/stories'
 import {atoms as a, useTheme} from '#/alf'
 import {Button, ButtonIcon} from '#/components/Button'
 import {PlusLarge_Stroke2_Corner0_Rounded as PlusIcon} from '#/components/icons/Plus'
-import {Loader} from '#/components/Loader'
+import {StoryPreview} from '#/components/stories/StoryFrame'
 import {StoryViewer} from '#/components/stories/StoryViewer'
 import {Text} from '#/components/Typography'
 
@@ -32,23 +31,10 @@ export function StoriesItems({
   isMe: boolean
 }) {
   const {data: stories} = useStoriesQuery(profile.did)
-  const {mutateAsync: createStory, isPending: isUploading} =
-    useCreateStoryMutation()
+  const navigation = useNavigation<NavigationProp>()
   const [viewerIndex, setViewerIndex] = useState<number | null>(null)
 
   if (!isMe && !stories?.length) return null
-
-  const onPressAdd = async () => {
-    try {
-      const [image] = await openPicker({selectionLimit: 1})
-      if (!image) return
-      await createStory(image)
-      Toast.show('Story publicado')
-    } catch (e: any) {
-      logger.error('Failed to create story', {message: String(e)})
-      Toast.show('Não foi possível publicar o story', 'error')
-    }
-  }
 
   return (
     <>
@@ -56,8 +42,7 @@ export function StoriesItems({
         <View style={[a.align_center, a.gap_xs, {width: RING_SIZE + 8}]}>
           <Button
             label="Adicionar story"
-            onPress={onPressAdd}
-            disabled={isUploading}
+            onPress={() => navigation.navigate('StoryCreate')}
             style={[
               a.rounded_full,
               a.align_center,
@@ -69,7 +54,7 @@ export function StoriesItems({
                 borderStyle: 'dashed',
               },
             ]}>
-            <ButtonIcon icon={isUploading ? Loader : PlusIcon} />
+            <ButtonIcon icon={PlusIcon} />
           </Button>
           <StripLabelText>Story</StripLabelText>
         </View>
@@ -77,8 +62,7 @@ export function StoriesItems({
       {stories?.map((story, i) => (
         <StoryCircle
           key={story.uri}
-          uri={story.mediaUrl}
-          storyUri={story.uri}
+          story={story}
           onPress={() => setViewerIndex(i)}
         />
       ))}
@@ -110,16 +94,14 @@ export function StripLabelText({children}: {children: string}) {
 }
 
 function StoryCircle({
-  uri,
-  storyUri,
+  story,
   onPress,
 }: {
-  uri: string
-  storyUri: string
+  story: StoryView
   onPress: () => void
 }) {
   const t = useTheme()
-  const seen = useIsStorySeen(storyUri)
+  const seen = useIsStorySeen(story.uri)
 
   return (
     <Button
@@ -140,14 +122,9 @@ function StoryCircle({
               : '#7C3AED',
           },
         ]}>
-        <Image
-          accessibilityIgnoresInvertColors
-          accessibilityHint="Abre o story"
-          source={{uri}}
-          style={[a.flex_1, a.rounded_full]}
-          contentFit="cover"
-          accessibilityLabel="Story"
-        />
+        <View style={[a.flex_1, a.rounded_full, a.overflow_hidden]}>
+          <StoryPreview story={story} />
+        </View>
       </View>
       <StripLabelText>{seen ? 'Visto' : 'Novo'}</StripLabelText>
     </Button>

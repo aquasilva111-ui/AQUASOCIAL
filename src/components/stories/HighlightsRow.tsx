@@ -1,6 +1,5 @@
 import {useState} from 'react'
 import {View} from 'react-native'
-import {Image} from 'expo-image'
 import {type AppBskyActorDefs} from '@atproto/api'
 
 import {type HighlightView} from '#/lib/stories/model'
@@ -14,6 +13,7 @@ import {
   STRIP_SIZE as SIZE,
   StripLabelText,
 } from '#/components/stories/StoriesRow'
+import {StoryPreview} from '#/components/stories/StoryFrame'
 import {StoryViewer} from '#/components/stories/StoryViewer'
 
 /**
@@ -81,14 +81,9 @@ export function HighlightsItems({
               t.atoms.border_contrast_low,
               {width: SIZE, height: SIZE},
             ]}>
-            <Image
-              accessibilityIgnoresInvertColors
-              accessibilityHint=""
-              accessibilityLabel={h.title}
-              source={{uri: h.coverUrl}}
-              style={[a.flex_1, a.rounded_full]}
-              contentFit="cover"
-            />
+            <View style={[a.flex_1, a.rounded_full, a.overflow_hidden]}>
+              <StoryPreview story={h.items[0]} />
+            </View>
           </View>
           <StripLabelText>{h.title}</StripLabelText>
         </Button>

@@ -31,6 +31,7 @@ export const router = new Router<AllNavigatableRoutes>({
   ViewStudioCustomize: '/views/studio/customization',
   // AQUA Views library (Você menu)
   ViewPaid: '/views/paid',
+  StoryCreate: '/stories/new',
   ViewSubscriptions: '/views/subscriptions',
   ViewMyVideos: '/views/mine',
   ViewChannels: '/views/channels',

@@ -200,6 +200,7 @@ import {
 } from '#/screens/ViewLibrary/ListsScreen'
 import {ViewLiveScreen} from '#/screens/ViewLibrary/LiveScreen'
 import {ViewMyVideosScreen} from '#/screens/ViewLibrary/MyVideosScreen'
+import {StoryCreatorScreen} from '#/screens/Stories/StoryCreatorScreen'
 import {ViewPaidScreen} from '#/screens/ViewLibrary/PaidScreen'
 import {ViewSubscriptionsScreen} from '#/screens/ViewLibrary/SubscriptionsScreen'
 import {ViewWatchLaterScreen} from '#/screens/ViewLibrary/WatchLaterScreen'
@@ -814,6 +815,11 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
         name="ViewStudioCustomize"
         component={ViewStudioCustomizeScreen}
         options={{title: 'Personalizar canal', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="StoryCreate"
+        component={StoryCreatorScreen}
+        options={{title: 'Novo story', requireAuth: true}}
       />
       <Stack.Screen
         name="ViewPaid"
