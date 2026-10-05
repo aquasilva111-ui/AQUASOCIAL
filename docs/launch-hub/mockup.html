@@ -6,16 +6,20 @@
 <title>AQUA Launch Hub — Mockup</title>
 <style>
 :root{
-  --blue:#002BEF;--cyan:#009EFF;--orange:#F04C24;--ink:#0F172A;--slate:#405168;--mist:#EFF2F6;
+  --blue:#002BEF;--cyan:#009EFF;--orange:#F04C24;--ink:#0F172A;--petrol:#0A0A0B;--slate:#405168;--mist:#EFF2F6;
   --line:#dde3ec;--card:#fff;--bg:#f6f8fb;--ok:#12a150;--blue-t:#e8edff;--or-t:#fdeae4;
   --r:14px;--sh:0 1px 2px rgba(15,23,42,.06),0 6px 20px rgba(15,23,42,.06);
   --font:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
 *{box-sizing:border-box}
+.i{width:1em;height:1em;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.14em;flex:none}
+.thumb .i,.ico .i{width:1.25em;height:1.25em}
+.nav .ic .i{width:18px;height:18px}
+.brand i .i{width:17px;height:17px;color:#fff}
 body{margin:0;font:14px/1.45 var(--font);color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased}
 button{font:inherit;cursor:pointer}
 .app{display:grid;grid-template-columns:220px 1fr;min-height:100vh}
 /* sidebar */
-aside{background:var(--ink);color:#cbd5e1;padding:20px 14px;display:flex;flex-direction:column;gap:6px;position:sticky;top:0;height:100vh}
+aside{background:var(--petrol);color:#cbd5e1;padding:20px 14px;display:flex;flex-direction:column;gap:6px;position:sticky;top:0;height:100vh}
 .brand{display:flex;align-items:center;gap:10px;color:#fff;font-weight:800;font-size:17px;letter-spacing:-.02em;padding:0 8px 18px}
 .brand i{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--blue),var(--cyan));display:grid;place-items:center;font-style:normal;font-size:15px}
 .brand small{display:block;font-weight:500;font-size:11px;color:#94a3b8;letter-spacing:0}
@@ -61,11 +65,11 @@ textarea:focus,input:focus{outline:2px solid var(--cyan);border-color:transparen
 .drop.over{border-color:var(--blue);background:var(--blue-t);color:var(--blue)}
 .drop .att{position:relative;width:92px;height:92px;border-radius:12px;display:grid;place-items:center;color:#fff;font-weight:800;cursor:grab}
 .att small{position:absolute;bottom:4px;left:6px;right:6px;font-size:9.5px;font-weight:600;background:rgba(0,0,0,.45);border-radius:5px;padding:1px 4px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-.att .x{position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;background:var(--ink);color:#fff;border:2px solid #fff;font-size:11px;line-height:1;padding:0}
+.att .x{position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;background:var(--petrol);color:#fff;border:2px solid #fff;font-size:11px;line-height:1;padding:0}
 .att.ph{outline:2px dashed var(--blue);opacity:.5}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
 .tag{border:1px solid var(--line);background:#fff;border-radius:99px;padding:6px 11px;font-size:12.5px;font-weight:600;cursor:pointer;display:flex;gap:6px;align-items:center}
-.tag.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.tag.on{background:var(--petrol);color:#fff;border-color:var(--petrol)}
 .row{display:flex;gap:10px;align-items:center;justify-content:space-between}
 .net{display:flex;gap:10px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:12px;background:#fff;margin-bottom:8px;cursor:grab}
 .net.off{opacity:.45}
@@ -116,28 +120,127 @@ textarea:focus,input:focus{outline:2px solid var(--cyan);border-color:transparen
 .stat{padding:14px 16px}.stat b{font-size:24px;letter-spacing:-.03em;display:block}.stat span{font-size:12px;color:var(--slate)}
 .acc{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
 .acc .card{padding:16px;display:flex;flex-direction:column;gap:10px}
-.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:#fff;padding:11px 18px;border-radius:12px;font-weight:600;transition:.25s;z-index:9;box-shadow:var(--sh)}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--petrol);color:#fff;padding:11px 18px;border-radius:12px;font-weight:600;transition:.25s;z-index:9;box-shadow:var(--sh)}
 .toast.show{transform:translateX(-50%) translateY(0)}
 .note{font-size:12px;color:var(--slate);margin-top:16px}
+/* media screen */
+.btabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;border-bottom:1px solid var(--line);padding-bottom:10px}
+.bt{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:#fff;border-radius:12px;padding:7px 12px 7px 8px;font-weight:600;color:var(--slate)}
+.bt i{width:24px;height:24px;border-radius:7px;color:#fff;font-style:normal;font-size:12px;display:grid;place-items:center}
+.bt em{background:var(--orange);color:#fff;font-style:normal;font-size:10.5px;border-radius:99px;padding:0 6px}
+.bt.on{background:var(--petrol);color:#fff;border-color:var(--petrol)}
+.bt.add{border-style:dashed;color:var(--blue);padding:7px 12px}
+.inp{width:100%;border:1px solid var(--line);border-radius:10px;padding:9px 12px;font:inherit;margin-bottom:8px;background:#fff;color:var(--ink)}
+.tagbox{display:flex;gap:6px;flex-wrap:wrap;align-items:center;flex:1}
+.tagbox input{border:0;font:inherit;min-width:110px;background:none;padding:4px}
+.tg{background:var(--blue-t);color:var(--blue);border-radius:99px;padding:2px 4px 2px 10px;font-size:12.5px;font-weight:600}
+.tg b{cursor:pointer;margin-left:4px;padding:0 5px}
+.blogbox{border:1px solid var(--line);background:var(--mist);border-radius:12px;padding:12px;margin-top:8px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}
+.tgt{border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:8px;background:#fff}
+.bdot{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50%;color:#fff;font-size:10px;font-weight:700;flex:none}
+.chan.none .ch{opacity:.6}
+.mini{white-space:nowrap}
+
+.big{border:2px dashed #9fb0ca;border-radius:20px;background:linear-gradient(135deg,#fff,var(--blue-t));padding:34px 20px;text-align:center;transition:.15s;margin-bottom:18px}
+.big.over{border-color:var(--blue);background:var(--blue-t);transform:scale(1.005)}
+.big .ico{width:56px;height:56px;margin:0 auto 10px;border-radius:16px;background:linear-gradient(135deg,var(--blue),var(--cyan));display:grid;place-items:center;color:#fff;font-size:26px}
+.big b{font-size:18px;letter-spacing:-.02em}
+.big .kinds{display:flex;gap:8px;justify-content:center;margin-top:12px;flex-wrap:wrap}
+.big .kinds span{font-size:12px;font-weight:600;background:#fff;border:1px solid var(--line);border-radius:99px;padding:4px 10px}
+.mgrid{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:16px;align-items:start}
+.sect{margin-bottom:16px}
+.sect .sh{display:flex;align-items:center;gap:8px;padding:14px 16px 8px}
+.sect .sh b{font-size:14px}
+.cnt{background:var(--mist);border-radius:99px;font-size:11px;font-weight:700;padding:1px 8px;color:var(--slate)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:10px;padding:0 16px 16px}
+.tile{position:relative;aspect-ratio:1;border-radius:12px;overflow:hidden;color:#fff;display:grid;place-items:center;font-size:30px;cursor:grab;border:2px solid transparent;user-select:none;background-size:cover;background-position:center}
+.tile small{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(transparent,rgba(0,0,0,.7));font-size:10.5px;font-weight:600;padding:14px 7px 5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile.sel{border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,43,239,.25)}
+.tile.sel::after{content:"";position:absolute;top:5px;right:5px;width:20px;height:20px;border-radius:50%;background:var(--blue) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center/12px no-repeat}
+.tile .used{position:absolute;top:5px;left:5px;background:var(--ok);font-size:10px;font-weight:700;border-radius:6px;padding:1px 6px}
+.empty{padding:0 16px 16px;color:var(--slate);font-size:13px}
+.chan{margin-bottom:12px;border:1px solid var(--line);border-radius:14px;background:#fff;overflow:hidden;transition:.15s}
+.chan.dim{opacity:.35}
+.chan .ch{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--mist)}
+.chan .ch .thumb{width:30px;height:30px;border-radius:8px;font-size:10px}
+.chan .ch b{font-size:13px}
+.tb{font-size:10px;font-weight:700;border-radius:6px;padding:1px 6px;background:#fff;color:var(--slate);border:1px solid var(--line)}
+.acct{display:flex;align-items:center;gap:8px;padding:9px 12px;border-top:1px solid var(--line);font-size:13px;transition:.12s}
+.acct.ok-t{background:#eafaf1;outline:2px dashed var(--ok);outline-offset:-3px}
+.acct.over{background:var(--blue-t);outline:2px solid var(--blue);outline-offset:-3px}
+.acct.bad{background:var(--or-t);outline:2px dashed var(--orange);outline-offset:-3px}
+.acct.off{color:var(--slate)}
+.acct .dot{width:8px;height:8px;border-radius:50%;background:var(--ok);flex:none}
+.acct.off .dot{background:#cbd5e1}
+.acct .q{margin-left:auto;display:flex;gap:4px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.qi{width:22px;height:22px;border-radius:6px;font-size:11px;display:grid;place-items:center;color:#fff;cursor:pointer}
+.mini{font-size:11.5px;font-weight:700;border:1px solid var(--line);border-radius:8px;background:#fff;padding:3px 9px;color:var(--blue)}
+.addacc{display:block;width:100%;text-align:left;border:0;border-top:1px solid var(--line);background:#fff;color:var(--blue);font-weight:600;font-size:12.5px;padding:8px 12px}
+.bar{position:sticky;bottom:14px;margin-top:16px;background:var(--petrol);color:#fff;border-radius:14px;padding:12px 16px;display:flex;align-items:center;gap:12px;box-shadow:var(--sh)}
+.bar{flex-wrap:wrap}.bar span{flex:1 1 220px;font-size:13px}
+@media(max-width:1100px){.mgrid{grid-template-columns:1fr}}
 @media(max-width:1100px){.grid3{grid-template-columns:1fr}.sync{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.cal{overflow:auto}}
 @media(max-width:760px){.app{grid-template-columns:1fr}aside{position:static;height:auto;flex-direction:row;flex-wrap:wrap}.brand{padding:0 8px 0 0}.who,.sp{display:none}}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="i-rocket" viewBox="0 0 24 24"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></symbol><symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></symbol><symbol id="i-edit" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></symbol><symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></symbol><symbol id="i-sync" viewBox="0 0 24 24"><path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/></symbol><symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="10" r="3"/><path d="M7 20.66V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.66"/></symbol><symbol id="i-upload" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m17 8-5-5-5 5"/><path d="M12 3v12"/></symbol><symbol id="i-video" viewBox="0 0 24 24"><path d="m22 8-6 4 6 4V8z"/><rect x="2" y="6" width="14" height="12" rx="2"/></symbol><symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></symbol><symbol id="i-headphones" viewBox="0 0 24 24"><path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/></symbol><symbol id="i-file" viewBox="0 0 24 24"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5z"/><path d="M14 2v6h6"/></symbol><symbol id="i-news" viewBox="0 0 24 24"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8M15 18h-5M10 6h8v4h-8z"/></symbol><symbol id="i-zap" viewBox="0 0 24 24"><path d="M13 2 3 14h9l-1 8 10-12h-9z"/></symbol><symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></symbol><symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol><symbol id="i-alert" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3z"/><path d="M12 9v4M12 17h.01"/></symbol><symbol id="i-play" viewBox="0 0 24 24"><polygon points="6 3 20 12 6 21 6 3"/></symbol><symbol id="i-star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></symbol><symbol id="i-grip" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></symbol><symbol id="i-sparkles" viewBox="0 0 24 24"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z"/></symbol><symbol id="i-shirt" viewBox="0 0 24 24"><path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"/></symbol><symbol id="i-bag" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></symbol><symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></symbol><symbol id="i-camera" viewBox="0 0 24 24"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/><circle cx="12" cy="13" r="3"/></symbol><symbol id="i-music" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></symbol><symbol id="i-layers" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><path d="m2 17 10 5 10-5M2 12l10 5 10-5"/></symbol><symbol id="i-right" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></symbol><symbol id="i-left" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></symbol><symbol id="i-dot" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5" fill="currentColor"/></symbol><symbol id="i-ring" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/></symbol></svg>
 <div class="app">
 <aside>
-  <div class="brand"><i>🚀</i><div>Launch Hub<small>AQUA</small></div></div>
-  <button class="nav on" data-s="compose"><span class="ic">✎</span>Compor</button>
-  <button class="nav" data-s="calendar"><span class="ic">▦</span>Calendário<span class="pill">3</span></button>
-  <button class="nav" data-s="sync"><span class="ic">⇄</span>Site ⇄ Redes</button>
-  <button class="nav" data-s="accounts"><span class="ic">◉</span>Contas</button>
+  <div class="brand"><i><svg class="i"><use href="#i-rocket"/></svg></i><div>Launch Hub<small>AQUA</small></div></div>
+  <button class="nav on" data-s="media"><span class="ic"><svg class="i"><use href="#i-grid"/></svg></span>Mídia</button>
+  <button class="nav" data-s="compose"><span class="ic"><svg class="i"><use href="#i-edit"/></svg></span>Compor</button>
+  <button class="nav" data-s="calendar"><span class="ic"><svg class="i"><use href="#i-calendar"/></svg></span>Calendário<span class="pill">3</span></button>
+  <button class="nav" data-s="sync"><span class="ic"><svg class="i"><use href="#i-sync"/></svg></span>Site e Redes</button>
+  <button class="nav" data-s="accounts"><span class="ic"><svg class="i"><use href="#i-user"/></svg></span>Contas</button>
   <div class="sp"></div>
   <div class="who"><div class="av">A</div><div>Aqua Silva<br><span style="color:#94a3b8">aquaapp.online</span></div></div>
 </aside>
 
 <main>
 <!-- ================= COMPOR ================= -->
-<section class="screen on" id="compose">
+<section class="screen on" id="media">
+  <div class="head"><div><h1>Mídia</h1><div class="sub">Um só lugar para todas as tuas marcas: solta a mídia, escreve uma vez e publica em todas as contas e no blog.</div></div>
+    <div style="display:flex;gap:8px"><button class="btn" onclick="clearSel()">Limpar seleção</button><button class="btn pri" onclick="document.getElementById('pick').click()">+ Escolher ficheiros</button></div></div>
+  <input type="file" id="pick" multiple hidden>
+  <div class="btabs" id="btabs"></div>
+  <div class="big" id="big"><div class="ico"><svg class="i"><use href="#i-upload"/></svg></div><b>Solta aqui toda a tua mídia</b>
+    <div class="sub" style="margin-top:4px">Vídeos, imagens, áudio, PDFs. Vários de uma vez. Fica disponível para todas as marcas.</div>
+    <div class="kinds"><span><svg class="i"><use href="#i-video"/></svg> Vídeo</span><span><svg class="i"><use href="#i-image"/></svg> Imagem</span><span><svg class="i"><use href="#i-headphones"/></svg> Áudio</span><span><svg class="i"><use href="#i-file"/></svg> Documento</span></div></div>
+  <div class="mgrid">
+    <div>
+      <div class="card sect" id="composer">
+        <div class="sh"><span style="font-size:18px"><svg class="i"><use href="#i-edit"/></svg></span><b>Criar publicação</b><span class="cnt" id="ctargets">0 contas</span></div>
+        <div class="pad">
+          <input id="ctitle" class="inp" placeholder="Título (YouTube, blog, Pinterest…)">
+          <textarea id="ccap" placeholder="Legenda única para todas as contas. Personaliza por conta abaixo, se precisares."></textarea>
+          <div class="row" style="margin:6px 0"><div class="tagbox" id="tagbox"></div><span class="sub" id="ccount">0</span></div>
+          <div class="chips" style="margin:0 0 6px"><span class="sub" style="align-self:center">Sugestões:</span><button class="tag" data-sg="#aqua">#aqua</button><button class="tag" data-sg="#lançamento">#lançamento</button><button class="tag" data-sg="#novidade">#novidade</button><button class="tag" data-sg="#música">#música</button></div>
+          <div id="blogbox" class="blogbox" hidden>
+            <div class="row" style="justify-content:flex-start"><b><svg class="i"><use href="#i-news"/></svg> Artigo no blog</b><span class="sub">do site selecionado</span></div>
+            <div class="two"><input class="inp" id="bslug" placeholder="slug-do-artigo"><input class="inp" id="bcat" placeholder="Categoria (ex.: Novidades)"></div>
+            <textarea id="bbody" style="min-height:70px" placeholder="Resumo / corpo do artigo (a mídia entra como imagem de capa e galeria)"></textarea>
+          </div>
+          <div class="sub" style="font-weight:700;margin:12px 0 6px">DESTINOS</div>
+          <div id="targets"></div>
+        </div>
+      </div>
+      <div class="sub" style="margin:0 0 10px">Organizada por tipo · clica para selecionar vários · arrasta o conjunto para uma conta.</div>
+      <div id="sections"></div>
+    </div>
+    <div class="sticky">
+      <div class="card"><h3>Canais e contas <span id="bname" style="float:right;text-transform:none;letter-spacing:0;color:var(--blue)"></span></h3>
+        <div class="pad"><button class="btn" style="width:100%;margin-bottom:10px" id="allbtn" onclick="sendAll()"><svg class="i"><use href="#i-zap"/></svg> Enviar seleção para todas as contas compatíveis</button></div>
+        <div class="seg" id="cseg"><button class="on" data-f="all">Todos</button><button data-f="video">Vídeo</button><button data-f="image">Imagem</button><button data-f="audio">Áudio</button><button data-f="doc">Texto/Blog</button></div>
+        <div class="pad" id="chans"></div>
+      </div>
+    </div>
+  </div>
+  <div class="bar"><span id="barTxt">Fila vazia</span><button class="btn" onclick="toast('Agendado para amanhã 18:00')">Agendar</button><button class="btn or" onclick="publishQueue()">Publicar em tudo</button></div>
+</section>
+
+<section class="screen" id="compose">
   <div class="head">
     <div><h1>Nova publicação</h1><div class="sub">Arraste itens da biblioteca, escolha os destinos e publique em todas as redes de uma vez.</div></div>
     <div style="display:flex;gap:8px"><button class="btn" onclick="toast('Rascunho guardado')">Guardar rascunho</button><button class="btn" onclick="toast('Agendado para amanhã 18:00')">Agendar</button><button class="btn pri" onclick="publish()">Publicar agora</button></div>
@@ -148,18 +251,18 @@ textarea:focus,input:focus{outline:2px solid var(--cyan);border-color:transparen
       <h3>Biblioteca</h3>
       <div class="seg" id="libseg"><button class="on" data-f="all">Tudo</button><button data-f="site">Site</button><button data-f="shop">Shops</button><button data-f="media">Mídia</button></div>
       <div class="lib" id="lib"></div>
-      <div class="hint">⇢ Arraste para a área de mídia ao centro.</div>
+      <div class="hint"><svg class="i"><use href="#i-right"/></svg> Arraste para a área de mídia ao centro.</div>
     </div>
     <!-- compositor -->
     <div class="card">
       <h3>Conteúdo</h3>
       <div class="pad">
-        <textarea id="cap" placeholder="Escreve a legenda…  (usa {titulo} {preco} {link} do item arrastado)">Novidade na AQUA! 🌊 {titulo} já disponível.</textarea>
-        <div class="row" style="margin-top:6px"><span class="sub" id="count">0 / 280</span><div class="chips" style="margin:0"><button class="tag" onclick="addTag('#aqua')">#aqua</button><button class="tag" onclick="addTag('#lançamento')">#lançamento</button><button class="tag" onclick="toast('IA sugere 5 hashtags…')">✨ Sugerir</button></div></div>
-        <div class="drop" id="drop"><span id="dropMsg">⤓ Solta aqui produtos, posts do site ou ficheiros</span></div>
+        <textarea id="cap" placeholder="Escreve a legenda…  (usa {titulo} {preco} {link} do item arrastado)">Novidade na AQUA! {titulo} já disponível.</textarea>
+        <div class="row" style="margin-top:6px"><span class="sub" id="count">0 / 280</span><div class="chips" style="margin:0"><button class="tag" onclick="addTag('#aqua')">#aqua</button><button class="tag" onclick="addTag('#lançamento')">#lançamento</button><button class="tag" onclick="toast('IA sugere 5 hashtags…')"><svg class="i"><use href="#i-sparkles"/></svg> Sugerir</button></div></div>
+        <div class="drop" id="drop"><span id="dropMsg"><svg class="i"><use href="#i-upload"/></svg> Solta aqui produtos, posts do site ou ficheiros</span></div>
         <div class="hint" style="padding:8px 0 0">Reordena os itens arrastando-os dentro da área. O primeiro é a capa.</div>
       </div>
-      <div class="linkbox">🔗 Link com rastreio: <code id="utm">aquaapp.online/p/…?utm_source=launchhub</code></div>
+      <div class="linkbox"><svg class="i"><use href="#i-link"/></svg> Link com rastreio: <code id="utm">aquaapp.online/p/…?utm_source=launchhub</code></div>
     </div>
     <!-- destinos + preview -->
     <div class="sticky">
@@ -187,25 +290,25 @@ textarea:focus,input:focus{outline:2px solid var(--cyan);border-color:transparen
   <div class="cal" id="cal"></div>
 </section>
 
-<!-- ================= SITE ⇄ REDES ================= -->
+<!-- ===== SITE E REDES ===== -->
 <section class="screen" id="sync">
-  <div class="head"><div><h1>Site ⇄ Redes</h1><div class="sub">Os dados do <b>aquaapp.online</b> alimentam as redes e as redes alimentam o site.</div></div><button class="btn" onclick="toast('Sincronização forçada ✔')">Sincronizar agora</button></div>
+  <div class="head"><div><h1>Site e Redes</h1><div class="sub">Os dados do <b>aquaapp.online</b> alimentam as redes e as redes alimentam o site.</div></div><button class="btn" onclick="toast('Sincronização forçada')">Sincronizar agora</button></div>
   <div class="stats">
     <div class="card stat"><b>128</b><span>Itens do site ligados</span></div>
     <div class="card stat"><b>1 342</b><span>Posts das redes no site</span></div>
-    <div class="card stat"><b style="color:var(--blue)">+38%</b><span>Cliques site ← redes (30 d)</span></div>
+    <div class="card stat"><b style="color:var(--blue)">+38%</b><span>Cliques vindos das redes (30 d)</span></div>
     <div class="card stat"><b style="color:var(--orange)">R$ 9,4 mil</b><span>Vendas atribuídas a posts</span></div>
   </div>
 
   <div class="flow">
     <div class="card">
       <h3>Regras automáticas</h3>
-      <div class="rule"><span class="arrowtag">SITE → REDES</span><div class="tx"><b>Novo artigo no blog</b><span>Publica no X, LinkedIn e AQUA com imagem e link</span></div><button class="sw on"></button></div>
-      <div class="rule"><span class="arrowtag">SITE → REDES</span><div class="tx"><b>Novo produto (Aqua Shops)</b><span>Cria Drop com cartão de produto no Instagram e TikTok</span></div><button class="sw on"></button></div>
-      <div class="rule"><span class="arrowtag">SITE → REDES</span><div class="tx"><b>Stock baixo (&lt; 5)</b><span>Agenda post “Últimas unidades”</span></div><button class="sw"></button></div>
-      <div class="rule"><span class="arrowtag rev">REDES → SITE</span><div class="tx"><b>Feed social na página inicial</b><span>Mostra os últimos 9 posts de IG, TikTok e AQUA</span></div><button class="sw on"></button></div>
-      <div class="rule"><span class="arrowtag rev">REDES → SITE</span><div class="tx"><b>Comentários e avaliações</b><span>Respostas viram avaliações no produto</span></div><button class="sw on"></button></div>
-      <div class="rule"><span class="arrowtag rev">REDES → SITE</span><div class="tx"><b>Seguidores e métricas no painel</b><span>Contadores atualizados a cada hora</span></div><button class="sw"></button></div>
+      <div class="rule"><span class="arrowtag">SITE <svg class="i"><use href="#i-right"/></svg> REDES</span><div class="tx"><b>Novo artigo no blog</b><span>Publica no X, LinkedIn e AQUA com imagem e link</span></div><button class="sw on"></button></div>
+      <div class="rule"><span class="arrowtag">SITE <svg class="i"><use href="#i-right"/></svg> REDES</span><div class="tx"><b>Novo produto (Aqua Shops)</b><span>Cria Drop com cartão de produto no Instagram e TikTok</span></div><button class="sw on"></button></div>
+      <div class="rule"><span class="arrowtag">SITE <svg class="i"><use href="#i-right"/></svg> REDES</span><div class="tx"><b>Stock baixo (&lt; 5)</b><span>Agenda post “Últimas unidades”</span></div><button class="sw"></button></div>
+      <div class="rule"><span class="arrowtag rev">REDES <svg class="i"><use href="#i-right"/></svg> SITE</span><div class="tx"><b>Feed social na página inicial</b><span>Mostra os últimos 9 posts de IG, TikTok e AQUA</span></div><button class="sw on"></button></div>
+      <div class="rule"><span class="arrowtag rev">REDES <svg class="i"><use href="#i-right"/></svg> SITE</span><div class="tx"><b>Comentários e avaliações</b><span>Respostas viram avaliações no produto</span></div><button class="sw on"></button></div>
+      <div class="rule"><span class="arrowtag rev">REDES <svg class="i"><use href="#i-right"/></svg> SITE</span><div class="tx"><b>Seguidores e métricas no painel</b><span>Contadores atualizados a cada hora</span></div><button class="sw"></button></div>
     </div>
     <div class="card">
       <h3>Pré-visualização no site</h3>
@@ -228,7 +331,7 @@ textarea:focus,input:focus{outline:2px solid var(--cyan);border-color:transparen
           <div class="fld" draggable="true" data-v="URL da página">URL da página<i>product.url</i></div>
           <div class="fld" draggable="true" data-v="Resumo do artigo">Resumo do artigo<i>post.excerpt</i></div>
         </div>
-        <div class="mid"><div class="arrow">⇄</div>arrasta e solta<br>para ligar</div>
+        <div class="mid"><div class="arrow"><svg class="i"><use href="#i-sync"/></svg></div>arrasta e solta<br>para ligar</div>
         <div class="col"><div class="sub" style="margin-bottom:8px;font-weight:700">CAMPOS DO POST</div>
           <div class="target" data-t="Legenda"><b>Legenda</b></div>
           <div class="target" data-t="Imagem de capa"><b>Imagem de capa</b></div>
@@ -250,6 +353,7 @@ textarea:focus,input:focus{outline:2px solid var(--cyan);border-color:transparen
 <div class="toast" id="toast"></div>
 
 <script>
+const ic0=n=>`<svg class="i"><use href="#i-${n}"/></svg>`;
 const NETS=[
  {id:'aqua',n:'AQUA',c:'#002BEF',m:'AQ',on:true,lim:300,ratio:'sq'},
  {id:'website',n:'Website',c:'#405168',m:'WWW',on:true,lim:500,ratio:'sq',site:true},
@@ -260,12 +364,12 @@ const NETS=[
  {id:'bluesky',n:'Bluesky',c:'#1185fe',m:'BS',on:false,lim:300,ratio:'sq'}
 ];
 const ASSETS=[
- {id:1,t:'Camiseta AQUA Wave',s:'R$ 129,00 · stock 42',k:'shop',c:'#F04C24',m:'👕',price:'R$ 129,00',url:'aquaapp.online/loja/camiseta-wave'},
- {id:2,t:'Boné Ocean',s:'R$ 89,00 · stock 4',k:'shop',c:'#009EFF',m:'🧢',price:'R$ 89,00',url:'aquaapp.online/loja/bone-ocean'},
- {id:3,t:'Como criar o teu Hub',s:'Artigo · blog',k:'site',c:'#002BEF',m:'✍',price:'',url:'aquaapp.online/blog/criar-hub'},
- {id:4,t:'Página: Sobre a AQUA',s:'Página · site',k:'site',c:'#405168',m:'ℹ',price:'',url:'aquaapp.online/sobre'},
- {id:5,t:'trailer-lancamento.mp4',s:'Vídeo · 0:32',k:'media',c:'#0F172A',m:'▶',price:'',url:''},
- {id:6,t:'capa-album.jpg',s:'Imagem · 3000×3000',k:'media',c:'#7c3aed',m:'🖼',price:'',url:''}
+ {id:1,t:'Camiseta AQUA Wave',s:'R$ 129,00 · stock 42',k:'shop',c:'#F04C24',m:'<svg class="i"><use href="#i-shirt"/></svg>',price:'R$ 129,00',url:'aquaapp.online/loja/camiseta-wave'},
+ {id:2,t:'Boné Ocean',s:'R$ 89,00 · stock 4',k:'shop',c:'#009EFF',m:'<svg class="i"><use href="#i-bag"/></svg>',price:'R$ 89,00',url:'aquaapp.online/loja/bone-ocean'},
+ {id:3,t:'Como criar o teu Hub',s:'Artigo · blog',k:'site',c:'#002BEF',m:'<svg class="i"><use href="#i-edit"/></svg>',price:'',url:'aquaapp.online/blog/criar-hub'},
+ {id:4,t:'Página: Sobre a AQUA',s:'Página · site',k:'site',c:'#405168',m:'<svg class="i"><use href="#i-info"/></svg>',price:'',url:'aquaapp.online/sobre'},
+ {id:5,t:'trailer-lancamento.mp4',s:'Vídeo · 0:32',k:'media',c:'#0A0A0B',m:'<svg class="i"><use href="#i-play"/></svg>',price:'',url:''},
+ {id:6,t:'capa-album.jpg',s:'Imagem · 3000×3000',k:'media',c:'#7c3aed',m:'<svg class="i"><use href="#i-image"/></svg>',price:'',url:''}
 ];
 let attached=[],filter='all',prevNet='aqua';
 const $=s=>document.querySelector(s);
@@ -287,8 +391,8 @@ document.querySelectorAll('#libseg button').forEach(b=>b.onclick=()=>{filter=b.d
 /* ---- área de mídia ---- */
 const drop=$('#drop');
 function renderDrop(){
-  if(!attached.length){drop.innerHTML='<span>⤓ Solta aqui produtos, posts do site ou ficheiros</span>';return}
-  drop.innerHTML=attached.map((id,i)=>{const a=ASSETS.find(x=>x.id===id);return `<div class="att" draggable="true" data-i="${i}" style="background:${a.c}"><span style="font-size:28px">${a.m}</span><small>${i===0?'★ ':''}${a.t}</small><button class="x" data-r="${i}">×</button></div>`}).join('');
+  if(!attached.length){drop.innerHTML='<span><svg class="i"><use href="#i-upload"/></svg> Solta aqui produtos, posts do site ou ficheiros</span>';return}
+  drop.innerHTML=attached.map((id,i)=>{const a=ASSETS.find(x=>x.id===id);return `<div class="att" draggable="true" data-i="${i}" style="background:${a.c}"><span style="font-size:28px">${a.m}</span><small>${i===0?'<svg class="i"><use href="#i-star"/></svg> ':''}${a.t}</small><button class="x" data-r="${i}">×</button></div>`}).join('');
   drop.querySelectorAll('.att').forEach(el=>{
     el.ondragstart=e=>{e.dataTransfer.setData('text/plain','att:'+el.dataset.i)};
     el.ondragover=e=>{e.preventDefault();e.stopPropagation()};
@@ -307,7 +411,7 @@ drop.ondrop=e=>{e.preventDefault();drop.classList.remove('over');handleDrop(e.da
 
 /* ---- destinos (reordenar + toggle) ---- */
 function renderNets(){
-  $('#nets').innerHTML=NETS.map((n,i)=>`<div class="net ${n.on?'':'off'}" draggable="true" data-i="${i}"><span class="grip">⋮⋮</span><div class="thumb" style="background:${n.c}">${n.m}</div><div><b>${n.n}</b><div class="sub" style="font-size:11.5px">${n.site?'Cria artigo/atualiza feed':'Limite '+n.lim}</div></div><button class="sw ${n.on?'on':''}" data-t="${i}"></button></div>`).join('');
+  $('#nets').innerHTML=NETS.map((n,i)=>`<div class="net ${n.on?'':'off'}" draggable="true" data-i="${i}"><span class="grip"><svg class="i"><use href="#i-grip"/></svg></span><div class="thumb" style="background:${n.c}">${n.m}</div><div><b>${n.n}</b><div class="sub" style="font-size:11.5px">${n.site?'Cria artigo/atualiza feed':'Limite '+n.lim}</div></div><button class="sw ${n.on?'on':''}" data-t="${i}"></button></div>`).join('');
   $('#ncount').textContent=NETS.filter(n=>n.on).length+' ativos';
   document.querySelectorAll('.net').forEach(el=>{
     el.ondragstart=e=>e.dataTransfer.setData('text/plain','net:'+el.dataset.i);
@@ -333,19 +437,19 @@ function renderPrev(){
   $('#prev').innerHTML=`<div class="row" style="padding:10px 12px"><div class="row" style="justify-content:flex-start"><div class="thumb" style="width:28px;height:28px;border-radius:50%;background:${n.c};font-size:10px">${n.m}</div><b style="font-size:13px">aquaapp</b></div><span class="sub">${n.n}</span></div>
   <div class="ph ${n.ratio==='tall'?'tall':''}" style="${a?'background:'+a.c:''}">${a?`<span style="font-size:54px">${a.m}</span>`:'Sem mídia'}</div><div class="cap">${cap.replace(/</g,'&lt;')}</div>`;
   const over=cap.length>n.lim;
-  $('#checks').innerHTML=`<div class="${over?'warn':'ok'}">${over?'⚠ Texto acima do limite ('+cap.length+'/'+n.lim+')':'✔ Pronto para '+n.n}</div>`+(n.ratio==='tall'&&a&&a.m!=='▶'?'<div class="warn">⚠ TikTok pede vídeo vertical</div>':'');
+  $('#checks').innerHTML=`<div class="${over?'warn':'ok'}">${over?'<svg class="i"><use href="#i-alert"/></svg> Texto acima do limite ('+cap.length+'/'+n.lim+')':'<svg class="i"><use href="#i-check"/></svg> Pronto para '+n.n}</div>`+(n.ratio==='tall'&&a&&a.m!=='<svg class="i"><use href="#i-play"/></svg>'?'<div class="warn"><svg class="i"><use href="#i-alert"/></svg> TikTok pede vídeo vertical</div>':'');
 }
 function refresh(){renderDrop();renderNets();renderPrev();const a=ASSETS.find(x=>x.id===attached[0]);
   $('#count').textContent=caption().length+' / 280';
   $('#utm').textContent=(a&&a.url?a.url:'aquaapp.online/…')+'?utm_source=launchhub&utm_medium={rede}';}
 $('#cap').oninput=refresh;
 function addTag(t){$('#cap').value+=' '+t;refresh()}
-function publish(){const n=NETS.filter(x=>x.on);if(!n.length)return toast('Escolhe um destino');toast('Publicado em '+n.map(x=>x.n).join(', ')+' ✔')}
+function publish(){const n=NETS.filter(x=>x.on);if(!n.length)return toast('Escolhe um destino');toast('Publicado em '+n.map(x=>x.n).join(', '))}
 
 /* ---- calendário ---- */
 const days=['Seg 5','Ter 6','Qua 7','Qui 8','Sex 9','Sáb 10','Dom 11'],hrs=['09:00','12:00','18:00'];
 const EV=[{id:'e1',t:'Camiseta Wave',n:'IG · TT · X',c:'#F04C24',d:1,h:2},{id:'e2',t:'Artigo: criar Hub',n:'Site · LinkedIn',c:'#002BEF',d:3,h:0},{id:'e3',t:'Stock boné',n:'IG',c:'#009EFF',d:4,h:1},
- {id:'u1',t:'Trailer álbum',n:'TT · IG',c:'#0F172A'},{id:'u2',t:'Sorteio AQUA',n:'AQUA · X',c:'#7c3aed'},{id:'u3',t:'Boné Ocean',n:'IG · Site',c:'#405168'}];
+ {id:'u1',t:'Trailer álbum',n:'TT · IG',c:'#0A0A0B'},{id:'u2',t:'Sorteio AQUA',n:'AQUA · X',c:'#7c3aed'},{id:'u3',t:'Boné Ocean',n:'IG · Site',c:'#405168'}];
 function evHtml(e){return `<div class="ev" draggable="true" data-id="${e.id}" style="background:${e.c}">${e.t}<small>${e.n}</small></div>`}
 function renderCal(){
   let h='<div class="h"></div>'+days.map(d=>`<div class="h">${d}</div>`).join('');
@@ -367,16 +471,129 @@ document.querySelectorAll('.fld').forEach(f=>f.ondragstart=e=>e.dataTransfer.set
 document.querySelectorAll('.target').forEach(t=>{
   t.ondragover=e=>{e.preventDefault();t.classList.add('over')};
   t.ondragleave=()=>t.classList.remove('over');
-  t.ondrop=e=>{e.preventDefault();t.classList.remove('over');const d=e.dataTransfer.getData('text/plain');if(!d.startsWith('fld:'))return;const v=d.slice(4);t.classList.add('filled');t.innerHTML=`<b>${t.dataset.t}</b> ← ${v}`;toast('Ligado: '+v+' → '+t.dataset.t)};
+  t.ondrop=e=>{e.preventDefault();t.classList.remove('over');const d=e.dataTransfer.getData('text/plain');if(!d.startsWith('fld:'))return;const v=d.slice(4);t.classList.add('filled');t.innerHTML=`<b>${t.dataset.t}</b> <svg class="i"><use href="#i-left"/></svg> ${v}`;toast('Ligado: '+v+' '+t.dataset.t)};
 });
 document.querySelectorAll('.rule .sw').forEach(b=>b.onclick=()=>b.classList.toggle('on'));
-$('#siteFeed').innerHTML=[['#d62976','📸'],['#111','♪'],['#002BEF','AQ'],['#000','X'],['#F04C24','👕'],['#009EFF','🧢'],['#7c3aed','🖼'],['#0a66c2','in'],['#0F172A','▶']].map(a=>`<div style="aspect-ratio:1;background:${a[0]};color:#fff;display:grid;place-items:center;font-weight:800;border-radius:6px">${a[1]}</div>`).join('');
+$('#siteFeed').innerHTML=[['#d62976','<svg class="i"><use href="#i-camera"/></svg>'],['#111','<svg class="i"><use href="#i-music"/></svg>'],['#002BEF','AQ'],['#000','X'],['#F04C24','<svg class="i"><use href="#i-shirt"/></svg>'],['#009EFF','<svg class="i"><use href="#i-bag"/></svg>'],['#7c3aed','<svg class="i"><use href="#i-image"/></svg>'],['#0a66c2','in'],['#0A0A0B','<svg class="i"><use href="#i-play"/></svg>']].map(a=>`<div style="aspect-ratio:1;background:${a[0]};color:#fff;display:grid;place-items:center;font-weight:800;border-radius:6px">${a[1]}</div>`).join('');
 
 /* ---- contas ---- */
-$('#accList').innerHTML=NETS.map(n=>`<div class="card"><div class="row" style="justify-content:flex-start"><div class="thumb" style="background:${n.c};border-radius:50%">${n.m}</div><div><b>${n.n}</b><div class="${n.on?'ok':'sub'}">${n.on?'● Ligada':'○ Não ligada'}</div></div></div>
+$('#accList').innerHTML=NETS.map(n=>`<div class="card"><div class="row" style="justify-content:flex-start"><div class="thumb" style="background:${n.c};border-radius:50%">${n.m}</div><div><b>${n.n}</b><div class="${n.on?'ok':'sub'}">${n.on?'<svg class="i"><use href="#i-dot"/></svg> Ligada':'<svg class="i"><use href="#i-ring"/></svg> Não ligada'}</div></div></div>
  <div class="sub">${n.site?'Webhook + API key do site. Recebe artigos e exporta métricas.':n.on?'@aquaapp · permissões de publicar e ler métricas':'Liga com OAuth para publicar e importar dados.'}</div>
  <button class="btn ${n.on?'':'pri'}" onclick="toast('${n.on?'Definições de ':'A ligar '}${n.n}')">${n.on?'Gerir':'Ligar conta'}</button></div>`).join('');
 
+/* ================= MÍDIA ================= */
+const TYPES={video:{n:'Vídeos',m:'<svg class="i"><use href="#i-video"/></svg>',c:'#0A0A0B'},image:{n:'Imagens',m:'<svg class="i"><use href="#i-image"/></svg>',c:'#7c3aed'},audio:{n:'Áudio',m:'<svg class="i"><use href="#i-headphones"/></svg>',c:'#009EFF'},doc:{n:'Documentos',m:'<svg class="i"><use href="#i-file"/></svg>',c:'#405168'}};
+let MEDIA=[
+ {id:'m1',name:'trailer-lancamento.mp4',type:'video'},{id:'m2',name:'making-of.mov',type:'video'},{id:'m3',name:'clipe-30s-vertical.mp4',type:'video'},
+ {id:'m4',name:'capa-album.jpg',type:'image',c:'#7c3aed'},{id:'m5',name:'banner-site.png',type:'image',c:'#F04C24'},{id:'m6',name:'foto-equipa.jpg',type:'image',c:'#009EFF'},
+ {id:'m7',name:'single-onda.wav',type:'audio'},{id:'m8',name:'press-kit.pdf',type:'doc'}];
+const CH={
+ yt:{n:'YouTube',c:'#e00',m:'YT',types:['video'],lim:5000},
+ tt:{n:'TikTok',c:'#111',m:'TT',types:['video'],lim:2200},
+ ig:{n:'Instagram',c:'#d62976',m:'IG',types:['video','image'],lim:2200},
+ fb:{n:'Facebook',c:'#1877f2',m:'FB',types:['video','image'],lim:5000},
+ x:{n:'X',c:'#000',m:'X',types:['video','image'],lim:280},
+ li:{n:'LinkedIn',c:'#0a66c2',m:'in',types:['video','image','doc'],lim:3000},
+ pin:{n:'Pinterest',c:'#e60023',m:'P',types:['image'],lim:500},
+ sp:{n:'Spotify',c:'#1db954',m:'SP',types:['audio'],lim:500},
+ sc:{n:'SoundCloud',c:'#f50',m:'SC',types:['audio'],lim:2000},
+ aqua:{n:'AQUA',c:'#002BEF',m:'AQ',types:['video','image','audio','doc'],lim:300},
+ web:{n:'Site · Blog',c:'#405168',m:'WWW',types:['video','image','audio','doc'],lim:10000,blog:true}
+};
+let BRANDS=[{id:'aqua',n:'AQUA',c:'#002BEF'},{id:'music',n:'Aqua Music',c:'#009EFF'},{id:'shop',n:'Aqua Shop',c:'#F04C24'}];
+let ACC=[];let aid=0;
+const acc=(b,ch,h,on=true)=>ACC.push({id:'a'+(aid++),b,ch,h,on,q:[]});
+acc('aqua','yt','@aquaapp');acc('aqua','tt','@aquaapp');acc('aqua','ig','@aquaapp');acc('aqua','x','@aquaapp');acc('aqua','li','AQUA (empresa)');acc('aqua','fb','Página AQUA',false);acc('aqua','aqua','@aqua.eu');acc('aqua','web','aquaapp.online/blog');
+acc('music','yt','@aqua.music');acc('music','tt','@aqua.music');acc('music','ig','@aqua.music');acc('music','x','@aquamusic');acc('music','sp','Aqua Music');acc('music','sc','aqua-music');acc('music','web','music.aquaapp.online/blog');
+acc('shop','ig','@aqua.shop');acc('shop','tt','@aqua.shop');acc('shop','pin','@aquashop',false);acc('shop','fb','Aqua Shop');acc('shop','x','@aquashop',false);acc('shop','web','loja.aquaapp.online/blog');
+let sel=new Set(),dragIds=[],cfilter='all',tab='aqua',tags=[],over={},custom={};
+const brand=id=>BRANDS.find(b=>b.id===id);
+const inTab=a=>tab==='all'||a.b===tab;
+const mediaOf=a=>a.q.map(id=>MEDIA.find(m=>m.id===id));
+function typeOf(f){const t=f.type||'',n=f.name.toLowerCase();
+  if(t.startsWith('video')||/\.(mp4|mov|webm|mkv)$/.test(n))return'video';
+  if(t.startsWith('image')||/\.(jpe?g|png|gif|webp|svg)$/.test(n))return'image';
+  if(t.startsWith('audio')||/\.(mp3|wav|m4a|flac|ogg)$/.test(n))return'audio';return'doc'}
+function addFiles(files){let n=0;[...files].forEach(f=>{const t=typeOf(f);MEDIA.push({id:'f'+Date.now()+Math.random(),name:f.name,type:t,url:t==='image'?URL.createObjectURL(f):null});n++});renderMedia();toast(n+' ficheiro(s) organizados por tipo')}
+const big=$('#big');
+big.ondragover=e=>{e.preventDefault();big.classList.add('over')};
+big.ondragleave=()=>big.classList.remove('over');
+big.ondrop=e=>{e.preventDefault();big.classList.remove('over');if(e.dataTransfer.files&&e.dataTransfer.files.length)addFiles(e.dataTransfer.files)};
+$('#pick').onchange=e=>addFiles(e.target.files);
+const usedCount=id=>ACC.filter(a=>a.q.includes(id)).length;
+
+/* abas de marcas */
+function renderTabs(){
+  const cnt=b=>ACC.filter(a=>(b==='all'||a.b===b)&&a.q.length).length;
+  $('#btabs').innerHTML=[...BRANDS.map(b=>`<button class="bt ${tab===b.id?'on':''}" data-b="${b.id}"><i style="background:${b.c}">${b.n[0]}</i>${b.n}${cnt(b.id)?`<em>${cnt(b.id)}</em>`:''}</button>`),
+   `<button class="bt ${tab==='all'?'on':''}" data-b="all"><i style="background:var(--petrol)"><svg class="i"><use href="#i-layers"/></svg></i>Todas as contas${cnt('all')?`<em>${cnt('all')}</em>`:''}</button>`,`<button class="bt add" id="newb">+ Novo perfil</button>`].join('');
+  document.querySelectorAll('.bt[data-b]').forEach(b=>b.onclick=()=>{tab=b.dataset.b;renderMedia()});
+  $('#newb').onclick=()=>{const cs=['#7c3aed','#12a150','#e0a100'];const id='b'+BRANDS.length;BRANDS.push({id,n:'Perfil '+(BRANDS.length+1),c:cs[BRANDS.length%3]});tab=id;renderMedia();toast('Perfil criado. Liga as contas abaixo.')};
+}
+function renderMedia(){
+  renderTabs();
+  $('#sections').innerHTML=Object.keys(TYPES).map(k=>{const t=TYPES[k],items=MEDIA.filter(m=>m.type===k);
+   return `<div class="card sect"><div class="sh"><span style="font-size:18px">${t.m}</span><b>${t.n}</b><span class="cnt">${items.length}</span></div>`+
+   (items.length?`<div class="tiles">${items.map(m=>{const u=usedCount(m.id);return `<div class="tile ${sel.has(m.id)?'sel':''}" draggable="true" data-id="${m.id}" style="background-color:${m.c||t.c};${m.url?`background-image:url(${m.url})`:''}">${m.url?'':t.m}${u?`<span class="used">${u}×</span>`:''}<small>${m.name}</small></div>`}).join('')}</div>`:`<div class="empty">Nenhum ficheiro deste tipo ainda.</div>`)+`</div>`}).join('');
+  document.querySelectorAll('.tile').forEach(el=>{
+    el.onclick=()=>{sel.has(el.dataset.id)?sel.delete(el.dataset.id):sel.add(el.dataset.id);renderMedia()};
+    el.ondragstart=e=>{const id=el.dataset.id;dragIds=sel.has(id)?[...sel]:[id];e.dataTransfer.setData('text/plain','m:'+dragIds.join());e.dataTransfer.effectAllowed='copy';setTimeout(markTargets,0)};
+    el.ondragend=()=>{dragIds=[];renderChans()};
+  });
+  renderChans();renderTargets();
+}
+function clearSel(){sel.clear();renderMedia()}
+const okFor=(c,ids)=>[...new Set(ids.map(id=>MEDIA.find(m=>m.id===id).type))].every(t=>CH[c].types.includes(t));
+function markTargets(){document.querySelectorAll('.chan').forEach(el=>{const ok=okFor(el.dataset.c,dragIds);el.classList.toggle('dim',!ok);el.querySelectorAll('.acct:not(.off)').forEach(a=>a.classList.add(ok?'ok-t':'bad'))})}
+function send(a,ids){let ok=0,no=0;ids.forEach(id=>{const m=MEDIA.find(x=>x.id===id);if(!CH[a.ch].types.includes(m.type))no++;else if(!a.q.includes(id)){a.q.push(id);ok++}});return[ok,no]}
+function sendTo(list,label){const ids=[...sel];if(!ids.length)return toast('Seleciona primeiro a mídia (clica nos ficheiros)');
+  let ok=0,acts=0,no=0;list.filter(a=>a.on).forEach(a=>{const[o,n]=send(a,ids);if(o)acts++;ok+=o;no+=n});renderMedia();toast(`${ok} itens em ${acts} contas (${label})`+(no?` · ${no} ignorados por tipo`:''))}
+function sendAll(){sendTo(ACC.filter(inTab),tab==='all'?'todas as marcas':brand(tab).n)}
+function renderChans(){
+  const b=tab==='all'?null:brand(tab);
+  $('#bname').textContent=b?b.n:'todas as marcas';
+  $('#allbtn').innerHTML=ic0('zap')+(b?` Enviar seleção para todas as contas de ${b.n}`:' Enviar seleção para todas as contas de todas as marcas');
+  const list=Object.keys(CH).filter(k=>cfilter==='all'||CH[k].types.includes(cfilter)||(cfilter==='doc'&&CH[k].blog));
+  $('#chans').innerHTML=list.map(k=>{const c=CH[k],accts=ACC.filter(a=>a.ch===k&&inTab(a));
+   return `<div class="chan ${accts.length?'':'none'}" data-c="${k}"><div class="ch"><div class="thumb" style="background:${c.c}">${c.m}</div><div style="flex:1"><b>${c.n}</b>${accts.length?` <span class="sub">${accts.filter(a=>a.on).length}/${accts.length}</span>`:''}</div>${c.types.map(t=>`<span class="tb">${TYPES[t].m}</span>`).join('')}${accts.filter(a=>a.on).length>1?`<button class="mini" data-all="${k}" title="Enviar a seleção para todas as contas ${c.n}">todas ${c.n}</button>`:''}</div>`+
+   accts.map(a=>`<div class="acct ${a.on?'':'off'}" data-id="${a.id}"><span class="dot"></span>${tab==='all'?`<span class="bdot" style="background:${brand(a.b).c}" title="${brand(a.b).n}">${brand(a.b).n[0]}</span>`:''}<span>${a.h}</span>${a.on?`<span class="q">${a.q.length?mediaOf(a).map(m=>`<span class="qi" title="${m.name} (remover)" data-rm="${a.id}:${m.id}" style="background:${m.c||TYPES[m.type].c}">${TYPES[m.type].m}</span>`).join(''):'<span class="sub" style="font-size:11.5px">solta aqui</span>'}</span>`:`<span class="q"><button class="mini" data-conn="${a.id}">Conectar</button></span>`}</div>`).join('')+
+   `<button class="addacc" data-add="${k}">+ Conectar ${tab==='all'?'conta':'outra conta'} de ${c.n}${b?' em '+b.n:''}</button></div>`}).join('');
+  document.querySelectorAll('.acct:not(.off)').forEach(el=>{
+    el.ondragover=e=>{e.preventDefault();el.classList.add('over')};
+    el.ondragleave=()=>el.classList.remove('over');
+    el.ondrop=e=>{e.preventDefault();const a=ACC.find(x=>x.id===el.dataset.id);const d=e.dataTransfer.getData('text/plain');if(!d.startsWith('m:'))return;
+      const[ok,no]=send(a,d.slice(2).split(','));dragIds=[];renderMedia();toast((ok?ok+' em '+CH[a.ch].n+' '+a.h:'')+(no?(ok?' · ':'')+no+' tipo(s) não suportado(s)':''))};
+  });
+  document.querySelectorAll('[data-rm]').forEach(x=>x.onclick=()=>{const[i,m]=x.dataset.rm.split(':');const a=ACC.find(z=>z.id===i);a.q=a.q.filter(q=>q!==m);renderMedia()});
+  document.querySelectorAll('[data-conn]').forEach(x=>x.onclick=()=>{ACC.find(a=>a.id===x.dataset.conn).on=true;renderMedia();toast('Conta ligada (OAuth simulado)')});
+  document.querySelectorAll('[data-all]').forEach(x=>x.onclick=()=>sendTo(ACC.filter(a=>a.ch===x.dataset.all&&inTab(a)),'todas '+CH[x.dataset.all].n));
+  document.querySelectorAll('[data-add]').forEach(x=>x.onclick=()=>{const k=x.dataset.add,bb=tab==='all'?BRANDS[0].id:tab;acc(bb,k,'@nova.'+brand(bb).n.toLowerCase().replace(/\W/g,''));renderMedia();toast('Conta de '+CH[k].n+' ligada a '+brand(bb).n)});
+  const targets=ACC.filter(a=>a.q.length);
+  $('#barTxt').textContent=targets.length?`${targets.reduce((s,a)=>s+a.q.length,0)} publicações · ${targets.length} contas · ${new Set(targets.map(a=>a.b)).size} marca(s)`:'Fila vazia · arrasta mídia para uma conta';
+}
+/* compositor */
+const cap=()=>$('#ccap').value+(tags.length?'\n'+tags.join(' '):'');
+function renderTags(){$('#tagbox').innerHTML=tags.map((t,i)=>`<span class="tg">${t}<b data-x="${i}">×</b></span>`).join('')+`<input id="tin" placeholder="+ tag, Enter" />`;
+  document.querySelectorAll('.tg b').forEach(b=>b.onclick=()=>{tags.splice(+b.dataset.x,1);renderTags();renderTargets()});
+  $('#tin').onkeydown=e=>{if(e.key==='Enter'||e.key===','){e.preventDefault();let v=e.target.value.trim().replace(/\s+/g,'');if(v){if(v[0]!=='#')v='#'+v;if(!tags.includes(v))tags.push(v)}renderTags();renderTargets();$('#tin').focus()}}}
+document.querySelectorAll('[data-sg]').forEach(b=>b.onclick=()=>{if(!tags.includes(b.dataset.sg))tags.push(b.dataset.sg);renderTags();renderTargets()});
+function renderTargets(){
+  const t=ACC.filter(a=>a.q.length);
+  $('#ctargets').textContent=t.length+' contas';
+  $('#blogbox').hidden=!t.some(a=>CH[a.ch].blog);
+  $('#targets').innerHTML=t.length?t.map(a=>{const c=CH[a.ch],txt=custom[a.id]!=null?custom[a.id]:cap(),n=txt.length,bad=n>c.lim;
+   return `<div class="tgt"><div class="row"><div class="row" style="justify-content:flex-start;gap:8px"><div class="thumb" style="width:26px;height:26px;border-radius:7px;font-size:9px;background:${c.c}">${c.m}</div><div><b style="font-size:13px">${c.n}</b> <span class="sub">${a.h}</span><br><span class="bdot" style="background:${brand(a.b).c};width:auto;padding:0 6px;border-radius:6px">${brand(a.b).n}</span> <span class="sub">${a.q.length} mídia${c.blog?' · vira artigo':''}</span></div></div>
+   <div style="text-align:right"><span class="${bad?'warn':'ok'}">${bad?'<svg class="i"><use href="#i-alert"/></svg> '+n+'/'+c.lim:'<svg class="i"><use href="#i-check"/></svg> '+n+'/'+c.lim}</span><br><button class="mini" data-cu="${a.id}">${custom[a.id]!=null?'Usar a comum':'Personalizar'}</button></div></div>
+   ${custom[a.id]!=null?`<textarea class="cu" data-id="${a.id}" style="min-height:60px;margin-top:6px">${custom[a.id]}</textarea>`:''}</div>`}).join(''):'<div class="sub">Ainda sem destinos. Arrasta mídia para uma conta (ou usa “Enviar seleção para todas”).</div>';
+  document.querySelectorAll('[data-cu]').forEach(b=>b.onclick=()=>{const i=b.dataset.cu;if(custom[i]!=null)delete custom[i];else custom[i]=cap();renderTargets()});
+  document.querySelectorAll('textarea.cu').forEach(t=>t.oninput=()=>{custom[t.dataset.id]=t.value;const p=t.closest('.tgt');const a=ACC.find(x=>x.id===t.dataset.id);const n=t.value.length,lim=CH[a.ch].lim;const s=p.querySelector('.ok,.warn');s.className=n>lim?'warn':'ok';s.innerHTML=(n>lim?'<svg class="i"><use href="#i-alert"/></svg> ':'<svg class="i"><use href="#i-check"/></svg> ')+n+'/'+lim});
+}
+$('#ccap').oninput=()=>{$('#ccount').textContent=$('#ccap').value.length;renderTargets()};
+document.querySelectorAll('#cseg button').forEach(b=>b.onclick=()=>{cfilter=b.dataset.f;document.querySelectorAll('#cseg button').forEach(x=>x.classList.toggle('on',x===b));renderChans()});
+function publishQueue(){const t=ACC.filter(a=>a.q.length);if(!t.length)return toast('Arrasta mídia para uma conta primeiro');
+  const bad=t.filter(a=>(custom[a.id]!=null?custom[a.id]:cap()).length>CH[a.ch].lim);if(bad.length)return toast('Texto longo demais em '+bad.map(a=>CH[a.ch].n).join(', ')+'. Personaliza.');
+  const blogs=t.filter(a=>CH[a.ch].blog).length;toast(`Publicado: ${t.length} contas em ${new Set(t.map(a=>a.b)).size} marca(s)`+(blogs?` + ${blogs} artigo(s) no blog`:''))}
+renderTags();renderMedia();
 renderLib();renderCal();refresh();
 </script>
 </body>
