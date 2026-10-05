@@ -65,6 +65,8 @@ export type AddBtnStatus = 'add' | 'loading' | 'added';
 export interface CheckoutUserDetails {
   email: string;
   name: string;
+  /** CPF ou CNPJ, só dígitos. O Asaas exige para cobrar no Pix. */
+  cpfCnpj: string;
   phone: string;
   city: string;
   address: string;
@@ -76,13 +78,25 @@ export interface CheckoutInput {
   paymentMethod: 'pix';
 }
 
+export type OrderStatus = 'pending_payment' | 'paid' | 'expired' | 'cancelled' | 'failed';
+
+export interface PixCharge {
+  /** Código "copia e cola". */
+  payload: string;
+  /** QR Code em base64 (PNG). */
+  qrCodeBase64: string;
+  expiresAt: string;
+}
+
 export interface Order {
   id: string;
   number: string;
   totalCents: number;
   createdAt: string;
   paymentMethod: 'pix';
-  status: 'pending_payment';
+  status: OrderStatus;
+  /** Presente enquanto o pedido espera pagamento. */
+  pix?: PixCharge;
   /** true quando o pedido veio do catálogo de demonstração (nada é cobrado). */
   demo: boolean;
 }

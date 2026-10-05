@@ -71,3 +71,27 @@ describe('toCategories', () => {
     expect(toCategories(listings).map(c => c.name)).toEqual(['Slides']);
   });
 });
+
+describe('purchasables', () => {
+  it('lista só ofertas com preço e estoque, da mais barata para a mais cara', async () => {
+    const { toPurchasables, pickOffer } = await import('../src/mapping.ts');
+    const map = toPurchasables(offers);
+    const kickz = map.get(listingId('prod_slides', 'sel_kickz'))!;
+    expect(kickz.map(o => [o.offerId, o.unitCents, o.stock])).toEqual([
+      ['o2', 60000, 4],
+      ['o1', 71400, 3],
+    ]);
+    expect(map.has(listingId('prod_boot', 'sel_sole'))).toBe(false); // sem estoque
+    expect(map.has(listingId('prod_boot', 'sel_kickz'))).toBe(false); // sem preço
+  });
+
+  it('escolhe a oferta mais barata que atende a quantidade', async () => {
+    const { toPurchasables, pickOffer } = await import('../src/mapping.ts');
+    const map = toPurchasables(offers);
+    const id = listingId('prod_slides', 'sel_kickz');
+    expect(pickOffer(map, id, 2)?.offerId).toBe('o2');
+    expect(pickOffer(map, id, 4)?.offerId).toBe('o2');
+    expect(pickOffer(map, id, 5)).toBeNull();
+    expect(pickOffer(map, 'nao-existe', 1)).toBeNull();
+  });
+});

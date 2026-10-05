@@ -46,7 +46,9 @@ describe('API', () => {
     expect((await app.request('/products')).status).toBe(200);
   });
 
-  it('pedidos ainda não existem (501)', async () => {
-    expect((await createApp(createCatalog(mercur())).request('/orders', { method: 'POST' })).status).toBe(501);
+  it('pedidos respondem 503 quando o pagamento não está configurado', async () => {
+    const app = createApp(createCatalog(mercur()));
+    expect((await app.request('/orders', { method: 'POST', body: '{}' })).status).toBe(503);
+    expect((await app.request('/orders/ord_x')).status).toBe(503);
   });
 });

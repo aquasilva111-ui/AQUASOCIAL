@@ -71,7 +71,16 @@ export async function createOrder(input: CheckoutInput): Promise<Order> {
     totalCents,
     createdAt: new Date().toISOString(),
     paymentMethod: 'pix',
-    status: 'pending_payment',
+    status: 'paid',
     demo: true,
   };
+}
+
+/** Estado atual de um pedido (para a tela do Pix acompanhar o pagamento). */
+export async function getOrder(id: string): Promise<Order | null> {
+  if (isDemo()) return null;
+  return remote<Order>(`/orders/${encodeURIComponent(id)}`).catch((error: any) => {
+    if (error?.statusCode === 502 && /404/.test(String(error?.statusMessage))) return null;
+    throw error;
+  });
 }

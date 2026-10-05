@@ -19,6 +19,9 @@ const cartTotal = computed(() => formatMoney(cart.value.reduce((sum, item) => su
         <div class="col-span-full">
           <input required v-model="userDetails.name" :placeholder="$t('checkout.form.name')" name="name" type="text" autocomplete="name" />
         </div>
+        <div class="col-span-full">
+          <input required v-model="userDetails.cpfCnpj" :placeholder="$t('checkout.form.cpf_cnpj')" name="cpf-cnpj" inputmode="numeric" minlength="11" maxlength="18" pattern="[0-9.\-\/]{11,18}" />
+        </div>
         <div class="col-span-1">
           <input required v-model="userDetails.phone" :placeholder="$t('checkout.form.phone')" name="phone" type="text" />
         </div>

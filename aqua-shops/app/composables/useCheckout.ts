@@ -1,7 +1,7 @@
 import { push } from 'notivue';
 import type { CheckoutStatus, CheckoutUserDetails, Order } from '#shared/types';
 
-const defaultUserDetails = (): CheckoutUserDetails => ({ email: '', name: '', phone: '', city: '', address: '' });
+const defaultUserDetails = (): CheckoutUserDetails => ({ email: '', name: '', cpfCnpj: '', phone: '', city: '', address: '' });
 
 export const useCheckout = () => {
   const { t } = useI18n();
@@ -29,13 +29,14 @@ export const useCheckout = () => {
           paymentMethod: 'pix',
         },
       });
-      clearCart();
+      // Pedido de demonstração já vem pago; no real o carrinho só limpa quando o Pix for pago.
+      if (order.value?.status === 'paid') clearCart();
     } catch (error: any) {
-      push.error(error?.statusCode === 409 ? t('errors.insufficient_stock') : t('errors.checkout_failed'));
+      push.error(error?.statusCode === 409 ? t('errors.insufficient_stock') : error?.statusMessage || t('errors.checkout_failed'));
     } finally {
       checkoutStatus.value = 'order';
     }
   };
 
-  return { order, userDetails, checkoutStatus, handleCheckout };
+  return { order, userDetails, checkoutStatus, handleCheckout, clearCart };
 };

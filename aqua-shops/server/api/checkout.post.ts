@@ -5,7 +5,7 @@ import { createOrder } from '~~/server/utils/catalog';
 export default defineEventHandler(async event => {
   const body = await readBody<Partial<CheckoutInput>>(event);
   const buyer = body?.buyer;
-  if (!body?.items?.length || !buyer?.email || !buyer.name || !buyer.address) {
+  if (!body?.items?.length || !buyer?.email || !buyer.name || !buyer.address || !buyer.cpfCnpj) {
     throw createError({ statusCode: 400, statusMessage: 'Dados do pedido incompletos' });
   }
   return await createOrder({ items: body.items, buyer, paymentMethod: 'pix' });

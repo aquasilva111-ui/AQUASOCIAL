@@ -1,8 +1,24 @@
 {
-  "general": { "go_back": "Go back", "loading": "Loading..." },
-  "theme": { "dark": "Dark", "light": "Light", "system": "System", "toggle": "Toggle theme" },
-  "nav": { "home": "Home", "categories": "Categories", "favorites": "Favorites", "products": "Products" },
-  "footer": { "part_of_aqua": "part of AQUA", "change_language": "Change language" },
+  "general": {
+    "go_back": "Go back",
+    "loading": "Loading..."
+  },
+  "theme": {
+    "dark": "Dark",
+    "light": "Light",
+    "system": "System",
+    "toggle": "Toggle theme"
+  },
+  "nav": {
+    "home": "Home",
+    "categories": "Categories",
+    "favorites": "Favorites",
+    "products": "Products"
+  },
+  "footer": {
+    "part_of_aqua": "part of AQUA",
+    "change_language": "Change language"
+  },
   "search": {
     "placeholder": "Search...",
     "placeholder_in_category": "Search in {category}...",
@@ -26,7 +42,14 @@
   "checkout": {
     "title": "Checkout",
     "demo_notice": "Demo mode: no payment is charged.",
-    "form": { "name": "Full name", "email": "Email", "phone": "Phone", "city": "City", "address": "Delivery address" },
+    "form": {
+      "name": "Full name",
+      "email": "Email",
+      "phone": "Phone",
+      "city": "City",
+      "address": "Delivery address",
+      "cpf_cnpj": "CPF or CNPJ (tax ID)"
+    },
     "pay": {
       "description": "Total of {total} ({items} pcs)",
       "btn": "Pay {total}",
@@ -38,6 +61,14 @@
       "date": "Date",
       "payment_method": "Payment",
       "pix": "Pix"
+    },
+    "pix": {
+      "title": "Pay with Pix",
+      "scan": "Open your bank app and scan the QR code, or use the copy-and-paste code.",
+      "copy": "Copy Pix code",
+      "copied": "Code copied!",
+      "waiting": "Waiting for payment...",
+      "expires": "Valid until {date}"
     }
   },
   "product": {
@@ -64,5 +95,8 @@
     "wishlist_lives_here": "Products you favorite will live here.",
     "remove": "Remove from favorites"
   },
-  "errors": { "insufficient_stock": "Insufficient stock", "checkout_failed": "Could not complete the order. Please try again." }
+  "errors": {
+    "insufficient_stock": "Insufficient stock",
+    "checkout_failed": "Could not complete the order. Please try again."
+  }
 }

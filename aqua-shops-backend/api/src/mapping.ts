@@ -12,7 +12,7 @@ export const listingId = (productId: string, sellerId: string) => `${productId}$
 
 const toCents = (amount: number) => Math.round(amount * 100);
 
-function offerStock(offer: MercurOffer): number {
+export function offerStock(offer: MercurOffer): number {
   const links = offer.inventory_item_link ?? [];
   if (!links.length) return 0;
   return Math.min(
@@ -109,4 +109,38 @@ export function queryListings(all: Product[], q: ProductQuery): ProductsPage {
   const start = Math.max(Number.parseInt(q.cursor ?? '0', 10) || 0, 0);
   const next = start + size;
   return { items: items.slice(start, next), nextCursor: next < items.length ? String(next) : null };
+}
+
+/** Uma oferta que dá para comprar: é o que o pedido de fato reserva no Mercur. */
+export interface Purchasable {
+  listingId: string;
+  productId: string;
+  sellerId: string;
+  offerId: string;
+  variantId: string;
+  unitCents: number;
+  stock: number;
+}
+
+/** Ofertas com preço e estoque por anúncio, da mais barata para a mais cara. */
+export function toPurchasables(offers: MercurOffer[]): Map<string, Purchasable[]> {
+  const out = new Map<string, Purchasable[]>();
+  for (const offer of offers) {
+    const amount = offer.calculated_price?.calculated_amount;
+    if (typeof amount !== 'number') continue;
+    const stock = offerStock(offer);
+    if (stock < 1) continue;
+    const listingId_ = listingId(offer.product_id, offer.seller_id);
+    out.set(listingId_, [
+      ...(out.get(listingId_) ?? []),
+      { listingId: listingId_, productId: offer.product_id, sellerId: offer.seller_id, offerId: offer.id, variantId: offer.variant_id, unitCents: toCents(amount), stock },
+    ]);
+  }
+  for (const list of out.values()) list.sort((a, b) => a.unitCents - b.unitCents || a.offerId.localeCompare(b.offerId));
+  return out;
+}
+
+/** A oferta mais barata do anúncio que tem estoque para a quantidade pedida. */
+export function pickOffer(purchasables: Map<string, Purchasable[]>, id: string, quantity: number): Purchasable | null {
+  return purchasables.get(id)?.find(p => p.stock >= quantity) ?? null;
 }

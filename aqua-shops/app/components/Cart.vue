@@ -8,7 +8,8 @@ const { order } = useCheckout();
   <div
     class="select-none mx-3 lg:mx-5 shadow-2xl mt-20 rounded-[2rem] right-0 fixed flex z-50 bg-white/85 dark:bg-black/85 dark:border dark:border-white/10 cart-button-bezel backdrop-blur-lg overflow-hidden">
     <Transition name="fade" mode="out-in">
-      <PaymentSuccessful v-if="order?.number && !cart.length" />
+      <PixPayment v-if="order?.status === 'pending_payment'" />
+      <PaymentSuccessful v-else-if="order?.status === 'paid' && !cart.length" />
       <div v-else-if="cart.length" class="flex w-full h-full max-md:flex-col max-md:max-h-[calc(100vh-92px)] max-md:overflow-auto">
         <div class="w-[calc(100vw-24px)] sm:w-full md:w-80 relative">
           <div class="md:absolute h-full w-full overflow-auto">

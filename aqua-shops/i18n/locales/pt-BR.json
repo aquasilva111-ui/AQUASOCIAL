@@ -1,8 +1,24 @@
 {
-  "general": { "go_back": "Voltar", "loading": "Carregando..." },
-  "theme": { "dark": "Escuro", "light": "Claro", "system": "Sistema", "toggle": "Alternar tema" },
-  "nav": { "home": "Início", "categories": "Categorias", "favorites": "Favoritos", "products": "Produtos" },
-  "footer": { "part_of_aqua": "parte do AQUA", "change_language": "Mudar idioma" },
+  "general": {
+    "go_back": "Voltar",
+    "loading": "Carregando..."
+  },
+  "theme": {
+    "dark": "Escuro",
+    "light": "Claro",
+    "system": "Sistema",
+    "toggle": "Alternar tema"
+  },
+  "nav": {
+    "home": "Início",
+    "categories": "Categorias",
+    "favorites": "Favoritos",
+    "products": "Produtos"
+  },
+  "footer": {
+    "part_of_aqua": "parte do AQUA",
+    "change_language": "Mudar idioma"
+  },
   "search": {
     "placeholder": "Buscar...",
     "placeholder_in_category": "Buscar em {category}...",
@@ -26,7 +42,14 @@
   "checkout": {
     "title": "Finalizar compra",
     "demo_notice": "Modo demonstração: nenhum pagamento é cobrado.",
-    "form": { "name": "Nome completo", "email": "E-mail", "phone": "Telefone", "city": "Cidade", "address": "Endereço de entrega" },
+    "form": {
+      "name": "Nome completo",
+      "email": "E-mail",
+      "phone": "Telefone",
+      "city": "Cidade",
+      "address": "Endereço de entrega",
+      "cpf_cnpj": "CPF ou CNPJ"
+    },
     "pay": {
       "description": "Total de {total} ({items} un.)",
       "btn": "Pagar {total}",
@@ -38,6 +61,14 @@
       "date": "Data",
       "payment_method": "Pagamento",
       "pix": "Pix"
+    },
+    "pix": {
+      "title": "Pague com Pix",
+      "scan": "Abra o app do seu banco e leia o QR Code, ou use o código copia e cola.",
+      "copy": "Copiar código Pix",
+      "copied": "Código copiado!",
+      "waiting": "Aguardando o pagamento...",
+      "expires": "Válido até {date}"
     }
   },
   "product": {
@@ -64,5 +95,8 @@
     "wishlist_lives_here": "Os produtos que você favoritar ficam aqui.",
     "remove": "Remover dos favoritos"
   },
-  "errors": { "insufficient_stock": "Estoque insuficiente", "checkout_failed": "Não foi possível concluir o pedido. Tente de novo." }
+  "errors": {
+    "insufficient_stock": "Estoque insuficiente",
+    "checkout_failed": "Não foi possível concluir o pedido. Tente de novo."
+  }
 }
