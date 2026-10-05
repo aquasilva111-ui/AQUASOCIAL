@@ -20,9 +20,10 @@ const STICKER_BASE = 0.16
 
 /** Dark pill colours get white text, light ones get dark text. */
 function readableOn(hex: string) {
-  const n = parseInt(hex.slice(1), 16)
-  const lum =
-    0.299 * ((n >> 16) & 255) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255)
+  const r = parseInt(hex.slice(1, 3), 16)
+  const g = parseInt(hex.slice(3, 5), 16)
+  const b = parseInt(hex.slice(5, 7), 16)
+  const lum = 0.299 * r + 0.587 * g + 0.114 * b
   return lum > 150 ? '#111827' : '#FFFFFF'
 }
 

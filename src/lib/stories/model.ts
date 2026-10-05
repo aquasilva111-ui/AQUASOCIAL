@@ -279,7 +279,7 @@ export function normalizeStory(
   const v = raw.value as {createdAt?: unknown} | null
   if (!v || typeof v.createdAt !== 'string') return undefined
   if (Number.isNaN(new Date(v.createdAt).getTime())) return undefined
-  const content = readContent(v)
+  const content = readContent(v as Parameters<typeof readContent>[0])
   if (!content) return undefined
   return {
     uri: raw.uri,

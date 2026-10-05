@@ -166,10 +166,7 @@ export function StoryCreatorScreen() {
       <Layout.KeyboardAwareContent>
         <View style={[a.align_center, a.gap_lg, a.px_lg, a.py_lg]}>
           {mode === 'choose' ? (
-            <Chooser
-              onPhoto={pickPhoto}
-              onText={() => setMode('text')}
-            />
+            <Chooser onPhoto={pickPhoto} onText={() => setMode('text')} />
           ) : (
             <>
               <Pressable
@@ -205,7 +202,13 @@ export function StoryCreatorScreen() {
                 />
               ) : (
                 <View style={[a.gap_md, a.align_center, {maxWidth: 420}]}>
-                  <View style={[a.flex_row, a.flex_wrap, a.gap_sm, a.justify_center]}>
+                  <View
+                    style={[
+                      a.flex_row,
+                      a.flex_wrap,
+                      a.gap_sm,
+                      a.justify_center,
+                    ]}>
                     <Button
                       label="Adicionar texto"
                       size="small"
@@ -243,7 +246,13 @@ export function StoryCreatorScreen() {
                   )}
 
                   {stickersOpen && (
-                    <View style={[a.flex_row, a.flex_wrap, a.gap_sm, a.justify_center]}>
+                    <View
+                      style={[
+                        a.flex_row,
+                        a.flex_wrap,
+                        a.gap_sm,
+                        a.justify_center,
+                      ]}>
                       {STICKERS.map(emoji => (
                         <Pressable
                           key={emoji}
@@ -279,7 +288,13 @@ export function StoryCreatorScreen() {
                       <Text style={[a.text_sm, t.atoms.text_contrast_medium]}>
                         Arraste na imagem para mover
                       </Text>
-                      <View style={[a.flex_row, a.flex_wrap, a.gap_sm, a.justify_center]}>
+                      <View
+                        style={[
+                          a.flex_row,
+                          a.flex_wrap,
+                          a.gap_sm,
+                          a.justify_center,
+                        ]}>
                         <Button
                           label="Diminuir"
                           size="small"
@@ -377,8 +392,14 @@ export function StoryCreatorScreen() {
                         : 'Escolha uma foto para publicar.'}
                     </Text>
                   )}
-                  <Text style={[a.text_xs, t.atoms.text_contrast_medium, a.text_center]}>
-                    Some em 24 horas. Para guardar, adicione a um destaque no seu perfil.
+                  <Text
+                    style={[
+                      a.text_xs,
+                      t.atoms.text_contrast_medium,
+                      a.text_center,
+                    ]}>
+                    Some em 24 horas. Para guardar, adicione a um destaque no
+                    seu perfil.
                   </Text>
                 </View>
               )}
@@ -390,13 +411,7 @@ export function StoryCreatorScreen() {
   )
 }
 
-function Chooser({
-  onPhoto,
-  onText,
-}: {
-  onPhoto: () => void
-  onText: () => void
-}) {
+function Chooser({onPhoto, onText}: {onPhoto: () => void; onText: () => void}) {
   const t = useTheme()
   const card = [
     a.p_xl,
@@ -410,21 +425,21 @@ function Chooser({
   ]
   return (
     <View style={[a.align_center, a.gap_lg, {paddingTop: 24}]}>
-      <Text style={[a.text_2xl, a.font_bold, a.text_center]}>
-        Criar story
-      </Text>
+      <Text style={[a.text_2xl, a.font_bold, a.text_center]}>Criar story</Text>
       <View style={[a.flex_row, a.flex_wrap, a.gap_md, a.justify_center]}>
         <Button label="Criar story com foto" onPress={onPhoto} style={card}>
           <Text style={[a.text_3xl]}>🖼️</Text>
           <Text style={[a.text_lg, a.font_bold]}>Foto</Text>
-          <Text style={[a.text_sm, t.atoms.text_contrast_medium, a.text_center]}>
+          <Text
+            style={[a.text_sm, t.atoms.text_contrast_medium, a.text_center]}>
             Escolha da galeria e adicione texto e figurinhas
           </Text>
         </Button>
         <Button label="Criar story só com texto" onPress={onText} style={card}>
           <Text style={[a.text_3xl]}>Aa</Text>
           <Text style={[a.text_lg, a.font_bold]}>Texto</Text>
-          <Text style={[a.text_sm, t.atoms.text_contrast_medium, a.text_center]}>
+          <Text
+            style={[a.text_sm, t.atoms.text_contrast_medium, a.text_center]}>
             Fundo colorido com sua mensagem
           </Text>
         </Button>
@@ -449,6 +464,7 @@ function Swatches({
     <View
       accessibilityRole="radiogroup"
       accessibilityLabel={label}
+      accessibilityHint="Escolha uma cor"
       style={[a.flex_row, a.gap_sm, a.align_center]}>
       {colors.map(c => (
         <Pressable
@@ -484,7 +500,12 @@ function TextEditor({
   onCancel,
 }: {
   value: {id?: string; text: string; color: string; pill: boolean}
-  onChange: (v: {id?: string; text: string; color: string; pill: boolean}) => void
+  onChange: (v: {
+    id?: string
+    text: string
+    color: string
+    pill: boolean
+  }) => void
   onDone: () => void
   onCancel: () => void
 }) {
@@ -527,7 +548,11 @@ function TextEditor({
           onPress={() => onChange({...value, pill: !value.pill})}>
           <ButtonText>Com fundo</ButtonText>
         </Button>
-        <Button label="Cancelar" size="small" color="secondary" onPress={onCancel}>
+        <Button
+          label="Cancelar"
+          size="small"
+          color="secondary"
+          onPress={onCancel}>
           <ButtonText>Cancelar</ButtonText>
         </Button>
         <Button
@@ -584,11 +609,16 @@ function DraggableOverlay({
   )
 
   return (
-    <OverlayView overlay={overlay} width={width} height={height} selected={selected}>
+    <OverlayView
+      overlay={overlay}
+      width={width}
+      height={height}
+      selected={selected}>
       {box => (
         <View
           {...pan.panHandlers}
           accessible
+          accessibilityHint="Arraste para mover"
           accessibilityRole="button"
           accessibilityLabel={`${overlay.kind === 'text' ? 'Texto' : 'Figurinha'}: ${overlay.text}. Arraste para mover`}>
           {box}

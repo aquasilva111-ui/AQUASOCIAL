@@ -106,25 +106,28 @@ export async function fetchStories(
   return views.sort((a, b) => a.createdAt.localeCompare(b.createdAt))
 }
 
+export type NewStoryInput = {
+  /** A photo story. Omit for a text-only story on a colour. */
+  image?: PickerImage
+  background?: string
+  overlays: StoryOverlay[]
+}
+
 export function useCreateStoryMutation() {
   const {currentAccount} = useSession()
   const agent = useAgent()
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({
-      image,
-      background,
-      overlays,
-    }: {
-      /** A photo story. Omit for a text-only story on a colour. */
-      image?: PickerImage
-      background?: string
-      overlays: StoryOverlay[]
-    }) => {
+    mutationFn: async (input: PickerImage | NewStoryInput) => {
       if (!currentAccount) throw new Error('Not logged in')
+      // A bare image is a plain photo story (older callers).
+      const {image, background, overlays}: NewStoryInput =
+        'path' in input ? {image: input, overlays: []} : input
       const clean = normalizeOverlays(overlays)
-      if (validateStoryDraft({hasMedia: !!image, background, overlays: clean})) {
+      if (
+        validateStoryDraft({hasMedia: !!image, background, overlays: clean})
+      ) {
         throw new Error('empty_story')
       }
       const record: StoryRecord = {
@@ -138,7 +141,10 @@ export function useCreateStoryMutation() {
         const compressed = await compressIfNeeded(image)
         const {data} = await uploadBlob(agent, compressed.path, compressed.mime)
         record.media = data.blob
-        record.aspectRatio = {width: compressed.width, height: compressed.height}
+        record.aspectRatio = {
+          width: compressed.width,
+          height: compressed.height,
+        }
       }
       if (isHexColor(background)) record.background = background
       await agent.com.atproto.repo.createRecord({
@@ -149,7 +155,9 @@ export function useCreateStoryMutation() {
     },
     onSuccess: () => {
       if (!currentAccount) return
-      queryClient.invalidateQueries({queryKey: [RQKEY_ROOT, currentAccount.did]})
+      queryClient.invalidateQueries({
+        queryKey: [RQKEY_ROOT, currentAccount.did],
+      })
     },
   })
 }

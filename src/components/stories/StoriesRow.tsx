@@ -1,11 +1,11 @@
 import {useState} from 'react'
 import {View} from 'react-native'
-import {useNavigation} from '@react-navigation/native'
 import {type AppBskyActorDefs} from '@atproto/api'
+import {useNavigation} from '@react-navigation/native'
 
-import {useIsStorySeen} from '#/lib/stories-seen'
 import {type NavigationProp} from '#/lib/routes/types'
 import {type StoryView} from '#/lib/stories/model'
+import {useIsStorySeen} from '#/lib/stories-seen'
 import {useStoriesQuery} from '#/state/queries/stories'
 import {atoms as a, useTheme} from '#/alf'
 import {Button, ButtonIcon} from '#/components/Button'

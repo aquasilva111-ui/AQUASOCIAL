@@ -1,15 +1,13 @@
 import {useMemo, useState} from 'react'
 import {ScrollView, View} from 'react-native'
+import {useNavigation} from '@react-navigation/native'
 
-import {openPicker} from '#/lib/media/picker.shared'
+import {type NavigationProp} from '#/lib/routes/types'
 import {firstUnseenIndex, orderGroups} from '#/lib/stories/player'
 import {useStorySeenPredicate} from '#/lib/stories-seen'
 import {sanitizeDisplayName} from '#/lib/strings/display-names'
 import {sanitizeHandle} from '#/lib/strings/handles'
-import {logger} from '#/logger'
-import {useCreateStoryMutation} from '#/state/queries/stories'
 import {type StoryGroup, useStoryTray} from '#/state/queries/story-tray'
-import * as Toast from '#/view/com/util/Toast'
 import {UserAvatar} from '#/view/com/util/UserAvatar'
 import {atoms as a, useTheme} from '#/alf'
 import {Button} from '#/components/Button'
@@ -27,7 +25,7 @@ const SIZE = 68
 export function StoriesTray() {
   const {groups: all} = useStoryTray()
   const isSeen = useStorySeenPredicate()
-  const {mutateAsync: createStory} = useCreateStoryMutation()
+  const navigation = useNavigation<NavigationProp>()
   const [open, setOpen] = useState<{group: number; index: number} | null>(null)
 
   const mine = all.find(g => g.isMe)
@@ -47,17 +45,7 @@ export function StoriesTray() {
 
   if (!mine && !ordered.length) return null
 
-  const addStory = async () => {
-    try {
-      const [image] = await openPicker({selectionLimit: 1})
-      if (!image) return
-      await createStory(image)
-      Toast.show('Story publicado')
-    } catch (e: any) {
-      logger.error('Failed to create story', {message: String(e)})
-      Toast.show('Não foi possível publicar o story', 'error')
-    }
-  }
+  const addStory = () => navigation.navigate('StoryCreate')
 
   const openGroup = (g: StoryGroup) => {
     const group = playlist.indexOf(g)

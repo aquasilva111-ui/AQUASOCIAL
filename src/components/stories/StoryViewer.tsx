@@ -44,6 +44,7 @@ import {atoms as a} from '#/alf'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
 import {TimesLarge_Stroke2_Corner0_Rounded as CloseIcon} from '#/components/icons/Times'
 import {Trash_Stroke2_Corner0_Rounded as TrashIcon} from '#/components/icons/Trash'
+import {frameSize, StoryFrame} from '#/components/stories/StoryFrame'
 import {Text} from '#/components/Typography'
 
 export type ViewerGroup = {
@@ -78,6 +79,7 @@ export function StoryViewer({
   onClose: () => void
 }) {
   const {width, height} = useWindowDimensions()
+  const frame = frameSize(width, height)
   const [removed, setRemoved] = useState<Set<string>>(() => new Set())
   const [pos, setPos] = useState<StoryPos>(initial)
   const [loadedUri, setLoadedUri] = useState<string>()
@@ -102,8 +104,9 @@ export function StoryViewer({
   const group = visible[pos.group]
   const current = group?.stories[pos.index]
 
-  const loaded = !!current && loadedUri === current.uri
-  const failed = !!current && failedUri === current.uri
+  // Text-only stories have nothing to wait for.
+  const loaded = !!current && (!current.mediaUrl || loadedUri === current.uri)
+  const failed = !!current && !!current.mediaUrl && failedUri === current.uri
   const paused = holding || background || replying || confirmDelete || failed
 
   const move = useCallback(
@@ -252,17 +255,17 @@ export function StoryViewer({
       <Animated.View
         style={[a.flex_1, {backgroundColor: '#000'}, dragStyle]}
         {...pan.panHandlers}>
-        <Image
-          key={current.uri}
-          accessibilityIgnoresInvertColors
-          accessibilityHint="Conteúdo do story"
-          source={{uri: current.mediaUrl}}
-          style={[a.absolute, a.inset_0]}
-          contentFit="contain"
-          accessibilityLabel={`Story de ${group.author.displayName || group.author.handle}`}
-          onLoad={() => setLoadedUri(current.uri)}
-          onError={() => setFailedUri(current.uri)}
-        />
+        <View
+          pointerEvents="none"
+          style={[a.absolute, a.inset_0, a.align_center, a.justify_center]}>
+          <StoryFrame
+            key={current.uri}
+            story={current}
+            width={frame.width}
+            onLoad={() => setLoadedUri(current.uri)}
+            onError={() => setFailedUri(current.uri)}
+          />
+        </View>
 
         {failed && (
           <View

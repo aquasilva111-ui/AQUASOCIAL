@@ -66,8 +66,7 @@ function Inner({did, highlight}: {did: string; highlight?: HighlightView}) {
   // Existing items whose story record is gone still belong to the album.
   const pool = useMemo(() => {
     const byCid = new Map<string, NonNullable<typeof archive>[number]>()
-    for (const item of highlight?.items ?? [])
-      byCid.set(storyKey(item), item)
+    for (const item of highlight?.items ?? []) byCid.set(storyKey(item), item)
     for (const s of archive ?? []) byCid.set(storyKey(s), s)
     return [...byCid.values()].sort((x, y) =>
       y.createdAt.localeCompare(x.createdAt),
