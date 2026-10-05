@@ -21,4 +21,5 @@ const app = createApp(
 );
 
 const port = Number(env.PORT ?? 9100);
-serve({ fetch: app.fetch, port, hostname: '127.0.0.1' }, () => console.log(`Aqua Shops API em http://127.0.0.1:${port}`));
+const hostname = env.HOST ?? '127.0.0.1';
+serve({ fetch: app.fetch, port, hostname }, () => console.log(`Aqua Shops API em http://${hostname}:${port}`));

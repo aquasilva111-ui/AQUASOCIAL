@@ -1,0 +1,11 @@
+# HTTPS automático (Let's Encrypt) para os dois domínios.
+# Local: use SHOPS_URL=http://shops.localhost para ficar sem TLS.
+{$SHOPS_URL} {
+	encode zstd gzip
+	reverse_proxy storefront:3000
+}
+
+{$PANEL_URL} {
+	encode zstd gzip
+	reverse_proxy mercur:9000
+}

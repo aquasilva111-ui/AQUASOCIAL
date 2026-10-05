@@ -594,7 +594,8 @@ export default async function seedDemoData({ container }: ExecArgs) {
 
   logger.info("Finished seeding global product attributes.");
 
-  const SELLER_PASSWORD = "supersecret";
+  // Aqua Shops: em servidor público defina SEED_SELLER_PASSWORD; "supersecret" é só para desenvolvimento local.
+  const SELLER_PASSWORD = process.env.SEED_SELLER_PASSWORD || "supersecret";
   const SELLER_CONFIGS = [
     { name: "Sole Society", email: "seller@mercur.dev", first_name: "Demo", last_name: "Seller", city: "Berlin", country_code: "DE", address_1: "Alexanderplatz 1" },
     { name: "Kickz Corner", email: "kickz@mercur.dev", first_name: "Kai", last_name: "Corner", city: "Amsterdam", country_code: "NL", address_1: "Damrak 12" },

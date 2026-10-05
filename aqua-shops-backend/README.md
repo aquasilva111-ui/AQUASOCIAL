@@ -7,6 +7,8 @@ dele. Plano em `../docs/aqua-shops.md`.
 vitrine (aqua-shops, :5194) ─► API Aqua Shops (api/, :9100) ─► Mercur (mercur/, :9000) ─► Postgres + Redis
 ```
 
+Para colocar num servidor (VPS com Docker), veja **[DEPLOY.md](DEPLOY.md)**.
+
 ## Subir tudo (desenvolvimento)
 
 1. `docker compose up -d` (Postgres 16 e Redis 7, só em localhost). Precisa do Docker Desktop aberto.
@@ -38,7 +40,11 @@ Primeira vez, em `mercur/packages/api`: `npx medusa db:migrate`, `npm run seed` 
 - Vendedor do Mercur não tem DID. Até ligar o perfil AQUA (`seller.metadata.did`), a API usa o
   id do vendedor como `seller.did`.
 - Credenciais do seed (`seller@mercur.dev` / `supersecret`, secrets `supersecret` no `.env`)
-  são só de desenvolvimento. Trocar tudo antes de qualquer ambiente público.
+  são só de desenvolvimento. Em servidor público use `SEED_SELLER_PASSWORD` (o seed já lê essa
+  variável) e segredos gerados; veja DEPLOY.md.
+- **Produção em container:** o Medusa liga SSL no Postgres quando `NODE_ENV=production`, por isso a
+  URL do banco no compose leva `?sslmode=disable` (rede interna). O artefato do Mercur precisa dos
+  mesmos `overrides` de versão da raiz e sem `devDependencies` (ver `mercur/Dockerfile`).
 
 ## O que falta
 

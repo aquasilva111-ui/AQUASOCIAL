@@ -61,7 +61,9 @@ inteiros** (BRL), sem ponto flutuante.
 2. Backend: **feito para leitura.** Postgres + Redis em Docker, Mercur rodando com dados de
    exemplo em BRL, e a API `aqua-shops-backend/api/` (Hono, 16 testes) traduzindo ofertas do
    Mercur para o contrato. Falta `POST /orders` (passo 7). Detalhes e decisões em
-   `aqua-shops-backend/README.md`.
+   `aqua-shops-backend/README.md`. Imagens Docker, compose de produção, Caddy (HTTPS) e guia de
+   deploy para VPS em `aqua-shops-backend/DEPLOY.md` (testado em containers locais, ainda não
+   num servidor).
 3. Telas: vitrine, produto, carrinho, checkout, painel do vendedor (web e app).
    Feito na web: pacote `aqua-shops/` (Nuxt 4, baseado no NuxtCommerce, MIT) com a UX de
    grade estilo Pinterest, busca, categorias, filtro por vendedor, carrinho, favoritos e

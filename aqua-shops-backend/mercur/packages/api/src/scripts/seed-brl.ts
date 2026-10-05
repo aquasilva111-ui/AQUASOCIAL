@@ -50,7 +50,8 @@ export default async function seedBrl({ container }: ExecArgs) {
   // (o preço de cada oferta é uma regra por vendedor/oferta).
   const all = await pricingModule.listPrices({}, { relations: ["price_rules"], take: 20000 });
   const stale = all.filter((p) => p.currency_code === "brl").map((p) => p.id);
-  if (stale.length) await pricingModule.deletePrices(stale);
+  // `deletePrices` existe em runtime (gerado pelo MedusaService), mas falta nos tipos publicados.
+  if (stale.length) await (pricingModule as unknown as { deletePrices(ids: string[]): Promise<void> }).deletePrices(stale);
 
   const bySet = new Map<string, typeof all>();
   for (const p of all) {

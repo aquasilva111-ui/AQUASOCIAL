@@ -1,0 +1,101 @@
+# Aqua Shops em produção (um servidor com Docker). Guia: DEPLOY.md
+# Uso: docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build
+name: aqua-shops
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: aqua
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD}
+      POSTGRES_DB: aqua_shops
+    volumes:
+      - pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aqua -d aqua_shops"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  mercur:
+    build:
+      context: ./mercur
+      args:
+        MERCUR_BACKEND_URL: ${PANEL_URL:?defina PANEL_URL}
+    restart: unless-stopped
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://aqua:${POSTGRES_PASSWORD}@postgres:5432/aqua_shops?sslmode=disable
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: ${JWT_SECRET:?defina JWT_SECRET}
+      COOKIE_SECRET: ${COOKIE_SECRET:?defina COOKIE_SECRET}
+      STORE_CORS: ${SHOPS_URL}
+      ADMIN_CORS: ${PANEL_URL}
+      VENDOR_CORS: ${PANEL_URL}
+      AUTH_CORS: ${PANEL_URL},${SHOPS_URL}
+      MERCUR_VENDOR_URL: ${PANEL_URL}/seller
+      FILE_BACKEND_URL: ${PANEL_URL}/static
+      STOREFRONT_REVALIDATE_URL: ${SHOPS_URL}
+      STOREFRONT_REVALIDATE_SECRET: ${COOKIE_SECRET}
+    volumes:
+      - uploads:/app/static
+
+  api:
+    build: ./api
+    restart: unless-stopped
+    depends_on:
+      - mercur
+    environment:
+      MERCUR_URL: http://mercur:9000
+      MERCUR_PUBLISHABLE_KEY: ${MERCUR_PUBLISHABLE_KEY:-}
+      CURRENCY: brl
+      PORT: "9100"
+      HOST: 0.0.0.0
+
+  storefront:
+    build: ../aqua-shops
+    restart: unless-stopped
+    depends_on:
+      - api
+    environment:
+      NUXT_SHOPS_API: http://api:9100
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      - storefront
+      - mercur
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      SHOPS_URL: ${SHOPS_URL}
+      PANEL_URL: ${PANEL_URL}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+
+volumes:
+  pg:
+  redis:
+  uploads:
+  caddy-data:
+  caddy-config:
