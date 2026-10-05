@@ -78,6 +78,8 @@ export const router = new Router<AllNavigatableRoutes>({
   AdultTitle: '/adult/title/:type/:id',
   AdultLibrary: '/adult/library',
   AdultDrops: '/adult/drops',
+  AdultPost: '/adult/post/:postId',
+  AdultUser: '/adult/user/:did',
   AdultVisionboard: '/adult/visionboard',
   AdultReads: '/adult/reads',
   AdultRead: '/adult/reads/:bookId',

@@ -110,6 +110,18 @@ const STATUS_TARGETS: Record<string, StatusTarget> = {
     assetColumns: [],
   },
 }
+// Social posts and comments (the +18 network core) keep their own status.
+for (const [type, table] of [
+  ['social_post', 'adult_posts'],
+  ['social_comment', 'adult_comments'],
+] as const)
+  STATUS_TARGETS[type] = {
+    table,
+    where: 'id = $1',
+    quarantined: 'quarantined',
+    removed: 'removed',
+    assetColumns: [],
+  }
 for (const type of ['post', 'image_set', 'audio'])
   STATUS_TARGETS[type] = {
     table: 'adult_resources',
@@ -122,6 +134,8 @@ for (const type of ['post', 'image_set', 'audio'])
 
 export const CONTENT_TYPES = [
   'video',
+  'social_post',
+  'social_comment',
   'post',
   'image_set',
   'audio',

@@ -6,12 +6,14 @@ export {AdultFeedScreen} from './AdultFeed'
 export {AdultHomeScreen} from './AdultHome'
 export {AdultLibraryScreen} from './AdultLibrary'
 export {AdultLiveScreen, AdultLiveStreamScreen} from './AdultLive'
+export {AdultPostScreen} from './AdultPost'
 export {AdultReadScreen, AdultReadsScreen} from './AdultReads'
 export {
   AdultStudioScreen,
   AdultStudiosScreen,
   AdultTitleScreen,
 } from './AdultStudios'
+export {AdultUserScreen} from './AdultUser'
 export {AdultVideoScreen} from './AdultVideo'
 export {AdultViewsScreen} from './AdultViews'
 export {AdultVisionboardScreen} from './AdultVisionboard'

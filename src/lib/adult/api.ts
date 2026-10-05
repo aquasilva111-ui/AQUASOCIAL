@@ -124,6 +124,60 @@ export async function fetchAdultRelations(agent: BskyAgent) {
   }
 }
 
+export type AdultNetworkAuthor = {
+  did: string
+  handle: string | null
+  displayName: string | null
+}
+
+export type AdultEngagement = {
+  likes: number
+  reposts: number
+  comments: number
+  liked: boolean
+  reposted: boolean
+}
+
+export type AdultNetworkPost = {
+  id: string
+  author: AdultNetworkAuthor
+  body: string
+  media: {
+    id: string
+    url: string
+    width: number | null
+    height: number | null
+    sensitive: boolean
+  }[]
+  createdAt: string
+  repostedBy: AdultNetworkAuthor | null
+  engagement: AdultEngagement
+}
+
+export type AdultNetworkComment = {
+  id: string
+  author: AdultNetworkAuthor
+  body: string
+  createdAt: string
+}
+
+export type AdultEngageType = 'post' | 'video' | 'book' | 'pin'
+
+/** Like or repost (and undo) any +18 content: posts, videos, books, pins. */
+export function setAdultEngagement(
+  agent: BskyAgent,
+  type: AdultEngageType,
+  id: string,
+  kind: 'like' | 'repost',
+  on: boolean,
+) {
+  return adultApi(
+    agent,
+    `/adult/engage/${type}/${encodeURIComponent(id)}/${kind}`,
+    {method: on ? 'PUT' : 'DELETE'},
+  )
+}
+
 export type AdultDrop = {
   id: string
   title: string

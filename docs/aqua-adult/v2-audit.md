@@ -122,6 +122,20 @@ CI: `.github/workflows/aqua-adult-api.yml` roda typecheck e testes da API (H3 re
 - Reads +18 ainda não tem tela de escrita no app (a API existe), nem moderação de texto nem denúncia dedicada.
 - As novas telas do app não têm testes próprios, e não abri o app para ver o resultado.
 
+## Rede social do +18 (2026-10-04)
+O +18 é uma versão do AQUA com tema adulto, uma rede à parte. O núcleo social é um só e vale para todo o universo (posts, Views, Books, Visionboard).
+
+API (`aqua-adult-api`, migration 012, `src/network/index.ts`, 15 testes em `test/phase17-network.test.ts`):
+- **Posts** (`/adult/posts`): texto e até 4 imagens do próprio autor, servidas como sensíveis. Remoção é lógica.
+- **Feed próprio** (`/adult/feed?tab=following|discover`): sem ler o grafo social (resolve H4 na API). Seguindo = quem você segue, você e as republicações deles; Descobrir = tudo, do mais novo ao mais antigo. Paginação por cursor. Silenciados e bloqueados (nos dois sentidos) somem.
+- **Curtir, republicar e comentar** (`/adult/engage/:type/:id/...`) em `post`, `video`, `book` e `pin`. Só vale para conteúdo visível; rascunhos e boards privados dão 404.
+- **Perfil** (`/adult/users/:did`, `/adult/users/:did/posts`, `PUT /me/adult/profile`): contagens e a relação de quem vê.
+- **Moderação:** posts e comentários são recursos `social_post` e `social_comment`; podem ser denunciados, em quarentena e removidos pelo fluxo existente.
+
+App: Feed +18 novo (compositor, abas Seguindo e Descobrir), página do post com comentários, perfil, e a home do +18 com a prévia vinda do servidor. Lint e typecheck sem erro; 117 testes do +18 no app passam. Não abri as telas no app.
+
+**Ainda falta na rede:** botões de curtir/comentar nas telas de vídeo (Views), livro (Books) e pin (Visionboard) — a API já aceita; notificações; busca; mensagens; upload de imagem para usuário comum (hoje só criador aprovado); recomendação; verificação de idade real (B1) e scanner (B2) antes de abrir ao público.
+
 ## Mudanças de design e código desde o relatório
 - Mockups refeitos em estilo iOS, azul e laranja, com a logo AQUA +18 (`aqua-18-logo.svg`).
 - O vermelho `#d6336c` virou laranja `#c2570c` (texto) e `#ff8a1f` (ponto) nos arquivos do +18: `AdultShell`, `AdultDashboard`, `AdultLive` e `AdultReportButton`. O typecheck não acusou erro nesses arquivos. Não foi testado no app. O botão "Limpar histórico" ainda usa o vermelho do tema.

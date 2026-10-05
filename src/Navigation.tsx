@@ -81,12 +81,14 @@ import {
   AdultLiveScreen,
   AdultLiveStreamScreen,
   AdultMessagesScreen,
+  AdultPostScreen,
   AdultReadScreen,
   AdultReadsScreen,
   AdultSettingsScreen,
   AdultStudioScreen,
   AdultStudiosScreen,
   AdultTitleScreen,
+  AdultUserScreen,
   AdultVideoScreen,
   AdultViewsScreen,
   AdultVisionboardScreen,
@@ -967,6 +969,16 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
         name="AdultLibrary"
         component={AdultLibraryScreen}
         options={{title: 'Biblioteca +18', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="AdultPost"
+        component={AdultPostScreen}
+        options={{title: 'Post +18', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="AdultUser"
+        component={AdultUserScreen}
+        options={{title: 'Perfil +18', requireAuth: true}}
       />
       <Stack.Screen
         name="AdultDrops"

@@ -140,6 +140,8 @@ export type CommonNavigatorParams = {
   AdultTitle: {type: 'movie' | 'series'; id: string}
   AdultLibrary: undefined
   AdultDrops: undefined
+  AdultPost: {postId: string}
+  AdultUser: {did: string}
   AdultVisionboard: undefined
   AdultReads: undefined
   AdultRead: {bookId: string}
