@@ -3,6 +3,10 @@ import {serve} from '@hono/node-server'
 import {createForYou} from './algos/for-you/feed.ts'
 import {createApp} from './app.ts'
 import {createAuth} from './auth.ts'
+import {
+  createSensitiveIndex,
+  loadSensitiveCategories,
+} from './conventions/sensitive.ts'
 import {loadConfig} from './config.ts'
 import {createPgDb, createPgliteDb, migrate} from './db.ts'
 import {createFeed} from './feed.ts'
@@ -17,7 +21,12 @@ await migrate(db)
 const store = createStore(db)
 await store.loadKnown()
 const feed = createFeed(store, cfg)
-const forYou = createForYou(store, cfg)
+const forYou = createForYou(
+  store,
+  cfg,
+  Date.now,
+  createSensitiveIndex(loadSensitiveCategories(cfg.sensitiveCategoriesFile || undefined)),
+)
 const auth = createAuth(cfg)
 
 const jetstream = cfg.jetstreamEnabled

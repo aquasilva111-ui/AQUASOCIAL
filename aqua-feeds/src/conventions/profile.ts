@@ -10,6 +10,11 @@ import {
   type GravityState,
   splitKey,
 } from './model.ts'
+import {
+  createSensitiveIndex,
+  SENSITIVE_KEY_PREFIX,
+  type SensitiveIndex,
+} from './sensitive.ts'
 import {synapsesFromEvents} from './synapse.ts'
 
 export type SignalKind =
@@ -57,6 +62,9 @@ export type AdjustAction =
   | 'unmute'
   | 'delete'
   | 'wrong'
+  /** key = "sensivel:<categoria>": liga/desliga a inferência da categoria */
+  | 'optin'
+  | 'optout'
 
 export interface Adjustment {
   key: ConventionKey
@@ -120,6 +128,8 @@ export interface ConventionProfile {
   viewer: ViewerProfile
   /** chaves que o usuário marcou como erradas (a Aqua não volta a inferir) */
   blocked: ConventionKey[]
+  /** categorias sensíveis em que o usuário ATIVOU a inferência */
+  sensitiveOptIn: string[]
 }
 
 const clampBoost = (f: number | undefined) =>
@@ -138,6 +148,7 @@ function foldAdjustments(adjs: Adjustment[]) {
     }
   >()
   for (const a of [...adjs].sort((x, y) => x.at - y.at)) {
+    if (a.key.startsWith(SENSITIVE_KEY_PREFIX)) continue
     const s = by.get(a.key) ?? {boost: 1, muted: false}
     switch (a.action) {
       case 'add':
@@ -175,9 +186,23 @@ export function buildProfile(
   signals: Signal[],
   adjustments: Adjustment[],
   now: number,
-  opts: {halfLifeDays?: number; recentDays?: number} = {},
+  opts: {halfLifeDays?: number; recentDays?: number; sensitive?: SensitiveIndex} = {},
 ): ConventionProfile {
   const adj = foldAdjustments(adjustments)
+  // Categorias sensíveis: desligadas por padrão; o ajuste mais recente vale.
+  const sensitive = opts.sensitive ?? DEFAULT_SENSITIVE
+  const optIn = new Set<string>()
+  for (const a of [...adjustments].sort((x, y) => x.at - y.at)) {
+    if (!a.key.startsWith(SENSITIVE_KEY_PREFIX)) continue
+    const cat = a.key.slice(SENSITIVE_KEY_PREFIX.length)
+    if (a.action === 'optin') optIn.add(cat)
+    else if (a.action === 'optout') optIn.delete(cat)
+  }
+  /** pode virar Convenção inferida? (explícitas sempre podem) */
+  const inferable = (k: ConventionKey) => {
+    const cat = sensitive.categoryOf(k)
+    return !cat || optIn.has(cat) || adj.get(k)?.explicitAt !== undefined
+  }
   const recent = now - (opts.recentDays ?? 3) * DAY
   const seen = new Set<string>()
   const lessPosts = new Set<string>()
@@ -201,6 +226,7 @@ export function buildProfile(
     const w = signalWeight(s.kind, s.seconds)
     if (w === 0) continue
     const keys = s.keys.filter(k => {
+      if (!inferable(k)) return false
       const a = adj.get(k)
       if (!a) return true
       if (a.forgetBefore !== undefined && s.at <= a.forgetBefore) return false
@@ -348,8 +374,11 @@ export function buildProfile(
     conventions,
     viewer,
     blocked: [...adj].filter(([, a]) => a.blocked).map(([k]) => k),
+    sensitiveOptIn: [...optIn].sort(),
   }
 }
+
+const DEFAULT_SENSITIVE = createSensitiveIndex()
 
 const round = (n: number) =>
   Number.isFinite(n) ? Math.round(n * 1000) / 1000 : n

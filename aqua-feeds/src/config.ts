@@ -34,6 +34,8 @@ export interface Config {
   signalRetentionDays: number
   /** de quanto em quanto tempo a atividade vira um commit "inferido" no Git pessoal */
   digestHours: number
+  /** JSON com as categorias sensíveis (vazio = lista padrão em conventions/sensitive.ts) */
+  sensitiveCategoriesFile: string
   /** só dev/teste: aceita o cabeçalho X-Aqua-Viewer no lugar do JWT */
   authDevViewerHeader: boolean
 }
@@ -92,6 +94,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     forYouUri: `at://${publisherDid || serviceDid}/app.bsky.feed.generator/${env.FOR_YOU_RKEY ?? 'pra-voce'}`,
     signalRetentionDays: num(env.SIGNAL_RETENTION_DAYS, 180),
     digestHours: num(env.DIGEST_HOURS, 6),
+    sensitiveCategoriesFile: env.SENSITIVE_CATEGORIES_FILE ?? '',
     authDevViewerHeader: !isProd && env.AUTH_DEV_VIEWER_HEADER === '1',
   }
 }

@@ -17,6 +17,7 @@ import {
   trendOf,
   BRANCH,
 } from '../../conventions/history.ts'
+import {normalizeTag} from '../../conventions/extract.ts'
 import {type ConventionKey, splitKey} from '../../conventions/model.ts'
 import {
   type Adjustment,
@@ -27,6 +28,11 @@ import {
   type SignalKind,
   EMPTY_PROFILE,
 } from '../../conventions/profile.ts'
+import {
+  createSensitiveIndex,
+  SENSITIVE_KEY_PREFIX,
+  type SensitiveIndex,
+} from '../../conventions/sensitive.ts'
 import type {Store} from '../../store.ts'
 import {
   type Explanation,
@@ -109,8 +115,8 @@ export function parseKey(raw: unknown): ConventionKey {
     throw new InvalidAdjustmentError(
       `tipo deve ser um de: ${[...TIPOS_AJUSTAVEIS].join(', ')}`,
     )
-  const nome =
-    p.tipo === 'criador' ? p.nome : p.nome.normalize('NFKC').toLowerCase().replace(/^#/, '')
+  // mesma normalização das #tags dos posts (sem acento), para casar com eles
+  const nome = p.tipo === 'criador' ? p.nome.trim() : normalizeTag(p.nome)
   if (!nome) throw new InvalidAdjustmentError('nome vazio')
   return `${p.tipo}:${nome}`
 }
@@ -122,6 +128,8 @@ const RAZAO: Record<AdjustAction, (k: string, f?: number) => string> = {
   unmute: k => `Você voltou a mostrar ${k}`,
   delete: k => `Você apagou ${k} (a Aqua esquece os sinais até agora)`,
   wrong: k => `Você marcou ${k} como errada (a Aqua não volta a inferir)`,
+  optin: k => `Você permitiu que a Aqua infira Convenções da categoria sensível ${k}`,
+  optout: k => `Você desligou a inferência da categoria sensível ${k} (as Convenções inferidas dela saem)`,
 }
 
 export function createForYou(
@@ -131,6 +139,7 @@ export function createForYou(
     'retentionHours' | 'signalRetentionDays' | 'digestHours' | 'forYouUri'
   >,
   clock: () => number = Date.now,
+  sensitive: SensitiveIndex = createSensitiveIndex(),
 ) {
   type Ranked = ReturnType<typeof rankExplained>
   const cache = new Map<string, {at: number; ranked: Ranked}>()
@@ -147,7 +156,7 @@ export function createForYou(
       store.signals(did, now - cfg.signalRetentionDays * DAY),
       store.adjustments(did),
     ])
-    return buildProfile(signals, adjustments, now)
+    return buildProfile(signals, adjustments, now, {sensitive})
   }
 
   async function skeleton(p: {viewer?: string; cursor?: string; limit?: number}) {
@@ -258,7 +267,45 @@ export function createForYou(
           return {a, b, vezes}
         }),
       bloqueadas: prof.blocked,
+      categoriasSensiveis: sensitive.categories.map(c => ({
+        id: c.id,
+        nome: c.nome,
+        descricao: c.descricao,
+        ativa: prof.sensitiveOptIn.includes(c.id),
+        exemplos: c.temas.slice(0, 5),
+      })),
     }
+  }
+
+  /** Liga/desliga a inferência de uma categoria sensível (desligada por padrão). */
+  async function setSensitive(did: string, body: {categoria?: unknown; ativa?: unknown}) {
+    const cat = sensitive.categories.find(c => c.id === body.categoria)
+    if (!cat)
+      throw new InvalidAdjustmentError(
+        `categoria deve ser uma de: ${sensitive.categories.map(c => c.id).join(', ')}`,
+      )
+    if (typeof body.ativa !== 'boolean')
+      throw new InvalidAdjustmentError('ativa deve ser true ou false')
+    const now = clock()
+    const action: AdjustAction = body.ativa ? 'optin' : 'optout'
+    await store.touchViewer(did)
+    await store.addAdjustment(did, {key: `${SENSITIVE_KEY_PREFIX}${cat.id}`, action, at: now})
+    for (const k of cache.keys()) if (k.startsWith(`${did}|`)) cache.delete(k)
+    const prof = (await profileOf(did, now))!
+    const commit = await withRepo(did, repo =>
+      snapshotProfile(repo, prof.conventions, {
+        reason: RAZAO[action](cat.nome),
+        fonte: 'usuario',
+        status: 'confirmado',
+        now,
+        // só as Convenções desta categoria entram/saem neste commit
+        only: k => sensitive.categoryOf(k) === cat.id,
+        extraChanges: {
+          'sensiveis.json': {categorias_ativas: prof.sensitiveOptIn, atualizada_em: new Date(now).toISOString()},
+        },
+      }),
+    )
+    return {categoria: cat.id, ativa: body.ativa, commit: commit?.hash ?? null}
   }
 
   async function getHistory(did: string, key?: string, limit = 50) {
@@ -312,7 +359,16 @@ export function createForYou(
     await store.addPostSignal(did, kind, subject, clock(), seconds)
   }
 
-  return {profileOf, skeleton, explain, getProfile, getHistory, adjust, addSignal}
+  return {
+    profileOf,
+    skeleton,
+    explain,
+    getProfile,
+    getHistory,
+    adjust,
+    setSensitive,
+    addSignal,
+  }
 }
 
 export type ForYou = ReturnType<typeof createForYou>

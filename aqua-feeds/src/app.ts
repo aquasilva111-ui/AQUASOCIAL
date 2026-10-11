@@ -222,6 +222,11 @@ function mountForYou(
     )
   })
 
+  app.post('/xrpc/place.aqua.convencoes.setSensitive', async c => {
+    const did = await need(c, 'place.aqua.convencoes.setSensitive')
+    return c.json(await deps.forYou.setSensitive(did, await body(c)))
+  })
+
   app.post('/xrpc/place.aqua.convencoes.adjust', async c => {
     const did = await need(c, 'place.aqua.convencoes.adjust')
     return c.json(await deps.forYou.adjust(did, await body(c)))

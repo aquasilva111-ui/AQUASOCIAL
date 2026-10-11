@@ -74,6 +74,17 @@ e no fim os criadores são intercalados (diversidade). Tudo é determinístico.
 - **Login**: JWT de serviço (`com.atproto.server.getServiceAuth` com
   `aud=<DID do serviço>` e `lxm=<método>`), verificado contra a chave do DID.
   Sem login, o "Pra você" vira um feed genérico (recentes + em alta).
+- **Categorias sensíveis** (desligadas por padrão): saúde, política, religião,
+  sexualidade e identidade de gênero, conteúdo adulto (+18, inclusive os rótulos
+  `porn`/`sexual`/`nudity`…), origem étnica e raça, filiação sindical e finanças
+  pessoais (dívidas/crédito). A lista é explícita, em `src/conventions/sensitive.ts`
+  (#tags exatas, alguns prefixos e rótulos), e pode ser trocada por
+  `SENSITIVE_CATEGORIES_FILE`. A Aqua **não infere** Convenções dessas categorias
+  (nem Sinapses com elas) até o usuário ativar a categoria em
+  `POST place.aqua.convencoes.setSensitive {categoria, ativa}`; Convenções que ele
+  adiciona continuam valendo. Desativar tira as inferidas na hora. Cada
+  ativação/desativação vira commit no histórico (`sensiveis.json` + as Convenções
+  da categoria que entraram/saíram).
 - **Privacidade**: só guarda sinais de quem já usou o "Pra você" (o Jetstream é
   público, mas não montamos perfil de quem nunca pediu), por
   `SIGNAL_RETENTION_DAYS` (180).

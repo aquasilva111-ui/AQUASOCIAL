@@ -57,14 +57,21 @@ export function snapshotProfile(
     fonte: Fonte
     status: Status
     now: number
-    only?: ConventionKey[]
+    /** limita a estas chaves (ou às que o filtro aceitar) */
+    only?: ConventionKey[] | ((key: ConventionKey) => boolean)
     evidenceRefs?: string[]
+    /** outros arquivos no mesmo commit (ex.: sensiveis.json) */
+    extraChanges?: Record<string, Json | null>
   },
 ): SemanticCommit | undefined {
   const head = repo.treeAt(repo.refs.get(BRANCH))
-  const changes: Record<string, unknown> = {}
+  const changes: Record<string, unknown> = {...(o.extraChanges ?? {})}
   const present = new Set<string>()
-  const pick = o.only ? new Set(o.only) : undefined
+  const pick = !o.only
+    ? undefined
+    : typeof o.only === 'function'
+      ? {has: o.only}
+      : new Set(o.only)
   for (const c of conventions) {
     const caminho = caminhoDe('convencoes', c)
     present.add(caminho)
@@ -120,7 +127,8 @@ function keyFromObjects(
   const obj = (after && objects[after]) || (before && objects[before])
   if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return undefined
   const o = obj as Record<string, Json>
-  return `${o.tipo}:${(o.nomes as string[])[0]}`
+  if (typeof o.tipo !== 'string' || !Array.isArray(o.nomes)) return undefined
+  return `${o.tipo}:${o.nomes[0]}`
 }
 
 /** Histórico legível (mais novo primeiro), opcionalmente de uma chave só. */

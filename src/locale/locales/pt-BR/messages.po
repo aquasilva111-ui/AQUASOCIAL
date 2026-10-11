@@ -11343,3 +11343,12 @@ msgstr "Sua Convenção “{0}” está nas tags do post"
 
 msgid "yours"
 msgstr "sua"
+
+msgid "Sensitive categories"
+msgstr "Categorias sensíveis"
+
+msgid "By default, the Aqua does not guess conventions about these topics from what you do. Turn one on only if you want “For you” to learn it. Conventions you add yourself always count. Turning one off removes what was inferred."
+msgstr "Por padrão, a Aqua não deduz Convenções sobre estes temas a partir do que você faz. Ligue uma só se quiser que o “Pra você” aprenda. As Convenções que você adiciona sempre contam. Desligar remove o que foi inferido."
+
+msgid "Each change is saved in your history."
+msgstr "Cada mudança fica registrada no seu histórico."

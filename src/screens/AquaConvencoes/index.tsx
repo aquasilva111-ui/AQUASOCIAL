@@ -15,6 +15,7 @@ import {
   type Estado,
   type HistoryEntryView,
   normalizeConventionName,
+  type SensitiveCategoryView,
   sparkline,
   trendDirection,
 } from '#/lib/aqua-for-you'
@@ -25,12 +26,14 @@ import {
   useAquaAdjustMutation,
   useAquaConvencoesHistoryQuery,
   useAquaConvencoesProfileQuery,
+  useAquaSetSensitiveMutation,
 } from '#/state/queries/aqua-convencoes'
 import {ErrorScreen} from '#/view/com/util/error/ErrorScreen'
 import * as Toast from '#/view/com/util/Toast'
 import {atoms as a, useTheme} from '#/alf'
 import {Button, ButtonText} from '#/components/Button'
 import * as TextField from '#/components/forms/TextField'
+import * as Toggle from '#/components/forms/Toggle'
 import * as Layout from '#/components/Layout'
 import {Loader} from '#/components/Loader'
 import * as Prompt from '#/components/Prompt'
@@ -117,6 +120,11 @@ export function AquaConvencoesScreen({}: Props) {
                 )}
                 {profile.data.bloqueadas.length > 0 && (
                   <Blocked keys={profile.data.bloqueadas} />
+                )}
+                {(profile.data.categoriasSensiveis?.length ?? 0) > 0 && (
+                  <SensitiveCategories
+                    list={profile.data.categoriasSensiveis!}
+                  />
                 )}
               </>
             ) : (
@@ -364,6 +372,53 @@ function Synapses({list}: {list: Array<{a: string; b: string; vezes: number}>}) 
           {s.a} ↔ {s.b} · {s.vezes}×
         </Text>
       ))}
+    </View>
+  )
+}
+
+function SensitiveCategories({list}: {list: SensitiveCategoryView[]}) {
+  const {_} = useLingui()
+  const t = useTheme()
+  const setSensitive = useAquaSetSensitiveMutation()
+  return (
+    <View style={[a.gap_sm]}>
+      <Text style={[a.text_md, a.font_bold]}>
+        <Trans>Sensitive categories</Trans>
+      </Text>
+      <Text style={[a.text_sm, t.atoms.text_contrast_medium, a.leading_snug]}>
+        <Trans>
+          By default, the Aqua does not guess conventions about these topics
+          from what you do. Turn one on only if you want “For you” to learn it.
+          Conventions you add yourself always count. Turning one off removes
+          what was inferred.
+        </Trans>
+      </Text>
+      {list.map(c => (
+        <Toggle.Item
+          key={c.id}
+          name={`sensivel_${c.id}`}
+          label={c.nome}
+          value={c.ativa}
+          disabled={setSensitive.isPending}
+          onChange={ativa =>
+            setSensitive.mutate(
+              {categoria: c.id, ativa},
+              {onError: e => Toast.show(String(e.message), 'xmark')},
+            )
+          }
+          style={[a.flex_row, a.align_center, a.justify_between, a.py_xs]}>
+          <View style={[a.flex_1, a.pr_md, a.gap_2xs]}>
+            <Text style={[a.text_md]}>{c.nome}</Text>
+            <Text style={[a.text_xs, t.atoms.text_contrast_medium]}>
+              {c.descricao}
+            </Text>
+          </View>
+          <Toggle.Platform />
+        </Toggle.Item>
+      ))}
+      <Text style={[a.text_xs, t.atoms.text_contrast_low]}>
+        {_(msg`Each change is saved in your history.`)}
+      </Text>
     </View>
   )
 }

@@ -147,6 +147,16 @@ export interface ConventionProfileView {
   convencoes: ConventionView[]
   sinapses: Array<{a: string; b: string; vezes: number}>
   bloqueadas: string[]
+  /** off by default: the Aqua does not infer conventions in these categories */
+  categoriasSensiveis?: SensitiveCategoryView[]
+}
+
+export interface SensitiveCategoryView {
+  id: string
+  nome: string
+  descricao: string
+  ativa: boolean
+  exemplos: string[]
 }
 
 export interface HistoryEntryView {

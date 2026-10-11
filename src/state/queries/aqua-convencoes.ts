@@ -101,3 +101,14 @@ export function useAquaAdjustMutation() {
     onSettled: () => qc.invalidateQueries({queryKey: [RQKEY_ROOT]}),
   })
 }
+
+/** Opt in/out of inferring conventions in a sensitive category (off by default). */
+export function useAquaSetSensitiveMutation() {
+  const agent = useAgent()
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (input: {categoria: string; ativa: boolean}) =>
+      call(agent, 'place.aqua.convencoes.setSensitive', {body: input}),
+    onSettled: () => qc.invalidateQueries({queryKey: [RQKEY_ROOT]}),
+  })
+}

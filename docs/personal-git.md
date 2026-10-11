@@ -160,6 +160,33 @@ cada post apareceu e deixa ele ajustar o peso das Convenções. O Git pessoal é
   (`user_repos`, o pacote exportado). **Sem criptografia ainda** — é o MVP; o
   desenho final é o da seção 7.
 
+### Categorias sensíveis (não inferidas por padrão)
+
+Decisão do Samu: a Aqua **não deduz** Convenções destas categorias a partir da
+atividade, a menos que o usuário ative a categoria (uma por uma, desligadas por
+padrão):
+
+| id | Categoria |
+|---|---|
+| `saude` | Saúde (inclui saúde mental, remédios, gravidez) |
+| `politica` | Política (partidos, eleições, ideologias) |
+| `religiao` | Religião e crenças |
+| `sexualidade` | Sexualidade e identidade de gênero |
+| `adulto` | Conteúdo adulto +18 (inclui rótulos `porn`, `sexual`, `nudity`, `sexual-figurative`, `graphic-media`, `gore`) |
+| `etnia-raca` | Origem étnica e raça |
+| `sindicato` | Filiação sindical |
+| `financas-pessoais` | Finanças pessoais claramente sensíveis (dívidas, nome sujo, falência, empréstimos) |
+
+- A lista é **explícita** (`aqua-feeds/src/conventions/sensitive.ts`): #tags
+  exatas (normalizadas sem acento), alguns prefixos (`lgbt…`) e rótulos.
+  Configurável por `SENSITIVE_CATEGORIES_FILE`. Não há classificação por IA.
+- Sem opt-in, sinais com essas Convenções não contam para elas (nem formam
+  Sinapses) e elas não aparecem no perfil nem no histórico; o resumo seguinte
+  remove do Git as que já tinham sido inferidas.
+- Convenções sensíveis **adicionadas pelo usuário** continuam valendo.
+- Ativar/desativar é um commit `usuario`/`confirmado` com `sensiveis.json`
+  (`categorias_ativas`) e as Convenções da categoria que entraram ou saíram.
+
 ## 7. Quem é dono do Git: a U.I.
 
 - O **Git local é da U.I.** (no aparelho/computador do usuário). A AQUA não é a
@@ -219,8 +246,6 @@ paridade). `npm run vetores` regenera os vetores a partir da U.I. local
 
 ## 10. Perguntas abertas
 
-1. Categorias sensíveis (saúde, política, religião, sexualidade): a AQUA deve
-   deixar de inferir essas por padrão?
-2. A U.I. pareada substitui a cópia do servidor imediatamente, ou as duas
+1. A U.I. pareada substitui a cópia do servidor imediatamente, ou as duas
    convivem (servidor só como remoto cifrado) desde o primeiro dia?
-3. Licença padrão do que for publicado e formato/cadeia da 616.
+2. Licença padrão do que for publicado e formato/cadeia da 616.

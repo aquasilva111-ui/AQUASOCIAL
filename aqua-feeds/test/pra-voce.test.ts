@@ -8,7 +8,7 @@ import {createApp} from '../src/app.ts'
 import {createAuth} from '../src/auth.ts'
 import {type Config, loadConfig} from '../src/config.ts'
 import {historyOf, loadRepo, BRANCH} from '../src/conventions/history.ts'
-import {buildProfile, type Signal} from '../src/conventions/profile.ts'
+import {type Adjustment, buildProfile, type Signal} from '../src/conventions/profile.ts'
 import {createPgliteDb, type Db, migrate} from '../src/db.ts'
 import {createFeed} from '../src/feed.ts'
 import {applyOps, toOps} from '../src/jetstream.ts'
@@ -397,9 +397,99 @@ describe('endpoints com JWT de serviço', () => {
     expect((await app.request('/xrpc/place.aqua.feed.explain?uri=x')).status).toBe(400)
   })
 
+  it('setSensitive exige login e valida a categoria', async () => {
+    const {app, jwt} = await setup()
+    const url = '/xrpc/place.aqua.convencoes.setSensitive'
+    const post = async (body: unknown, auth = true) =>
+      app.request(url, {
+        method: 'POST',
+        headers: {...(auth ? await jwt('place.aqua.convencoes.setSensitive') : {}), 'content-type': 'application/json'},
+        body: JSON.stringify(body),
+      })
+    expect((await post({categoria: 'saude', ativa: true}, false)).status).toBe(401)
+    expect((await post({categoria: 'nada', ativa: true})).status).toBe(400)
+    expect((await post({categoria: 'saude', ativa: 'sim'})).status).toBe(400)
+    const ok = await post({categoria: 'saude', ativa: true})
+    expect(await ok.json()).toMatchObject({categoria: 'saude', ativa: true})
+  })
+
   it('cabeçalho de desenvolvimento só vale fora de produção e se ligado', async () => {
     const devCfg = loadConfig({AQUA_FEEDS_ENV: 'development', FEEDGEN_HOSTNAME: 'localhost', AUTH_DEV_VIEWER_HEADER: '1'})
     expect(await createAuth(devCfg, async () => '')({devViewer: VIEWER}, 'x')).toBe(VIEWER)
     expect(await createAuth(cfg, async () => '')({devViewer: VIEWER}, 'x')).toBeUndefined()
+  })
+})
+
+describe('categorias sensíveis (desligadas por padrão)', () => {
+  const sig = (keys: string[], n: number): Signal[] =>
+    Array.from({length: n}, (_, i) => ({kind: 'like', at: NOW - i * H, keys, subject: `s${i}`}))
+
+  it('classifica pela lista explícita (tema, prefixo e rótulo +18)', async () => {
+    const {createSensitiveIndex} = await import('../src/conventions/sensitive.ts')
+    const idx = createSensitiveIndex()
+    expect(idx.categoryOf('tema:saúde-mental')).toBe('saude')
+    expect(idx.categoryOf('tema:Eleições')).toBe('politica')
+    expect(idx.categoryOf('tema:lgbtqia')).toBe('sexualidade')
+    expect(idx.categoryOf('rotulo:porn')).toBe('adulto')
+    expect(idx.categoryOf('tema:sindicato')).toBe('sindicato')
+    expect(idx.categoryOf('tema:dividas')).toBe('financas-pessoais')
+    expect(idx.categoryOf('tema:quilombola')).toBe('etnia-raca')
+    expect(idx.categoryOf('tema:arte')).toBeUndefined()
+    expect(idx.categoryOf('idioma:pt')).toBeUndefined()
+  })
+
+  it('não infere por padrão; opt-in liga; opt-out tira de novo', () => {
+    const s = sig(['tema:arte', 'tema:saude-mental', 'rotulo:porn'], 4)
+    const keys = (adj: Adjustment[]) => buildProfile(s, adj, NOW).conventions.map(c => c.key).sort()
+    expect(keys([])).toEqual(['tema:arte'])
+    const on = [{key: 'sensivel:saude', action: 'optin' as const, at: NOW - 1}]
+    expect(keys(on)).toEqual(['tema:arte', 'tema:saude-mental'])
+    expect(buildProfile(s, on, NOW).sensitiveOptIn).toEqual(['saude'])
+    const off = [...on, {key: 'sensivel:saude', action: 'optout' as const, at: NOW}]
+    expect(keys(off)).toEqual(['tema:arte'])
+    // sensível também não forma Sinapse sem opt-in
+    const syn = buildProfile(s, [], NOW).viewer.synapses!
+    expect([...syn.keys()].some(k => k.includes('saude'))).toBe(false)
+  })
+
+  it('Convenção sensível adicionada pelo usuário continua valendo', () => {
+    const p = buildProfile(sig(['tema:saude-mental'], 3), [{key: 'tema:saude-mental', action: 'add', at: NOW - 5 * H}], NOW)
+    expect(p.conventions[0]).toMatchObject({key: 'tema:saude-mental', fonte: 'usuario'})
+    expect(p.conventions[0]!.sinais.like).toBeGreaterThan(0)
+    expect(p.viewer.conventionGravity!.get('tema:saude-mental')).toBeGreaterThan(0)
+  })
+
+  it('endpoint: lista as categorias desligadas, liga/desliga e registra no histórico', async () => {
+    const uri = await jsPost('did:plc:ana', 1, 'cuidando da #saudemental e da #arte', NOW - 2 * H)
+    await store.touchViewer(VIEWER)
+    await jsLike(VIEWER, uri, 1, NOW - H)
+    const fy = createForYou(store, cfg, () => clock)
+
+    const p0 = await fy.getProfile(VIEWER)
+    expect(p0.categoriasSensiveis.every(c => !c.ativa)).toBe(true)
+    expect(p0.categoriasSensiveis.map(c => c.id)).toEqual([
+      'saude', 'politica', 'religiao', 'sexualidade', 'adulto', 'etnia-raca', 'sindicato', 'financas-pessoais',
+    ])
+    expect(p0.convencoes.map(c => c.key)).not.toContain('tema:saudemental')
+
+    clock += 1000
+    const on = await fy.setSensitive(VIEWER, {categoria: 'saude', ativa: true})
+    expect(on.commit).toBeTruthy()
+    const p1 = await fy.getProfile(VIEWER)
+    expect(p1.convencoes.map(c => c.key)).toContain('tema:saudemental')
+    expect(p1.categoriasSensiveis.find(c => c.id === 'saude')!.ativa).toBe(true)
+
+    clock += 1000
+    await fy.setSensitive(VIEWER, {categoria: 'saude', ativa: false})
+    const p2 = await fy.getProfile(VIEWER)
+    expect(p2.convencoes.map(c => c.key)).not.toContain('tema:saudemental')
+
+    const h = (await fy.getHistory(VIEWER)).historico
+    expect(h[0]!.reason).toMatch(/desligou.*Saúde/)
+    expect(h[0]!.changes.map(c => c.key).sort()).toEqual(['sensiveis.json', 'tema:saudemental'])
+    expect(h[0]!.changes.find(c => c.key === 'tema:saudemental')!.kind).toBe('removed')
+    expect(h[1]!.reason).toMatch(/permitiu.*Saúde/)
+    expect(h[1]!.certeza).toBe('explicito')
+    await expect(fy.setSensitive(VIEWER, {categoria: 'xyz', ativa: true})).rejects.toThrow()
   })
 })
