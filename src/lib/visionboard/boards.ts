@@ -24,13 +24,25 @@ export const PIN_COLLECTION = 'place.aqua.visionboard.pin'
 
 export type BoardVisibility = 'public' | 'private'
 
+/**
+ * Labels for the UI. "private" is NOT private: the records stay public repo
+ * data that any atproto client can read, AQUA only hides them from others.
+ * Say so instead of promising privacy we cannot give.
+ */
+export const VISIBILITY_LABEL: Record<BoardVisibility, string> = {
+  public: 'Público',
+  private: 'Oculto no Aqua',
+}
+export const HIDDEN_HINT =
+  'Oculto no Aqua: outras pessoas não veem no app, mas continua sendo dado público do seu repositório (outros apps do protocolo podem ler).'
+
 export type BoardRecord = {
   $type: typeof BOARD_COLLECTION
   title: string
   description?: string
   /** "private" hides the board in AQUA; the record itself stays public repo data. */
   visibility: BoardVisibility
-  /** Pin whose image is the cover. Defaults to the most recent pin. */
+  /** Pin (or upload) whose image is the cover. Defaults to the most recent one. */
   coverPin?: string
   /** Look of the board; absent means the defaults in look.ts. */
   theme?: BoardTheme
@@ -124,6 +136,7 @@ export function newBoardRecord(
   const ts = now.toISOString()
   return {
     $type: BOARD_COLLECTION,
+    // Default public: "private" only hides in AQUA (see VISIBILITY_LABEL).
     visibility: 'public',
     createdAt: ts,
     updatedAt: ts,
@@ -261,4 +274,116 @@ export function boardsContaining(
       out.push(boardUri)
   }
   return out
+}
+
+/**
+ * Cover images of a board: the chosen cover (pin or upload) first, then the
+ * newest entries, pins and uploads interleaved by date.
+ */
+export function coverOrder<T extends {uri: string; createdAt: string}>(
+  board: BoardRecord,
+  entries: T[],
+  n: number,
+): T[] {
+  const chosen = entries.find(e => e.uri === board.coverPin)
+  const rest = entries
+    .filter(e => e !== chosen)
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+  return (chosen ? [chosen, ...rest] : rest).slice(0, n)
+}
+
+/** The board record with `updatedAt` bumped, keeping every other field as is. */
+export function touchBoard<T extends Record<string, unknown>>(
+  raw: T,
+  now = new Date(),
+): T & {updatedAt: string} {
+  return {...raw, updatedAt: now.toISOString()}
+}
+
+/** One operation of com.atproto.repo.applyWrites. */
+export type RepoWrite =
+  | {
+      $type: 'com.atproto.repo.applyWrites#create'
+      collection: string
+      rkey?: string
+      value: Record<string, unknown>
+    }
+  | {
+      $type: 'com.atproto.repo.applyWrites#update'
+      collection: string
+      rkey: string
+      value: Record<string, unknown>
+    }
+  | {
+      $type: 'com.atproto.repo.applyWrites#delete'
+      collection: string
+      rkey: string
+    }
+
+/** The PDS refuses more than 200 writes in one applyWrites call. */
+export const MAX_WRITES_PER_BATCH = 200
+
+export function chunkWrites(
+  writes: RepoWrite[],
+  size = MAX_WRITES_PER_BATCH,
+): RepoWrite[][] {
+  const out: RepoWrite[][] = []
+  for (let i = 0; i < writes.length; i += size) {
+    out.push(writes.slice(i, i + size))
+  }
+  return out
+}
+
+/**
+ * Deleting a board: uploads, then pins, then the board itself last, so a
+ * failure between batches never leaves items pointing at a missing board.
+ */
+export function deleteBoardWrites(input: {
+  rkey: string
+  pinRkeys: string[]
+  uploadRkeys?: string[]
+  uploadCollection: string
+}): RepoWrite[] {
+  const del = (collection: string, rkey: string): RepoWrite => ({
+    $type: 'com.atproto.repo.applyWrites#delete',
+    collection,
+    rkey,
+  })
+  return [
+    ...(input.uploadRkeys ?? []).map(r => del(input.uploadCollection, r)),
+    ...input.pinRkeys.map(r => del(PIN_COLLECTION, r)),
+    del(BOARD_COLLECTION, input.rkey),
+  ]
+}
+
+/** Manual order: only pins whose position actually changes are rewritten. */
+export function reorderWrites(ordered: StoredPin[]): RepoWrite[] {
+  const writes: RepoWrite[] = []
+  for (const [index, stored] of ordered.entries()) {
+    if (stored.pin.position === index) continue
+    writes.push({
+      $type: 'com.atproto.repo.applyWrites#update',
+      collection: PIN_COLLECTION,
+      rkey: stored.rkey,
+      value: toWritable({...stored.pin, position: index}) as unknown as Record<
+        string,
+        unknown
+      >,
+    })
+  }
+  return writes
+}
+
+/** The pin list with the pin at `index` moved one step up (-1) or down (+1). */
+export function movePinStep(
+  ordered: StoredPin[],
+  index: number,
+  step: -1 | 1,
+): StoredPin[] | undefined {
+  const target = index + step
+  if (index < 0 || index >= ordered.length) return undefined
+  if (target < 0 || target >= ordered.length) return undefined
+  const next = [...ordered]
+  ;[next[index], next[target]] = [next[target], next[index]]
+  return next
 }
