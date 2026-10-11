@@ -73,6 +73,10 @@ jobs:
       - name: 🔦 Generate stats file from base commit
         if: ${{ !steps.get-base-stats.outputs.cache-hit }}
         run: |
+          # The base still has the paste-input 0.8.1 patch. Under CI=true,
+          # patch-package exits 1. This install is not frozen, so the stale
+          # lockfile can refresh in the working tree.
+          rm -f patches/@mattermost+react-native-paste-input+0.8.1.patch
           yarn install
           yarn intl:build
           yarn generate-webpack-stats-file
@@ -132,7 +136,6 @@ jobs:
                 -c user.name="github-actions[bot]" \
                 commit -m "ci: temporary baseline for fingerprint"
           fi
-          git branch -f main HEAD
 
       - name: 📷 Check fingerprint and install dependencies
         id: fingerprint
