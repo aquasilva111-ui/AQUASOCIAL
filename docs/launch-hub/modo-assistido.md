@@ -20,6 +20,20 @@ Com o lançamento publicado e ao menos uma rede assistida, o detalhe do lançame
 - **Assistido**: legenda dos 4 estados (Pendente, Aberto, Publicado, Erro) e um cartão por rede no estado certo (aberto com borda azul, publicado esmaecido com "Marcado como publicado", erro com borda laranja e "Tentar de novo");
 - **Dock em cápsula** fixa embaixo: "4 de 8 redes · Próxima: Threads", barra de progresso em gradiente, "Pular" e "Abrir próxima".
 
+## Logos das redes
+
+Os ícones das redes são os logos oficiais monocromáticos do **Simple Icons v16.35.0** (CC0), em preto no modo claro e branco no escuro, sobre um bloco neutro (`ProviderBadge` em `src/screens/LaunchHub/components.tsx`). Os caminhos SVG foram copiados para `src/lib/launch-hub/brand-icons.ts`, com atribuição, sem adicionar o pacote como dependência.
+
+- **Com logo:** Bluesky, X, Threads, Facebook, Pinterest, Tumblr, Mastodon, Reddit, WhatsApp, Telegram, Wattpad, BandLab, Instagram, TikTok, YouTube, SoundCloud.
+- **Sem logo, fica o monograma:** LinkedIn (não existe no Simple Icons 16.35.0 nem no `develop`: foi retirado a pedido da marca) e Website (não é uma marca).
+- **Aqua:** mantém a própria marca (`AquaLogo`, azul).
+
+**Cuidados com as marcas:**
+- CC0 vale para os arquivos SVG, não para as marcas. Cada logo continua sendo marca registrada da empresa dona e aparece aqui só para identificar a rede (uso nominativo), sem sugerir parceria ou endosso.
+- Não alterar a forma, não recortar, não animar e não combinar com outros elementos. Preto/branco monocromático é aceito pela maioria das diretrizes (X, Meta, YouTube, Pinterest, Reddit), mas algumas preferem a cor oficial em certos usos. As diretrizes de cada marca estão no campo `guidelines` de `brand-icons.ts`.
+- Antes do lançamento público, revisar as diretrizes de Meta (Instagram, Threads, Facebook, WhatsApp), X, YouTube e TikTok, porque elas mudam com frequência.
+- Se alguma marca pedir a retirada, basta apagar a entrada em `brand-icons.ts`: o cartão volta ao monograma sozinho.
+
 ## Redes e URLs (conferidas em 11/10/2026)
 
 | Rede | Modo hoje | URL | Verificação |

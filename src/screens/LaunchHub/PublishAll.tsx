@@ -45,7 +45,6 @@ import {atoms as a, useBreakpoints, useTheme, web} from '#/alf'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
 import * as TextField from '#/components/forms/TextField'
 import {GlassSurface} from '#/components/GlassSurface'
-import {AquaLogo} from '#/components/icons/AquaLogo'
 import {ArrowOutOfBox_Stroke2_Corner0_Rounded as ShareIcon} from '#/components/icons/ArrowOutOfBox'
 import {ArrowRotateCounterClockwise_Stroke2_Corner0_Rounded as RetryIcon} from '#/components/icons/ArrowRotateCounterClockwise'
 import {Check_Stroke2_Corner0_Rounded as CheckIcon} from '#/components/icons/Check'
@@ -64,7 +63,7 @@ import {
   strong,
   toneColors,
 } from './aqua-look'
-import {ProfileAvatar} from './components'
+import {ProfileAvatar, ProviderBadge} from './components'
 
 /** Room the content leaves at the bottom so the dock never covers a card. */
 export const DOCK_SPACE = 120
@@ -171,42 +170,9 @@ export function AssistStatus({status}: {status: DestinationStatus}) {
   )
 }
 
-/** `.net`: rounded-square network tile (ink), the Aqua one white with the logo. */
+/** `.net`: rounded-square network tile with the official logo (see ProviderBadge). */
 function NetTile({provider}: {provider: ProviderId}) {
-  const t = useTheme()
-  const dark = t.scheme === 'dark'
-  const def = getDestination(provider)
-  const isAqua = provider === 'aqua'
-  return (
-    <View
-      style={[
-        a.align_center,
-        a.justify_center,
-        {
-          width: 36,
-          height: 36,
-          borderRadius: RADIUS.tile,
-          backgroundColor: isAqua ? '#FFFFFF' : dark ? '#F2F3F4' : AQUA.tile,
-          borderWidth: isAqua ? 1 : 0,
-          borderColor: 'rgba(15,23,42,0.08)',
-        },
-      ]}>
-      {isAqua ? (
-        <AquaLogo size="lg" fill={AQUA.blue} />
-      ) : (
-        <Text
-          style={[
-            a.font_bold,
-            {
-              color: dark ? AQUA.tile : '#FFFFFF',
-              fontSize: def.monogram.length > 2 ? 11 : 14,
-            },
-          ]}>
-          {def.monogram}
-        </Text>
-      )}
-    </View>
-  )
+  return <ProviderBadge provider={provider} size={36} shape="square" />
 }
 
 function NetName({name, sub}: {name: string; sub: string}) {

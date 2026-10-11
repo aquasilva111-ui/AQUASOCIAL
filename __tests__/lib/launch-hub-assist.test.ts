@@ -8,6 +8,7 @@ import {
   mediaNotice,
   prepareAssist,
 } from '../../src/lib/launch-hub/assist'
+import {BRAND_ICONS} from '../../src/lib/launch-hub/brand-icons'
 import {
   DESTINATIONS,
   effectiveMode,
@@ -461,5 +462,37 @@ describe('Publicar em todas (mockup)', () => {
     expect(
       assistProgress([d('x', 'skipped', 'assistido')]).next,
     ).toBeUndefined()
+  })
+})
+
+describe('network logos (Simple Icons, CC0)', () => {
+  it('has a logo for every network except LinkedIn (not in Simple Icons) and Website; Aqua keeps its mark', () => {
+    const withLogo = Object.keys(BRAND_ICONS).sort()
+    expect(withLogo).toEqual([
+      'bandlab',
+      'bluesky',
+      'facebook',
+      'instagram',
+      'mastodon',
+      'pinterest',
+      'reddit',
+      'soundcloud',
+      'telegram',
+      'threads',
+      'tiktok',
+      'tumblr',
+      'wattpad',
+      'whatsapp',
+      'x',
+      'youtube',
+    ])
+    const without = DESTINATIONS.map(d => d.id).filter(id => !BRAND_ICONS[id])
+    expect(without.sort()).toEqual(['aqua', 'linkedin', 'website'])
+  })
+
+  it('paths are single 24x24 SVG paths', () => {
+    for (const icon of Object.values(BRAND_ICONS) as Array<{path: string}>) {
+      expect(icon.path).toMatch(/^[Mm][^<>"']+$/)
+    }
   })
 })

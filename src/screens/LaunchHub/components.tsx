@@ -1,6 +1,8 @@
 import {type ReactNode} from 'react'
 import {View} from 'react-native'
+import {Path, Svg} from 'react-native-svg'
 
+import {BRAND_ICONS} from '#/lib/launch-hub/brand-icons'
 import {getProvider} from '#/lib/launch-hub/providers'
 import {
   type ConnectionStatus,
@@ -13,6 +15,7 @@ import {
 } from '#/lib/launch-hub/types'
 import {UserAvatar} from '#/view/com/util/UserAvatar'
 import {atoms as a, useTheme} from '#/alf'
+import {AquaLogo} from '#/components/icons/AquaLogo'
 import {Text} from '#/components/Typography'
 
 export const PROFILE_TYPE_LABELS: Record<ProfileType, string> = {
@@ -121,30 +124,88 @@ export function ValidationPill({
   }
 }
 
-/** Monogram badge; brand artwork is intentionally not bundled. */
+/**
+ * The network's official monochrome logo (Simple Icons, CC0; see
+ * brand-icons.ts), black on light and white on dark. Undefined when there is
+ * none (LinkedIn, Website): callers fall back to the monogram.
+ */
+export function NetworkLogo({
+  provider,
+  size,
+  color,
+}: {
+  provider: ProviderId
+  size: number
+  color?: string
+}) {
+  const t = useTheme()
+  const icon = BRAND_ICONS[provider]
+  if (!icon) return null
+  return (
+    <Svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      accessibilityLabel={icon.title}
+      accessibilityHint="">
+      <Path
+        d={icon.path}
+        fill={color ?? (t.scheme === 'dark' ? '#FFFFFF' : '#000000')}
+      />
+    </Svg>
+  )
+}
+
+export const hasNetworkLogo = (provider: ProviderId) => !!BRAND_ICONS[provider]
+
+/**
+ * Network badge: the official logo in black (white on dark) on a neutral
+ * tile; the Aqua keeps its own mark; networks without a logo in Simple Icons
+ * (LinkedIn, Website) keep the monogram, in the same monochrome style.
+ */
 export function ProviderBadge({
   provider,
   size = 32,
+  shape = 'circle',
 }: {
   provider: ProviderId
   size?: number
+  shape?: 'circle' | 'square'
 }) {
-  const {monogram, color} = getProvider(provider)
+  const t = useTheme()
+  const dark = t.scheme === 'dark'
+  const {monogram} = getProvider(provider)
+  const isAqua = provider === 'aqua'
   return (
     <View
       style={[
-        a.rounded_full,
         a.align_center,
         a.justify_center,
-        {width: size, height: size, backgroundColor: color},
+        {
+          width: size,
+          height: size,
+          borderRadius: shape === 'circle' ? size / 2 : size * 0.3,
+          backgroundColor: isAqua ? '#FFFFFF' : dark ? '#1C2736' : '#FFFFFF',
+          borderWidth: 1,
+          borderColor: dark ? 'rgba(255,255,255,0.14)' : 'rgba(15,23,42,0.10)',
+        },
       ]}>
-      <Text
-        style={[
-          a.font_bold,
-          {color: '#fff', fontSize: size * (monogram.length > 2 ? 0.28 : 0.36)},
-        ]}>
-        {monogram}
-      </Text>
+      {isAqua ? (
+        <AquaLogo width={size * 0.66} height={size * 0.66} fill="#002BEF" />
+      ) : hasNetworkLogo(provider) ? (
+        <NetworkLogo provider={provider} size={size * 0.56} />
+      ) : (
+        <Text
+          style={[
+            a.font_bold,
+            {
+              color: dark ? '#FFFFFF' : '#000000',
+              fontSize: size * (monogram.length > 2 ? 0.28 : 0.36),
+            },
+          ]}>
+          {monogram}
+        </Text>
+      )}
     </View>
   )
 }
