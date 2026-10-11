@@ -1,7 +1,7 @@
 import {
   filledFrames,
-  type ViewsFrame,
   VIEWS_FRAMES,
+  type ViewsFrame,
 } from '#/lib/media/viewsFrames'
 import {
   channelPageState,
