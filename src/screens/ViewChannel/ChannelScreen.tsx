@@ -113,6 +113,20 @@ function ChannelPage({handle}: {handle: string}) {
     )
   if (page.state === 'unavailable')
     return <Notice title="Este canal não está disponível" />
+  // A failed video feed has zero items, which would otherwise look like
+  // "this profile has not published any videos".
+  if (page.state === 'none' && data.feed.isError)
+    return (
+      <Notice title="Não foi possível carregar os vídeos">
+        <Button
+          label="Tentar novamente"
+          size="small"
+          color="secondary"
+          onPress={() => data.feed.refetch()}>
+          <ButtonText>Tentar novamente</ButtonText>
+        </Button>
+      </Notice>
+    )
   if (page.state === 'none')
     return isOwner ? (
       <Notice

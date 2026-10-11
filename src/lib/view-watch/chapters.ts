@@ -56,12 +56,12 @@ export function chapterAt(chapters: Chapter[], sec: number): number {
   return index
 }
 
-/** 192 → "3:12", 3723 → "1:02:03". */
 /** A duration worth showing: finite and positive (not NaN, Infinity or 0). */
 export function usableDuration(d: unknown): number | undefined {
   return typeof d === 'number' && Number.isFinite(d) && d > 0 ? d : undefined
 }
 
+/** 192 → "3:12", 3723 → "1:02:03". */
 export function formatTime(totalSec: number): string {
   const sec = Math.max(0, Math.floor(totalSec))
   const h = Math.floor(sec / 3600)

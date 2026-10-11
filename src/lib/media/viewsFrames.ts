@@ -6,7 +6,7 @@ import {type ImageSource} from 'expo-image'
  *
  * To place a creative: add the file under `assets/views-frames/` and set
  * `image: require('../../../assets/views-frames/<file>')`. A frame without
- * an image renders as an empty placeholder.
+ * an image is hidden.
  */
 export type ViewsFrame = {
   id: string

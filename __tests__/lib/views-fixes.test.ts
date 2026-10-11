@@ -1,4 +1,8 @@
-import {filledFrames, VIEWS_FRAMES} from '#/lib/media/viewsFrames'
+import {
+  filledFrames,
+  type ViewsFrame,
+  VIEWS_FRAMES,
+} from '#/lib/media/viewsFrames'
 import {
   channelPageState,
   implicitChannel,
@@ -40,7 +44,10 @@ describe('filledFrames', () => {
     expect(
       filledFrames(VIEWS_FRAMES.map(f => ({...f, image: undefined}))),
     ).toEqual([])
-    const withImg = {...VIEWS_FRAMES[0], image: 'https://x/y.jpg'}
+    const withImg: ViewsFrame = {
+      ...VIEWS_FRAMES[0],
+      image: {uri: 'https://x/y.jpg'},
+    }
     expect(filledFrames([withImg, VIEWS_FRAMES[1]])).toEqual([withImg])
   })
 })
