@@ -9,8 +9,8 @@ import {
   coverOf,
   newBoardRecord,
   type StoredPin,
+  VISIBILITY_LABEL,
 } from '#/lib/visionboard/boards'
-import {extractAesthetic} from '#/lib/visionboard/extract'
 import {type Shadow} from '#/state/cache/post-shadow'
 import {useBookmarkMutation} from '#/state/queries/bookmarks/useBookmarkMutation'
 import {
@@ -23,7 +23,7 @@ import {
 } from '#/state/queries/visionboard-boards'
 import {useSession} from '#/state/session'
 import {atoms as a, useTheme, web} from '#/alf'
-import {Button} from '#/components/Button'
+import {Button, ButtonText} from '#/components/Button'
 import * as Dialog from '#/components/Dialog'
 import {SearchInput} from '#/components/forms/SearchInput'
 import {Loader} from '#/components/Loader'
@@ -58,9 +58,10 @@ export type SaveTarget = {
 
 /**
  * "Salvar em…": the user's Visionboards with a search box. Tapping a board
- * saves the image there (tapping again removes it); a name that matches no
- * board offers to create it. Saving also keeps the image in AQUA Saved
- * (bookmarks) so existing saves keep working.
+ * saves the image there and the dialog stays open, so one image can go into
+ * several boards. Removing asks for a second tap ("Remover?"). A name that
+ * matches no board offers to create it. Saving also keeps the image in AQUA
+ * Saved (bookmarks) so existing saves keep working.
  */
 export function SaveToBoardDialog({
   control,
@@ -98,6 +99,8 @@ function Body({
   const removePin = useRemovePinMutation()
   const {mutateAsync: bookmark} = useBookmarkMutation()
   const [busy, setBusy] = useState<string | undefined>()
+  /** Board waiting for the second tap that confirms removing the image. */
+  const [confirming, setConfirming] = useState<string | undefined>()
 
   const subject = useMemo(
     () => ({uri: target.post.uri, cid: target.post.cid}),
@@ -124,6 +127,11 @@ function Body({
   }
 
   async function toggle(board: StoredBoard) {
+    if (heldIn.has(board.uri) && confirming !== board.uri) {
+      setConfirming(board.uri)
+      return
+    }
+    setConfirming(undefined)
     setBusy(board.uri)
     try {
       if (heldIn.has(board.uri)) {
@@ -135,20 +143,16 @@ function Body({
         if (stored) await removePin.mutateAsync({rkey: stored.rkey})
         toast.show(`Removido de ${board.board.title}`)
       } else {
-        const aesthetic = target.thumbUrl
-          ? await extractAesthetic(target.thumbUrl)
-          : undefined
         await addPin.mutateAsync({
           boardUri: board.uri,
           subject,
           imageIndex: target.imageIndex,
-          aesthetic,
+          thumbUrl: target.thumbUrl,
           tags: target.tags ?? [],
         })
         await ensureBookmark()
         toast.show(`Salvo em ${board.board.title}`, {type: 'success'})
       }
-      control.close()
     } catch (e) {
       toast.show(cleanError(e), {type: 'error'})
     } finally {
@@ -162,21 +166,18 @@ function Body({
     setBusy('new')
     try {
       const {uri} = await saveBoard.mutateAsync({
-        draft: newBoardRecord({title, visibility: 'private'}),
+        draft: newBoardRecord({title}),
       })
-      const aesthetic = target.thumbUrl
-        ? await extractAesthetic(target.thumbUrl)
-        : undefined
       await addPin.mutateAsync({
         boardUri: uri,
         subject,
         imageIndex: target.imageIndex,
-        aesthetic,
+        thumbUrl: target.thumbUrl,
         tags: target.tags ?? [],
       })
       await ensureBookmark()
+      setQuery('')
       toast.show(`Salvo em ${title}`, {type: 'success'})
-      control.close()
     } catch (e) {
       toast.show(cleanError(e), {type: 'error'})
     } finally {
@@ -205,6 +206,7 @@ function Body({
               board={b}
               pins={pins.data?.get(b.uri) ?? []}
               held={heldIn.has(b.uri)}
+              confirming={confirming === b.uri}
               loading={busy === b.uri}
               onPress={() => toggle(b)}
             />
@@ -240,7 +242,7 @@ function Body({
                       Criar “{query.trim()}”
                     </Text>
                     <Text style={[a.text_sm, t.atoms.text_contrast_medium]}>
-                      novo visionboard privado
+                      novo visionboard público
                     </Text>
                   </View>
                 </View>
@@ -255,6 +257,15 @@ function Body({
           )}
         </View>
       )}
+      <Button
+        label="Concluído"
+        size="large"
+        variant="solid"
+        color="secondary"
+        onPress={() => control.close()}
+        style={[a.rounded_full]}>
+        <ButtonText>Concluído</ButtonText>
+      </Button>
     </View>
   )
 }
@@ -263,19 +274,29 @@ function BoardRow({
   board,
   pins,
   held,
+  confirming,
   loading,
   onPress,
 }: {
   board: StoredBoard
   pins: StoredPin[]
   held: boolean
+  confirming: boolean
   loading: boolean
   onPress: () => void
 }) {
   const t = useTheme()
   const swatch = boardSwatch(board.board, pins)
   return (
-    <Button label={`Salvar em ${board.board.title}`} onPress={onPress}>
+    <Button
+      label={
+        confirming
+          ? `Confirmar remoção de ${board.board.title}`
+          : held
+            ? `Remover de ${board.board.title}`
+            : `Salvar em ${board.board.title}`
+      }
+      onPress={onPress}>
       {({hovered}) => (
         <View
           style={[
@@ -301,7 +322,7 @@ function BoardRow({
             </Text>
             <Text style={[a.text_sm, t.atoms.text_contrast_medium]}>
               {pins.length} {pins.length === 1 ? 'pin' : 'pins'} ·{' '}
-              {board.board.visibility === 'private' ? 'Privado' : 'Público'}
+              {VISIBILITY_LABEL[board.board.visibility]}
             </Text>
           </View>
           {loading ? (
@@ -312,11 +333,19 @@ function BoardRow({
                 a.rounded_full,
                 a.px_md,
                 {paddingVertical: 7},
-                held ? {backgroundColor: '#111315'} : t.atoms.bg_contrast_25,
+                confirming
+                  ? {backgroundColor: '#E5214F'}
+                  : held
+                    ? {backgroundColor: '#111315'}
+                    : t.atoms.bg_contrast_25,
               ]}>
               <Text
-                style={[a.text_sm, a.font_semi_bold, held && {color: '#fff'}]}>
-                {held ? 'Salvo ✓' : 'Salvar'}
+                style={[
+                  a.text_sm,
+                  a.font_semi_bold,
+                  (held || confirming) && {color: '#fff'},
+                ]}>
+                {confirming ? 'Remover?' : held ? 'Salvo ✓' : 'Salvar'}
               </Text>
             </View>
           )}

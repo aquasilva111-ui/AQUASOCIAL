@@ -7,9 +7,11 @@ import {useNavigation} from '@react-navigation/native'
 import {type NavigationProp} from '#/lib/routes/types'
 import {cleanError} from '#/lib/strings/errors'
 import {
+  type BoardRecord,
+  coverOrder,
   newBoardRecord,
-  orderedPins,
   type StoredPin,
+  VISIBILITY_LABEL,
 } from '#/lib/visionboard/boards'
 import {pinImage} from '#/lib/visionboard/pin-image'
 import {type StoredUpload, uploadBlobUrl} from '#/lib/visionboard/uploads'
@@ -54,12 +56,16 @@ export function VisionboardBoardsScreen() {
   const coverUris = useMemo(() => {
     const uris: string[] = []
     for (const b of boards.data ?? []) {
-      for (const p of newest(pins.data?.get(b.uri) ?? [], 3)) {
-        uris.push(p.pin.subject.uri)
+      for (const e of coverEntries(
+        b.board,
+        pins.data?.get(b.uri) ?? [],
+        uploads.data?.get(b.uri) ?? [],
+      )) {
+        if (e.pin) uris.push(e.pin.pin.subject.uri)
       }
     }
     return uris
-  }, [boards.data, pins.data])
+  }, [boards.data, pins.data, uploads.data])
   const posts = usePinPostsQuery(coverUris)
   const totalPins = [
     ...(pins.data?.values() ?? []),
@@ -145,10 +151,35 @@ export function VisionboardBoardsScreen() {
   )
 }
 
-const newest = (pins: StoredPin[], n: number) =>
-  [...pins]
-    .sort((x, y) => y.pin.createdAt.localeCompare(x.pin.createdAt))
-    .slice(0, n)
+type CoverEntry = {
+  uri: string
+  createdAt: string
+  pin?: StoredPin
+  upload?: StoredUpload
+}
+
+/**
+ * The 3 images of a board card: the chosen cover (board.coverPin, pin or
+ * upload) first, then the newest pins and uploads interleaved by date.
+ */
+function coverEntries(
+  board: BoardRecord,
+  pins: StoredPin[],
+  uploads: StoredUpload[],
+): CoverEntry[] {
+  return coverOrder(
+    board,
+    [
+      ...pins.map(p => ({uri: p.uri, createdAt: p.pin.createdAt, pin: p})),
+      ...uploads.map(u => ({
+        uri: u.uri,
+        createdAt: u.upload.createdAt,
+        upload: u,
+      })),
+    ],
+    3,
+  )
+}
 
 function NewBoardTile() {
   const t = useTheme()
@@ -195,27 +226,30 @@ function BoardCard({
 }) {
   const t = useTheme()
   const moderationOpts = useModerationOpts()
-  // Dropped images first (newest), then the pinned posts.
-  const uploaded = pdsUrl
-    ? uploads.slice(0, 3).map(u => {
-        const url = uploadBlobUrl(pdsUrl, board.did, u.upload.image.ref.$link)
-        const ar = u.upload.aspectRatio
-        return {
-          thumb: url,
-          fullsize: url,
-          alt: u.upload.alt ?? '',
-          aspectRatio: ar ? ar.width / ar.height : 1,
-        }
-      })
-    : []
-  const covers = [
-    ...uploaded,
-    ...newest(orderedPins(pins), 3).map(p =>
-      pinImage(posts?.get(p.pin.subject.uri), p.pin.imageIndex, moderationOpts),
-    ),
-  ].slice(0, 3)
+  const covers = coverEntries(board.board, pins, uploads).map(e => {
+    if (e.pin) {
+      return pinImage(
+        posts?.get(e.pin.pin.subject.uri),
+        e.pin.pin.imageIndex,
+        moderationOpts,
+      )
+    }
+    if (!e.upload || !pdsUrl) return undefined
+    const url = uploadBlobUrl(
+      pdsUrl,
+      board.did,
+      e.upload.upload.image.ref.$link,
+    )
+    const ar = e.upload.upload.aspectRatio
+    return {
+      thumb: url,
+      fullsize: url,
+      alt: e.upload.upload.alt ?? '',
+      aspectRatio: ar ? ar.width / ar.height : 1,
+    }
+  })
   const count = pins.length + uploads.length
-  const label = board.board.visibility === 'private' ? 'Privado' : 'Público'
+  const label = VISIBILITY_LABEL[board.board.visibility]
   return (
     <Link
       to={`/visionboard/boards/${board.did}/${board.rkey}`}
@@ -305,7 +339,7 @@ function CreateBoardDialog({control}: {control: Dialog.DialogControlProps}) {
     if (!name || !currentAccount) return
     try {
       const {uri} = await saveBoard.mutateAsync({
-        draft: newBoardRecord({title: name, visibility: 'private'}),
+        draft: newBoardRecord({title: name}),
       })
       setTitle('')
       control.close(() =>

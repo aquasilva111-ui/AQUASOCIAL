@@ -1,5 +1,5 @@
 import {createElement, useMemo, useState} from 'react'
-import {Pressable, View} from 'react-native'
+import {Pressable, useWindowDimensions, View} from 'react-native'
 import {Image} from 'expo-image'
 import {useNavigation} from '@react-navigation/native'
 
@@ -9,7 +9,13 @@ import {
   type NavigationProp,
 } from '#/lib/routes/types'
 import {cleanError} from '#/lib/strings/errors'
-import {orderedPins, type StoredPin} from '#/lib/visionboard/boards'
+import {
+  HIDDEN_HINT,
+  movePinStep,
+  orderedPins,
+  type StoredPin,
+  VISIBILITY_LABEL,
+} from '#/lib/visionboard/boards'
 import {
   BOARD_FONTS,
   BOARD_FRAMES,
@@ -22,6 +28,7 @@ import {
   musicEmbed,
   resolveLook,
 } from '#/lib/visionboard/look'
+import {gridColumnCount} from '#/lib/visionboard/masonry'
 import {type PinImage, pinImage} from '#/lib/visionboard/pin-image'
 import {fileToPickerImage} from '#/lib/visionboard/prepare-image'
 import {
@@ -35,12 +42,15 @@ import {useResolveDidQuery} from '#/state/queries/resolve-uri'
 import {
   type StoredBoard,
   useBoardQuery,
+  useBoardsQuery,
   useDeleteBoardMutation,
+  useMovePinMutation,
   usePdsEndpointQuery,
   usePinPostsQuery,
   usePinsByBoardQuery,
   useRemovePinMutation,
   useRemoveUploadMutation,
+  useReorderPinsMutation,
   useSaveBoardMutation,
   useUploadImagesMutation,
   useUploadsByBoardQuery,
@@ -53,6 +63,7 @@ import * as TextField from '#/components/forms/TextField'
 import * as Layout from '#/components/Layout'
 import {Link} from '#/components/Link'
 import {Loader} from '#/components/Loader'
+import * as Menu from '#/components/Menu'
 import * as toast from '#/components/Toast'
 import {Text} from '#/components/Typography'
 import {
@@ -118,7 +129,7 @@ export function VisionboardBoardViewScreen({
           </View>
         ) : !board.data ? (
           <Text style={[a.text_md, a.p_xl, a.text_center]}>
-            Este visionboard não existe ou é privado.
+            Este visionboard não existe ou está oculto.
           </Text>
         ) : (
           <BoardPage
@@ -133,11 +144,14 @@ export function VisionboardBoardViewScreen({
   )
 }
 
+type TileAction = {label: string; onPress: () => void; destructive?: boolean}
+
 type Tile = {
   key: string
   image: PinImage | undefined
   href?: string
-  onRemove?: () => void
+  /** Owner-only actions in the tile's ⋯ menu. */
+  actions?: TileAction[]
 }
 
 function BoardPage({
@@ -162,6 +176,11 @@ function BoardPage({
   const settings = Dialog.useDialogControl()
   const removePin = useRemovePinMutation()
   const removeUpload = useRemoveUploadMutation()
+  const movePin = useMovePinMutation()
+  const reorderPins = useReorderPinsMutation()
+  const saveBoard = useSaveBoardMutation()
+  const ownBoards = useBoardsQuery(isOwner ? board.did : undefined)
+  const otherBoards = (ownBoards.data ?? []).filter(b => b.uri !== board.uri)
   const uploadImages = useUploadImagesMutation()
   const [progress, setProgress] = useState<string | undefined>()
 
@@ -174,7 +193,65 @@ function BoardPage({
     }
   }
 
-  const pinTiles: Tile[] = ordered.map(p => {
+  const coverAction = (uri: string): TileAction[] =>
+    board.board.coverPin === uri
+      ? []
+      : [
+          {
+            label: 'Definir como capa',
+            onPress: () =>
+              guarded(
+                () =>
+                  saveBoard.mutateAsync({
+                    rkey: board.rkey,
+                    draft: {...board.board, coverPin: uri},
+                  }),
+                'Capa definida',
+              ),
+          },
+        ]
+
+  const pinActions = (p: StoredPin, index: number): TileAction[] => {
+    const step = (dir: -1 | 1, label: string): TileAction[] => {
+      const next = movePinStep(ordered, index, dir)
+      return next
+        ? [
+            {
+              label,
+              onPress: () =>
+                guarded(
+                  () => reorderPins.mutateAsync({ordered: next}),
+                  'Ordem salva',
+                ),
+            },
+          ]
+        : []
+    }
+    return [
+      ...coverAction(p.uri),
+      ...step(-1, 'Mover para antes'),
+      ...step(1, 'Mover para depois'),
+      ...otherBoards.map(b => ({
+        label: `Mover para “${b.board.title}”`,
+        onPress: () =>
+          guarded(
+            () => movePin.mutateAsync({stored: p, toBoardUri: b.uri}),
+            `Movido para ${b.board.title}`,
+          ),
+      })),
+      {
+        label: 'Tirar do visionboard',
+        destructive: true,
+        onPress: () =>
+          guarded(
+            () => removePin.mutateAsync({rkey: p.rkey}),
+            'Tirado do visionboard',
+          ),
+      },
+    ]
+  }
+
+  const pinTiles: Tile[] = ordered.map((p, index) => {
     const post = posts.data?.get(p.pin.subject.uri)
     return {
       key: p.uri,
@@ -182,13 +259,7 @@ function BoardPage({
       href: post
         ? `/visionboard/view/${post.author.did}/${post.uri.slice(post.uri.lastIndexOf('/') + 1)}`
         : undefined,
-      onRemove: isOwner
-        ? () =>
-            guarded(
-              () => removePin.mutateAsync({rkey: p.rkey}),
-              'Tirado do visionboard',
-            )
-        : undefined,
+      actions: isOwner ? pinActions(p, index) : undefined,
     }
   })
   const uploadTiles: Tile[] = uploads.flatMap(u => {
@@ -205,12 +276,19 @@ function BoardPage({
           alt: u.upload.alt ?? '',
           aspectRatio: ar ? ar.width / ar.height : 1,
         },
-        onRemove: isOwner
-          ? () =>
-              guarded(
-                () => removeUpload.mutateAsync({rkey: u.rkey}),
-                'Imagem removida',
-              )
+        actions: isOwner
+          ? [
+              ...coverAction(u.uri),
+              {
+                label: 'Remover imagem',
+                destructive: true,
+                onPress: () =>
+                  guarded(
+                    () => removeUpload.mutateAsync({rkey: u.rkey}),
+                    'Imagem removida',
+                  ),
+              },
+            ]
           : undefined,
       },
     ]
@@ -284,7 +362,7 @@ function BoardPage({
               },
             ]}>
             Visionboard · {tiles.length} {tiles.length === 1 ? 'pin' : 'pins'} ·{' '}
-            {board.board.visibility === 'private' ? 'privado' : 'público'}
+            {VISIBILITY_LABEL[board.board.visibility]}
           </Text>
           <Text
             style={[
@@ -386,7 +464,7 @@ function BoardPage({
               image={tile.image}
               href={tile.href}
               frame={look.frame}
-              onRemove={tile.onRemove}
+              actions={tile.actions}
             />
           ))}
         </View>
@@ -409,13 +487,13 @@ function MuralTile({
   image,
   href,
   frame,
-  onRemove,
+  actions,
 }: {
   index: number
   image: PinImage | undefined
   href: string | undefined
   frame: BoardFrame
-  onRemove?: () => void
+  actions?: TileAction[]
 }) {
   const polaroid = frame === 'polaroid'
   const body = (
@@ -469,28 +547,7 @@ function MuralTile({
           />
         )}
       </View>
-      {onRemove && (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Tirar do visionboard"
-          accessibilityHint=""
-          onPress={onRemove}
-          style={[a.absolute, {top: 8, right: 8, zIndex: 3}]}>
-          <View
-            style={[
-              a.rounded_full,
-              {
-                paddingHorizontal: 12,
-                paddingVertical: 6,
-                backgroundColor: 'rgba(255,255,255,0.85)',
-              },
-            ]}>
-            <Text style={[a.text_sm, a.font_semi_bold, {color: '#111315'}]}>
-              ✕
-            </Text>
-          </View>
-        </Pressable>
-      )}
+      {!!actions?.length && <TileMenu actions={actions} />}
     </View>
   )
   return href ? (
@@ -502,26 +559,76 @@ function MuralTile({
   )
 }
 
+/** ⋯ menu of a tile (owner only): cover, order, move, remove. */
+function TileMenu({actions}: {actions: TileAction[]}) {
+  return (
+    <View style={[a.absolute, {top: 8, right: 8, zIndex: 3}]}>
+      <Menu.Root>
+        <Menu.Trigger label="Opções da imagem">
+          {({props}) => (
+            <Button
+              {...props}
+              label="Opções da imagem"
+              size="tiny"
+              variant="solid"
+              color="secondary"
+              style={[
+                a.rounded_full,
+                {backgroundColor: 'rgba(255,255,255,0.85)'},
+              ]}>
+              <ButtonText style={[a.font_semi_bold, {color: '#111315'}]}>
+                ⋯
+              </ButtonText>
+            </Button>
+          )}
+        </Menu.Trigger>
+        <Menu.Outer showCancel>
+          <Menu.Group>
+            {actions.map(action => (
+              <Menu.Item
+                key={action.label}
+                label={action.label}
+                onPress={action.onPress}>
+                <Menu.ItemText
+                  style={action.destructive ? {color: '#E5214F'} : undefined}>
+                  {action.label}
+                </Menu.ItemText>
+              </Menu.Item>
+            ))}
+          </Menu.Group>
+        </Menu.Outer>
+      </Menu.Root>
+    </View>
+  )
+}
+
 function GridLayout({tiles, frame}: {tiles: Tile[]; frame: BoardFrame}) {
-  const COLUMNS = 4
+  const {width} = useWindowDimensions()
+  const count = gridColumnCount(width)
+  const narrow = width < 600
   const columns = useMemo(() => {
-    const cols: (typeof tiles)[] = Array.from({length: COLUMNS}, () => [])
-    const heights = Array.from({length: COLUMNS}, () => 0)
+    const cols: (typeof tiles)[] = Array.from({length: count}, () => [])
+    const heights = Array.from({length: count}, () => 0)
     for (const tile of tiles) {
       let target = 0
-      for (let c = 1; c < COLUMNS; c++) {
+      for (let c = 1; c < count; c++) {
         if (heights[c] < heights[target]) target = c
       }
       cols[target].push(tile)
       heights[target] += 1 / (tile.image?.aspectRatio ?? 1)
     }
     return cols
-  }, [tiles])
+  }, [tiles, count])
   return (
     <View
       style={[
         a.flex_row,
-        {gap: 8, paddingHorizontal: 40, paddingTop: 24, paddingBottom: 56},
+        {
+          gap: 8,
+          paddingHorizontal: narrow ? 12 : 40,
+          paddingTop: 24,
+          paddingBottom: 56,
+        },
       ]}>
       {columns.map((col, i) => (
         <View key={i} style={[a.flex_1, {gap: 8, minWidth: 0}]}>
@@ -549,12 +656,17 @@ function GridLayout({tiles, frame}: {tiles: Tile[]; frame: BoardFrame}) {
                 )}
               </View>
             )
-            return href ? (
-              <Link key={tile.key} to={href} label="Abrir imagem">
-                {img}
-              </Link>
-            ) : (
-              <View key={tile.key}>{img}</View>
+            return (
+              <View key={tile.key}>
+                {href ? (
+                  <Link to={href} label="Abrir imagem">
+                    {img}
+                  </Link>
+                ) : (
+                  img
+                )}
+                {!!tile.actions?.length && <TileMenu actions={tile.actions} />}
+              </View>
             )
           })}
         </View>
@@ -734,10 +846,15 @@ function SettingsDialog({
               value={visibility}
               onChange={setVisibility}
               options={[
-                {value: 'private', label: 'Privado'},
-                {value: 'public', label: 'Público'},
+                {value: 'public', label: VISIBILITY_LABEL.public},
+                {value: 'private', label: VISIBILITY_LABEL.private},
               ]}
             />
+            {visibility === 'private' && (
+              <Text style={[a.text_sm, t.atoms.text_contrast_medium]}>
+                {HIDDEN_HINT}
+              </Text>
+            )}
           </Field>
 
           <Button
