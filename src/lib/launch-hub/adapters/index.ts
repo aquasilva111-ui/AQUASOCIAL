@@ -17,9 +17,13 @@ export type {
  * credentials and runs the jobs server-side. Capabilities come from that
  * backend per profile (scopes/account type), so none are declared here.
  */
-function createIntegrationAdapter(provider: ProviderId): ProviderAdapter {
+function createIntegrationAdapter(
+  provider: ProviderId,
+  hasApi = true,
+): ProviderAdapter {
   return {
-    isConfigured: () => integrationBackend.isConfigured(),
+    // `none`: no API at all (assisted only), never configured
+    isConfigured: () => hasApi && integrationBackend.isConfigured(),
     connect: () => integrationBackend.beginConnect(provider),
     disconnect: account => integrationBackend.disconnect(account.id),
     getCapabilities: () => null,
@@ -46,7 +50,7 @@ export function getAdapter(id: ProviderId): ProviderAdapter {
         ? atprotoAdapter
         : provider.adapter === 'same-network' && provider.sameNetworkAs
           ? getAdapter(provider.sameNetworkAs)
-          : createIntegrationAdapter(id)
+          : createIntegrationAdapter(id, provider.adapter !== 'none')
     cache.set(id, adapter)
   }
   return adapter

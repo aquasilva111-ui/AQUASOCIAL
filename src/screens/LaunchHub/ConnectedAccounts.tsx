@@ -2,6 +2,8 @@ import {View} from 'react-native'
 
 import {useAccountSwitcher} from '#/lib/hooks/useAccountSwitcher'
 import {getAdapter} from '#/lib/launch-hub/adapters'
+import {integrationBackend} from '#/lib/launch-hub/backend'
+import {effectiveMode, getDestination} from '#/lib/launch-hub/destinations'
 import {getProvider, providersByCategory} from '#/lib/launch-hub/providers'
 import {
   type ManagedProfile,
@@ -48,7 +50,9 @@ export function ConnectedAccounts() {
             <ProviderCard
               key={provider.id}
               provider={provider}
-              profiles={profiles.filter(p => p.provider === provider.id)}
+              profiles={profiles.filter(
+                p => p.provider === provider.id && p.mode !== 'assistido',
+              )}
             />
           ))}
         </View>
@@ -66,6 +70,11 @@ function ProviderCard({
 }) {
   const t = useTheme()
   const configured = getAdapter(provider.id).isConfigured()
+  const assisted =
+    effectiveMode(
+      getDestination(provider.id),
+      integrationBackend.isConfigured(),
+    ) === 'assistido'
   const {setShowLoggedOut} = useLoggedOutViewControls()
   const closeEverything = useCloseAllActiveElements()
   const sameNetwork = provider.sameNetworkAs
@@ -87,7 +96,9 @@ function ProviderCard({
             {sameNetwork
               ? `Mesma rede do ${sameNetwork.name}`
               : !configured
-                ? CONNECTION_LABELS.not_configured
+                ? assisted
+                  ? 'Modo assistido (sem conta conectada)'
+                  : CONNECTION_LABELS.not_configured
                 : profiles.length === 1
                   ? '1 perfil'
                   : `${profiles.length} perfis`}
@@ -119,6 +130,14 @@ function ProviderCard({
           Posts publicados no {sameNetwork.name} são registros do AT Protocol e
           já aparecem no {provider.name}. Para publicar em outro perfil,
           adicione a conta em {sameNetwork.name}.
+        </NoticeText>
+      ) : !configured && assisted ? (
+        <NoticeText>
+          {`Já dá para usar: no lançamento, a Aqua prepara o texto e abre a tela de postar do ${provider.name}; você publica lá. ${
+            provider.adapter === 'integration-api'
+              ? 'A publicação automática chega com a API de integração do AQUA.'
+              : 'Esta rede não oferece API de publicação.'
+          }`}
         </NoticeText>
       ) : !configured ? (
         <NoticeText>

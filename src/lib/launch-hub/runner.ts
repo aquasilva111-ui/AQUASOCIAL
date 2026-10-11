@@ -1,34 +1,18 @@
 import {type AdapterContext, getAdapter} from '#/lib/launch-hub/adapters'
 import {getProvider} from '#/lib/launch-hub/providers'
 import {
-  type DestinationStatus,
   type Launch,
   type LaunchDestination,
-  type LaunchStatus,
   type ManagedProfile,
 } from '#/lib/launch-hub/types'
 import {validateDestination} from '#/lib/launch-hub/validation'
 import {cleanError} from '#/lib/strings/errors'
+import {deriveLaunchStatus} from './status'
 
 /** A client-run job older than this can't still be in flight. */
 const STALE_PROCESSING_MS = 2 * 60 * 1000
 
-export function deriveLaunchStatus(
-  destinations: Pick<LaunchDestination, 'status'>[],
-  fallback: LaunchStatus = 'draft',
-): LaunchStatus {
-  const count = (status: DestinationStatus) =>
-    destinations.filter(d => d.status === status).length
-  const total = destinations.length
-  if (!total) return fallback
-  if (count('processing')) return 'publishing'
-  if (count('published') + count('skipped') === total) return 'published'
-  if (count('failed') === total) return 'failed'
-  if (count('failed')) return count('published') ? 'partial' : 'failed'
-  if (count('scheduled')) return 'scheduled'
-  if (count('published')) return 'partial'
-  return fallback
-}
+export {deriveLaunchStatus}
 
 /**
  * Client-run jobs die with the tab. A destination left in `processing` long
@@ -94,6 +78,8 @@ export async function runDestinations({
 
   for (const destination of launch.destinations) {
     if (!destinationIds.includes(destination.id)) continue
+    // assisted: the person publishes it in the network's own composer
+    if (destination.mode === 'assistido') continue
     const profile = profiles.find(p => p.key === destination.profileKey)
     const validation = validateDestination({
       type: launch.type,

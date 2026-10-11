@@ -1,6 +1,7 @@
 import {useCallback, useMemo, useSyncExternalStore} from 'react'
 
-import {recoverStaleLaunch} from '#/lib/launch-hub/runner'
+import {assistTransition} from '#/lib/launch-hub/assist'
+import {deriveLaunchStatus, recoverStaleLaunch} from '#/lib/launch-hub/runner'
 import {
   type IdentityGroup,
   type Launch,
@@ -13,6 +14,7 @@ type Values = {
   launchHubLaunches: Launch[]
   launchHubIdentityGroups: IdentityGroup[]
   launchHubProfileTypes: Record<string, ProfileType>
+  launchHubAssistPrefs: {mastodonInstance?: string}
 }
 type Key = keyof Values
 
@@ -106,7 +108,66 @@ export function useLaunchApi() {
     [did],
   )
 
-  return {saveLaunch, updateLaunch, removeLaunch}
+  /**
+   * Modo assistido: records what the person did with one destination
+   * (abriu a rede, publicou, deu erro, pulou). Persisted with the launch.
+   */
+  const markAssisted = useCallback(
+    (
+      launchId: string,
+      destinationId: string,
+      action: Parameters<typeof assistTransition>[1],
+      extra: {error?: string; remoteUrl?: string} = {},
+    ) => {
+      updateLaunch(launchId, launch => {
+        const now = new Date().toISOString()
+        const destinations = launch.destinations.map(d => {
+          if (d.id !== destinationId) return d
+          const status = assistTransition(d.status, action)
+          return {
+            ...d,
+            status,
+            error:
+              status === 'failed'
+                ? extra.error || 'Não foi publicado.'
+                : undefined,
+            ...(action === 'abrir' ? {openedAt: now} : {}),
+            ...(status === 'published'
+              ? {publishedAt: d.publishedAt ?? now}
+              : {}),
+            ...(extra.remoteUrl ? {remoteUrl: extra.remoteUrl} : {}),
+            updatedAt: now,
+          }
+        })
+        return {
+          ...launch,
+          destinations,
+          status: deriveLaunchStatus(destinations, launch.status),
+          updatedAt: now,
+        }
+      })
+    },
+    [updateLaunch],
+  )
+
+  return {saveLaunch, updateLaunch, removeLaunch, markAssisted}
+}
+
+export function useAssistPrefs() {
+  const {currentAccount} = useSession()
+  const did = currentAccount?.did
+  const prefs = useStored(did, 'launchHubAssistPrefs')
+  const setPrefs = useCallback(
+    (changes: Values['launchHubAssistPrefs']) => {
+      if (!did) return
+      write(did, 'launchHubAssistPrefs', {
+        ...read(did, 'launchHubAssistPrefs'),
+        ...changes,
+      })
+    },
+    [did],
+  )
+  return {prefs: prefs ?? {}, setPrefs}
 }
 
 export function useIdentityGroups() {

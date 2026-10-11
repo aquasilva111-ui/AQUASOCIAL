@@ -2,6 +2,7 @@ import {View} from 'react-native'
 import {StackActions, useNavigation} from '@react-navigation/native'
 import {type NativeStackScreenProps} from '@react-navigation/native-stack'
 
+import {isAssisted} from '#/lib/launch-hub/assist'
 import {getLaunchType} from '#/lib/launch-hub/launch-types'
 import {getProvider} from '#/lib/launch-hub/providers'
 import {runDestinations} from '#/lib/launch-hub/runner'
@@ -20,7 +21,14 @@ import * as Layout from '#/components/Layout'
 import {InlineLinkText} from '#/components/Link'
 import * as Prompt from '#/components/Prompt'
 import {Text} from '#/components/Typography'
-import {Card, NoticeText, ProviderBadge, StatusPill} from './components'
+import {AssistedChecklist} from './AssistedChecklist'
+import {
+  Card,
+  NoticeText,
+  ProviderBadge,
+  SectionTitleText,
+  StatusPill,
+} from './components'
 
 type Props = NativeStackScreenProps<CommonNavigatorParams, 'LaunchDetail'>
 
@@ -59,7 +67,8 @@ function Detail({launch}: {launch: Launch}) {
   const {updateLaunch, removeLaunch} = useLaunchApi()
   const deletePrompt = Prompt.usePromptControl()
   const {contentPackage: content} = launch
-  const failed = launch.destinations.filter(d => d.status === 'failed')
+  const autoDestinations = launch.destinations.filter(d => !isAssisted(d))
+  const failed = autoDestinations.filter(d => d.status === 'failed')
   const isDraft = launch.status === 'draft'
 
   const run = (destinationIds: string[]) =>
@@ -121,8 +130,14 @@ function Detail({launch}: {launch: Launch}) {
         )}
       </View>
 
+      {!isDraft && <AssistedChecklist launch={launch} />}
+
       <View style={[a.gap_sm]}>
-        {launch.destinations.map(destination => {
+        {autoDestinations.length > 0 &&
+          autoDestinations.length < launch.destinations.length && (
+            <SectionTitleText>Publicação automática</SectionTitleText>
+          )}
+        {(isDraft ? launch.destinations : autoDestinations).map(destination => {
           const profile = profiles.find(p => p.key === destination.profileKey)
           const provider = getProvider(destination.provider)
           return (

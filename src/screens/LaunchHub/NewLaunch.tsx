@@ -6,6 +6,8 @@ import {StackActions, useNavigation} from '@react-navigation/native'
 import {type NativeStackScreenProps} from '@react-navigation/native-stack'
 
 import {getAdapter} from '#/lib/launch-hub/adapters'
+import {prepareAssist} from '#/lib/launch-hub/assist'
+import {normalizeHashtag} from '#/lib/launch-hub/formatting'
 import {
   FIELD_LABELS,
   getLaunchType,
@@ -14,7 +16,7 @@ import {
 } from '#/lib/launch-hub/launch-types'
 import {rememberAssetUri, resolveAssetUri} from '#/lib/launch-hub/media-cache'
 import {getProvider, providersByCategory} from '#/lib/launch-hub/providers'
-import {runDestinations} from '#/lib/launch-hub/runner'
+import {deriveLaunchStatus, runDestinations} from '#/lib/launch-hub/runner'
 import {
   type ContentPackage,
   type Launch,
@@ -141,6 +143,7 @@ function Editor({draft}: {draft: Launch | undefined}) {
         customCaption: overrides[key]?.customCaption?.trim() || undefined,
         customTitle: overrides[key]?.customTitle?.trim() || undefined,
         status: existing?.status ?? 'pending',
+        mode: profile?.mode === 'assistido' ? 'assistido' : 'auto',
         idempotencyKey: existing?.idempotencyKey ?? TID.nextStr(),
         attempts: existing?.attempts ?? 0,
         updatedAt: now,
@@ -165,13 +168,20 @@ function Editor({draft}: {draft: Launch | undefined}) {
     navigation.dispatch(StackActions.replace('LaunchHub'))
   }
 
+  /** "Publicar em todas": auto destinations run now; assisted ones become a checklist. */
   const onLaunch = () => {
-    const launch = buildLaunch()
+    const built = buildLaunch()
+    const launch: Launch = {
+      ...built,
+      status: deriveLaunchStatus(built.destinations, 'publishing'),
+    }
     saveLaunch(launch)
     navigation.dispatch(StackActions.replace('LaunchDetail', {id: launch.id}))
     runDestinations({
       launch,
-      destinationIds: launch.destinations.map(d => d.id),
+      destinationIds: launch.destinations
+        .filter(d => d.mode !== 'assistido')
+        .map(d => d.id),
       profiles,
       ctx: {agent},
       update: fn => updateLaunch(launch.id, fn),
@@ -253,6 +263,7 @@ function Editor({draft}: {draft: Launch | undefined}) {
               content={content}
               selected={selected}
               validations={validations}
+              profiles={profiles}
             />
           )}
 
@@ -297,7 +308,7 @@ function Editor({draft}: {draft: Launch | undefined}) {
                 </Button>
               ) : (
                 <Button
-                  label="Lançar"
+                  label="Publicar em todas"
                   size="small"
                   color="primary"
                   disabled={
@@ -306,7 +317,7 @@ function Editor({draft}: {draft: Launch | undefined}) {
                     launchIssues.length > 0
                   }
                   onPress={onLaunch}>
-                  <ButtonText>Lançar</ButtonText>
+                  <ButtonText>Publicar em todas</ButtonText>
                 </Button>
               )}
             </View>
@@ -423,6 +434,11 @@ function ContentStep({
         value={content.text}
         onChange={text => setContent(c => ({...c, text}))}
         multiline
+      />
+
+      <TagsField
+        tags={content.tags}
+        onChange={tags => setContent(c => ({...c, tags}))}
       />
 
       {getLaunchType(type).fields.map(field =>
@@ -610,21 +626,40 @@ function DestinationsStep({
                   <Toggle.Item
                     key={profile.key}
                     name={profile.key}
-                    label={`${provider.name} — ${profile.displayName}`}>
+                    label={
+                      profile.mode === 'assistido'
+                        ? `${provider.name} — modo assistido`
+                        : `${provider.name} — ${profile.displayName}`
+                    }>
                     <Toggle.Checkbox />
                     <ProfileAvatar profile={profile} size={28} />
-                    <View style={[a.flex_1]}>
-                      <Text style={[a.text_sm, a.font_bold]} numberOfLines={1}>
-                        {provider.name} —{' '}
-                        {profile.handle
-                          ? `@${profile.handle}`
-                          : profile.displayName}
-                      </Text>
-                      <Text style={[a.text_xs, t.atoms.text_contrast_medium]}>
-                        {PROFILE_TYPE_LABELS[profile.type]} ·{' '}
-                        {CONNECTION_LABELS[profile.status]}
-                      </Text>
-                    </View>
+                    {profile.mode === 'assistido' ? (
+                      <View style={[a.flex_1]}>
+                        <Text
+                          style={[a.text_sm, a.font_bold]}
+                          numberOfLines={1}>
+                          {provider.name}
+                        </Text>
+                        <Text style={[a.text_xs, t.atoms.text_contrast_medium]}>
+                          Assistido: a Aqua prepara, você publica na rede
+                        </Text>
+                      </View>
+                    ) : (
+                      <View style={[a.flex_1]}>
+                        <Text
+                          style={[a.text_sm, a.font_bold]}
+                          numberOfLines={1}>
+                          {provider.name} —{' '}
+                          {profile.handle
+                            ? `@${profile.handle}`
+                            : profile.displayName}
+                        </Text>
+                        <Text style={[a.text_xs, t.atoms.text_contrast_medium]}>
+                          {PROFILE_TYPE_LABELS[profile.type]} ·{' '}
+                          {CONNECTION_LABELS[profile.status]} · automático
+                        </Text>
+                      </View>
+                    )}
                     {validations[profile.key] && (
                       <ValidationPill validation={validations[profile.key]} />
                     )}
@@ -673,14 +708,16 @@ function ValidationStep({
         const override = overrides[key] ?? {}
         const setOverride = (changes: Partial<typeof override>) =>
           setOverrides(o => ({...o, [key]: {...o[key], ...changes}}))
-        const preview = profile
-          ? getAdapter(profile.provider).renderPreview({
-              type,
-              content,
-              destination: override,
-              profile,
-            })
-          : null
+        const preview = !profile
+          ? null
+          : profile.mode === 'assistido'
+            ? assistedPreview(content, override, profile.provider)
+            : getAdapter(profile.provider).renderPreview({
+                type,
+                content,
+                destination: override,
+                profile,
+              })
 
         return (
           <Card key={key}>
@@ -690,11 +727,13 @@ function ValidationStep({
                 style={[a.flex_1, a.text_sm, a.font_bold]}
                 numberOfLines={1}>
                 {profile
-                  ? `${getProvider(profile.provider).name} — ${
-                      profile.handle
-                        ? '@' + profile.handle
-                        : profile.displayName
-                    }`
+                  ? profile.mode === 'assistido'
+                    ? `${getProvider(profile.provider).name} — modo assistido`
+                    : `${getProvider(profile.provider).name} — ${
+                        profile.handle
+                          ? '@' + profile.handle
+                          : profile.displayName
+                      }`
                   : 'Perfil indisponível'}
               </Text>
               <ValidationPill validation={validation} />
@@ -779,13 +818,18 @@ function PublishStep({
   content,
   selected,
   validations,
+  profiles,
 }: {
   type: LaunchType
   content: ContentPackage
   selected: string[]
   validations: Record<string, ReturnType<typeof validateDestination>>
+  profiles: ManagedProfile[]
 }) {
   const t = useTheme()
+  const assisted = selected.filter(
+    key => profiles.find(p => p.key === key)?.mode === 'assistido',
+  ).length
   const count = (level: 'ready' | 'warning' | 'blocked') =>
     selected.filter(key => validations[key]?.level === level).length
 
@@ -823,6 +867,16 @@ function PublishStep({
             <PillText tone="warning">{`${count('warning')} com atenção`}</PillText>
             <PillText tone="negative">{`${count('blocked')} bloqueados`}</PillText>
           </View>
+          <Text style={[a.text_sm, t.atoms.text_contrast_medium]}>
+            {`${selected.length - assisted} automático(s) · ${assisted} assistido(s)`}
+          </Text>
+          {assisted > 0 && (
+            <Text style={[a.text_sm, a.leading_snug]}>
+              Em "Publicar em todas", a Aqua publica sozinha nos automáticos e
+              depois mostra um passo a passo para os assistidos: copiar o texto,
+              abrir a rede já preenchida e marcar como publicado.
+            </Text>
+          )}
           {count('blocked') > 0 && (
             <Text style={[a.text_sm, {color: t.palette.negative_500}]}>
               Resolva ou desmarque os destinos bloqueados para lançar.
@@ -831,5 +885,50 @@ function PublishStep({
         </Card>
       </View>
     </View>
+  )
+}
+
+/** Validation-step preview for an assisted network: the adapted text it will get. */
+function assistedPreview(
+  content: ContentPackage,
+  override: {customCaption?: string; customTitle?: string},
+  provider: ManagedProfile['provider'],
+) {
+  const {adapted} = prepareAssist(
+    {contentPackage: content},
+    {provider, ...override},
+  )
+  return {
+    title: adapted.title,
+    text: adapted.url ? `${adapted.text}\n\n${adapted.url}` : adapted.text,
+    media: content.media,
+  }
+}
+
+/** Hashtags typed as "arte, #música digital"; each network gets them in its own format. */
+function TagsField({
+  tags,
+  onChange,
+}: {
+  tags: string[] | undefined
+  onChange: (tags: string[] | undefined) => void
+}) {
+  const [raw, setRaw] = useState(() =>
+    (tags ?? []).map(tag => `#${tag}`).join(' '),
+  )
+  return (
+    <Field
+      label="Hashtags"
+      placeholder="#arte #lançamento"
+      value={raw}
+      onChange={value => {
+        setRaw(value)
+        const list = value
+          .split(/[\s,]+/)
+          .map(normalizeHashtag)
+          .filter(Boolean)
+        onChange(list.length ? list : undefined)
+      }}
+    />
   )
 }

@@ -36,14 +36,16 @@ export const LAUNCH_STATUS_LABELS: Record<LaunchStatus, string> = {
   published: 'Publicado',
   partial: 'Parcial',
   failed: 'Falhou',
+  awaiting_user: 'Aguardando você',
 }
 
 export const DESTINATION_STATUS_LABELS: Record<DestinationStatus, string> = {
   pending: 'Pendente',
   scheduled: 'Agendado',
   processing: 'Processando',
+  opened: 'Aberto',
   published: 'Publicado',
-  failed: 'Falhou',
+  failed: 'Erro',
   skipped: 'Ignorado',
 }
 
@@ -56,6 +58,8 @@ const TONE_FOR_STATUS: Record<DestinationStatus | LaunchStatus, Tone> = {
   scheduled: 'info',
   publishing: 'info',
   processing: 'info',
+  opened: 'info',
+  awaiting_user: 'warning',
   published: 'positive',
   partial: 'warning',
   failed: 'negative',
