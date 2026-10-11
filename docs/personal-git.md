@@ -1,386 +1,226 @@
-# Git pessoal semântico da AQUA (seção 23) — desenho
+# Git pessoal semântico da AQUA — formato da Base de Sínteses
 
-> Status: **desenho + núcleo testado** (`aqua-personal-git/`). Nada disto está
-> ligado ao app ainda. Convenções, Sinapses, Sínteses, U.I., camada de eventos e
-> 616 Network são definidos em outras seções da especificação que ainda não
-> estão aqui; onde eu precisei supor algo, está marcado como **(suposição)**.
+> Status: **núcleo testado** (`aqua-personal-git/`) e **primeiro uso real** no
+> feed "Pra você" (`aqua-feeds/`), onde ele guarda o histórico das Convenções de
+> cada usuário. O formato segue a **Base de Sínteses** e as regras de identidade
+> da **U.I.** (`I.U-A.I`), usados aqui só como **referência de leitura**: nada
+> nesses dois repositórios foi alterado.
 
 Princípio: **a AQUA interpreta. O Git pessoal registra a evolução. A 616 Network
 prova autoria e direitos.**
 
 ```
-uso da AQUA ─► eventos (retenção curta) ─► interpretação ─► Convenções / Sinapses / Sínteses
-                                                                   │
-                                          diff semântico ◄─────────┘
-                                                │
-                              U.I. valida (dentro das permissões) ─► commit
-                                                │                      │
-                                       pendente/inferido          histórico, diff, rollback
-                                       (usuário decide)                 │
-                                                          (opcional) hash ─► 616 Network
+uso da AQUA ─► sinais (curtir, salvar, seguir…) ─► perfil de Convenções (gravidade, estado)
+                                                         │
+                     ajustes do usuário ─────────────────┤
+                                                         ▼
+                          commit no Git pessoal (fonte + status + porquê)
+                                │                    │
+                    histórico/tendência         (opcional) hash ─► 616 Network
+                    "Minhas Convenções"
 ```
 
 ---
 
-## 1. O que já existe no código (levantamento)
+## 1. Layout: as 7 Esferas
 
-| Conceito | Onde | O que é |
-|---|---|---|
-| **Convenções (chaves)** | repositório **`feed-generator/`** separado (no `.gitignore` deste repo; ver commits `b574e6abc` e `d7d19380b`) | Pelos testes que estavam aqui: `conventions/extract.ts` (`conventionKeys` → `formato:video`, `criador:<did>`, `tema:musica`, `idioma:pt`; `contextOf` → `madrugada`/`noite`…), `conventions/model.ts` (`conventionId`, `canonical()`, **`versionHash(key, versão, estado, hashAnterior)` — uma cadeia de versões por hash**), `conventions/gravity.ts` (gravidade com meia-vida; estados `emerging`/`active`/`weakening`/`dormant`), `conventions/synapse.ts` (`synapsesFromEvents`: Convenções que co-ocorrem na mesma sessão, por contexto) e `algos/for-you/score.ts` (gravidade pessoal entra no ranking). **O código não está neste repo nem na lista de repositórios do GitHub**; só os testes antigos no histórico. |
-| Convenções (estética) | `src/lib/visionboard/algorithm.ts:358-371` | `aestheticConventionKeys` → `estetica:<mood>`, “mais um tipo de Convenção”. |
-| Convenções (UI) | `src/screens/NewsAtlas/data.ts` | Página Notícias + Convenções com **dados fixos de exemplo** (“Replace with real sources once the Convenções logic … are wired up”). |
-| **U.I.** (Unidade de Inteligência) | `web/ui-ai/index.html`, `web/ui-ai/README.md`, `src/screens/UIAI/` | Consola estática em `aquaapp.systems/ui-ai` que fala com a **U.I. local** (`http://localhost:8765`) por **código de pareamento** (`X-UI-Pareamento`). Mostra contagem de Convenções, Sinapses e Experiências (“Base de Sínteses”). Fonte no repo privado **`I.U-A.I`**. |
-| Sínteses | repo privado **`base-de-sinteses`** (“Convenções de Realidade, Sinapses e Sínteses (backup)”) | Não li; só a descrição pública da lista de repositórios. |
-| Camada de eventos | `src/lib/views/events.ts` | Eventos de visualização (`impression`, `view`, `watch_time`, superfície `visionboard`…) como spans OpenTelemetry (`aqua.views`). **Não há armazenamento/digestão no servidor** neste repo. |
-| Registros próprios no PDS | `src/lib/*/model.ts` | Já existem lexicons `place.aqua.*` (books, stories, highlights, view.channel/collection/playlist, shop, visionboard) — o padrão “dados do usuário no repo dele” já é usado. |
-| **616 Network** | — | Nada no código. |
-| Interpretação de eventos | — | Nada além do `feed-generator` externo (extração de chaves e sinapses). `aqua-runtime/src/melody/interpret.ts` é sobre música, não tem relação. |
+O repositório tem as mesmas pastas da Base de Sínteses:
 
-**Consequência:** a peça mais próxima do Git pessoal é o `versionHash` encadeado do
-`feed-generator`. O desenho abaixo é compatível com ele (mesma ideia: estado →
-JSON canônico → SHA-256 → encadeado ao anterior), mas generaliza do “versionar uma
-Convenção” para “versionar o estado semântico inteiro do usuário”.
-
----
-
-## 2. A questão central: o PDS já é um Git
-
-Um repositório AT Protocol (o PDS de cada usuário) **já é** um repositório
-assinado, endereçado por conteúdo e versionado:
-
-- cada escrita gera um **commit assinado** pela chave do usuário (`rev` monotônico);
-- os registros ficam numa **MST** (Merkle Search Tree) com **CIDs** (hash do conteúdo);
-- o repo inteiro é exportável (`com.atproto.sync.getRepo`, arquivo CAR) e **portável**
-  (migração de conta entre PDSs mantendo o DID);
-- qualquer um verifica a autoria pela chave pública no documento do DID.
-
-Mas ele tem dois limites para este caso:
-
-1. **É público.** Todo registro é legível por qualquer cliente (é exatamente o que
-   vimos no Visionboard: “privado” lá só esconde no app).
-2. **Não guarda histórico consultável por registro.** O commit do PDS cobre o repo
-   todo; versões antigas de um registro não ficam acessíveis pela API depois de
-   substituídas. Não há “por quê”, evidência nem certeza no commit.
-
-### Proposta: dois armazenamentos, um formato
-
-| Branch | Onde mora | Por quê |
-|---|---|---|
-| **público** (`public`) | **PDS do usuário**, lexicons `place.aqua.semantic.*` | Já é assinado, portável e verificável; publicar é decisão explícita do usuário. |
-| **privado** (`private`) | **Cofre cifrado** da AQUA (serviço `aqua-semantic-vault`), cifragem por envelope com chave por usuário | O PDS não tem dado privado. |
-
-Os dois usam **o mesmo modelo de objetos e de `SemanticCommit`** (seção 3). No
-público, cada objeto vira um registro e cada commit vira um registro de commit;
-no privado, tudo fica cifrado no cofre. Assim exportar, comparar e mover entre
-modos de armazenamento é o mesmo código (`aqua-personal-git/`).
-
-Promover do privado para o público é **sempre** um commit novo no branch público,
-feito pelo usuário (`source: explicit_user_input`), com o conteúdo que ele
-escolheu — **nunca automático**, nunca um merge.
-
----
-
-## 3. Modelo de dados
-
-### Objetos (o que é versionado)
-
-Layout lógico (= `path` na árvore):
-
-```
-conventions/<slug>.json      Convenções pessoais (ativação, gravidade, estado, contextos)
-synapses/<a>__<b>.json       relações entre Convenções (peso, contexto)
-syntheses/<slug>.json        Sínteses (texto, Convenções de origem)
-contexts/{work,study,creative}.json
-preferences/explicit.json    o que o usuário disse
-preferences/inferred.json    o que foi inferido E aprovado
-notes/<slug>.json            notas semânticas do usuário
-classifications/<slug>.json  classificações próprias
-manifest.json                versão do formato, categorias de inferência ligadas/desligadas
-```
-
-Exemplo de objeto (**suposição** dos campos de Convenção, alinhados ao `feed-generator`):
-
-```json
-{
-  "type": "convention",
-  "key": "tema:producao-musical",
-  "label": "Produção musical",
-  "activation": 0.71,
-  "state": "active",
-  "contexts": {"noite": 0.8, "madrugada": 0.3},
-  "visibility": "private"
-}
-```
-
-Eventos brutos **não** entram. A evidência é referida por id opaco
-(`ev:digest:2026-10-11#musica`) que aponta para a camada de eventos, com a
-retenção dela.
-
-### Árvore e commit
-
-- **objeto** → `sha256:` do JSON canônico (`canonical()` do núcleo; chaves
-  ordenadas, NFC, sem `undefined`, recusa NaN/Date).
-- **árvore** → mapa `path → hash do objeto`, também com hash canônico.
-- **commit**:
-
-```ts
-interface SemanticCommit {
-  id: Hash                 // = hash
-  hash: Hash               // sha256(JSON canônico de todos os campos abaixo)
-  userId: string           // DID
-  branch: 'private' | 'public' | string
-  timestamp: string
-  parentCommitId: Hash | null
-  tree: Hash
-  changedObjects: {
-    path: string
-    kind: 'added' | 'modified' | 'removed'
-    before?: Hash
-    after?: Hash
-    fields: {field: string; before?: Json; after?: Json}[]  // diff semântico
-  }[]
-  reason: string           // "salvamentos repetidos, tempo de vídeo longo, feedback explícito"
-  evidenceRefs: string[]   // ids opacos, nunca o dado bruto
-  source: 'explicit_user_input' | 'event_digest' | 'synthesis' | 'import' | 'manual_edit' | 'ui'
-  certainty: 'explicit' | 'inferred'
-  confidenceChange?: {path: string; field: string; before: number; after: number}
-}
-```
-
-Isso responde às perguntas da especificação: **o que** mudou (`changedObjects`
-+ `fields`), **quando** (`timestamp`), **por quê** (`reason`), **com que
-evidência** (`evidenceRefs`), **explícito ou inferido** (`certainty`, `source`)
-e **quanto mudou a confiança** (`confidenceChange`).
-
-### Lexicons do branch público (PDS)
-
-```
-place.aqua.semantic.object   rkey = slug do path ("conventions:producao-musical")
-  { path, value, objectHash, license?, createdAt }
-place.aqua.semantic.commit   rkey = TID
-  { branch: "public", hash, parentCommitId, tree, changedObjects, reason,
-    source, certainty, timestamp }          // sem evidenceRefs no público
-```
-
-O PDS assina os registros; o `hash` do `SemanticCommit` continua sendo o
-identificador estável entre armazenamentos (o CID do PDS depende da codificação
-DAG-CBOR, então não serve como id portátil).
-
----
-
-## 4. Armazenamento do branch privado (cofre)
-
-Serviço novo `aqua-semantic-vault` (Hono + Postgres, padrão de `aqua-adult-api`):
-
-```sql
-create table vault_keys (          -- chave de dados por usuário, cifrada
-  user_did text primary key,
-  wrapped_dek bytea not null,       -- DEK cifrada pela KEK (KMS) ou pela chave do usuário
-  kek_id text not null,
-  created_at timestamptz not null default now()
-);
-create table vault_objects (        -- objetos e árvores, endereçados por hash
-  user_did text not null,
-  hash text not null,
-  kind text not null check (kind in ('object', 'tree')),
-  ciphertext bytea not null,        -- AES-256-GCM(DEK, JSON canônico), nonce junto
-  primary key (user_did, hash)
-);
-create table vault_commits (
-  user_did text not null,
-  hash text not null,
-  branch text not null,
-  parent_hash text,
-  status text not null check (status in ('committed', 'pending')),
-  ciphertext bytea not null,        -- o SemanticCommit inteiro cifrado
-  created_at timestamptz not null default now(),
-  primary key (user_did, hash)
-);
-create table vault_refs (
-  user_did text not null,
-  branch text not null,
-  head text not null,
-  primary key (user_did, branch)
-);
-```
-
-- **Cifragem por envelope**: uma DEK aleatória por usuário cifra objetos e
-  commits (AES-256-GCM). A DEK é guardada cifrada (“wrapped”) por uma KEK.
-  - **Modo AQUA-hosted**: KEK no KMS da AQUA. Permite a U.I. no servidor trabalhar.
-  - **Modo controlado pelo usuário**: KEK derivada de uma chave que só o usuário
-    tem (passkey/WebAuthn PRF ou frase de recuperação). O servidor só vê bytes; a
-    U.I. precisa rodar no aparelho (é o que a Consola `/ui-ai` já faz com a U.I. local).
-- **Endereçado por hash, mas cifrado**: o `hash` é do texto claro, guardado só
-  junto ao `user_did` — vaza no máximo “dois usuários têm o mesmo objeto”, e não
-  entre usuários porque a PK inclui o DID. **(Decisão a confirmar: se isso for
-  sensível, usar `HMAC(DEK, conteúdo)` como id no cofre.)**
-- Apagar uma estrutura = commit que remove + **apagar o ciphertext** dos objetos
-  sem referência (coleta de lixo). Apagar a conta = apagar a DEK (crypto-shredding).
-
-Modos futuros (auto-hospedado, espelho local, Git externo) são só outros
-“stores” do mesmo formato; o pacote de exportação (seção 6) já é o formato de troca.
-
----
-
-## 5. API
-
-Tudo autenticado por token de serviço do PDS (padrão `aqua-adult-api/src/auth`),
-escopo = o próprio DID.
-
-```
-GET  /semantic/branches                         heads e contagens
-GET  /semantic/:branch/tree?at=<hash>           árvore (estado) num commit
-GET  /semantic/:branch/objects/*path?at=<hash>  um objeto
-GET  /semantic/:branch/log?path=&cursor=        histórico (filtra por objeto)
-GET  /semantic/diff?from=<hash>&to=<hash>       diff semântico entre dois commits
-POST /semantic/:branch/commits                  {changes, reason, evidenceRefs, source}
-POST /semantic/:branch/revert/:hash             desfaz um commit (commit novo)
-POST /semantic/:branch/restore/:hash            volta o branch a um estado (commit novo)
-GET  /semantic/pending                          propostas da U.I. aguardando o usuário
-POST /semantic/pending/:id/accept | /reject | /edit
-POST /semantic/public/publish                   {paths, values}: escreve no PDS (place.aqua.semantic.*)
-GET  /semantic/export?branch=private            pacote (cifrado com senha do usuário, se pedido)
-POST /semantic/import                           pacote → confere hashes → aplica
-PUT  /semantic/permissions                      permissões da U.I. (seção 7)
-PUT  /semantic/inference                        categorias de inferência ligadas/desligadas
-```
-
----
-
-## 6. Diff, rollback e exportação
-
-- **Diff** é por objeto e por campo (`diffFields`): `activation 0.42 → 0.71`.
-- **Revert** desfaz um commit com um commit novo; se o objeto mudou depois
-  (outro commit), é **conflito** e a UI pede para reverter os mais novos antes.
-- **Restore/rollback** leva o branch ao estado de um commit antigo, também como
-  commit novo. O histórico **nunca é reescrito**.
-- **Exportação** `aqua-personal-git/1`: JSON com `commits` (em ordem), `trees` e
-  `objects`, todos com hash. A importação **reproduz cada commit e confere cada
-  hash**; qualquer edição no arquivo é detectada (testado).
-  Exportação sensível: o JSON é cifrado com uma senha do usuário (age/scrypt ou
-  AES-GCM + scrypt) antes de sair.
-
-Tudo isto está implementado e testado em `aqua-personal-git/` (seção 10).
-
----
-
-## 7. Permissões da U.I.
-
-A U.I. lê e escreve **só dentro do que o usuário delegou**. Proposta de política,
-guardada em `manifest.json` (portanto versionada também):
-
-```json
-{
-  "ui": {
-    "read":  ["conventions/*", "synapses/*", "contexts/*"],
-    "write": {
-      "conventions/*": {"fields": ["activation", "state", "contexts"], "maxDelta": 0.15},
-      "synapses/*":    {"fields": ["weight"], "maxDelta": 0.2}
-    },
-    "never": ["preferences/explicit.json", "notes/*"],
-    "publish": false
-  },
-  "inference": {"saude": false, "politica": false, "religiao": false, "musica": true}
-}
-```
-
-- Mudança **dentro** da delegação (campo permitido, delta ≤ `maxDelta`, categoria
-  ligada) → a U.I. comita com `source: "ui"`, `certainty: "inferred"`.
-- Mudança **fora** (campo não permitido, salto grande, objeto novo, categoria
-  desligada, qualquer coisa em `preferences/explicit`) → vira **pendente**.
-- `publish` é sempre falso para a U.I.: só o usuário promove para o público.
-
-## 8. Fluxo pendente / inferido
-
-```
-evento ─► interpretação ─► proposta de mudança (diff)
-                              │
-          dentro da permissão? ── sim ─► commit (inferred) ─► usuário pode reverter
-                              │
-                              não ─► pending (não altera o estado)
-                                        │
-                     usuário: aceitar ─► commit (explicit, evidenceRefs = proposta)
-                              editar  ─► commit com o valor dele (explicit)
-                              rejeitar ─► descarta; a U.I. aprende a não propor de novo
-                                          (contador em manifest.inferenceFeedback)
-```
-
-Pendentes ficam em `vault_commits.status = 'pending'`, **fora** da cadeia do
-branch (sem `parentCommitId` fixo); ao aceitar, são recalculados sobre o head
-atual. A U.I. **nunca** inventa decisões pessoais em silêncio: qualquer coisa em
-`preferences/explicit.json` só muda por `explicit_user_input` ou `manual_edit`.
-
-## 9. 616 Network (prova)
-
-Só a prova vai para a cadeia, **nunca** o estado:
-
-```json
-{
-  "commitHash": "sha256:…",
-  "author": "did:plc:…",            // assinatura com a chave do DID
-  "timestamp": "2026-10-11T10:00:00Z",
-  "branch": "public",
-  "license": "CC-BY-4.0",
-  "derivedFrom": ["sha256:…"]        // provenance: Convenção pessoal → Global → Projeto B
-}
-```
-
-- Só commits do branch **público** são ancorados por padrão; ancorar um commit
-  privado expõe apenas o hash (não o conteúdo), e só se o usuário pedir.
-- **(Suposição)** a 616 aceita um registro com hash + DID + assinatura; para
-  muitos commits, ancorar a raiz de uma árvore de Merkle dos hashes do dia.
-- Royalties/créditos usam `derivedFrom`: quando o Projeto B usa uma Convenção
-  pública, ele registra o hash do commit de origem.
-
----
-
-## 10. Núcleo implementado (`aqua-personal-git/`)
-
-Sem I/O e sem dependências (só `node:crypto`):
-
-| Função | O que faz |
+| Esfera | Pasta |
 |---|---|
-| `canonical`, `hashOf` | JSON canônico + `sha256:` |
-| `diffFields` | diff semântico campo a campo |
-| `createRepo(userId)` | objetos, árvores, commits e refs em memória |
-| `.commit(branch, {changes, reason, evidenceRefs, source, certainty?, confidenceChange?})` | commit encadeado; sem mudança real não cria nada |
-| `.log`, `.read`, `.treeAt`, `.diffTrees` | histórico e estado |
-| `.revert(branch, hash)` | desfaz com commit novo; conflito se o objeto mudou depois |
-| `.restore(branch, hash)` | rollback do branch inteiro, como commit novo |
-| `.verify(branch)` | recalcula todos os hashes |
-| `.exportBranch` / `importBranch` | pacote portátil; a importação reproduz e confere cada hash |
+| 7 | `7-convencoes-de-realidade/` |
+| 6 | `6-intelectual/` |
+| 5 | `5-comunicacao/` |
+| 4 | `4-conexao/` |
+| 3 | `3-ego/` |
+| 2 | `2-criacao/` |
+| 1 | `1-existencia/` |
 
-`cd aqua-personal-git && npm install && npm test` — 10 testes.
+- **Convenções** moram sempre em `7-convencoes-de-realidade/convencoes/<id16>.json`
+  (a casa delas), qualquer que seja a esfera do objeto.
+- **Sinapses** e **Sínteses** moram em `<n>-<esfera>/sinapses|sinteses/<id16>.json`,
+  na esfera do objeto; sem esfera, entram pela **3 (ego)**, a esfera de entrada.
+- `<id16>` = os 16 primeiros caracteres do id de significado (seção 3).
+- `ia-chats/` e `dados/` são **só do branch privado**: o núcleo recusa esses
+  caminhos em qualquer branch público (`public`, `publico`, `public/*`).
 
----
+Código: `ESFERAS`, `caminhoDe`, `ehPrivado`, `pastaDoCaminho` em
+`aqua-personal-git/src/semantica.ts`.
 
-## 11. MVP em fases
+## 2. Campos (em português, como na Base)
 
-| Fase | Entrega | Depende de |
-|---|---|---|
-| **0 (este PR)** | Desenho + núcleo testado | — |
-| **1 – Cofre privado** | `aqua-semantic-vault` (Hono + Postgres), DEK por usuário com KEK em KMS (modo AQUA-hosted), API de leitura/commit/log/diff/revert/restore/export | definição dos objetos de Convenção/Sinapse/Síntese (seções da spec que faltam) |
-| **2 – Ligar a interpretação** | o `feed-generator` (que já calcula chaves, gravidade e sinapses) passa a propor diffs ao cofre em vez de só guardar `versionHash`; tudo entra como **pendente** no início | código do `feed-generator` neste monorepo ou como pacote |
-| **3 – Tela “Minha mente” no app** | histórico com diffs legíveis, aceitar/rejeitar pendentes, reverter, exportar, desligar categorias de inferência | Fase 1 |
-| **4 – U.I.** | permissões (seção 7), U.I. local pareada lendo/escrevendo pelo cofre; modo chave do usuário (passkey PRF) | repo `I.U-A.I` |
-| **5 – Público + 616** | publicar objetos escolhidos em `place.aqua.semantic.*` no PDS; ancorar hash do commit na 616 | definição da 616 |
+```json
+{
+  "id": "f990d32e…(64 hex)",
+  "tipo": "tema",
+  "nomes": ["arte"],
+  "descricao": "",
+  "forca": 3,
+  "esfera": 3,
+  "ancoras": [{"fonte": "wikidata", "valor": "Q735"}],
+  "rotulos": ["visual"],
+  "status": "hipótese",
+  "fonte": "aqua",
+  "proposta_por": "aqua",
+  "criada_em": "2026-10-11T10:00:00Z",
+  "atualizada_em": "2026-10-11T10:00:00Z",
 
----
+  "gravidade": 4.2,
+  "estado": "ativa"
+}
+```
 
-## 12. Perguntas abertas para o Samu
+- `status`: `hipótese` → `verificado` → `ensinado` → `confirmado`. **Só sobe**
+  (`subirStatus`); descer exige uma edição manual explícita.
+- `fonte`: `samuel`, `usuario`, `wikidata`, `arena`, `sono`, `aqua`, `importacao`,
+  `edicao-manual`.
+- **Explícito × inferido** sai desses dois campos: `fonte ∈ {samuel, usuario,
+  edicao-manual}` com `status: confirmado` é explícito; `fonte: aqua` com
+  `status: hipótese` é inferido (`certeza()` devolve `explicito`, `verificado` ou
+  `inferido`).
+- `gravidade` e `estado` (`emergente`, `ativa`, `enfraquecendo`, `dormente`) são
+  **opcionais**: a Base não tem esses campos; a AQUA os acrescenta quando calcula
+  o perfil. O "Pra você" grava também `reforco` (boost) e `silenciada`.
+- `validarObjeto` confere, a cada commit, que o id bate com o nome do arquivo,
+  com a esfera da pasta e com o significado.
 
-1. **Onde está o código do `feed-generator`** (Convenções, gravidade, sinapses)? Ele
-   saiu deste repo e não aparece entre os repositórios do GitHub. Ele deve virar
-   pacote compartilhado ou entrar no monorepo?
-2. O repo privado **`base-de-sinteses`** é a fonte de verdade das Convenções,
-   Sinapses e Sínteses (da U.I.)? O Git pessoal deveria versionar esse formato
-   em vez de inventar outro?
-3. A U.I. deve rodar **no servidor** (modo AQUA-hosted, mais simples) ou **só no
-   aparelho** (chave do usuário, servidor nunca vê o conteúdo)? Muda a fase 1.
-4. Quais **categorias de inferência** são sensíveis por padrão (saúde, política,
-   religião, sexualidade…) e começam desligadas?
-5. Qual é a **616 Network** na prática (qual cadeia, formato do registro, quem paga a
-   transação)? Ancorar commit a commit ou em lote diário (raiz de Merkle)?
-6. Licença padrão para o que for publicado no branch público?
-7. O id de objeto no cofre pode ser o hash do conteúdo, ou prefere HMAC com a chave
-   do usuário para não revelar nem igualdade de conteúdo?
+## 3. Identidade dupla
+
+1. **Id de significado** (o mesmo da U.I., `repositorio.py` 68–75): quem é o
+   objeto, independentemente da versão.
+   - `normalizar(t)` = NFKC → minúsculas → espaços colapsados (com a mesma lista
+     de espaços do Python, que inclui U+001C–001F e U+0085 e **não** inclui U+FEFF).
+   - `gerar_id(estrutura, *partes)` = `sha256(json.dumps([estrutura, *partes],
+     ensure_ascii=False, separators=(",", ":")))`.
+   - Convenção: `["convencao", normalizar(tipo), normalizar(nome)]`, ou
+     `["convencao", fonte, valor]` quando tem âncora (ex.: Wikidata).
+   - Sinapse: `["sinapse", origem, destino, normalizar(tipo), normalizar(contexto)]`.
+   - Síntese: `["sintese", sorted(set(ids))]`.
+   - Pendente: `gerar_id("pendente", json.dumps(proposta, ensure_ascii=False,
+     sort_keys=True))[:16]`, sem `pendente_id`/`procedencia`.
+2. **Hash de conteúdo** (`sha256:` + JSON canônico): qual **versão** do objeto.
+   É o que entra nas árvores e commits, e o que vai para a 616 como prova.
+
+**Paridade Python↔TypeScript** (`aqua-personal-git/test/paridade.test.ts`): 164
+vetores gerados pelo próprio código da U.I. (`scripts/gerar-vetores.py`, leitura
+apenas), incluindo 16 Convenções e 6 Sinapses reais da Base (só os campos que
+formam o id) e unicode difícil: `2ª Esfera: Criação`, `♒︎`, `🜓`,
+`Autômato ☽♇`, âncora `Q220`, espaços exóticos e surrogates soltos (que o TS
+recusa em vez de gerar um id diferente).
+
+## 4. Pendentes: o que a AQUA propõe
+
+A AQUA nunca muda em silêncio o que é do usuário. Uma inferência vira um item na
+fila `pendentes` no formato da U.I.:
+
+```json
+{"id": "<16 hex>", "estado": "aberta", "criada_em": "…", "visto_em": null,
+ "sessao": "…", "fonte": "aqua", "motivo": "curtiu 5 posts com #aquarela",
+ "proposta": {"tipo": "tema", "nomes": ["aquarela"], "status": "hipótese", "esfera": 3},
+ "resolvida_em": null}
+```
+
+- `proporInferenciaAqua` monta a proposta (`fonte: aqua`, `status: hipótese`,
+  esfera 3) e põe as evidências em `procedencia`, fora da chave: a mesma proposta
+  com evidências novas **não duplica**.
+- `aceitar` devolve o caminho e o objeto com `status: confirmado`, pronto para
+  commit; `recusada` fica registrada (até 200 resolvidas) para não propor de novo.
+- No "Pra você" o caminho é mais curto: o perfil inferido entra como commit
+  `aqua`/`hipótese` (seção 6), e cada ajuste do usuário entra como commit
+  `usuario`/`confirmado`. A fila de pendentes é para quando a U.I. estiver
+  pareada e quiser mudar objetos que o usuário confirmou.
+
+## 5. Público × privado e lexicons
+
+Só o que o usuário escolher vai para o PDS (público), como registros:
+
+| Lexicon | Conteúdo |
+|---|---|
+| `place.aqua.semantic.convencao` | Convenção (rkey = `id16`) |
+| `place.aqua.semantic.sinapse` | Sinapse |
+| `place.aqua.semantic.sintese` | Síntese |
+
+`paraRegistroPublico` remove `proposta_por`, acrescenta `hashConteudo` e recusa
+qualquer coisa de `ia-chats/` ou `dados/`. **`ia-chats/` nunca sai do privado.**
+
+## 6. Primeiro uso: o histórico do "Pra você"
+
+O feed "Pra você" (`aqua-feeds/src/algos/for-you/`) mostra ao usuário **por que**
+cada post apareceu e deixa ele ajustar o peso das Convenções. O Git pessoal é o
+**histórico** disso (`aqua-feeds/src/conventions/history.ts`):
+
+- `getProfile` grava, no máximo a cada `DIGEST_HOURS` (6 h), um commit
+  "Resumo da sua atividade…" com `fonte: aqua`, `status: hipótese`.
+- Cada ajuste (`add`, `boost`, `mute`, `unmute`, `delete`, `wrong`) grava na hora
+  um commit só daquela Convenção com `fonte: usuario`, `status: confirmado` e o
+  motivo em português ("Você marcou tema:x como errada…").
+- `getHistory` devolve o que mudou, quando, por quê e se foi explícito ou
+  inferido; `trendOf` tira a série de gravidade para o gráfico de tendência.
+- Hoje o branch privado de cada usuário fica no Postgres do `aqua-feeds`
+  (`user_repos`, o pacote exportado). **Sem criptografia ainda** — é o MVP; o
+  desenho final é o da seção 7.
+
+## 7. Quem é dono do Git: a U.I.
+
+- O **Git local é da U.I.** (no aparelho/computador do usuário). A AQUA não é a
+  fonte de verdade: ela **sincroniza** esse Git como um **remoto criptografado**.
+- A chave fica **no aparelho** (gerada e guardada pela U.I.; em celulares, uma
+  passkey com PRF pode derivá-la). O servidor guarda só blobs cifrados + hashes
+  de conteúdo, o que basta para sincronizar e para a prova na 616, sem ver o
+  conteúdo.
+- Enquanto a U.I. não estiver pareada, o "Pra você" usa a cópia do servidor
+  (seção 6). Ao parear, a U.I. puxa esse histórico, passa a ser a dona e o
+  servidor fica só com o remoto cifrado.
+
+### Permissões em `manifest.json`
+
+Mesmo modelo de `permissoes.py` da U.I. (**uma vez / sempre / nunca**), aplicado
+a pastas do Git em vez de pastas do computador:
+
+```json
+{
+  "formato": "aqua-personal-git/2",
+  "permissoes": [
+    {"quem": "aqua", "pasta": "7-convencoes-de-realidade/convencoes", "acoes": ["propor"], "alcance": "sempre", "desde": "…"},
+    {"quem": "aqua", "pasta": "3-ego/sinapses", "acoes": ["escrever"], "alcance": "uma-vez", "pedido": "<id do pendente>"},
+    {"quem": "*",    "pasta": "ia-chats", "alcance": "nunca"},
+    {"quem": "*",    "pasta": "dados",    "alcance": "nunca"}
+  ],
+  "publicar": false
+}
+```
+
+- `uma-vez`: vale para aquele pedido e acaba. `sempre`: vale para a pasta (e as
+  de dentro) até ser revogada. `nunca`: nem com permissão.
+- Sem regra → a AQUA só pode **propor** (vira pendente).
+- `publicar` é do usuário; nenhuma regra dá à AQUA o poder de publicar.
+- O `manifest.json` é versionado como qualquer arquivo (fora do layout das
+  Esferas, então o `validarObjeto` não o confere).
+
+## 8. 616 Network (prova)
+
+Só a prova vai para a cadeia, nunca o estado: `{hashConteudo ou commitHash, did,
+timestamp, branch, licenca, derivadoDe[]}` assinado com a chave do DID. Commits
+privados só expõem o hash, e só se o usuário pedir. (Formato e cadeia da 616
+ainda não definidos.)
+
+## 9. Núcleo (`aqua-personal-git/`)
+
+| Arquivo | O que faz |
+|---|---|
+| `canonical.ts` | JSON canônico + `sha256:` (hash de conteúdo) |
+| `semantica.ts` | `normalizar`, `gerarId`, `idConvencao/Sinapse/Sintese`, `chavePendente`, Esferas, caminhos, `validarObjeto`, status/fonte, lexicons, `paraRegistroPublico` |
+| `pendentes.ts` | fila de pendentes, `proporInferenciaAqua`, `aceitar` |
+| `repo.ts` | commits encadeados com `fonte`/`status`, diff, revert, restore, verify, export/import (`aqua-personal-git/2`) |
+
+`cd aqua-personal-git && npm ci && npm test` — 20 testes (13 do repositório + 7 de
+paridade). `npm run vetores` regenera os vetores a partir da U.I. local
+(`UI_DIR`, `BASE_DIR`), sem escrever nada lá.
+
+## 10. Perguntas abertas
+
+1. Categorias sensíveis (saúde, política, religião, sexualidade): a AQUA deve
+   deixar de inferir essas por padrão?
+2. A U.I. pareada substitui a cópia do servidor imediatamente, ou as duas
+   convivem (servidor só como remoto cifrado) desde o primeiro dia?
+3. Licença padrão do que for publicado e formato/cadeia da 616.
