@@ -69,8 +69,12 @@ module.exports = async function (env, argv) {
   if (env.mode === 'development') {
     config.plugins.push(new ReactRefreshWebpackPlugin())
   } else {
-    // Support static CDN for chunks
-    config.output.publicPath = 'auto'
+    // Absolute public path. With 'auto', HtmlWebpackPlugin writes relative
+    // tags (src="static/js/…") into index.html, so a route opened directly at
+    // a nested path (/views/history) asked for /views/static/js/…, got the SPA
+    // index.html back and died with "Unexpected token '<'". A static CDN can
+    // still be set with WEB_PUBLIC_PATH (e.g. https://cdn.example.com/).
+    config.output.publicPath = process.env.WEB_PUBLIC_PATH || '/'
   }
 
   if (GENERATE_STATS || OPEN_ANALYZER) {

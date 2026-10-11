@@ -8,6 +8,11 @@ RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
 
+# Build assets requested under a nested route (/views/static/js/…, left by an
+# older index.html with relative paths) are served from /static/; all files
+# there are content-hashed, so this is safe.
+RewriteRule ^.+/(static/.+)$ /$1 [L]
+
 # Missing build assets must remain 404s instead of returning HTML.
 RewriteRule ^static/ - [L]
 

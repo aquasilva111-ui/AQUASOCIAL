@@ -321,6 +321,45 @@ export function channelAccess(input: {
   return {state: 'visible', status: input.channel.status}
 }
 
+/**
+ * The channel a creator gets without having created one: AQUA defaults
+ * (public, active, default sections) over their profile. Lets anyone who
+ * publishes videos (e.g. a Bluesky account the player already shows with
+ * subscribers) have a usable channel page.
+ */
+export function implicitChannel(): ViewChannelRecord {
+  return newChannelRecord({}, new Date(0))
+}
+
+export type ChannelPageState =
+  | {state: 'loading'}
+  | {state: 'suspended'}
+  | {state: 'unavailable'}
+  | {state: 'none'}
+  | {state: 'visible'; channel: ViewChannelRecord; implicit: boolean}
+
+/**
+ * What the channel page shows. A `place.aqua.view.channel` record is no
+ * longer required: without one, a profile that has videos gets the implicit
+ * channel; only a profile with no videos at all gets the "no channel" state.
+ */
+export function channelPageState(input: {
+  channel: ViewChannelRecord | undefined
+  isOwner: boolean
+  moderated: boolean
+  videoCount: number
+  videosLoading: boolean
+}): ChannelPageState {
+  const access = channelAccess(input)
+  if (access.state === 'visible')
+    return {state: 'visible', channel: input.channel!, implicit: false}
+  if (access.state !== 'none') return access
+  if (input.videoCount > 0)
+    return {state: 'visible', channel: implicitChannel(), implicit: true}
+  if (input.videosLoading) return {state: 'loading'}
+  return {state: 'none'}
+}
+
 export type VideoStat = {
   uri: string
   indexedAt: string

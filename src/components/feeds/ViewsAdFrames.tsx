@@ -1,7 +1,7 @@
 import {ScrollView, View} from 'react-native'
 import {Image} from 'expo-image'
 
-import {VIEWS_FRAMES, type ViewsFrame} from '#/lib/media/viewsFrames'
+import {filledFrames, type ViewsFrame} from '#/lib/media/viewsFrames'
 import {atoms as a, useBreakpoints, useTheme} from '#/alf'
 import {Link} from '#/components/Link'
 import {Text} from '#/components/Typography'
@@ -12,16 +12,18 @@ const FRAME_ASPECT = 2.2
 /**
  * "Views Frames" — the ad row on Aqua Views. Three frames side by side on
  * wide screens; a horizontal scroller on phones. Creatives come from
- * VIEWS_FRAMES; empty frames show a placeholder.
+ * VIEWS_FRAMES; slots without a creative are skipped (no gray placeholders).
  */
 export function ViewsAdFrames() {
   const {gtMobile} = useBreakpoints()
-  if (!VIEWS_FRAMES.length) return null
+  // Slots without a creative used to show a gray "Views Frame" box forever.
+  const frames = filledFrames()
+  if (!frames.length) return null
 
   if (gtMobile) {
     return (
       <View style={[a.flex_row, a.gap_md, a.px_md, a.pb_md]}>
-        {VIEWS_FRAMES.map(frame => (
+        {frames.map(frame => (
           <View key={frame.id} style={[a.flex_1, {minWidth: 0}]}>
             <Frame frame={frame} />
           </View>
@@ -34,7 +36,7 @@ export function ViewsAdFrames() {
       horizontal
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={[a.gap_md, a.px_md, a.pb_md]}>
-      {VIEWS_FRAMES.map(frame => (
+      {frames.map(frame => (
         <View key={frame.id} style={{width: 280}}>
           <Frame frame={frame} />
         </View>

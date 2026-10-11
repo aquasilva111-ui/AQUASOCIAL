@@ -26,11 +26,20 @@ const MIME = {
   '.txt': 'text/plain; charset=utf-8',
 }
 
+/** "/views/static/js/a.js" → "/static/js/a.js"; other paths unchanged. */
+function staticPath(pathname) {
+  const i = pathname.indexOf('/static/')
+  return i > 0 ? pathname.slice(i) : pathname
+}
+
 const server = http.createServer((req, res) => {
   try {
     const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`)
     let pathname = decodeURIComponent(url.pathname)
     if (pathname === '/') pathname = '/index.html'
+    // Build assets asked for under a nested route (/views/static/js/…) live
+    // at /static/…; never answer them with the SPA's index.html.
+    pathname = staticPath(pathname)
 
     const filePath = path.normalize(path.join(ROOT, pathname))
     if (!filePath.startsWith(ROOT)) {
@@ -67,6 +76,10 @@ const server = http.createServer((req, res) => {
   }
 })
 
-server.listen(PORT, () => {
-  console.log(`AQUASOCIAL web server listening on port ${PORT}`)
-})
+if (require.main === module) {
+  server.listen(PORT, () => {
+    console.log(`AQUASOCIAL web server listening on port ${PORT}`)
+  })
+}
+
+module.exports = {server, staticPath}

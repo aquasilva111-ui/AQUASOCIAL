@@ -20,6 +20,11 @@ export type ViewsFrame = {
   sponsored?: boolean
 }
 
+/** Only frames with a creative are shown; empty slots never render as gray boxes. */
+export function filledFrames(frames: ViewsFrame[] = VIEWS_FRAMES) {
+  return frames.filter(f => !!f.image)
+}
+
 export const VIEWS_FRAMES: ViewsFrame[] = [
   {id: 'frame-1', alt: 'Espaço de anúncio 1', sponsored: true},
   {id: 'frame-2', alt: 'Espaço de anúncio 2', sponsored: true},
