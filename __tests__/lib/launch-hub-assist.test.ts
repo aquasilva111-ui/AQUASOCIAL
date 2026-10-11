@@ -2,7 +2,10 @@ import {describe, expect, it} from '@jest/globals'
 
 import {
   aquaPostUrl,
+  assistProgress,
+  assistSubtitle,
   assistTransition,
+  mediaNotice,
   prepareAssist,
 } from '../../src/lib/launch-hub/assist'
 import {
@@ -21,7 +24,10 @@ import {
   X_URL_LENGTH,
 } from '../../src/lib/launch-hub/formatting'
 import {deriveLaunchStatus} from '../../src/lib/launch-hub/status'
-import {type Launch} from '../../src/lib/launch-hub/types'
+import {
+  type Launch,
+  type LaunchDestination,
+} from '../../src/lib/launch-hub/types'
 
 const rulesOf = (id: Parameters<typeof getDestination>[0]) =>
   getDestination(id).capabilities.text
@@ -393,5 +399,67 @@ describe('status', () => {
         {status: 'failed', mode: 'assistido'},
       ]),
     ).toBe('partial')
+  })
+})
+
+describe('Publicar em todas (mockup)', () => {
+  it('card subtitles say how each network receives the post', () => {
+    expect(assistSubtitle(getDestination('x'))).toBe('texto e link')
+    expect(assistSubtitle(getDestination('threads'))).toBe('texto e link')
+    expect(assistSubtitle(getDestination('linkedin'))).toBe(
+      'link de compartilhar',
+    )
+    expect(assistSubtitle(getDestination('facebook'))).toBe(
+      'link de compartilhar',
+    )
+    expect(assistSubtitle(getDestination('instagram'))).toBe(
+      'pelo compartilhar do celular',
+    )
+    expect(assistSubtitle(getDestination('pinterest'))).toBe(
+      'link de criar pin',
+    )
+    expect(assistSubtitle(getDestination('wattpad'))).toBe('copiar e abrir')
+    expect(assistSubtitle(getDestination('reddit'))).toBe('título e link')
+  })
+
+  it('media notice: X/Threads text+link only, Instagram via share sheet', () => {
+    const n = mediaNotice(
+      ['x', 'threads', 'instagram'].map(id => getDestination(id as 'x')),
+    )!
+    expect(n).toContain(
+      'No X e no Threads o link de postar leva só texto e link',
+    )
+    expect(n).toContain('Instagram vai pelo compartilhar do celular')
+    expect(
+      mediaNotice([getDestination('wattpad'), getDestination('reddit')]),
+    ).toBeUndefined()
+  })
+
+  it('dock progress counts every destination and picks the next pending one', () => {
+    const d = (
+      provider: string,
+      status: LaunchDestination['status'],
+      mode: 'auto' | 'assistido',
+    ) => ({id: provider, provider, status, mode}) as LaunchDestination
+    const p = assistProgress([
+      d('aqua', 'published', 'auto'),
+      d('bluesky', 'published', 'auto'),
+      d('linkedin', 'published', 'assistido'),
+      d('facebook', 'published', 'assistido'),
+      d('x', 'opened', 'assistido'),
+      d('threads', 'pending', 'assistido'),
+      d('instagram', 'pending', 'assistido'),
+      d('pinterest', 'failed', 'assistido'),
+    ])
+    expect(p.done).toBe(4)
+    expect(p.total).toBe(8)
+    expect(p.assistedDone).toBe(2)
+    expect(p.assistedTotal).toBe(6)
+    expect(p.next?.provider).toBe('threads')
+    const only = assistProgress([d('x', 'opened', 'assistido')])
+    expect(only.next?.provider).toBe('x')
+    expect(
+      assistProgress([d('x', 'skipped', 'assistido')]).next,
+    ).toBeUndefined()
   })
 })

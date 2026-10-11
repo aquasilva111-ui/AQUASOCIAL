@@ -10,6 +10,16 @@ Onde a rede não tem API gratuita (ou a Aqua ainda não tem a integração), o L
 4. **"Publicar em todas"**: publica os destinos automáticos e mostra, no detalhe do lançamento, um passo a passo das redes assistidas: prévia, contagem de caracteres, **Copiar texto**, **Abrir no X/…** (abre em nova aba no navegador, `Linking.openURL` no celular; o texto também vai para a área de transferência), **Compartilhar mídia** (celular, folha de compartilhar nativa via `expo-sharing`), **Marcar como publicado**, **Pular**, **Não deu certo**, **Desfazer**.
 5. **Status por destino** salvo no próprio lançamento (store local do Launch Hub): `pendente` → `aberto` → `publicado` | `erro` | `ignorado`. O lançamento fica "Aguardando você" enquanto houver redes assistidas pendentes.
 
+## Visual (referência: mockup da Aquarela, `launch-hub-publicar-em-todas.html`)
+
+Com o lançamento publicado e ao menos uma rede assistida, o detalhe do lançamento vira a tela **Publicar em todas** (`src/screens/LaunchHub/PublishAll.tsx`, tokens em `aqua-look.ts`, que espelham `aqua-design-core/src/brand/tokens.ts`):
+
+- fundo de céu (modo claro) e cartões de vidro (`GlassSurface`: Liquid Glass nativo no iOS 26+, translúcido com desfoque no resto);
+- **Seu post**: autor, texto, imagem, link, contagem ("1 imagem · 1 link", "92 / 280 no X") e o aviso de que no X e no Threads o link de postar leva só texto e link, e o Instagram vai pelo compartilhar do celular;
+- **Automático**: Aqua/Bluesky com o status e "Tentar de novo" se falhar;
+- **Assistido**: legenda dos 4 estados (Pendente, Aberto, Publicado, Erro) e um cartão por rede no estado certo (aberto com borda azul, publicado esmaecido com "Marcado como publicado", erro com borda laranja e "Tentar de novo");
+- **Dock em cápsula** fixa embaixo: "4 de 8 redes · Próxima: Threads", barra de progresso em gradiente, "Pular" e "Abrir próxima".
+
 ## Redes e URLs (conferidas em 11/10/2026)
 
 | Rede | Modo hoje | URL | Verificação |

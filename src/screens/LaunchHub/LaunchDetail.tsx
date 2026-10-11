@@ -21,7 +21,6 @@ import * as Layout from '#/components/Layout'
 import {InlineLinkText} from '#/components/Link'
 import * as Prompt from '#/components/Prompt'
 import {Text} from '#/components/Typography'
-import {AssistedChecklist} from './AssistedChecklist'
 import {
   Card,
   NoticeText,
@@ -29,14 +28,21 @@ import {
   SectionTitleText,
   StatusPill,
 } from './components'
+import {PublishAllDock, PublishAllView, SkyBackground} from './PublishAll'
 
 type Props = NativeStackScreenProps<CommonNavigatorParams, 'LaunchDetail'>
 
 export function LaunchDetailScreen({route}: Props) {
   const launch = useLaunch(route.params.id)
+  // "Publicar em todas" layout once a launch with assisted networks went out
+  const publishAll =
+    !!launch &&
+    launch.status !== 'draft' &&
+    launch.destinations.some(isAssisted)
 
   return (
     <Layout.Screen testID="launchDetailScreen">
+      {publishAll && <SkyBackground />}
       <Layout.Header.Outer>
         <Layout.Header.BackButton />
         <Layout.Header.Content>
@@ -55,6 +61,7 @@ export function LaunchDetailScreen({route}: Props) {
           )}
         </View>
       </Layout.Content>
+      {publishAll && launch && <PublishAllDock launch={launch} />}
     </Layout.Screen>
   )
 }
@@ -79,6 +86,36 @@ function Detail({launch}: {launch: Launch}) {
       ctx: {agent},
       update: fn => updateLaunch(launch.id, fn),
     })
+
+  if (!isDraft && launch.destinations.some(isAssisted)) {
+    return (
+      <>
+        <PublishAllView
+          launch={launch}
+          profiles={profiles}
+          onRetryAuto={run}
+          footer={
+            <View style={[a.flex_row]}>
+              <Button
+                label="Excluir lançamento"
+                size="small"
+                color="negative_subtle"
+                onPress={deletePrompt.open}>
+                <ButtonText>Excluir lançamento</ButtonText>
+              </Button>
+            </View>
+          }
+        />
+        <DeletePrompt
+          control={deletePrompt}
+          onConfirm={() => {
+            removeLaunch(launch.id)
+            navigation.dispatch(StackActions.replace('LaunchHub'))
+          }}
+        />
+      </>
+    )
+  }
 
   return (
     <>
@@ -129,8 +166,6 @@ function Detail({launch}: {launch: Launch}) {
           </Button>
         )}
       </View>
-
-      {!isDraft && <AssistedChecklist launch={launch} />}
 
       <View style={[a.gap_sm]}>
         {autoDestinations.length > 0 &&
@@ -194,17 +229,32 @@ function Detail({launch}: {launch: Launch}) {
         não duplicar.
       </NoticeText>
 
-      <Prompt.Basic
+      <DeletePrompt
         control={deletePrompt}
-        title="Excluir este lançamento?"
-        description="Remove o registro deste dispositivo. Publicações que já saíram não são apagadas."
-        confirmButtonCta="Excluir"
-        confirmButtonColor="negative"
         onConfirm={() => {
           removeLaunch(launch.id)
           navigation.dispatch(StackActions.replace('LaunchHub'))
         }}
       />
     </>
+  )
+}
+
+function DeletePrompt({
+  control,
+  onConfirm,
+}: {
+  control: Prompt.PromptControlProps
+  onConfirm: () => void
+}) {
+  return (
+    <Prompt.Basic
+      control={control}
+      title="Excluir este lançamento?"
+      description="Remove o registro deste dispositivo. Publicações que já saíram não são apagadas."
+      confirmButtonCta="Excluir"
+      confirmButtonColor="negative"
+      onConfirm={onConfirm}
+    />
   )
 }

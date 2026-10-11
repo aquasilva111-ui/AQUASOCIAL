@@ -137,3 +137,65 @@ export function assistTransition(
       return 'pending'
   }
 }
+
+/** Card subtitle: how this network receives the post (mockup: "texto e link"). */
+export function assistSubtitle(def: DestinationDef): string {
+  const spec = def.assist
+  if (!spec) return 'automático'
+  if (def.id === 'instagram') return 'pelo compartilhar do celular'
+  if (def.id === 'pinterest') return 'link de criar pin'
+  if (spec.kind === 'abrir-e-colar') return 'copiar e abrir'
+  const p = spec.prefills
+  if (p.includes('texto')) return p.includes('link') ? 'texto e link' : 'texto'
+  if (p.includes('titulo')) return 'título e link'
+  return 'link de compartilhar'
+}
+
+/**
+ * Notice for the composer card (mockup): share links carry text and link
+ * only; images go through the phone's share sheet. Undefined when none of
+ * the chosen networks is affected.
+ */
+export function mediaNotice(defs: DestinationDef[]): string | undefined {
+  const textOnly = defs
+    .filter(d => d.assist?.kind === 'intent' && d.assist.mediaByShareSheet)
+    .map(d => d.name)
+  const viaShare = defs.some(d => d.id === 'instagram')
+  if (!textOnly.length && !viaShare) return undefined
+  const names =
+    textOnly.length > 1
+      ? `${textOnly.slice(0, -1).join(', ')} e no ${textOnly[textOnly.length - 1]}`
+      : textOnly[0]
+  const parts: string[] = []
+  if (names)
+    parts.push(
+      `No ${names} o link de postar leva só texto e link. A imagem vai pelo botão de compartilhar do celular.`,
+    )
+  if (viaShare)
+    parts.push(
+      'O Instagram vai pelo compartilhar do celular, com a legenda copiada.',
+    )
+  return parts.join(' ')
+}
+
+const DONE_STATUSES: DestinationStatus[] = ['published', 'skipped']
+export const isDone = (d: Pick<LaunchDestination, 'status'>) =>
+  DONE_STATUSES.includes(d.status)
+
+/**
+ * Dock progress: done destinations over all, and the next assisted network to
+ * open (first pending or failed one; an already-open one only if nothing else).
+ */
+export function assistProgress(destinations: LaunchDestination[]) {
+  const assisted = destinations.filter(isAssisted)
+  const next =
+    assisted.find(d => d.status === 'pending' || d.status === 'failed') ??
+    assisted.find(d => d.status === 'opened')
+  return {
+    done: destinations.filter(isDone).length,
+    total: destinations.length,
+    assistedDone: assisted.filter(isDone).length,
+    assistedTotal: assisted.length,
+    next,
+  }
+}
