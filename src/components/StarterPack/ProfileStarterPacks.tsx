@@ -336,8 +336,8 @@ function Empty() {
         </Prompt.TitleText>
         <Prompt.DescriptionText>
           <Trans>
-            Aqua will choose a set of recommended accounts from people in
-            your network.
+            Aqua will choose a set of recommended accounts from people in your
+            network.
           </Trans>
         </Prompt.DescriptionText>
         <Prompt.Actions>
