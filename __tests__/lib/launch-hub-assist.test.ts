@@ -1,11 +1,13 @@
-import {describe, expect, it} from '@jest/globals'
+import {describe, expect, it, jest} from '@jest/globals'
 
 import {
+  applyAssistMark,
   aquaPostUrl,
   assistProgress,
   assistSubtitle,
   assistTransition,
   mediaNotice,
+  openInNewTab,
   prepareAssist,
 } from '../../src/lib/launch-hub/assist'
 import {BRAND_ICONS} from '../../src/lib/launch-hub/brand-icons'
@@ -24,7 +26,11 @@ import {
   truncateTo,
   X_URL_LENGTH,
 } from '../../src/lib/launch-hub/formatting'
-import {deriveLaunchStatus} from '../../src/lib/launch-hub/status'
+import {
+  deriveLaunchStatus,
+  LAUNCH_LIST_TABS,
+  launchesForTab,
+} from '../../src/lib/launch-hub/status'
 import {
   type Launch,
   type LaunchDestination,
@@ -400,6 +406,196 @@ describe('status', () => {
         {status: 'failed', mode: 'assistido'},
       ]),
     ).toBe('partial')
+  })
+
+  it('shows awaiting_user on Aguardando você and on no other list tab', () => {
+    const launches = [
+      {id: 'wait', status: 'awaiting_user' as const},
+      {id: 'done', status: 'published' as const},
+      {id: 'half', status: 'partial' as const},
+      {id: 'draft', status: 'draft' as const},
+      {id: 'bad', status: 'failed' as const},
+      {id: 'soon', status: 'scheduled' as const},
+      {id: 'run', status: 'publishing' as const},
+    ]
+    expect(launchesForTab(launches, 'awaiting').map(l => l.id)).toEqual([
+      'wait',
+    ])
+    const otherTabs = LAUNCH_LIST_TABS.filter(tab => tab.id !== 'awaiting')
+    for (const tab of otherTabs) {
+      expect(launchesForTab(launches, tab.id).map(l => l.id)).not.toContain(
+        'wait',
+      )
+    }
+    expect(launchesForTab(launches, 'published').map(l => l.id)).toEqual([
+      'done',
+      'half',
+    ])
+    expect(launchesForTab(launches, 'failed').map(l => l.id)).toEqual([
+      'half',
+      'bad',
+    ])
+    const covered = [
+      ...new Set(LAUNCH_LIST_TABS.flatMap(tab => tab.statuses)),
+    ].sort()
+    expect(covered).toEqual(
+      [
+        'awaiting_user',
+        'draft',
+        'failed',
+        'partial',
+        'published',
+        'publishing',
+        'scheduled',
+      ].sort(),
+    )
+  })
+})
+
+const MARKED_AT = '2026-10-11T12:00:00.000Z'
+
+function markedLaunch(
+  destinations: LaunchDestination[],
+  status: Launch['status'] = 'publishing',
+): Launch {
+  return {
+    id: 'l1',
+    creatorDid: 'did:plc:test',
+    type: 'social_post',
+    contentPackage: {text: 'olá', media: []},
+    destinations,
+    publishMode: 'now',
+    status,
+    createdAt: MARKED_AT,
+    updatedAt: MARKED_AT,
+  }
+}
+
+function markedDest(
+  partial: Partial<LaunchDestination> &
+    Pick<LaunchDestination, 'id' | 'status'>,
+): LaunchDestination {
+  return {
+    launchId: 'l1',
+    provider: 'x',
+    profileKey: `assistido:${partial.id}`,
+    idempotencyKey: 'idem',
+    attempts: 0,
+    mode: 'assistido',
+    updatedAt: MARKED_AT,
+    ...partial,
+  }
+}
+
+describe('markAssisted', () => {
+  it('records an open and moves the launch to awaiting_user', () => {
+    const next = applyAssistMark(
+      markedLaunch([
+        markedDest({
+          id: 'aqua',
+          provider: 'aqua',
+          status: 'published',
+          mode: 'auto',
+        }),
+        markedDest({id: 'x', status: 'pending', error: 'antigo'}),
+      ]),
+      'x',
+      'abrir',
+      {},
+      MARKED_AT,
+    )
+    const x = next.destinations.find(d => d.id === 'x')
+    expect(x?.status).toBe('opened')
+    expect(x?.openedAt).toBe(MARKED_AT)
+    expect(x?.error).toBeUndefined()
+    expect(next.destinations.find(d => d.id === 'aqua')?.status).toBe(
+      'published',
+    )
+    expect(next.status).toBe('awaiting_user')
+  })
+
+  it('keeps an existing publishedAt and clears the error when marked published', () => {
+    const next = applyAssistMark(
+      markedLaunch(
+        [
+          markedDest({
+            id: 'aqua',
+            provider: 'aqua',
+            status: 'published',
+            mode: 'auto',
+          }),
+          markedDest({
+            id: 'x',
+            status: 'opened',
+            error: 'não',
+            publishedAt: '2026-10-01T00:00:00.000Z',
+          }),
+        ],
+        'awaiting_user',
+      ),
+      'x',
+      'publicado',
+      {},
+      MARKED_AT,
+    )
+    const x = next.destinations.find(d => d.id === 'x')
+    expect(x?.status).toBe('published')
+    expect(x?.publishedAt).toBe('2026-10-01T00:00:00.000Z')
+    expect(x?.error).toBeUndefined()
+    expect(next.status).toBe('published')
+  })
+
+  it('stores the given error, or a default when none is given', () => {
+    const withMessage = applyAssistMark(
+      markedLaunch([markedDest({id: 'x', status: 'opened'})]),
+      'x',
+      'erro',
+      {error: 'Pop-up bloqueado.'},
+      MARKED_AT,
+    )
+    expect(withMessage.destinations[0]?.error).toBe('Pop-up bloqueado.')
+    expect(withMessage.destinations[0]?.status).toBe('failed')
+    const fallback = applyAssistMark(
+      markedLaunch([markedDest({id: 'x', status: 'pending'})]),
+      'x',
+      'erro',
+      {},
+      MARKED_AT,
+    )
+    expect(fallback.destinations[0]?.error).toBe('Não foi publicado.')
+  })
+})
+
+describe('openInNewTab', () => {
+  it('reports a blocked pop-up when window.open returns null', () => {
+    const open = jest.fn(() => null)
+    expect(openInNewTab('https://x.com/intent/post?text=a', open)).toBe(false)
+    expect(open).toHaveBeenCalledWith(
+      'https://x.com/intent/post?text=a',
+      '_blank',
+    )
+  })
+
+  it('severs opener after the tab opens, without the noopener feature', () => {
+    const popup = {opener: {name: 'aqua'}}
+    const open = jest.fn(() => popup)
+    expect(openInNewTab('https://x.com/intent/post', open)).toBe(true)
+    expect(popup.opener).toBeNull()
+    expect(open.mock.calls[0]).toHaveLength(2)
+  })
+
+  it('reports failure when window.open throws', () => {
+    const open = jest.fn(() => {
+      throw new Error('blocked')
+    })
+    expect(openInNewTab('https://x.com', open)).toBe(false)
+  })
+
+  it('reports a blocked pop-up when the window is already closed', () => {
+    const popup = {opener: {name: 'aqua'}, closed: true}
+    const open = jest.fn(() => popup)
+    expect(openInNewTab('https://x.com', open)).toBe(false)
+    expect(popup.opener).toEqual({name: 'aqua'})
   })
 })
 

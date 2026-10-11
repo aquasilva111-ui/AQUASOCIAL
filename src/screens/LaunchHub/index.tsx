@@ -4,7 +4,12 @@ import {useNavigation} from '@react-navigation/native'
 
 import {getLaunchType} from '#/lib/launch-hub/launch-types'
 import {getProvider} from '#/lib/launch-hub/providers'
-import {type Launch, type LaunchStatus} from '#/lib/launch-hub/types'
+import {
+  LAUNCH_LIST_TABS,
+  launchesForTab,
+  type LaunchListTabId,
+} from '#/lib/launch-hub/status'
+import {type Launch} from '#/lib/launch-hub/types'
 import {type NavigationProp} from '#/lib/routes/types'
 import {useLaunches} from '#/state/launch-hub/store'
 import {atoms as a, useBreakpoints, useTheme} from '#/alf'
@@ -16,21 +21,19 @@ import {Card, ProviderBadge, StatusPill} from './components'
 import {ConnectedAccounts} from './ConnectedAccounts'
 import {Identities} from './Identities'
 
-type Tab =
-  | 'drafts'
-  | 'scheduled'
-  | 'publishing'
-  | 'published'
-  | 'failed'
-  | 'accounts'
-  | 'identities'
+type Tab = LaunchListTabId | 'accounts' | 'identities'
 
-const TABS: {id: Tab; label: string; statuses?: LaunchStatus[]}[] = [
-  {id: 'drafts', label: 'Rascunhos', statuses: ['draft']},
-  {id: 'scheduled', label: 'Agendados', statuses: ['scheduled']},
-  {id: 'publishing', label: 'Publicando', statuses: ['publishing']},
-  {id: 'published', label: 'Publicados', statuses: ['published', 'partial']},
-  {id: 'failed', label: 'Falhas', statuses: ['failed', 'partial']},
+const TAB_LABELS: Record<LaunchListTabId, string> = {
+  drafts: 'Rascunhos',
+  scheduled: 'Agendados',
+  publishing: 'Publicando',
+  awaiting: 'Aguardando você',
+  published: 'Publicados',
+  failed: 'Falhas',
+}
+
+const TABS: {id: Tab; label: string}[] = [
+  ...LAUNCH_LIST_TABS.map(tab => ({id: tab.id, label: TAB_LABELS[tab.id]})),
   {id: 'accounts', label: 'Contas conectadas'},
   {id: 'identities', label: 'Identidades'},
 ]
@@ -41,7 +44,6 @@ export function LaunchHubScreen() {
   const navigation = useNavigation<NavigationProp>()
   const launches = useLaunches()
   const [tab, setTab] = useState<Tab>('drafts')
-  const current = TABS.find(item => item.id === tab)!
 
   return (
     <Layout.Screen testID="launchHubScreen">
@@ -72,8 +74,11 @@ export function LaunchHubScreen() {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={[a.gap_xs]}>
             {TABS.map(item => {
-              const count = item.statuses
-                ? launches.filter(l => item.statuses!.includes(l.status)).length
+              const listTab = LAUNCH_LIST_TABS.find(
+                entry => entry.id === item.id,
+              )
+              const count = listTab
+                ? launchesForTab(launches, listTab.id).length
                 : undefined
               return (
                 <Button
@@ -95,11 +100,7 @@ export function LaunchHubScreen() {
           ) : tab === 'identities' ? (
             <Identities />
           ) : (
-            <LaunchList
-              launches={launches.filter(l =>
-                current.statuses!.includes(l.status),
-              )}
-            />
+            <LaunchList launches={launchesForTab(launches, tab)} />
           )}
         </View>
       </Layout.Content>

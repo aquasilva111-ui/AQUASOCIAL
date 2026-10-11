@@ -1,7 +1,7 @@
 import {useCallback, useMemo, useSyncExternalStore} from 'react'
 
-import {assistTransition} from '#/lib/launch-hub/assist'
-import {deriveLaunchStatus, recoverStaleLaunch} from '#/lib/launch-hub/runner'
+import {applyAssistMark, type AssistAction} from '#/lib/launch-hub/assist'
+import {recoverStaleLaunch} from '#/lib/launch-hub/runner'
 import {
   type IdentityGroup,
   type Launch,
@@ -116,36 +116,12 @@ export function useLaunchApi() {
     (
       launchId: string,
       destinationId: string,
-      action: Parameters<typeof assistTransition>[1],
+      action: AssistAction,
       extra: {error?: string; remoteUrl?: string} = {},
     ) => {
-      updateLaunch(launchId, launch => {
-        const now = new Date().toISOString()
-        const destinations = launch.destinations.map(d => {
-          if (d.id !== destinationId) return d
-          const status = assistTransition(d.status, action)
-          return {
-            ...d,
-            status,
-            error:
-              status === 'failed'
-                ? extra.error || 'Não foi publicado.'
-                : undefined,
-            ...(action === 'abrir' ? {openedAt: now} : {}),
-            ...(status === 'published'
-              ? {publishedAt: d.publishedAt ?? now}
-              : {}),
-            ...(extra.remoteUrl ? {remoteUrl: extra.remoteUrl} : {}),
-            updatedAt: now,
-          }
-        })
-        return {
-          ...launch,
-          destinations,
-          status: deriveLaunchStatus(destinations, launch.status),
-          updatedAt: now,
-        }
-      })
+      updateLaunch(launchId, launch =>
+        applyAssistMark(launch, destinationId, action, extra),
+      )
     },
     [updateLaunch],
   )

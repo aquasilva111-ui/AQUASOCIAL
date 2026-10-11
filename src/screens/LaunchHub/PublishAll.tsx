@@ -22,6 +22,7 @@ import {
   isAssisted,
   isDone,
   mediaNotice,
+  openInNewTab,
   prepareAssist,
   type PreparedAssist,
 } from '#/lib/launch-hub/assist'
@@ -230,23 +231,29 @@ function useAssistActions(
 
   /**
    * Opens the network's composer. The clipboard write starts first but is not
-   * awaited, so the browser still sees the click (no pop-up blocking).
+   * awaited, so the browser still sees the click. On web, a blocked pop-up
+   * makes `window.open` return null; Linking.openURL still resolves then, so
+   * the web path checks the window itself before marking it opened.
    */
   const open = () => {
     if (!prep?.openUrl) return
+    const url = prep.openUrl
+    const name = prep.def.name
+    const spec = prep.def.assist
     copy(true)
-    Linking.openURL(prep.openUrl).then(
-      () => {
-        mark('abrir')
-        const spec = prep.def.assist
-        if (!(spec?.kind === 'intent' && spec.prefills.includes('texto')))
-          Toast.show('Texto copiado: é só colar na rede')
-      },
-      e =>
-        mark(
-          'erro',
-          `${prep.def.name} não abriu${isWeb ? '. Confira se o pop-up foi bloqueado' : ''} (${String(e)}).`,
-        ),
+    const opened = () => {
+      mark('abrir')
+      if (!(spec?.kind === 'intent' && spec.prefills.includes('texto')))
+        Toast.show('Texto copiado: é só colar na rede')
+    }
+    if (isWeb) {
+      if (openInNewTab(url)) opened()
+      else mark('erro', `${name} não abriu. Confira se o pop-up foi bloqueado.`)
+      return
+    }
+    Linking.openURL(url).then(
+      () => opened(),
+      e => mark('erro', `${name} não abriu (${String(e)}).`),
     )
   }
 

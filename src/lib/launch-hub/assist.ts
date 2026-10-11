@@ -7,7 +7,6 @@ import {
   type AssistOptions,
   type AssistPost,
   type DestinationDef,
-  effectiveMode,
   getDestination,
 } from '#/lib/launch-hub/destinations'
 import {
@@ -15,6 +14,7 @@ import {
   adaptPost,
   normalizeHashtag,
 } from '#/lib/launch-hub/formatting'
+import {deriveLaunchStatus} from '#/lib/launch-hub/status'
 import {
   type DestinationStatus,
   type Launch,
@@ -105,24 +105,88 @@ export function prepareAssist(
   return {def, adapted, post, openUrl, copyText, ...(missing ? {missing} : {})}
 }
 
-/** Mode the destination is fixed with when the launch starts. */
-export function modeFor(
-  destination: Pick<LaunchDestination, 'provider'>,
-  integrationConfigured: boolean,
-) {
-  return effectiveMode(
-    getDestination(destination.provider),
-    integrationConfigured,
-  )
-}
-
 export const isAssisted = (d: Pick<LaunchDestination, 'mode'>) =>
   d.mode === 'assistido'
+
+export type AssistAction = 'abrir' | 'publicado' | 'erro' | 'pular' | 'reabrir'
+
+type WebPopup = {opener: unknown; closed?: boolean} | null
+type WebOpener = (
+  url?: string | URL,
+  target?: string,
+  features?: string,
+) => WebPopup
+
+/**
+ * Opens `url` in a new tab. Returns false when the browser blocked it.
+ *
+ * `window.open` with the `noopener` feature returns null even when the tab
+ * did open (HTML spec), which is what react-native-web's Linking.openURL
+ * uses — so that promise never rejects on a blocked pop-up. This calls
+ * `window.open` without that feature and severs `opener` afterwards.
+ */
+export function openInNewTab(url: string, open?: WebOpener): boolean {
+  const opener = open ?? defaultWebOpener()
+  if (!opener) return false
+  let popup: WebPopup
+  try {
+    popup = opener(url, '_blank')
+  } catch {
+    return false
+  }
+  if (!popup) return false
+  try {
+    // `closed` is already true when a blocker hands back a dead window.
+    if (popup.closed) return false
+    popup.opener = null
+  } catch {
+    // already detached, or `closed` isn't readable; the tab still opened
+  }
+  return true
+}
+
+function defaultWebOpener(): WebOpener | undefined {
+  const w = (globalThis as {window?: {open?: WebOpener}}).window
+  return w?.open?.bind(w)
+}
+
+/**
+ * Applies one assisted action to a launch: destination status, timestamps
+ * and the derived launch status. Pure; the store persists the result.
+ */
+export function applyAssistMark(
+  launch: Launch,
+  destinationId: string,
+  action: AssistAction,
+  extra: {error?: string; remoteUrl?: string} = {},
+  now = new Date().toISOString(),
+): Launch {
+  const destinations = launch.destinations.map(d => {
+    if (d.id !== destinationId) return d
+    const status = assistTransition(d.status, action)
+    return {
+      ...d,
+      status,
+      error:
+        status === 'failed' ? extra.error || 'Não foi publicado.' : undefined,
+      ...(action === 'abrir' ? {openedAt: now} : {}),
+      ...(status === 'published' ? {publishedAt: d.publishedAt ?? now} : {}),
+      ...(extra.remoteUrl ? {remoteUrl: extra.remoteUrl} : {}),
+      updatedAt: now,
+    }
+  })
+  return {
+    ...launch,
+    destinations,
+    status: deriveLaunchStatus(destinations, launch.status),
+    updatedAt: now,
+  }
+}
 
 /** Next state of an assisted destination after a person's action. */
 export function assistTransition(
   current: DestinationStatus,
-  action: 'abrir' | 'publicado' | 'erro' | 'pular' | 'reabrir',
+  action: AssistAction,
 ): DestinationStatus {
   switch (action) {
     case 'abrir':
