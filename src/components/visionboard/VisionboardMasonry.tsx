@@ -1,6 +1,10 @@
 import {type ReactElement, useMemo} from 'react'
 import {useWindowDimensions, View} from 'react-native'
 
+import {
+  dealIntoBlocks,
+  dealIntoColumns as dealByWeight,
+} from '#/lib/visionboard/masonry'
 import {type VisionboardItem} from '#/lib/visionboard/model'
 import {type FeedPostSliceItem} from '#/state/queries/post-feed'
 import {List, type ListRef} from '#/view/com/util/List'
@@ -53,23 +57,15 @@ export function dealIntoColumns(
   items: VisionboardItem[],
   columns: number,
 ): VisionboardItem[][] {
-  const cols: VisionboardItem[][] = Array.from({length: columns}, () => [])
-  const heights = Array.from({length: columns}, () => 0)
-  for (const item of items) {
-    let target = 0
-    for (let c = 1; c < columns; c++) {
-      if (heights[c] < heights[target]) target = c
-    }
-    cols[target].push(item)
-    heights[target] += itemWeight(item)
-  }
-  return cols
+  return dealByWeight(items, columns, itemWeight)
 }
 
 /**
  * True masonry: items are dealt into the shortest column (estimated from the
  * real image aspect ratio, so no fake card heights and no layout jumps).
- * Blocks of columns*6 keep the outer List windowed for infinite scroll.
+ * Blocks of about columns*6 keep the outer List windowed for infinite scroll;
+ * a block only ends once its columns are nearly even, so the seams between
+ * blocks do not leave big holes (see dealIntoBlocks).
  */
 export function VisionboardMasonry({
   items,
@@ -83,18 +79,16 @@ export function VisionboardMasonry({
   const gap = 8
   const {width} = useWindowDimensions()
   const columns = columnCount(width, variant)
-  const blocks = useMemo(() => {
-    const perBlock = columns * 6
-    const result: MasonryBlock[] = []
-    for (let start = 0; start < items.length; start += perBlock) {
-      const slice = items.slice(start, start + perBlock)
-      result.push({
-        key: slice[0]?.id ?? `block-${start}`,
-        columns: dealIntoColumns(slice, columns),
-      })
-    }
-    return result
-  }, [items, columns])
+  const blocks = useMemo(
+    () =>
+      dealIntoBlocks(items, columns, itemWeight).map(
+        (block, i): MasonryBlock => ({
+          key: block.columns[0]?.[0]?.id ?? `block-${i}`,
+          columns: block.columns,
+        }),
+      ),
+    [items, columns],
+  )
   return (
     <List
       ref={scrollElRef}

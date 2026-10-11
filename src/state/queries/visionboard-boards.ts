@@ -9,6 +9,8 @@ import {type Aesthetic} from '#/lib/visionboard/aesthetics'
 import {
   BOARD_COLLECTION,
   type BoardRecord,
+  chunkWrites,
+  deleteBoardWrites,
   newPinRecord,
   normalizeBoard,
   normalizePin,
@@ -16,11 +18,15 @@ import {
   pinKey,
   type PinRecord,
   type PinSubject,
+  reorderWrites,
+  type RepoWrite,
   rkeyOf,
   type StoredPin,
+  touchBoard,
   toWritable,
   visibleBoards,
 } from '#/lib/visionboard/boards'
+import {extractAesthetic} from '#/lib/visionboard/extract'
 import {
   newUploadRecord,
   normalizeUpload,
@@ -164,6 +170,47 @@ export function usePinsByBoardQuery(did: string | undefined) {
   })
 }
 
+type Agent = ReturnType<typeof useAgent>
+
+/** Runs writes through applyWrites, at most 200 per call (the PDS limit). */
+async function applyAll(agent: Agent, repo: string, writes: RepoWrite[]) {
+  const results: unknown[] = []
+  for (const batch of chunkWrites(writes)) {
+    const {data} = await agent.com.atproto.repo.applyWrites({
+      repo,
+      writes: batch,
+    })
+    results.push(...(data.results ?? []))
+  }
+  return results
+}
+
+/**
+ * Write that bumps a board's `updatedAt` (so "recent" ordering follows the
+ * last save), or undefined when the board cannot be read.
+ */
+async function touchBoardWrite(
+  agent: Agent,
+  repo: string,
+  boardUri: string,
+): Promise<RepoWrite | undefined> {
+  try {
+    const {data} = await agent.com.atproto.repo.getRecord({
+      repo,
+      collection: BOARD_COLLECTION,
+      rkey: rkeyOf(boardUri),
+    })
+    return {
+      $type: 'com.atproto.repo.applyWrites#update',
+      collection: BOARD_COLLECTION,
+      rkey: rkeyOf(boardUri),
+      value: touchBoard(data.value as Record<string, unknown>),
+    }
+  } catch {
+    return undefined
+  }
+}
+
 function useOwnDid() {
   const {currentAccount} = useSession()
   return () => {
@@ -211,27 +258,12 @@ export function useDeleteBoardMutation() {
       pinRkeys: string[]
       uploadRkeys?: string[]
     }) => {
-      const repo = ownDid()
-      for (const rkey of input.uploadRkeys ?? []) {
-        await agent.com.atproto.repo.deleteRecord({
-          repo,
-          collection: UPLOAD_COLLECTION,
-          rkey,
-        })
-      }
-      // Pins first so a failure never leaves pins pointing at a missing folder.
-      for (const rkey of input.pinRkeys) {
-        await agent.com.atproto.repo.deleteRecord({
-          repo,
-          collection: PIN_COLLECTION,
-          rkey,
-        })
-      }
-      await agent.com.atproto.repo.deleteRecord({
-        repo,
-        collection: BOARD_COLLECTION,
-        rkey: input.rkey,
-      })
+      // Batched: uploads and pins first, the folder last (see deleteBoardWrites).
+      await applyAll(
+        agent,
+        ownDid(),
+        deleteBoardWrites({...input, uploadCollection: UPLOAD_COLLECTION}),
+      )
     },
     onSuccess: () => qc.invalidateQueries({queryKey: [ROOT]}),
   })
@@ -242,11 +274,20 @@ export type AddPinInput = {
   subject: PinSubject
   imageIndex: number
   aesthetic?: Aesthetic
+  /**
+   * Small image URL. When given (and no `aesthetic`), the aesthetic signature
+   * is computed AFTER the pin is written and added in the background, so
+   * saving never waits on decoding pixels.
+   */
+  thumbUrl?: string
   tags: string[]
   note?: string
 }
 
-/** Puts one image in a folder. Refuses the same image twice in the same folder. */
+/**
+ * Puts one image in a folder and bumps the folder's `updatedAt` in the same
+ * applyWrites call. Refuses the same image twice in the same folder.
+ */
 export function useAddPinMutation() {
   const agent = useAgent()
   const ownDid = useOwnDid()
@@ -273,15 +314,48 @@ export function useAddPinMutation() {
           note: input.note,
         }),
       )
-      const {data} = await agent.com.atproto.repo.createRecord({
-        repo,
-        collection: PIN_COLLECTION,
-        record: record as unknown as Record<string, unknown>,
-      })
-      return {uri: data.uri}
+      const touch = await touchBoardWrite(agent, repo, input.boardUri)
+      const [created] = (await applyAll(agent, repo, [
+        {
+          $type: 'com.atproto.repo.applyWrites#create',
+          collection: PIN_COLLECTION,
+          value: record as unknown as Record<string, unknown>,
+        },
+        ...(touch ? [touch] : []),
+      ])) as {uri?: string}[]
+      const uri = created?.uri
+      if (uri && !input.aesthetic && input.thumbUrl) {
+        // Not awaited: the save is already done, the signature only enriches it.
+        addAestheticLater(agent, repo, uri, record, input.thumbUrl).then(ok => {
+          if (ok) qc.invalidateQueries({queryKey: RQKEY.pins(repo)})
+        })
+      }
+      return {uri}
     },
     onSuccess: () => qc.invalidateQueries({queryKey: [ROOT]}),
   })
+}
+
+async function addAestheticLater(
+  agent: Agent,
+  repo: string,
+  pinUri: string,
+  record: PinRecord,
+  thumbUrl: string,
+): Promise<boolean> {
+  try {
+    const aesthetic = await extractAesthetic(thumbUrl)
+    if (!aesthetic) return false
+    await agent.com.atproto.repo.putRecord({
+      repo,
+      collection: PIN_COLLECTION,
+      rkey: rkeyOf(pinUri),
+      record: {...record, aesthetic} as unknown as Record<string, unknown>,
+    })
+    return true
+  } catch {
+    return false
+  }
 }
 
 export function useRemovePinMutation() {
@@ -312,12 +386,17 @@ export function useMovePinMutation() {
         board: input.toBoardUri,
         position: undefined,
       }
-      await agent.com.atproto.repo.putRecord({
-        repo: ownDid(),
-        collection: PIN_COLLECTION,
-        rkey: input.stored.rkey,
-        record: toWritable(moved) as unknown as Record<string, unknown>,
-      })
+      const repo = ownDid()
+      const touch = await touchBoardWrite(agent, repo, input.toBoardUri)
+      await applyAll(agent, repo, [
+        {
+          $type: 'com.atproto.repo.applyWrites#update',
+          collection: PIN_COLLECTION,
+          rkey: input.stored.rkey,
+          value: toWritable(moved) as unknown as Record<string, unknown>,
+        },
+        ...(touch ? [touch] : []),
+      ])
     },
     onSuccess: () => qc.invalidateQueries({queryKey: [ROOT]}),
   })
@@ -330,19 +409,7 @@ export function useReorderPinsMutation() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async (input: {ordered: StoredPin[]}) => {
-      const repo = ownDid()
-      for (const [index, stored] of input.ordered.entries()) {
-        if (stored.pin.position === index) continue
-        await agent.com.atproto.repo.putRecord({
-          repo,
-          collection: PIN_COLLECTION,
-          rkey: stored.rkey,
-          record: toWritable({
-            ...stored.pin,
-            position: index,
-          }) as unknown as Record<string, unknown>,
-        })
-      }
+      await applyAll(agent, ownDid(), reorderWrites(input.ordered))
     },
     onSuccess: () => qc.invalidateQueries({queryKey: [ROOT]}),
   })
@@ -433,6 +500,10 @@ export function useUploadImagesMutation() {
           outcomes.push({name, error: e instanceof Error ? e.message : 'erro'})
         }
         input.onProgress?.(i + 1, input.images.length)
+      }
+      if (outcomes.some(o => !o.error)) {
+        const touch = await touchBoardWrite(agent, repo, input.boardUri)
+        if (touch) await applyAll(agent, repo, [touch]).catch(() => {})
       }
       return outcomes
     },

@@ -18,18 +18,27 @@ import {
   suggestBoards,
 } from '#/lib/visionboard/algorithm'
 import {
+  BOARD_COLLECTION,
   type BoardRecord,
   boardsContaining,
+  chunkWrites,
   coverOf,
+  coverOrder,
+  deleteBoardWrites,
   isBoardUri,
+  movePinStep,
   newBoardRecord,
   newPinRecord,
   normalizeBoard,
   normalizePin,
   orderedPins,
+  PIN_COLLECTION,
   pinKey,
+  reorderWrites,
   type StoredPin,
+  touchBoard,
   toWritable,
+  VISIBILITY_LABEL,
   visibleBoards,
 } from '#/lib/visionboard/boards'
 
@@ -467,5 +476,110 @@ describe('aesthetics as Conventions', () => {
         0.99,
       ),
     ).toEqual([])
+  })
+})
+
+describe('fase 0: folders', () => {
+  const stored = (n: number, position?: number): StoredPin => ({
+    uri: `at://${OWNER}/place.aqua.visionboard.pin/p${n}`,
+    rkey: `p${n}`,
+    pin: newPinRecord({
+      board: BOARD,
+      subject: {uri: POST(n), cid: 'c'},
+      createdAt: `2026-10-0${n}T00:00:00Z`,
+      position,
+    }),
+  })
+
+  it('creates new boards public by default and labels "private" honestly', () => {
+    expect(newBoardRecord({title: 't'}).visibility).toBe('public')
+    expect(VISIBILITY_LABEL.private).toBe('Oculto no Aqua')
+  })
+
+  it('bumps updatedAt and keeps every other field of the board', () => {
+    const raw = {
+      $type: BOARD_COLLECTION,
+      title: 'Verão',
+      visibility: 'public',
+      unknownFutureField: 1,
+      createdAt: '2026-01-01T00:00:00.000Z',
+      updatedAt: '2026-01-01T00:00:00.000Z',
+    }
+    const now = new Date('2026-10-11T10:00:00.000Z')
+    expect(touchBoard(raw, now)).toEqual({
+      ...raw,
+      updatedAt: '2026-10-11T10:00:00.000Z',
+    })
+  })
+
+  it('puts the chosen cover first, then pins and uploads by date', () => {
+    const e = (uri: string, day: number) => ({
+      uri,
+      createdAt: `2026-10-0${day}T00:00:00Z`,
+    })
+    const entries = [e('pin1', 1), e('up2', 2), e('pin3', 3), e('up4', 4)]
+    const board = newBoardRecord({title: 't'})
+    expect(coverOrder(board, entries, 3).map(x => x.uri)).toEqual([
+      'up4',
+      'pin3',
+      'up2',
+    ])
+    const covered = newBoardRecord({title: 't', coverPin: 'pin1'})
+    expect(coverOrder(covered, entries, 3).map(x => x.uri)).toEqual([
+      'pin1',
+      'up4',
+      'pin3',
+    ])
+    const stale = newBoardRecord({title: 't', coverPin: 'gone'})
+    expect(coverOrder(stale, entries, 1).map(x => x.uri)).toEqual(['up4'])
+  })
+
+  it('deletes uploads, then pins, then the board last', () => {
+    const writes = deleteBoardWrites({
+      rkey: 'b',
+      pinRkeys: ['p1', 'p2'],
+      uploadRkeys: ['u1'],
+      uploadCollection: 'place.aqua.visionboard.upload',
+    })
+    expect(writes.map(w => `${w.collection}/${w.rkey}`)).toEqual([
+      'place.aqua.visionboard.upload/u1',
+      `${PIN_COLLECTION}/p1`,
+      `${PIN_COLLECTION}/p2`,
+      `${BOARD_COLLECTION}/b`,
+    ])
+    expect(
+      writes.every(w => w.$type === 'com.atproto.repo.applyWrites#delete'),
+    ).toBe(true)
+  })
+
+  it('splits writes into batches of at most 200', () => {
+    const writes = deleteBoardWrites({
+      rkey: 'b',
+      pinRkeys: Array.from({length: 450}, (_, i) => `p${i}`),
+      uploadCollection: 'u',
+    })
+    const batches = chunkWrites(writes)
+    expect(batches.map(b => b.length)).toEqual([200, 200, 51])
+    expect(batches[2][50].collection).toBe(BOARD_COLLECTION)
+  })
+
+  it('reorders by rewriting only the pins whose position changes', () => {
+    const ordered = [stored(1, 0), stored(3, 2), stored(2, 1)]
+    const writes = reorderWrites(ordered)
+    expect(writes.map(w => w.rkey)).toEqual(['p3', 'p2'])
+    expect(
+      writes.map(w => ('value' in w ? w.value.position : undefined)),
+    ).toEqual([1, 2])
+  })
+
+  it('moves a pin one step and refuses to leave the list', () => {
+    const list = [stored(1), stored(2), stored(3)]
+    expect(movePinStep(list, 1, -1)?.map(p => p.rkey)).toEqual([
+      'p2',
+      'p1',
+      'p3',
+    ])
+    expect(movePinStep(list, 2, 1)).toBeUndefined()
+    expect(movePinStep(list, 0, -1)).toBeUndefined()
   })
 })

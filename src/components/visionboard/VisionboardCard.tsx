@@ -10,7 +10,7 @@ import {
 import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
 import {makeProfileLink} from '#/lib/routes/links'
 import {getPostTextAndFacets} from '#/lib/strings/long-post'
-import {type VisionboardItem} from '#/lib/visionboard/model'
+import {saveTargetFields, type VisionboardItem} from '#/lib/visionboard/model'
 import {
   POST_TOMBSTONE,
   type Shadow,
@@ -184,10 +184,7 @@ function SaveButton({
   item: VisionboardItem
 }) {
   return (
-    <SaveToBoardButton
-      compact
-      target={{post, imageIndex: 0, thumbUrl: item.thumbnailUrl}}
-    />
+    <SaveToBoardButton compact target={{post, ...saveTargetFields(item)}} />
   )
 }
 
