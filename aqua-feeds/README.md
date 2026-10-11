@@ -1,4 +1,4 @@
-# aqua-feeds — feed "Em alta na Aqua"
+# aqua-feeds — feeds "Em alta na Aqua" e "Pra você"
 
 Feed generator do AT Protocol. Lê o firehose (Jetstream), indexa os posts das
 últimas 72 h e as curtidas, reposts e respostas que eles recebem, e serve um
@@ -34,6 +34,49 @@ A cada `REFRESH_SECONDS` o ranking é congelado num **snapshot** (até
 não repete nem pula posts, mesmo que os números mudem no meio. Snapshots vivem
 `SNAPSHOT_TTL_MINUTES`; um cursor de snapshot apagado devolve lista vazia e o app
 recarrega do topo.
+
+## "Pra você": feed por Convenções de Realidade (explicável)
+
+**Em palavras simples.** Cada coisa que você faz com um post — curtir (1),
+repostar (2), responder (2), salvar (3), seguir quem postou (4), ficar lendo
+(1 a cada 20 s, até 3), "mostrar mais" (2) ou "mostrar menos" (−3) — reforça as
+**Convenções** daquele post: `tema:` (#hashtags), `idioma:`, `rotulo:`,
+`criador:` e `formato:`. Cada Convenção sua tem uma **gravidade** que cresce com
+intensidade, frequência, dias diferentes, variedade de sinais e ligações
+(Sinapses), e **cai pela metade a cada 14 dias** sem uso. O **estado** mostra o
+momento: emergente, ativa, enfraquecendo ou dormente.
+
+Um post novo vale:
+
+```
+(0,1 + Σ Convenções suas que estão no post
+      + Sinapses (25% de uma Convenção que costuma andar junto com uma do post)
+      + afinidade com o criador e o formato
+      + 0,6·ln(1 + curtidas + 2·reposts + 3·respostas))
+× frescor (meia-vida de 12 h) × penalidades (já visto ×0,5, mostrar menos ×0,3, silenciada ×0,1)
+```
+
+e no fim os criadores são intercalados (diversidade). Tudo é determinístico.
+
+- **Explicação em cada item**: `feedContext` traz as parcelas (`{"a":"pra-voce","s":…,"c":[[convenção, via, pontos]]}`);
+  `GET place.aqua.feed.explain?uri=` devolve a conta completa e frases em português.
+- **Seu perfil**: `GET place.aqua.convencoes.getProfile` (gravidade, estado,
+  fonte explícita/inferida, sinais, tendência, Sinapses, bloqueadas).
+- **Histórico**: `GET place.aqua.convencoes.getHistory[?key=]` — o que mudou,
+  quando, por quê e se foi você (`usuario`/confirmado) ou a Aqua
+  (`aqua`/hipótese). Fica no Git pessoal (`aqua-personal-git`), no formato da
+  Base de Sínteses (`7-convencoes-de-realidade/convencoes/<id16>.json`).
+- **Ajustes**: `POST place.aqua.convencoes.adjust {key, action, factor?, note?}`
+  com `add` (explícita, gravidade mínima 3), `boost` (×0,25–4), `mute`/`unmute`,
+  `delete` (esquece os sinais até agora) e `wrong` (esquece e não infere de novo).
+- **Sinais sem registro no protocolo**: `POST app.bsky.feed.sendInteractions`
+  (mostrar mais/menos, visto) e `POST place.aqua.feed.sendSignals` (salvar, tempo).
+- **Login**: JWT de serviço (`com.atproto.server.getServiceAuth` com
+  `aud=<DID do serviço>` e `lxm=<método>`), verificado contra a chave do DID.
+  Sem login, o "Pra você" vira um feed genérico (recentes + em alta).
+- **Privacidade**: só guarda sinais de quem já usou o "Pra você" (o Jetstream é
+  público, mas não montamos perfil de quem nunca pediu), por
+  `SIGNAL_RETENTION_DAYS` (180).
 
 ## Rodar localmente
 
@@ -72,17 +115,23 @@ público da Bluesky**. Se a Aqua passar a ter relay/Jetstream próprio, troque
    porta 443 (Caddy ou Nginx na frente, como em `aqua-shops-backend/Caddyfile`).
 2. **Postgres** (`DATABASE_URL`). Em produção o processo não sobe sem
    `FEEDGEN_HOSTNAME`, `FEEDGEN_PUBLISHER_DID` e `DATABASE_URL`.
-3. **Imagem**: `docker build -t aqua-feeds aqua-feeds/` e rodar com as variáveis
+3. **Imagem** (da raiz do repositório, porque o "Pra você" usa `aqua-personal-git`):
+   `docker build -f aqua-feeds/Dockerfile -t aqua-feeds .` e rodar com as variáveis
    de `.env.example`.
 4. **Publicar o feed** (uma vez, ou para mudar nome/descrição), com uma **senha de
    app** da conta oficial da Aqua:
    ```bash
    FEEDGEN_HANDLE=aqua.bsky.social FEEDGEN_APP_PASSWORD=xxxx-xxxx-xxxx-xxxx \
-   FEEDGEN_HOSTNAME=feeds.aquaapp.systems npm run publish-feed
+   FEEDGEN_HOSTNAME=feeds.aquaapp.systems FEED=todos npm run publish-feed
    ```
+   (`FEED=em-alta` é o padrão; `pra-voce` publica o feed pessoal com
+   `acceptsInteractions: true`.)
    O script imprime a URI `at://<did>/app.bsky.feed.generator/em-alta`. Coloque o
    DID em `FEEDGEN_PUBLISHER_DID` no serviço e reinicie.
-5. **App**: defina `EXPO_PUBLIC_AQUA_HOT_FEED_URI=<a URI acima>` no build do app.
+5. **App**: defina `EXPO_PUBLIC_AQUA_HOT_FEED_URI=<URI do em-alta>` no build do app
+   (e, para o "Pra você", `EXPO_PUBLIC_AQUA_FOR_YOU_FEED_URI=<URI do pra-voce>`,
+   `EXPO_PUBLIC_AQUA_FEEDS_URL=https://<FEEDGEN_HOSTNAME>` e
+   `EXPO_PUBLIC_AQUA_FEEDS_DID=did:web:<FEEDGEN_HOSTNAME>`).
    Com isso, "Em alta na Aqua" entra como primeira aba fixada para quem cria conta
    e nos botões "adicionar feeds recomendados". Contas antigas não ganham a aba
    sozinhas: elas podem salvar o feed pela tela do feed (ou uma migração de

@@ -1,4 +1,5 @@
 import {Hono} from 'hono'
+import {cors} from 'hono/cors'
 
 import {
   BadCursorError as ForYouCursorError,
@@ -35,6 +36,17 @@ const AT_URI = /^at:\/\/did:[a-z]+:[a-zA-Z0-9._:%-]+\/app\.bsky\.feed\.post\/[a-
 export function createApp(cfg: Config, feed: Feed, deps?: ForYouDeps) {
   const app = new Hono()
   const forYouOn = Boolean(deps && cfg.forYouEnabled)
+
+  // O app web chama place.aqua.* direto (token Bearer, sem cookies).
+  app.use(
+    '/xrpc/place.aqua.*',
+    cors({
+      origin: '*',
+      allowMethods: ['GET', 'POST', 'OPTIONS'],
+      allowHeaders: ['authorization', 'content-type'],
+      maxAge: 600,
+    }),
+  )
 
   /** DID de quem pede (JWT de serviço). `required`: 401 se não houver. */
   async function viewerOf(

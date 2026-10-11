@@ -1,0 +1,8 @@
+*
+!aqua-feeds/package.json
+!aqua-feeds/package-lock.json
+!aqua-feeds/.npmrc
+!aqua-feeds/src
+!aqua-feeds/scripts
+!aqua-personal-git/package.json
+!aqua-personal-git/src
