@@ -119,6 +119,7 @@ export const router = new Router<AllNavigatableRoutes>({
   // settings
   LanguageSettings: '/settings/language',
   AppPasswords: '/settings/app-passwords',
+  AquaConvencoes: '/convencoes',
   PreferencesFollowingFeed: '/settings/following-feed',
   PreferencesThreads: '/settings/threads',
   PreferencesExternalEmbeds: '/settings/external-embeds',

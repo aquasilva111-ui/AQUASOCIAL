@@ -14,9 +14,11 @@ import {
   useTrendingSettings,
   useTrendingSettingsApi,
 } from '#/state/preferences/trending'
+import {AQUA_FOR_YOU_ENABLED} from '#/state/queries/aqua-convencoes'
 import {useTrendingConfig} from '#/state/service-config'
 import * as SettingsList from '#/screens/Settings/components/SettingsList'
 import * as Toggle from '#/components/forms/Toggle'
+import {Atom_Stroke2_Corner0_Rounded as AtomIcon} from '#/components/icons/Atom'
 import {Bubbles_Stroke2_Corner2_Rounded as BubblesIcon} from '#/components/icons/Bubble'
 import {CircleInfo_Stroke2_Corner0_Rounded as CircleInfo} from '#/components/icons/CircleInfo'
 import {Hashtag_Stroke2_Corner0_Rounded as HashtagIcon} from '#/components/icons/Hashtag'
@@ -63,6 +65,16 @@ export function ContentAndMediaSettingsScreen({}: Props) {
               <Trans>Manage saved feeds</Trans>
             </SettingsList.ItemText>
           </SettingsList.LinkItem>
+          {AQUA_FOR_YOU_ENABLED && (
+            <SettingsList.LinkItem
+              to="/convencoes"
+              label={_(msg`My Conventions (“For you” feed)`)}>
+              <SettingsList.ItemIcon icon={AtomIcon} />
+              <SettingsList.ItemText>
+                <Trans>My Conventions (“For you” feed)</Trans>
+              </SettingsList.ItemText>
+            </SettingsList.LinkItem>
+          )}
           <SettingsList.LinkItem
             to="/settings/threads"
             label={_(msg`Thread preferences`)}>

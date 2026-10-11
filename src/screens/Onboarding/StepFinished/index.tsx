@@ -14,6 +14,7 @@ import {useQueryClient} from '@tanstack/react-query'
 
 import {uploadBlob} from '#/lib/api'
 import {
+  AQUA_HOT_SAVED_FEED,
   BSKY_APP_ACCOUNT_DID,
   DISCOVER_SAVED_FEED,
   TIMELINE_SAVED_FEED,
@@ -111,6 +112,10 @@ export function StepFinished() {
 
           // Default feeds that every user should have pinned when landing in the app
           const feedsToSave: AppBskyActorDefs.SavedFeed[] = [
+            // "Em alta na Aqua" first, so it is the default Home tab
+            ...(AQUA_HOT_SAVED_FEED
+              ? [{...AQUA_HOT_SAVED_FEED, id: TID.nextStr()}]
+              : []),
             {
               ...DISCOVER_SAVED_FEED,
               id: TID.nextStr(),

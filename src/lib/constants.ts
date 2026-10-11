@@ -2,7 +2,7 @@ import {type Insets, Platform} from 'react-native'
 import {type AppBskyActorDefs, BSKY_LABELER_DID} from '@atproto/api'
 
 import {type ProxyHeaderValue} from '#/state/session/agent'
-import {BLUESKY_PROXY_DID, CHAT_PROXY_DID} from '#/env'
+import {AQUA_HOT_FEED_URI, BLUESKY_PROXY_DID, CHAT_PROXY_DID} from '#/env'
 
 export const LOCAL_DEV_SERVICE =
   Platform.OS === 'android' ? 'http://10.0.2.2:2583' : 'http://localhost:2583'
@@ -161,10 +161,22 @@ export const VIDEO_SAVED_FEED = {
   pinned: true,
 }
 
+/**
+ * "Em alta na Aqua" (aqua-feeds/), pinned as the first tab for new accounts
+ * when EXPO_PUBLIC_AQUA_HOT_FEED_URI is set.
+ */
+export const AQUA_HOT_SAVED_FEED = AQUA_HOT_FEED_URI
+  ? {type: 'feed', value: AQUA_HOT_FEED_URI, pinned: true}
+  : undefined
+
 export const RECOMMENDED_SAVED_FEEDS: Pick<
   AppBskyActorDefs.SavedFeed,
   'type' | 'value' | 'pinned'
->[] = [DISCOVER_SAVED_FEED, TIMELINE_SAVED_FEED]
+>[] = [
+  ...(AQUA_HOT_SAVED_FEED ? [AQUA_HOT_SAVED_FEED] : []),
+  DISCOVER_SAVED_FEED,
+  TIMELINE_SAVED_FEED,
+]
 
 export const KNOWN_SHUTDOWN_FEEDS = [
   'at://did:plc:wqowuobffl66jv3kpsvo7ak4/app.bsky.feed.generator/the-algorithm', // for you by skygaze

@@ -4,7 +4,11 @@ import {TID} from '@atproto/common-web'
 import {msg, Trans} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 
-import {DISCOVER_SAVED_FEED, TIMELINE_SAVED_FEED} from '#/lib/constants'
+import {
+  AQUA_HOT_SAVED_FEED,
+  DISCOVER_SAVED_FEED,
+  TIMELINE_SAVED_FEED,
+} from '#/lib/constants'
 import {useOverwriteSavedFeedsMutation} from '#/state/queries/preferences'
 import {type UsePreferencesQueryResponse} from '#/state/queries/preferences'
 import {CenteredView} from '#/view/com/util/Views'
@@ -40,12 +44,17 @@ export function NoFeedsPinned({
         !skippedDiscover
       ) {
         skippedDiscover = true
+      } else if (savedFeed.value === AQUA_HOT_SAVED_FEED?.value) {
+        // re-added first below
       } else {
         remainingSavedFeeds.push(savedFeed)
       }
     }
 
     const toSave = [
+      ...(AQUA_HOT_SAVED_FEED
+        ? [{...AQUA_HOT_SAVED_FEED, pinned: true, id: TID.nextStr()}]
+        : []),
       {
         ...DISCOVER_SAVED_FEED,
         pinned: true,

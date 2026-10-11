@@ -17,6 +17,7 @@ import {msg} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 import {useNavigation} from '@react-navigation/native'
 
+import {isForYouFeed} from '#/lib/aqua-for-you'
 import {DISCOVER_DEBUG_DIDS} from '#/lib/constants'
 import {useOpenLink} from '#/lib/hooks/useOpenLink'
 import {useTranslate} from '#/lib/hooks/useTranslate'
@@ -35,6 +36,7 @@ import {useProfileShadow} from '#/state/cache/profile-shadow'
 import {useFeedFeedbackContext} from '#/state/feed-feedback'
 import {useLanguagePrefs} from '#/state/preferences'
 import {useHiddenPosts, useHiddenPostsApi} from '#/state/preferences'
+import {AQUA_FOR_YOU_ENABLED} from '#/state/queries/aqua-convencoes'
 import {usePinnedPostMutation} from '#/state/queries/pinned-post'
 import {
   usePostDeleteMutation,
@@ -56,6 +58,7 @@ import {useRequireAuth, useSession} from '#/state/session'
 import {useMergedThreadgateHiddenReplies} from '#/state/threadgate-hidden-replies'
 import * as Toast from '#/view/com/util/Toast'
 import {useDialogControl} from '#/components/Dialog'
+import {WhyAmISeeingThisDialog} from '#/components/dialogs/aqua/WhyAmISeeingThisDialog'
 import {useGlobalDialogsControlContext} from '#/components/dialogs/Context'
 import {
   PostInteractionSettingsDialog,
@@ -63,6 +66,7 @@ import {
 } from '#/components/dialogs/PostInteractionSettingsDialog'
 import {Atom_Stroke2_Corner0_Rounded as AtomIcon} from '#/components/icons/Atom'
 import {BubbleQuestion_Stroke2_Corner0_Rounded as Translate} from '#/components/icons/Bubble'
+import {CircleInfo_Stroke2_Corner0_Rounded as CircleInfo} from '#/components/icons/CircleInfo'
 import {Clipboard_Stroke2_Corner2_Rounded as ClipboardIcon} from '#/components/icons/Clipboard'
 import {
   EmojiSad_Stroke2_Corner0_Rounded as EmojiSad,
@@ -133,6 +137,7 @@ let PostMenuItems = ({
   const postInteractionSettingsDialogControl = useDialogControl()
   const quotePostDetachConfirmControl = useDialogControl()
   const hideReplyConfirmControl = useDialogControl()
+  const aquaWhyControl = useDialogControl()
   const {mutateAsync: toggleReplyVisibility} =
     useToggleReplyVisibilityMutation()
 
@@ -521,6 +526,21 @@ let PostMenuItems = ({
           </>
         )}
 
+        {hasSession &&
+          AQUA_FOR_YOU_ENABLED &&
+          isForYouFeed(feedFeedback.feedDescriptor) && (
+            <>
+              <Menu.Divider />
+              <Menu.Item
+                testID="postDropdownAquaWhyBtn"
+                label={_(msg`Why am I seeing this?`)}
+                onPress={aquaWhyControl.open}>
+                <Menu.ItemText>{_(msg`Why am I seeing this?`)}</Menu.ItemText>
+                <Menu.ItemIcon icon={CircleInfo} position="right" />
+              </Menu.Item>
+            </>
+          )}
+
         {isDiscoverDebugUser && (
           <>
             <Menu.Divider />
@@ -725,6 +745,14 @@ let PostMenuItems = ({
           </>
         )}
       </Menu.Outer>
+
+      {AQUA_FOR_YOU_ENABLED && (
+        <WhyAmISeeingThisDialog
+          control={aquaWhyControl}
+          postUri={postUri}
+          feedContext={postFeedContext}
+        />
+      )}
 
       <Prompt.Basic
         control={deletePromptControl}

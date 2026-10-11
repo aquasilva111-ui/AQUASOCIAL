@@ -1,0 +1,24 @@
+{
+  "name": "aqua-personal-git",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Núcleo do Git pessoal semântico da AQUA no formato da Base de Sínteses (7 Esferas, ids da U.I.): hash canônico, commits, diff, revert, pendentes (sem I/O)",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "vetores": "python3 scripts/gerar-vetores.py"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "main": "./src/index.ts"
+}
