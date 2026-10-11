@@ -115,6 +115,25 @@ jobs:
           node-version-file: .nvmrc
           cache: yarn
 
+      # The action checks out `main` (the base ref fetched above) and runs
+      # `yarn install --frozen-lockfile`. That base still has a stale lockfile
+      # and a paste-input patch that patch-package rejects when CI=true, so the
+      # install dies before this PR is merged. Refresh both on a temporary
+      # commit and point `main` at it. The PR head already installs cleanly.
+      - name: Repair baseline so fingerprint can install it
+        if: github.event_name == 'pull_request'
+        run: |
+          git checkout main
+          rm -f patches/@mattermost+react-native-paste-input+0.8.1.patch
+          yarn install --ignore-scripts
+          git add -A -- yarn.lock patches
+          if ! git diff --cached --quiet; then
+            git -c user.email="github-actions[bot]@users.noreply.github.com" \
+                -c user.name="github-actions[bot]" \
+                commit -m "ci: temporary baseline for fingerprint"
+          fi
+          git branch -f main HEAD
+
       - name: 📷 Check fingerprint and install dependencies
         id: fingerprint
         uses: bluesky-social/github-actions/fingerprint-native@main
