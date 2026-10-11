@@ -1,4 +1,7 @@
 // Índice dos posts recentes e das interações, e os snapshots do ranking.
+import type {Candidate as ForYouCandidate} from './algos/for-you/score.ts'
+import type {MediaType} from './conventions/extract.ts'
+import type {Adjustment, AdjustAction, Signal, SignalKind} from './conventions/profile.ts'
 import type {Db} from './db.ts'
 import {type Candidate, rankHot, type RankOptions} from './score.ts'
 
@@ -10,6 +13,11 @@ export interface IndexedPost {
   langs: string[]
   /** at:// do post respondido (vira uma interação "reply" se o pai estiver indexado). */
   replyParent?: string
+  /** Convenções do post (formato, criador, tags, idioma) */
+  convKeys?: string[]
+  mediaType?: MediaType
+  /** texto normalizado (sem acento, minúsculas) para casar palavras */
+  text?: string
 }
 
 export interface IndexedInteraction {
@@ -28,21 +36,73 @@ export function createStore(db: Db) {
    * que não indexamos, e assim elas são descartadas sem tocar no banco.
    */
   const known = new Set<string>()
+  /** Contas que usam o "Pra você": só a atividade delas vira sinal. */
+  const viewers = new Set<string>()
+
+  async function signalFromPost(
+    did: string,
+    kind: SignalKind,
+    subject: string,
+    at: number,
+    sourceUri?: string,
+    seconds?: number,
+  ) {
+    if (!known.has(subject)) return false
+    const [p] = await db.query<{conv_keys: string[]}>(
+      'select conv_keys from posts where uri = $1',
+      [subject],
+    )
+    if (!p) return false
+    await insertSignal(did, {kind, at, keys: p.conv_keys, subject, seconds}, sourceUri)
+    return true
+  }
+
+  async function insertSignal(did: string, s: Signal, sourceUri?: string) {
+    await db.query(
+      `insert into user_signals (did, kind, at, keys, subject, seconds, source_uri)
+       values ($1, $2, $3, $4, $5, $6, $7) on conflict (source_uri) do nothing`,
+      [did, s.kind, iso(s.at), s.keys, s.subject ?? null, s.seconds ?? null, sourceUri ?? null],
+    )
+  }
 
   return {
     known,
+    viewers,
 
     async loadKnown() {
       known.clear()
       for (const r of await db.query<{uri: string}>('select uri from posts'))
         known.add(r.uri)
+      viewers.clear()
+      for (const r of await db.query<{did: string}>('select did from viewers'))
+        viewers.add(r.did)
+    },
+
+    async touchViewer(did: string) {
+      if (!viewers.has(did)) {
+        viewers.add(did)
+        await db.query(
+          `insert into viewers (did) values ($1)
+           on conflict (did) do update set last_seen = now()`,
+          [did],
+        )
+      }
     },
 
     async addPost(p: IndexedPost) {
       await db.query(
-        `insert into posts (uri, author_did, indexed_at, is_reply, langs)
-         values ($1, $2, $3, $4, $5) on conflict (uri) do nothing`,
-        [p.uri, p.author, iso(p.indexedAt), p.isReply, p.langs],
+        `insert into posts (uri, author_did, indexed_at, is_reply, langs, conv_keys, media_type, text_norm)
+         values ($1, $2, $3, $4, $5, $6, $7, $8) on conflict (uri) do nothing`,
+        [
+          p.uri,
+          p.author,
+          iso(p.indexedAt),
+          p.isReply,
+          p.langs,
+          p.convKeys ?? [],
+          p.mediaType ?? 'text',
+          p.text ?? '',
+        ],
       )
       known.add(p.uri)
       if (p.replyParent && known.has(p.replyParent)) {
@@ -60,9 +120,22 @@ export function createStore(db: Db) {
     async addReply(uri: string, parent: string, actor: string, at: number) {
       if (known.has(parent))
         await this.addInteractionRow(uri, 'reply', parent, actor, at)
+      if (viewers.has(actor)) await signalFromPost(actor, 'reply', parent, at, uri)
+    },
+
+    /** Alguém que usa o "Pra você" passou a seguir um perfil. */
+    async addFollow(uri: string, actor: string, subject: string, at: number) {
+      if (!viewers.has(actor)) return
+      await insertSignal(
+        actor,
+        {kind: 'follow', at, keys: [`criador:${subject}`], subject},
+        uri,
+      )
     },
 
     async addInteraction(i: IndexedInteraction) {
+      if (viewers.has(i.actor))
+        await signalFromPost(i.actor, i.kind, i.subject, i.createdAt, i.uri)
       if (!known.has(i.subject)) return
       await this.addInteractionRow(
         i.uri,
@@ -96,12 +169,15 @@ export function createStore(db: Db) {
       if (known.delete(uri))
         await db.query('delete from posts where uri = $1', [uri])
       await db.query('delete from interactions where uri = $1', [uri])
+      // descurtir/desfazer repost/deixar de seguir apaga o sinal também
+      await db.query('delete from user_signals where source_uri = $1', [uri])
     },
 
     async prune(
       now: number,
       retentionHours: number,
       snapshotTtlMinutes: number,
+      signalRetentionDays = 180,
     ) {
       const cutoff = iso(now - retentionHours * 3_600_000)
       const gone = await db.query<{uri: string}>(
@@ -112,6 +188,9 @@ export function createStore(db: Db) {
       await db.query('delete from interactions where created_at < $1', [cutoff])
       await db.query('delete from hot_snapshots where id < $1', [
         now - snapshotTtlMinutes * 60_000,
+      ])
+      await db.query('delete from user_signals where at < $1', [
+        iso(now - signalRetentionDays * 86_400_000),
       ])
       return gone.length
     },
@@ -198,6 +277,101 @@ export function createStore(db: Db) {
         [snapshot, offset, limit],
       )
       return rows.map(r => r.uri)
+    },
+
+    // ---------- Pra você ----------
+
+    /** Sinal vindo do app/AppView sobre um post indexado (salvar, tempo, mais/menos, visto). */
+    async addPostSignal(
+      did: string,
+      kind: SignalKind,
+      subject: string,
+      at: number,
+      seconds?: number,
+    ) {
+      return signalFromPost(did, kind, subject, at, undefined, seconds)
+    },
+
+    async signals(did: string, sinceMs: number): Promise<Signal[]> {
+      const rows = await db.query(
+        `select kind, at, keys, subject, seconds from user_signals
+          where did = $1 and at >= $2 order by at`,
+        [did, iso(sinceMs)],
+      )
+      return rows.map(r => ({
+        kind: r.kind as SignalKind,
+        at: new Date(r.at).getTime(),
+        keys: r.keys ?? [],
+        ...(r.subject ? {subject: r.subject} : {}),
+        ...(r.seconds != null ? {seconds: Number(r.seconds)} : {}),
+      }))
+    },
+
+    async adjustments(did: string): Promise<Adjustment[]> {
+      const rows = await db.query(
+        'select key, action, factor, note, at from user_adjustments where did = $1 order by at, id',
+        [did],
+      )
+      return rows.map(r => ({
+        key: r.key,
+        action: r.action as AdjustAction,
+        at: new Date(r.at).getTime(),
+        ...(r.factor != null ? {factor: Number(r.factor)} : {}),
+        ...(r.note ? {note: r.note} : {}),
+      }))
+    },
+
+    async addAdjustment(did: string, a: Adjustment) {
+      await db.query(
+        'insert into user_adjustments (did, key, action, factor, note, at) values ($1, $2, $3, $4, $5, $6)',
+        [did, a.key, a.action, a.factor ?? null, a.note ?? null, iso(a.at)],
+      )
+    },
+
+    async forYouCandidates(
+      now: number,
+      retentionHours: number,
+      limit = 1500,
+      uri?: string,
+    ): Promise<ForYouCandidate[]> {
+      const rows = await db.query(
+        `select p.uri, p.author_did, p.indexed_at, p.conv_keys, p.media_type, p.text_norm,
+                count(i.uri) filter (where i.kind = 'like')::int as likes,
+                count(i.uri) filter (where i.kind = 'repost')::int as reposts,
+                count(i.uri) filter (where i.kind = 'reply')::int as replies
+           from posts p
+           left join interactions i on i.subject_uri = p.uri and i.actor_did <> p.author_did
+          where not p.is_reply and p.indexed_at >= $1 and ($3::text is null or p.uri = $3)
+          group by p.uri
+          order by p.indexed_at desc
+          limit $2`,
+        [iso(now - retentionHours * 3_600_000), limit, uri ?? null],
+      )
+      return rows.map(r => ({
+        uri: r.uri,
+        author: r.author_did,
+        indexedAt: new Date(r.indexed_at).toISOString(),
+        mediaType: r.media_type,
+        likeCount: Number(r.likes),
+        repostCount: Number(r.reposts),
+        replyCount: Number(r.replies),
+        conventionKeys: r.conv_keys ?? [],
+        text: r.text_norm ?? '',
+      }))
+    },
+
+    async getRepoBundle(did: string): Promise<unknown | undefined> {
+      const [r] = await db.query('select bundle from user_repos where did = $1', [did])
+      if (!r) return undefined
+      return typeof r.bundle === 'string' ? JSON.parse(r.bundle) : r.bundle
+    },
+
+    async saveRepoBundle(did: string, bundle: unknown) {
+      await db.query(
+        `insert into user_repos (did, bundle) values ($1, $2)
+         on conflict (did) do update set bundle = excluded.bundle, updated_at = now()`,
+        [did, JSON.stringify(bundle)],
+      )
     },
 
     async getCursor(service: string) {

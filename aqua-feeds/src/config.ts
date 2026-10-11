@@ -26,6 +26,16 @@ export interface Config {
   snapshotSize: number
   refreshSeconds: number
   snapshotTtlMinutes: number
+  /** "Pra você": feed por Convenções de Realidade, explicável */
+  forYouEnabled: boolean
+  forYouRkey: string
+  forYouUri: string
+  /** dias de sinais guardados por usuário (a gravidade usa meia-vida de 14 dias) */
+  signalRetentionDays: number
+  /** de quanto em quanto tempo a atividade vira um commit "inferido" no Git pessoal */
+  digestHours: number
+  /** só dev/teste: aceita o cabeçalho X-Aqua-Viewer no lugar do JWT */
+  authDevViewerHeader: boolean
 }
 
 const list = (v: string | undefined) =>
@@ -77,5 +87,11 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     snapshotSize: num(env.SNAPSHOT_SIZE, 1000),
     refreshSeconds: num(env.REFRESH_SECONDS, 120),
     snapshotTtlMinutes: num(env.SNAPSHOT_TTL_MINUTES, 60),
+    forYouEnabled: (env.FOR_YOU_ENABLED ?? '1') === '1',
+    forYouRkey: env.FOR_YOU_RKEY ?? 'pra-voce',
+    forYouUri: `at://${publisherDid || serviceDid}/app.bsky.feed.generator/${env.FOR_YOU_RKEY ?? 'pra-voce'}`,
+    signalRetentionDays: num(env.SIGNAL_RETENTION_DAYS, 180),
+    digestHours: num(env.DIGEST_HOURS, 6),
+    authDevViewerHeader: !isProd && env.AUTH_DEV_VIEWER_HEADER === '1',
   }
 }

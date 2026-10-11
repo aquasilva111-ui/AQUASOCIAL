@@ -1,12 +1,33 @@
 // Jetstream (firehose em JSON) → operações no índice.
 import WebSocket from 'ws'
 
+import {
+  conventionKeys,
+  mediaTypeOf,
+  normalizeText,
+  tagsFromRecord,
+} from './conventions/extract.ts'
 import type {IndexedInteraction, IndexedPost, Store} from './store.ts'
+
+/**
+ * #tags do post: as facets (o app oficial sempre manda) e o campo `tags`;
+ * se não houver nenhuma, lê as #hashtags do próprio texto.
+ */
+export function tagsOf(r: {text?: unknown; tags?: unknown; facets?: unknown}) {
+  const tags = tagsFromRecord(r)
+  if (tags.length || typeof r.text !== 'string') return tags
+  const fromText = [...r.text.matchAll(/(?:^|\s)#([\p{L}\p{N}_]*\p{L}[\p{L}\p{N}_]*)/gu)].map(
+    m => m[1]!,
+  )
+  return tagsFromRecord({tags: fromText})
+}
 
 export const COLLECTIONS = {
   post: 'app.bsky.feed.post',
   like: 'app.bsky.feed.like',
   repost: 'app.bsky.feed.repost',
+  /** só vira sinal para quem usa o "Pra você" (criador:<did>) */
+  follow: 'app.bsky.graph.follow',
 } as const
 
 export interface JetstreamEvent {
@@ -25,6 +46,7 @@ export type Op =
   | {type: 'post'; post: IndexedPost}
   | {type: 'reply'; uri: string; parent: string; actor: string; at: number}
   | {type: 'interaction'; interaction: IndexedInteraction}
+  | {type: 'follow'; uri: string; actor: string; subject: string; at: number}
   | {type: 'delete'; uri: string}
 
 export interface Filter {
@@ -69,6 +91,15 @@ export function toOps(evt: JetstreamEvent, filter: Filter): Op[] {
     if (filter.authorDids.length && !filter.authorDids.includes(evt.did))
       return []
     if (!langMatches(r.langs, filter.langs)) return []
+    const langs: string[] = Array.isArray(r.langs)
+      ? r.langs.filter((l: unknown) => typeof l === 'string').slice(0, 3)
+      : []
+    const mediaType = mediaTypeOf(r)
+    const labels = Array.isArray(r.labels?.values)
+      ? r.labels.values
+          .map((v: {val?: unknown}) => v?.val)
+          .filter((v: unknown): v is string => typeof v === 'string')
+      : []
     return [
       {
         type: 'post',
@@ -77,12 +108,25 @@ export function toOps(evt: JetstreamEvent, filter: Filter): Op[] {
           author: evt.did,
           indexedAt: at,
           isReply: false,
-          langs: Array.isArray(r.langs)
-            ? r.langs.filter((l: unknown) => typeof l === 'string').slice(0, 3)
-            : [],
+          langs,
+          mediaType,
+          convKeys: conventionKeys({
+            author: evt.did,
+            mediaType,
+            tags: tagsOf(r),
+            ...(langs[0] ? {lang: langs[0]} : {}),
+            labels,
+          }),
+          text: typeof r.text === 'string' ? normalizeText(r.text) : '',
         },
       },
     ]
+  }
+
+  if (c.collection === COLLECTIONS.follow) {
+    const subject = r.subject
+    if (typeof subject !== 'string' || !subject.startsWith('did:')) return []
+    return [{type: 'follow', uri, actor: evt.did, subject, at}]
   }
 
   const subject = r.subject?.uri
@@ -108,6 +152,8 @@ export async function applyOps(store: Store, ops: Op[]) {
       await store.addReply(op.uri, op.parent, op.actor, op.at)
     else if (op.type === 'interaction')
       await store.addInteraction(op.interaction)
+    else if (op.type === 'follow')
+      await store.addFollow(op.uri, op.actor, op.subject, op.at)
     else await store.deleteRecord(op.uri)
   }
 }

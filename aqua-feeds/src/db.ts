@@ -107,6 +107,54 @@ const MIGRATIONS: Array<[string, string]> = [
     );
     `,
   ],
+  [
+    '002_pra_voce',
+    `
+    -- Convenções de cada post (formato, criador, tags, idioma) e texto para casar palavras
+    alter table posts add column conv_keys text[] not null default '{}';
+    alter table posts add column media_type text not null default 'text';
+    alter table posts add column text_norm text not null default '';
+
+    -- quem usa o "Pra você" (só a atividade dessas contas vira sinal)
+    create table viewers (
+      did text primary key,
+      first_seen timestamptz not null default now(),
+      last_seen timestamptz not null default now()
+    );
+
+    -- sinais do usuário: curtir, repostar, responder, seguir, salvar, tempo, mais/menos, visto
+    create table user_signals (
+      id bigserial primary key,
+      did text not null,
+      kind text not null,
+      at timestamptz not null,
+      keys text[] not null default '{}',
+      subject text,
+      seconds real,
+      source_uri text unique
+    );
+    create index user_signals_did_at on user_signals (did, at desc);
+
+    -- ajustes explícitos: adicionar, reforçar, silenciar, apagar, "está errada"
+    create table user_adjustments (
+      id bigserial primary key,
+      did text not null,
+      key text not null,
+      action text not null,
+      factor real,
+      note text,
+      at timestamptz not null
+    );
+    create index user_adjustments_did on user_adjustments (did, at);
+
+    -- Git pessoal (histórico das Convenções), pacote exportado do aqua-personal-git
+    create table user_repos (
+      did text primary key,
+      bundle jsonb not null,
+      updated_at timestamptz not null default now()
+    )
+    `,
+  ],
 ]
 
 export async function migrate(db: Db): Promise<string[]> {

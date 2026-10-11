@@ -29,7 +29,7 @@ export const GUARDAR_RESOLVIDAS = 200
 
 export function createFila(inicial: ItemPendente[] = []) {
   let itens = inicial.map(i => ({...i}))
-  const agoraIso = () => new Date().toISOString()
+  const agoraIso = (): string => new Date().toISOString()
   const podar = () => {
     const abertas = itens.filter(i => i.estado === 'aberta')
     const resolvidas = itens

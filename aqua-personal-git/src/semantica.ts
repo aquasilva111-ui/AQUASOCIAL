@@ -291,7 +291,7 @@ export function certeza(o: {
   return 'inferido'
 }
 
-const agoraIso = () => new Date().toISOString()
+const agoraIso = (): string => new Date().toISOString()
 
 export function novaConvencao(c: {
   tipo: string
