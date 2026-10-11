@@ -79,6 +79,13 @@ export const BLUESKY_PROXY_DID: Did =
   process.env.EXPO_PUBLIC_BLUESKY_PROXY_DID || 'did:web:api.bsky.app'
 
 /**
+ * AT URI of the "Em alta na Aqua" feed served by aqua-feeds
+ * (at://<did>/app.bsky.feed.generator/em-alta). Empty = the tab is not added.
+ */
+export const AQUA_HOT_FEED_URI: string =
+  process.env.EXPO_PUBLIC_AQUA_HOT_FEED_URI || ''
+
+/**
  * The DID of the chat service to proxy to
  */
 export const CHAT_PROXY_DID: Did =
