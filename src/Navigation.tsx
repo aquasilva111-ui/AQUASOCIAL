@@ -93,6 +93,7 @@ import {
   AdultViewsScreen,
   AdultVisionboardScreen,
 } from '#/screens/Adult'
+import {AquaConvencoesScreen} from '#/screens/AquaConvencoes'
 import {BookmarksScreen} from '#/screens/Bookmarks'
 import {
   BookChapterScreen,
@@ -182,6 +183,7 @@ import {
   StarterPackScreenShort,
 } from '#/screens/StarterPack/StarterPackScreen'
 import {Wizard} from '#/screens/StarterPack/Wizard'
+import {StoryCreatorScreen} from '#/screens/Stories/StoryCreatorScreen'
 import TopicScreen from '#/screens/Topic'
 import {UIAIScreen} from '#/screens/UIAI'
 import {VideoFeed} from '#/screens/VideoFeed'
@@ -200,7 +202,6 @@ import {
 } from '#/screens/ViewLibrary/ListsScreen'
 import {ViewLiveScreen} from '#/screens/ViewLibrary/LiveScreen'
 import {ViewMyVideosScreen} from '#/screens/ViewLibrary/MyVideosScreen'
-import {StoryCreatorScreen} from '#/screens/Stories/StoryCreatorScreen'
 import {ViewPaidScreen} from '#/screens/ViewLibrary/PaidScreen'
 import {ViewSubscriptionsScreen} from '#/screens/ViewLibrary/SubscriptionsScreen'
 import {ViewWatchLaterScreen} from '#/screens/ViewLibrary/WatchLaterScreen'
@@ -429,6 +430,11 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
         name="AppPasswords"
         getComponent={() => AppPasswordsScreen}
         options={{title: title(msg`App Passwords`), requireAuth: true}}
+      />
+      <Stack.Screen
+        name="AquaConvencoes"
+        getComponent={() => AquaConvencoesScreen}
+        options={{title: title(msg`My Conventions`), requireAuth: true}}
       />
       <Stack.Screen
         name="SavedFeeds"

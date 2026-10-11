@@ -11138,3 +11138,208 @@ msgstr "Seus interesses escolhidos nos ajudam a entregar o conteúdo que interes
 #: src/components/verification/VerificationsDialog.tsx:65
 msgid "Your verifications"
 msgstr "Suas verificações"
+
+# AQUA: "Pra você" (Convenções de Realidade)
+msgid "“{key}” now weighs more in your feed."
+msgstr "“{key}” agora pesa mais no seu feed."
+
+msgid "“For you” ranks posts by your Conventions of Reality: what you like, repost, save and follow. Here is the math for this post."
+msgstr "O “Pra você” ordena os posts pelas suas Convenções de Realidade: o que você curte, reposta, salva e segue. Aqui está a conta deste post."
+
+msgid "“Yours” = you added it. “Inferred” = the Aqua guessed it from what you did. Nothing here is public."
+msgstr "“Sua” = você adicionou. “Inferida” = a Aqua deduziu do que você fez. Nada aqui é público."
+
+msgid "active"
+msgstr "ativa"
+
+msgid "Add a convention"
+msgstr "Adicionar uma Convenção"
+
+msgid "Add back"
+msgstr "Adicionar de volta"
+
+msgid "added"
+msgstr "adicionada"
+
+msgid "Bar chart of how this convention's gravity changed"
+msgstr "Gráfico de barras de como a gravidade desta Convenção mudou"
+
+msgid "Boost"
+msgstr "Reforçar"
+
+msgid "changed"
+msgstr "mudou"
+
+msgid "Conventions"
+msgstr "Convenções"
+
+msgid "Could not load your conventions"
+msgstr "Não foi possível carregar suas Convenções"
+
+msgid "Delete this convention?"
+msgstr "Apagar esta Convenção?"
+
+msgid "Details from the feed"
+msgstr "Detalhes do feed"
+
+msgid "dormant"
+msgstr "dormente"
+
+msgid "emerging"
+msgstr "emergente"
+
+msgid "Every change is a commit in your personal git (hash chain verified)."
+msgstr "Cada mudança é um commit no seu Git pessoal (cadeia de hashes verificada)."
+
+msgid "Freshness: {0}% (halves every 12 hours)"
+msgstr "Frescor: {0}% (cai pela metade a cada 12 horas)"
+
+msgid "from signals alone: {0}"
+msgstr "só pelos sinais: {0}"
+
+msgid "gravity"
+msgstr "gravidade"
+
+msgid "Gravity over time"
+msgstr "Gravidade ao longo do tempo"
+
+msgid "Has a convention you muted (×0.1)"
+msgstr "Tem uma Convenção que você silenciou (×0,1)"
+
+msgid "Has the label “{0}”, which you usually see"
+msgstr "Tem o rótulo “{0}”, que você costuma ver"
+
+msgid "History"
+msgstr "Histórico"
+
+msgid "inferred"
+msgstr "inferida"
+
+msgid "inferred by the Aqua"
+msgstr "inferido pela Aqua"
+
+msgid "Less"
+msgstr "Menos"
+
+msgid "Mark as wrong"
+msgstr "Marcar como errada"
+
+msgid "Mark as wrong?"
+msgstr "Marcar como errada?"
+
+msgid "Marked as wrong"
+msgstr "Marcadas como erradas"
+
+msgid "More"
+msgstr "Mais"
+
+msgid "More of {0}"
+msgstr "Mais de {0}"
+
+msgid "Mute {0}"
+msgstr "Silenciar {0}"
+
+msgid "muted"
+msgstr "silenciada"
+
+msgid "Muted “{key}”. You can undo it in My Conventions."
+msgstr "“{key}” silenciada. Dá para desfazer em Minhas Convenções."
+
+msgid "My Conventions"
+msgstr "Minhas Convenções"
+
+msgid "My Conventions (“For you” feed)"
+msgstr "Minhas Convenções (feed “Pra você”)"
+
+msgid "Name, e.g. watercolor"
+msgstr "Nome, ex.: aquarela"
+
+msgid "No changes yet."
+msgstr "Nenhuma mudança ainda."
+
+msgid "None of your conventions matched: it is here because it is recent or popular."
+msgstr "Nenhuma Convenção sua bateu: está aqui por ser recente ou estar em alta."
+
+msgid "Not available"
+msgstr "Indisponível"
+
+msgid "Nothing yet. Like, repost, save or follow in “For you”, or add a convention above."
+msgstr "Nada ainda. Curta, reposte, salve ou siga no “Pra você”, ou adicione uma Convenção acima."
+
+msgid "removed"
+msgstr "removida"
+
+msgid "Score: {0}"
+msgstr "Pontuação: {0}"
+
+msgid "See and adjust My Conventions"
+msgstr "Ver e ajustar Minhas Convenções"
+
+msgid "Signals: {sinais}"
+msgstr "Sinais: {sinais}"
+
+msgid "Synapse: for you, “{0}” goes together with “{1}”"
+msgstr "Sinapse: para você, “{0}” anda junto com “{1}”"
+
+msgid "Synapses (conventions that go together for you)"
+msgstr "Sinapses (Convenções que andam juntas para você)"
+
+msgid "The “For you” feed is not configured in this build of the app."
+msgstr "O feed “Pra você” não está configurado nesta versão do app."
+
+msgid "The Aqua forgets “{0}” and will not infer it again. You can still add it yourself later."
+msgstr "A Aqua esquece “{0}” e não volta a deduzi-la. Você ainda pode adicioná-la depois."
+
+msgid "The Aqua forgets your signals for “{0}” up to now. New activity can bring it back."
+msgstr "A Aqua esquece seus sinais de “{0}” até agora. Atividade nova pode trazê-la de volta."
+
+msgid "The text talks about “{0}”, one of your conventions"
+msgstr "O texto fala de “{0}”, uma Convenção sua"
+
+msgid "These are the {count} conventions that shape your “For you” feed. Each one has a gravity: it grows when you interact with posts that carry it and halves every 14 days without use."
+msgstr "Estas são as {count} Convenções que moldam seu feed “Pra você”. Cada uma tem uma gravidade: cresce quando você interage com posts que a têm e cai pela metade a cada 14 dias sem uso."
+
+msgid "This is wrong"
+msgstr "Está errada"
+
+msgid "This post came without an explanation."
+msgstr "Este post veio sem explicação."
+
+msgid "Trending on the network: +{0}"
+msgstr "Em alta na rede: +{0}"
+
+msgid "Warning: the history chain did not verify."
+msgstr "Atenção: a cadeia do histórico não conferiu."
+
+msgid "weakening"
+msgstr "enfraquecendo"
+
+msgid "Weigh less"
+msgstr "Pesar menos"
+
+msgid "Why am I seeing this?"
+msgstr "Por que estou vendo isso?"
+
+msgid "Written in a language you read: {0}"
+msgstr "Em um idioma que você lê: {0}"
+
+msgid "you"
+msgstr "você"
+
+msgid "You asked for less like this (×0.3)"
+msgstr "Você pediu menos disso (×0,3)"
+
+msgid "You interact with this person"
+msgstr "Você interage com esta pessoa"
+
+msgid "You prefer this format: {0}"
+msgstr "Você prefere este formato: {0}"
+
+msgid "You've already seen it (×0.5)"
+msgstr "Você já viu (×0,5)"
+
+msgid "Your convention “{0}” is in the post's tags"
+msgstr "Sua Convenção “{0}” está nas tags do post"
+
+msgid "yours"
+msgstr "sua"
