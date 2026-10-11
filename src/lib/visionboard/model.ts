@@ -93,6 +93,17 @@ export function toVisionboardItems(
 }
 
 /**
+ * Which image of the post a card saves. A gallery post is flattened into one
+ * item per image, so the card must save its own image, not always the first.
+ */
+export function saveTargetFields(item: VisionboardItem): {
+  imageIndex: number
+  thumbUrl: string
+} {
+  return {imageIndex: item.imageIndex, thumbUrl: item.thumbnailUrl}
+}
+
+/**
  * Related images reuse the existing AQUA affinity ranking (shared hashtags,
  * same creator) over the current candidate pool — the donor project's
  * scikit-learn recommender stays a behavior reference only.
