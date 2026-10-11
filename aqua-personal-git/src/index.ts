@@ -1,3 +1,5 @@
 export * from './canonical.ts'
 export * from './diff.ts'
+export * from './pendentes.ts'
 export * from './repo.ts'
+export * from './semantica.ts'

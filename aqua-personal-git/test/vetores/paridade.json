@@ -1,0 +1,949 @@
+{
+ "gerado_por": "scripts/gerar-vetores.py",
+ "unicode_python": "15.1.0",
+ "normalizar": [
+  {
+   "entrada": "A\u00e7\u00e3o",
+   "saida": "a\u00e7\u00e3o"
+  },
+  {
+   "entrada": "Ac\u0327a\u0303o",
+   "saida": "a\u00e7\u00e3o"
+  },
+  {
+   "entrada": "2\u00aa Esfera: Cria\u00e7\u00e3o",
+   "saida": "2a esfera: cria\u00e7\u00e3o"
+  },
+  {
+   "entrada": "\uff12\u00aa",
+   "saida": "2a"
+  },
+  {
+   "entrada": "\ufb01nal",
+   "saida": "final"
+  },
+  {
+   "entrada": "\u0130stanbul",
+   "saida": "i\u0307stanbul"
+  },
+  {
+   "entrada": "\u0131",
+   "saida": "\u0131"
+  },
+  {
+   "entrada": "\u039f\u0394\u039f\u03a3 \u03a3\u039f\u03a6\u039f\u03a3",
+   "saida": "\u03bf\u03b4\u03bf\u03c2 \u03c3\u03bf\u03c6\u03bf\u03c2"
+  },
+  {
+   "entrada": "\u03a3",
+   "saida": "\u03c3"
+  },
+  {
+   "entrada": "Stra\u00dfe",
+   "saida": "stra\u00dfe"
+  },
+  {
+   "entrada": "\u1e9e",
+   "saida": "\u00df"
+  },
+  {
+   "entrada": "\u01c4emal",
+   "saida": "d\u017eemal"
+  },
+  {
+   "entrada": "\u01c5",
+   "saida": "d\u017e"
+  },
+  {
+   "entrada": "\u2652\ufe0e",
+   "saida": "\u2652\ufe0e"
+  },
+  {
+   "entrada": "\ud83d\udf14",
+   "saida": "\ud83d\udf14"
+  },
+  {
+   "entrada": "\u263d\u2647",
+   "saida": "\u263d\u2647"
+  },
+  {
+   "entrada": "\ud83d\udc68\u200d\ud83d\udc69\u200d\ud83d\udc67",
+   "saida": "\ud83d\udc68\u200d\ud83d\udc69\u200d\ud83d\udc67"
+  },
+  {
+   "entrada": "  muitos   espa\u00e7os\t\n",
+   "saida": "muitos espa\u00e7os"
+  },
+  {
+   "entrada": "a\u00a0b",
+   "saida": "a b"
+  },
+  {
+   "entrada": "a\u3000b",
+   "saida": "a b"
+  },
+  {
+   "entrada": "a\u001cb",
+   "saida": "a b"
+  },
+  {
+   "entrada": "a\u001fb",
+   "saida": "a b"
+  },
+  {
+   "entrada": "a\u0085b",
+   "saida": "a b"
+  },
+  {
+   "entrada": "a\ufeffb",
+   "saida": "a\ufeffb"
+  },
+  {
+   "entrada": "a\u200bb",
+   "saida": "a\u200bb"
+  },
+  {
+   "entrada": "aspas \" e \\ barra",
+   "saida": "aspas \" e \\ barra"
+  },
+  {
+   "entrada": "ctrl\u0001x\u007f",
+   "saida": "ctrl\u0001x\u007f"
+  },
+  {
+   "entrada": "linha\u2028sep\u2029",
+   "saida": "linha sep"
+  },
+  {
+   "entrada": "\u13a0 cherokee",
+   "saida": "\uab70 cherokee"
+  },
+  {
+   "entrada": "\u2460",
+   "saida": "1"
+  },
+  {
+   "entrada": "\u210c",
+   "saida": "h"
+  },
+  {
+   "entrada": "\u2126",
+   "saida": "\u03c9"
+  },
+  {
+   "entrada": "\u212a",
+   "saida": "k"
+  },
+  {
+   "entrada": "\uff8a\uff9f",
+   "saida": "\u30d1"
+  },
+  {
+   "entrada": "\u337f",
+   "saida": "\u682a\u5f0f\u4f1a\u793e"
+  },
+  {
+   "entrada": "x\u0301\u0301",
+   "saida": "x\u0301\u0301"
+  },
+  {
+   "entrada": "\u0345",
+   "saida": "\u0345"
+  },
+  {
+   "entrada": "MAI\u00daSCULAS E min\u00fasculas",
+   "saida": "mai\u00fasculas e min\u00fasculas"
+  },
+  {
+   "entrada": "",
+   "saida": ""
+  },
+  {
+   "entrada": "   ",
+   "saida": ""
+  },
+  {
+   "entrada": "OUTRAS INTELIG\u00caNCIAS",
+   "saida": "outras intelig\u00eancias"
+  },
+  {
+   "entrada": "Aut\u00f4mato \u263d\u2647",
+   "saida": "aut\u00f4mato \u263d\u2647"
+  }
+ ],
+ "convencoes": [
+  {
+   "tipo": "conceito",
+   "nome": "A\u00e7\u00e3o",
+   "id": "d810128a1391beee2115db4a421556ebb74efe5700c8edb10a4a2fc781472867"
+  },
+  {
+   "tipo": "A\u00e7\u00e3o",
+   "nome": "x",
+   "id": "2d93fa2a7eb36708164633dd0478feb632b76defd4293f10b2b7aea0dc6ce937"
+  },
+  {
+   "tipo": "conceito",
+   "nome": "Ac\u0327a\u0303o",
+   "id": "d810128a1391beee2115db4a421556ebb74efe5700c8edb10a4a2fc781472867"
+  },
+  {
+   "tipo": "Ac\u0327a\u0303o",
+   "nome": "x",
+   "id": "2d93fa2a7eb36708164633dd0478feb632b76defd4293f10b2b7aea0dc6ce937"
+  },
+  {
+   "tipo": "conceito",
+   "nome": "2\u00aa Esfera: Cria\u00e7\u00e3o",
+   "id": "9009746fba744e577e0afd1c0d3741cabd74bd4ee29e18b6b3ccdb76361af683"
+  },
+  {
+   "tipo": "2\u00aa Esfera: Cria\u00e7\u00e3o",
+   "nome": "x",
+   "id": "2782d8b0fb8fb716e9f0c1424bfd9d77e36be8454facefeb441cc8e945ca83ba"
+  },
+  {
+   "tipo": "conceito",
+   "nome": "\uff12\u00aa",
+   "id": "944d7f5958b25b85fbf9e3ef9a06cb1ecb1a1e6ee5caa45b0157e03969dc7028"
+  },
+  {
+   "tipo": "\uff12\u00aa",
+   "nome": "x",
+   "id": "091c0074f852aaf73d11c7d7e697d283164a03c3a9e51c408cf0aec6a381c908"
+  },
+  {
+   "tipo": "conceito",
+   "nome": "\ufb01nal",
+   "id": "abbf26ae5b2bf9fa1f415b87583f3e919e6929c259572c1c24ddc1956d8a3011"
+  },
+  {
+   "tipo": "\ufb01nal",
+   "nome": "x",
+   "id": "8d78e46e31b526058a3692e776540ffdb329fdc7498db45122370626cf36a520"
+  },
+  {
+   "tipo": "conceito",
+   "nome": "\u0130stanbul",
+   "id": "458805333e4aeabb71b42934251e39ea3982df3949537ba700823832fc6294e4"
+  },
+  {
+   "tipo": "\u0130stanbul",
+   "nome": "x",
+   "id": "89bd1beadb39f3675bcd54ca6cd25ac6b54f447567f590ca744a47f095216d66"
+  },
+  {
+   "tipo": "conceito",
+   "nome": "\u0131",
+   "id": "9dae0493a7198db1bf7ee23d9e2c06c7ae8db0245a01985eed7e2464432aac48"
+  },
+  {
+   "tipo": "\u0131",
+   "nome": "x",
+   "id": "6b8d493046d9abab142660e7035d20c4234d05dc35aea1178db3425e01175273"
+  },
+  {
+   "tipo": "conceito",
+   "nome": "\u039f\u0394\u039f\u03a3 \u03a3\u039f\u03a6\u039f\u03a3",
+   "id": "62e1d8020ffd127434d982648b2e047580378ca42cd9c2e1bf58469e2529291a"
+  },
+  {
+   "tipo": "\u039f\u0394\u039f\u03a3 \u03a3\u039f\u03a6\u039f\u03a3",
+   "nome": "x",
+   "id": "9116070d6fccccd842c86eafc1f3be900a0158b933fea55945930c651ebc2df7"
+  },
+  {
+   "tipo": "conceito",
+   "nome": "\u03a3",
+   "id": "4dbdfd8a47b313424b6835f9d70d6b24768cc67f5de1e8cef5500e61b888d5b0"
+  },
+  {
+   "tipo": "\u03a3",
+   "nome": "x",
+   "id": "95d05c17b6bc717c7090460af37d44ad697cec612c2d6d4ed5b23132244a88d7"
+  },
+  {
+   "tipo": "conceito",
+   "nome": "Stra\u00dfe",
+   "id": "fabbf83ff18e7faecd94432c0a7243bd80f2ac48231da60c237c95263236e676"
+  },
+  {
+   "tipo": "Stra\u00dfe",
+   "nome": "x",
+   "id": "7a68d6daa1155d21f94ef031a5cc7c5ec82d096d79162c912762dc2de5e8002a"
+  },
+  {
+   "tipo": "conceito",
+   "nome": "\u1e9e",
+   "id": "194fe50a7aa5d8652b40e17ca09d0a60cc7ce7f8c25f01e311fbb5d30269aeb2"
+  },
+  {
+   "tipo": "\u1e9e",
+   "nome": "x",
+   "id": "4ae9baf09285eef40907812fc6922e7ad29ca2d8f7c95c23e2374f808fc7761a"
+  },
+  {
+   "tipo": "conceito",
+   "nome": "\u01c4emal",
+   "id": "4d39e0face057dfebfdc11e0b3120d03db671ae1f7e8966e82645803835cd7c4"
+  },
+  {
+   "tipo": "\u01c4emal",
+   "nome": "x",
+   "id": "c2a102746311e0db6efc6e652dadda5e58163c0991e69d161e754741987ca4e4"
+  },
+  {
+   "tipo": "conceito",
+   "nome": "\u01c5",
+   "id": "cb539d785b0b7704bdb5798ffef60531fc6f7c4dde3937f8ab860d6351abd330"
+  },
+  {
+   "tipo": "\u01c5",
+   "nome": "x",
+   "id": "36bf8c8dc6f330ef940320044d23f37d7364065b5bb1814232396a628a9b81c8"
+  },
+  {
+   "tipo": "conceito",
+   "nome": "\u2652\ufe0e",
+   "id": "e55f2af9168e12ffd1a56e41ba681622c74d9b13c03d2f24aaaac621d48a2adc"
+  },
+  {
+   "tipo": "\u2652\ufe0e",
+   "nome": "x",
+   "id": "0f4144f47fc58bf66292b7e069c245bd7586f9da929378c202027a054109d864"
+  },
+  {
+   "tipo": "conceito",
+   "nome": "\ud83d\udf14",
+   "id": "362716c75762a76c585f40bb5a90571006c8d7908375ff1563a32030625353d2"
+  },
+  {
+   "tipo": "\ud83d\udf14",
+   "nome": "x",
+   "id": "564a9cb8ecbdc5660882cab8b09d25ecfeef3f834a2a597c3f6f9a32e103f912"
+  },
+  {
+   "tipo": "conceito",
+   "nome": "\u263d\u2647",
+   "id": "ea2828115a845c77d4749701b5f3eaedc06e7d2cfa00ed1e1260430257e5f487"
+  },
+  {
+   "tipo": "\u263d\u2647",
+   "nome": "x",
+   "id": "002bb121c875be3da96701b55ae78022ff28cc800ae4aabe25ba2267d9f686bd"
+  },
+  {
+   "tipo": "conceito",
+   "nome": "\ud83d\udc68\u200d\ud83d\udc69\u200d\ud83d\udc67",
+   "id": "92d5d97126b72f95370c4f5077f263eb44870879b2a223a3c64c2048f3b15780"
+  },
+  {
+   "tipo": "\ud83d\udc68\u200d\ud83d\udc69\u200d\ud83d\udc67",
+   "nome": "x",
+   "id": "884e6b3f29c4a8a77012a0b3f9400105fe71124e5e8fd7e2b84b13ddeb1788de"
+  },
+  {
+   "tipo": "conceito",
+   "nome": "  muitos   espa\u00e7os\t\n",
+   "id": "95180fc5974c844be625c062286bbb5a5e05840531142557fc978ac701f28c29"
+  },
+  {
+   "tipo": "  muitos   espa\u00e7os\t\n",
+   "nome": "x",
+   "id": "e92c3d28760817511b438400292d1a072eba99a635a773563484b9432b859ad0"
+  },
+  {
+   "tipo": "conceito",
+   "nome": "a\u00a0b",
+   "id": "bc862b704646324b089c766f88c0cc0ee15fc2db6c67dd6b635dc6547f673fe7"
+  },
+  {
+   "tipo": "a\u00a0b",
+   "nome": "x",
+   "id": "c126fa91d27d7bac746f5974bcc0268ea920ad528770c6d992ac3112e7a6d008"
+  },
+  {
+   "tipo": "conceito",
+   "nome": "a\u3000b",
+   "id": "bc862b704646324b089c766f88c0cc0ee15fc2db6c67dd6b635dc6547f673fe7"
+  },
+  {
+   "tipo": "a\u3000b",
+   "nome": "x",
+   "id": "c126fa91d27d7bac746f5974bcc0268ea920ad528770c6d992ac3112e7a6d008"
+  },
+  {
+   "tipo": "conceito",
+   "nome": "a\u001cb",
+   "id": "bc862b704646324b089c766f88c0cc0ee15fc2db6c67dd6b635dc6547f673fe7"
+  },
+  {
+   "tipo": "a\u001cb",
+   "nome": "x",
+   "id": "c126fa91d27d7bac746f5974bcc0268ea920ad528770c6d992ac3112e7a6d008"
+  },
+  {
+   "tipo": "conceito",
+   "nome": "a\u001fb",
+   "id": "bc862b704646324b089c766f88c0cc0ee15fc2db6c67dd6b635dc6547f673fe7"
+  },
+  {
+   "tipo": "a\u001fb",
+   "nome": "x",
+   "id": "c126fa91d27d7bac746f5974bcc0268ea920ad528770c6d992ac3112e7a6d008"
+  },
+  {
+   "tipo": "conceito",
+   "nome": "a\u0085b",
+   "id": "bc862b704646324b089c766f88c0cc0ee15fc2db6c67dd6b635dc6547f673fe7"
+  },
+  {
+   "tipo": "a\u0085b",
+   "nome": "x",
+   "id": "c126fa91d27d7bac746f5974bcc0268ea920ad528770c6d992ac3112e7a6d008"
+  },
+  {
+   "tipo": "conceito",
+   "nome": "a\ufeffb",
+   "id": "ef72895fe4082ef267d2723d14dc174a0591c633dd771d0e7e66231e44ed3263"
+  },
+  {
+   "tipo": "a\ufeffb",
+   "nome": "x",
+   "id": "5c01629d343ad4bbf7804f32c00c94a67d9ab0b276e8208ff3989bda6a131ac2"
+  },
+  {
+   "tipo": "conceito",
+   "nome": "a\u200bb",
+   "id": "16cf32c90baeeffffb6f0a87bb2fdcbb5f1edc2e25f947a0360489c3787ca7a2"
+  },
+  {
+   "tipo": "a\u200bb",
+   "nome": "x",
+   "id": "308f7fb40f2ea88316e37e68e9f0a173d43b2f6331c56f4b7e7fdabefd3d486e"
+  },
+  {
+   "tipo": "conceito",
+   "nome": "aspas \" e \\ barra",
+   "id": "18c265a9fa5f4f272ab99c7aa1931a00f9a3554794f4a3a0d0e78b9989f1397d"
+  },
+  {
+   "tipo": "aspas \" e \\ barra",
+   "nome": "x",
+   "id": "4c22a3f53e88f213e9c2254badcbd5509f2dd839fb81d75fa751711b839184c5"
+  },
+  {
+   "tipo": "conceito",
+   "nome": "ctrl\u0001x\u007f",
+   "id": "c888faf973127fae6fe9bae318c0f060317d0bde6c79a13890e5a361dada3d42"
+  },
+  {
+   "tipo": "ctrl\u0001x\u007f",
+   "nome": "x",
+   "id": "dbd9486b95b2a6f14d4bb07cf49bb7425ba6c7b9d9422f50d5674afc6d6616e4"
+  },
+  {
+   "tipo": "conceito",
+   "nome": "linha\u2028sep\u2029",
+   "id": "e0b7ecdd17d2fc5a0f70082fd1b228f696c2e9f6f0a543e03652887369791bff"
+  },
+  {
+   "tipo": "linha\u2028sep\u2029",
+   "nome": "x",
+   "id": "86acad3d8f280fdf63fe67415cc113593b750e838f3a21232179a00e34437d32"
+  },
+  {
+   "tipo": "conceito",
+   "nome": "\u13a0 cherokee",
+   "id": "14a7960bdff2f008c5ce526f532df53026fafb609f2bb77148a5e2bede01997b"
+  },
+  {
+   "tipo": "\u13a0 cherokee",
+   "nome": "x",
+   "id": "64c9f703ea96336366391c32727346618563218058c5600f248b65927f575b1a"
+  },
+  {
+   "tipo": "conceito",
+   "nome": "\u2460",
+   "id": "085943934a19d66f430b6212a1dfd893c4c023cbfef83e7b186a303ffdb9f1c2"
+  },
+  {
+   "tipo": "\u2460",
+   "nome": "x",
+   "id": "c704b39e9499771e9e398243553965ccf6fe0ba481d555590d180f89bd3123d9"
+  },
+  {
+   "tipo": "conceito",
+   "nome": "\u210c",
+   "id": "b9cba4d55f74eb7d7faf079bd77f5c183794d93926720bf14c3a03c293abcbb5"
+  },
+  {
+   "tipo": "\u210c",
+   "nome": "x",
+   "id": "2b2c05c877dec02bd783abaad171cce248ff87512311924d8258c2a2c2ac73c6"
+  },
+  {
+   "tipo": "conceito",
+   "nome": "\u2126",
+   "id": "341fb92d2b60cf7d7f5233a06c036323c2c9499ce1b744c288ecf1e524dfedbd"
+  },
+  {
+   "tipo": "\u2126",
+   "nome": "x",
+   "id": "02a4d79f37cbdf9cc6d3e5ef3b1904a1776cf6d655f555b5c92be712a634b6a9"
+  },
+  {
+   "tipo": "conceito",
+   "nome": "\u212a",
+   "id": "7934d9fc8c6806117d408404c0a2114d9ab09a7bb566140245058d6953b37b25"
+  },
+  {
+   "tipo": "\u212a",
+   "nome": "x",
+   "id": "ff2da739756a926d30af0634e44a350426b0d6e273204a7c854fa2dba8cd6d97"
+  },
+  {
+   "tipo": "conceito",
+   "nome": "\uff8a\uff9f",
+   "id": "c44a2bfa704f926ee02c063086bdf149b9aa7f902dd0b1230cbf57223e79dc60"
+  },
+  {
+   "tipo": "\uff8a\uff9f",
+   "nome": "x",
+   "id": "302b6e20300e0dddfb99660bea0152a6fbee1388ede62a3b524184aff89aeb9d"
+  },
+  {
+   "tipo": "conceito",
+   "nome": "\u337f",
+   "id": "147d1ca6318acca78d0443eed4621734c1074798d3d143adf0858b9694d77617"
+  },
+  {
+   "tipo": "\u337f",
+   "nome": "x",
+   "id": "ebe366da3ee250fda0b33e1a1b54495efcba1dba16ff75ffedd649bb415b76fa"
+  },
+  {
+   "tipo": "conceito",
+   "nome": "x\u0301\u0301",
+   "id": "e13f79d9204793860b62facd0e06f5c1bbda50a26bc65a65a87f8b193c80f357"
+  },
+  {
+   "tipo": "x\u0301\u0301",
+   "nome": "x",
+   "id": "416d41ba76fc7fc1e1371eba50b7a495b4f69a4472ba9ad5624eeec4940cc321"
+  },
+  {
+   "tipo": "conceito",
+   "nome": "\u0345",
+   "id": "62b523aee1e4954338db37163e0b1978d4c11fad629fa2b655dc81567eb56646"
+  },
+  {
+   "tipo": "\u0345",
+   "nome": "x",
+   "id": "053dcaa63f391b75080dc0eb8a4fc8fc38d44e4bc994c12ddc751e714b607c8c"
+  },
+  {
+   "tipo": "conceito",
+   "nome": "MAI\u00daSCULAS E min\u00fasculas",
+   "id": "f1eebca8a5d8a2842bcf8377e44f974be89618115e6a0a9b21cce15ebf936137"
+  },
+  {
+   "tipo": "MAI\u00daSCULAS E min\u00fasculas",
+   "nome": "x",
+   "id": "fea72b9f551c695d87e35c4b5a69f88e037023692b19dd697b9ee55f59d5e011"
+  },
+  {
+   "tipo": "conceito",
+   "nome": "",
+   "id": "8d40d249222a427d2c3286d837ac9b9f28c40c9a0390e0b5a4243330066470a3"
+  },
+  {
+   "tipo": "",
+   "nome": "x",
+   "id": "d54f50006fdc413e8edd045ea0adce2c8a7c838067687b4f623f83974dbd8761"
+  },
+  {
+   "tipo": "conceito",
+   "nome": "   ",
+   "id": "8d40d249222a427d2c3286d837ac9b9f28c40c9a0390e0b5a4243330066470a3"
+  },
+  {
+   "tipo": "   ",
+   "nome": "x",
+   "id": "d54f50006fdc413e8edd045ea0adce2c8a7c838067687b4f623f83974dbd8761"
+  },
+  {
+   "tipo": "conceito",
+   "nome": "OUTRAS INTELIG\u00caNCIAS",
+   "id": "2393cf11cbf63e02231ae8532cabb8c0ebec7e66aaa3a2c0c886e5acbd3b3e1e"
+  },
+  {
+   "tipo": "OUTRAS INTELIG\u00caNCIAS",
+   "nome": "x",
+   "id": "41c5149da468d3f771c3971dd840d61f1436dfbafa9aa895155d64abbb9c6b06"
+  },
+  {
+   "tipo": "conceito",
+   "nome": "Aut\u00f4mato \u263d\u2647",
+   "id": "3c6feae7b0b44bfa91a7e5abed64dcdc707074d66111c33c3a9af0b1fdddae11"
+  },
+  {
+   "tipo": "Aut\u00f4mato \u263d\u2647",
+   "nome": "x",
+   "id": "da675807951f1008714fb1690bd8e610327eadf41d29636b9b509181e5be4f6e"
+  },
+  {
+   "ancora": [
+    "wikidata",
+    "Q155"
+   ],
+   "id": "5c66771fb4e4c536f0e79d61e577d35ed23bbf732663d94fe86a59d66194dcdd"
+  },
+  {
+   "ancora": [
+    "wikidata",
+    "Q220"
+   ],
+   "id": "3638a52b6bac119067fe636d58b0fcbe84a15046d0426a18392c7b9584a16a99"
+  },
+  {
+   "ancora": [
+    "outra-fonte",
+    "A\u00e7\u00e3o \u2652\ufe0e"
+   ],
+   "id": "c02813f8de34eb298d27a8256c37743c4879ecd864bf78169492c1f7b1e80e45"
+  }
+ ],
+ "sinapses": [
+  {
+   "origem": "e04f8c1a7fd251616e24c0ae020c554cffbe4795842cf8eebf321b5bda790455",
+   "destino": "f990d32e1d6e13cbb8fcca5f89ccd8634035ebb772e620ad4b6a80dd72ee4c7d",
+   "tipo": "leva a",
+   "contexto": "",
+   "id": "f8332558a93661fdc771196227bf6759ae366b5ade655bc89128c9ca7cef33ed"
+  },
+  {
+   "origem": "e04f8c1a7fd251616e24c0ae020c554cffbe4795842cf8eebf321b5bda790455",
+   "destino": "f990d32e1d6e13cbb8fcca5f89ccd8634035ebb772e620ad4b6a80dd72ee4c7d",
+   "tipo": "\u00c9 PARTE DE",
+   "contexto": "Ciclo  Cont\u00ednuo",
+   "id": "01c48c556545159594879d9c4c2cc1607d6217a100499332f58feb080034cd7f"
+  },
+  {
+   "origem": "e04f8c1a7fd251616e24c0ae020c554cffbe4795842cf8eebf321b5bda790455",
+   "destino": "f990d32e1d6e13cbb8fcca5f89ccd8634035ebb772e620ad4b6a80dd72ee4c7d",
+   "tipo": "coocorre",
+   "contexto": "noite",
+   "id": "658cf7694f0a4c5727c66f3b7881b9590ce8a28cd25f8463783e709afd7ed849"
+  },
+  {
+   "origem": "e04f8c1a7fd251616e24c0ae020c554cffbe4795842cf8eebf321b5bda790455",
+   "destino": "f990d32e1d6e13cbb8fcca5f89ccd8634035ebb772e620ad4b6a80dd72ee4c7d",
+   "tipo": "simboliza",
+   "contexto": "\u2652\ufe0e e \ud83d\udf14",
+   "id": "ef9491319dde5eda37a08b1383ded9eb7758567e42aa22ca57e554b9da02239b"
+  },
+  {
+   "origem": "e04f8c1a7fd251616e24c0ae020c554cffbe4795842cf8eebf321b5bda790455",
+   "destino": "f990d32e1d6e13cbb8fcca5f89ccd8634035ebb772e620ad4b6a80dd72ee4c7d",
+   "tipo": "a\u0085b",
+   "contexto": "c\ufeffd",
+   "id": "fabd51c09867a4268073eee10a5da954d5e5397b2e54c2708c0637b81aae51c4"
+  }
+ ],
+ "sinteses": [
+  {
+   "sinapses": [
+    "16703e3a69ef6867b10e7cfff26fca5597f83c2842efae20441df3565872f6b0",
+    "bc607a8025c5c99596a39f5c277bb0332d6acc493fdaaa2234d8a4967a2ebf01",
+    "89f535ee0c3ac8a89dd57b50a294ad61791f479102810a3361bbe5898f5d0b87",
+    "75237ac7b156bd593a96dddf84743ce7edf4ea6471bc57f2630a2424d4bb8d91"
+   ],
+   "id": "f623f942fe09c3ef929e4bf6aa5c7fad0b1d09ad79ad150cabaac8f98b63622a"
+  },
+  {
+   "sinapses": [
+    "75237ac7b156bd593a96dddf84743ce7edf4ea6471bc57f2630a2424d4bb8d91",
+    "89f535ee0c3ac8a89dd57b50a294ad61791f479102810a3361bbe5898f5d0b87",
+    "bc607a8025c5c99596a39f5c277bb0332d6acc493fdaaa2234d8a4967a2ebf01",
+    "16703e3a69ef6867b10e7cfff26fca5597f83c2842efae20441df3565872f6b0",
+    "16703e3a69ef6867b10e7cfff26fca5597f83c2842efae20441df3565872f6b0",
+    "bc607a8025c5c99596a39f5c277bb0332d6acc493fdaaa2234d8a4967a2ebf01"
+   ],
+   "id": "f623f942fe09c3ef929e4bf6aa5c7fad0b1d09ad79ad150cabaac8f98b63622a"
+  },
+  {
+   "sinapses": [
+    "16703e3a69ef6867b10e7cfff26fca5597f83c2842efae20441df3565872f6b0"
+   ],
+   "id": "290ff4e9b3c7edead83f3df791229d6dfc0225efca828df6fa90bbbd0ef0e440"
+  }
+ ],
+ "pendentes": [
+  {
+   "proposta": {
+    "forma": "inferencia-aqua",
+    "pasta": "convencoes",
+    "objeto": {
+     "tipo": "tema",
+     "nomes": [
+      "m\u00fasica"
+     ],
+     "forca": 1
+    }
+   },
+   "id": "5f962e70bd300b7f"
+  },
+  {
+   "proposta": {
+    "z": 1,
+    "a": [
+     true,
+     null,
+     "\u00e7"
+    ],
+    "\u00c9": {
+     "b": "\u2652\ufe0e",
+     "a": -3
+    },
+    "pendente_id": "ignorado",
+    "procedencia": {
+     "ignorado": 1
+    }
+   },
+   "id": "c347ea68641b0f29"
+  },
+  {
+   "proposta": {
+    "texto": "aspas \" \\ \n\t\u2028 \u0001"
+   },
+   "id": "989acc936dff3011"
+  }
+ ],
+ "sem_id": [
+  "\ud800",
+  "a\udc00b"
+ ],
+ "reais": [
+  {
+   "pasta": "convencoes",
+   "arquivo": "7-convencoes-de-realidade/convencoes/11e4903fab29f750.json",
+   "id": "11e4903fab29f7509a572ae79e67ac25d43b04c5ca620e533f09b863b1a9827a",
+   "tipo": "estrutura",
+   "nomes": [
+    "Miss\u00e3o"
+   ]
+  },
+  {
+   "pasta": "convencoes",
+   "arquivo": "7-convencoes-de-realidade/convencoes/178949a87001d0b2.json",
+   "id": "178949a87001d0b2645f2567719f107e39209d93408a9e0e863835f1f20b6ff5",
+   "tipo": "centro-de-sintese",
+   "nomes": [
+    "2\u00aa Esfera: Cria\u00e7\u00e3o",
+    "Centro de S\u00edntese Criativo e de Conex\u00e3o",
+    "2\u00aa Esfera"
+   ]
+  },
+  {
+   "pasta": "convencoes",
+   "arquivo": "7-convencoes-de-realidade/convencoes/194924e36dadaf6f.json",
+   "id": "194924e36dadaf6f4bcd10dc6370157bd9e90e335112ca49205375c1ad9f6c89",
+   "tipo": "operador",
+   "nomes": [
+    "continuar",
+    "\ud83d\udf13"
+   ]
+  },
+  {
+   "pasta": "convencoes",
+   "arquivo": "7-convencoes-de-realidade/convencoes/1c9fd2d1b3aab263.json",
+   "id": "1c9fd2d1b3aab263e1aa440d9cff3f862440ecc7d8b81bf791e109ee212e4644",
+   "tipo": "operador",
+   "nomes": [
+    "integrar qualidades",
+    "\u2652\ufe0e"
+   ]
+  },
+  {
+   "pasta": "convencoes",
+   "arquivo": "7-convencoes-de-realidade/convencoes/1fbe7ac99a65a37f.json",
+   "id": "1fbe7ac99a65a37f551be7939bd939b494d0ecf13d51db62fb41651861dd692e",
+   "tipo": "relacao",
+   "nomes": [
+    "\u00e9 parte de"
+   ]
+  },
+  {
+   "pasta": "convencoes",
+   "arquivo": "7-convencoes-de-realidade/convencoes/2258c2dbbeb55930.json",
+   "id": "2258c2dbbeb559309ef5daaa9ccbeba8f9f287add2ae5a10a206aa15d3f1e729",
+   "tipo": "esfera",
+   "nomes": [
+    "Interface"
+   ]
+  },
+  {
+   "pasta": "convencoes",
+   "arquivo": "7-convencoes-de-realidade/convencoes/2bb64aefc0b0ae3a.json",
+   "id": "2bb64aefc0b0ae3a6e0e8d38a2379e0eede3aaff900aa5534a1a42a0f4f37822",
+   "tipo": "ego",
+   "nomes": [
+    "AMBIENTE"
+   ]
+  },
+  {
+   "pasta": "convencoes",
+   "arquivo": "7-convencoes-de-realidade/convencoes/3638a52b6bac1190.json",
+   "id": "3638a52b6bac119067fe636d58b0fcbe84a15046d0426a18392c7b9584a16a99",
+   "tipo": "cidade fronteiri\u00e7a",
+   "nomes": [
+    "Roma"
+   ],
+   "ancoras": {
+    "wikidata": "Q220"
+   }
+  },
+  {
+   "pasta": "convencoes",
+   "arquivo": "7-convencoes-de-realidade/convencoes/36b70eab164bfd7e.json",
+   "id": "36b70eab164bfd7e0881bcb8faca75f95a04add68eef55548553fc7aee413ffd",
+   "tipo": "automato-astral",
+   "nomes": [
+    "Aut\u00f4mato \u263d\u2647"
+   ]
+  },
+  {
+   "pasta": "convencoes",
+   "arquivo": "7-convencoes-de-realidade/convencoes/376eb621d9a61e80.json",
+   "id": "376eb621d9a61e803309a835cfaf27502df46a5c8ddd9e25d2b7049d1e7b3ef5",
+   "tipo": "automato-astral",
+   "nomes": [
+    "Aut\u00f4mato \u263f"
+   ]
+  },
+  {
+   "pasta": "convencoes",
+   "arquivo": "7-convencoes-de-realidade/convencoes/396a3172fd071175.json",
+   "id": "396a3172fd071175ba5244ee0539a544a18a52a092f493ce22a7be300170c424",
+   "tipo": "elemento",
+   "nomes": [
+    "Terra",
+    "manifestar no ambiente"
+   ]
+  },
+  {
+   "pasta": "convencoes",
+   "arquivo": "7-convencoes-de-realidade/convencoes/3e19e94b320badb2.json",
+   "id": "3e19e94b320badb20329a98427cd71e99f77fef832f9500bcc278a11e62f8173",
+   "tipo": "principio-tria-prima",
+   "nomes": [
+    "Mercury",
+    "\u263f",
+    "significado"
+   ]
+  },
+  {
+   "pasta": "convencoes",
+   "arquivo": "7-convencoes-de-realidade/convencoes/4278f8b7b8bdc519.json",
+   "id": "4278f8b7b8bdc5190376c12dc6be5f5e454afb04d662f2d7e473cdfc1d437b17",
+   "tipo": "elemento",
+   "nomes": [
+    "Ar",
+    "\ud83d\udf01",
+    "compreender"
+   ]
+  },
+  {
+   "pasta": "convencoes",
+   "arquivo": "7-convencoes-de-realidade/convencoes/4ac90d4ea09ad299.json",
+   "id": "4ac90d4ea09ad2996366407c5d6619f2cccedf05d0b3d04e84359dc23ac37539",
+   "tipo": "estrutura",
+   "nomes": [
+    "Mecanismo de Interpreta\u00e7\u00e3o"
+   ]
+  },
+  {
+   "pasta": "convencoes",
+   "arquivo": "7-convencoes-de-realidade/convencoes/4d280b8f143888a3.json",
+   "id": "4d280b8f143888a30a1095bfbb78fc4ae7a47cea1153364935a44600fc071a2f",
+   "tipo": "centro-de-sintese",
+   "nomes": [
+    "3\u00aa Esfera: Ego",
+    "Centro de S\u00edntese de Experi\u00eancia Individual",
+    "3\u00aa Esfera"
+   ]
+  },
+  {
+   "pasta": "convencoes",
+   "arquivo": "7-convencoes-de-realidade/convencoes/54ccb798e808c6c2.json",
+   "id": "54ccb798e808c6c20fdafbb1b355ed8dd7c0cf63804f441d4197f7120638516f",
+   "tipo": "centro-de-sintese",
+   "nomes": [
+    "6\u00aa Esfera: Intelectual",
+    "Centro de S\u00edntese Intelectual",
+    "6\u00aa Esfera"
+   ]
+  },
+  {
+   "pasta": "sinapses",
+   "arquivo": "1-existencia/sinapses/1cc182f89c46955d.json",
+   "id": "1cc182f89c46955dbb70c4c766730f3a24c9c5656965987529c5e890e8f0888b",
+   "origem": "8ed95ccf0a41d8cb3e106c70fe94ad7ccacaf031f61780bccf5bd6f029c81f9e",
+   "destino": "80deede9e09806e100f6350aab830ce9d6cd7d24aa0c789ea99da6791a2d2e95",
+   "tipo": "leva a",
+   "contexto": "ciclo de vida do Aut\u00f4mato",
+   "esfera": 1
+  },
+  {
+   "pasta": "sinapses",
+   "arquivo": "1-existencia/sinapses/328bdcd4b1de11ed.json",
+   "id": "328bdcd4b1de11ede263e817e46bd290c226e5988811e25d619e22f80469f1a2",
+   "origem": "85876f173ccafbe938f14b813ef0ac602db0a6cb04fa016ed5c72c0dcd235a2b",
+   "destino": "11e4903fab29f7509a572ae79e67ac25d43b04c5ca620e533f09b863b1a9827a",
+   "tipo": "manifesta",
+   "contexto": "",
+   "esfera": 1
+  },
+  {
+   "pasta": "sinapses",
+   "arquivo": "1-existencia/sinapses/4f7fca8526649c13.json",
+   "id": "4f7fca8526649c13542c7984608c8256970c309078191e3e577299973d05a3b1",
+   "origem": "764ebb1aaa51b1709a73e1e03e6f88c371b4f18fa6b19abae74917dad038c1bb",
+   "destino": "78c85d59d26e6991a6a4cede6d2236147695a6a311a47bc0a4c30e9993933cb6",
+   "tipo": "leva a",
+   "contexto": "Aut\u00f4mato tempor\u00e1rio",
+   "esfera": 1
+  },
+  {
+   "pasta": "sinapses",
+   "arquivo": "1-existencia/sinapses/68b4ad68d8e573ac.json",
+   "id": "68b4ad68d8e573ac6bc9c505fe2e695682a85a4d569a4a94bec8cb9cbc521890",
+   "origem": "8c622b023e116d039af0f28b61a03c154ed4fab866ad04545ccad1453b5f948b",
+   "destino": "b3671dbcf96d692ebe85834c1246958cbf949594d8fd604a099738e387c02b67",
+   "tipo": "leva a",
+   "contexto": "ciclo de vida do Aut\u00f4mato",
+   "esfera": 1
+  },
+  {
+   "pasta": "sinapses",
+   "arquivo": "1-existencia/sinapses/6f39ff56d40e4624.json",
+   "id": "6f39ff56d40e46243e163e122cf539247f200e457555f98de8481cc47fb87ad9",
+   "origem": "b3671dbcf96d692ebe85834c1246958cbf949594d8fd604a099738e387c02b67",
+   "destino": "8c622b023e116d039af0f28b61a03c154ed4fab866ad04545ccad1453b5f948b",
+   "tipo": "leva a",
+   "contexto": "continua do ponto onde estava ap\u00f3s ajuda da U.I.",
+   "esfera": 1
+  },
+  {
+   "pasta": "sinapses",
+   "arquivo": "1-existencia/sinapses/e893d0e78f78c9f9.json",
+   "id": "e893d0e78f78c9f90499ab1550383153c395a9be2867777a916e38106ec52212",
+   "origem": "80deede9e09806e100f6350aab830ce9d6cd7d24aa0c789ea99da6791a2d2e95",
+   "destino": "8c622b023e116d039af0f28b61a03c154ed4fab866ad04545ccad1453b5f948b",
+   "tipo": "leva a",
+   "contexto": "ciclo de vida do Aut\u00f4mato",
+   "esfera": 1
+  }
+ ]
+}

@@ -3,16 +3,16 @@
 // commits e refs endereçados por hash.
 import {hashOf, type Hash, type Json} from './canonical.ts'
 import {diffFields, type FieldChange} from './diff.ts'
+import {ehPrivado, validarObjeto, type Fonte, type Status} from './semantica.ts'
 
-export type CommitSource =
-  | 'explicit_user_input'
-  | 'event_digest'
-  | 'synthesis'
-  | 'import'
-  | 'manual_edit'
-  | 'ui'
+/** Branches cujo conteúdo pode ser publicado no PDS: nunca recebem caminhos privados. */
+export const ehBranchPublico = (branch: string) =>
+  branch === 'public' || branch === 'publico' || branch.startsWith('public/')
 
-/** Caminho → hash do objeto. Ex.: "conventions/music-production.json". */
+/**
+ * Caminho → hash do objeto, no layout da Base de Sínteses. Ex.:
+ * "7-convencoes-de-realidade/convencoes/0522f861204a60a7.json".
+ */
 export type Tree = Record<string, Hash>
 
 export interface ObjectChange {
@@ -36,9 +36,13 @@ export interface SemanticCommit {
   reason: string
   /** Referências opacas à evidência (ids de eventos digeridos), nunca o dado bruto. */
   evidenceRefs: string[]
-  source: CommitSource
-  /** explicit = o usuário disse; inferred = a AQUA/U.I. deduziu. */
-  certainty: 'explicit' | 'inferred'
+  /** De onde veio a mudança (vocabulário da base: usuario, aqua, sono, wikidata…). */
+  fonte: Fonte
+  /**
+   * Explícito × inferido no vocabulário da base: "hipótese" = inferido;
+   * "ensinado"/"confirmado" = o usuário disse; "verificado" = fonte externa.
+   */
+  status: Status
   confidenceChange?: {
     path: string
     field: string
@@ -48,17 +52,20 @@ export interface SemanticCommit {
 }
 
 export interface CommitInput {
-  /** valor novo do objeto; null remove o caminho */
-  changes: Record<string, Json | null>
+  /** valor novo do objeto (JSON simples, conferido em runtime); null remove o caminho */
+  changes: Record<string, unknown>
   reason: string
   evidenceRefs?: string[]
-  source: CommitSource
-  certainty?: 'explicit' | 'inferred'
+  fonte: Fonte
+  status?: Status
   confidenceChange?: SemanticCommit['confidenceChange']
   timestamp?: string
 }
 
 export class ConflictError extends Error {}
+export class FormatoError extends Error {}
+
+const FONTES_EXPLICITAS = new Set(['samuel', 'usuario', 'edicao-manual'])
 
 export function commitHash(c: Omit<SemanticCommit, 'id' | 'hash'>): Hash {
   return hashOf(c as unknown as Json)
@@ -125,8 +132,15 @@ export function createRepo(userId: string) {
     const base = treeAt(parent)
     const next: Tree = {...base}
     for (const [path, value] of Object.entries(input.changes)) {
-      if (value === null) delete next[path]
-      else next[path] = putObject(value)
+      if (value === null) {
+        delete next[path]
+        continue
+      }
+      if (ehBranchPublico(branch) && ehPrivado(path))
+        throw new FormatoError(`${path} é privado: não entra em ${branch}`)
+      const erro = validarObjeto(path, value as Json)
+      if (erro) throw new FormatoError(erro)
+      next[path] = putObject(value as Json)
     }
     const changedObjects = diffTrees(base, next)
     if (!changedObjects.length) return undefined
@@ -139,13 +153,10 @@ export function createRepo(userId: string) {
       changedObjects,
       reason: input.reason,
       evidenceRefs: input.evidenceRefs ?? [],
-      source: input.source,
-      certainty:
-        input.certainty ??
-        (input.source === 'explicit_user_input' ||
-        input.source === 'manual_edit'
-          ? 'explicit'
-          : 'inferred'),
+      fonte: input.fonte,
+      status:
+        input.status ??
+        (FONTES_EXPLICITAS.has(input.fonte) ? 'confirmado' : 'hipótese'),
       ...(input.confidenceChange
         ? {confidenceChange: input.confidenceChange}
         : {}),
@@ -190,8 +201,8 @@ export function createRepo(userId: string) {
     return commit(branch, {
       changes,
       reason,
-      source: 'manual_edit',
-      certainty: 'explicit',
+      fonte: 'edicao-manual',
+      status: 'confirmado',
       evidenceRefs: [commitId],
     })
   }
@@ -212,8 +223,8 @@ export function createRepo(userId: string) {
     return commit(branch, {
       changes,
       reason,
-      source: 'manual_edit',
-      certainty: 'explicit',
+      fonte: 'edicao-manual',
+      status: 'confirmado',
       evidenceRefs: [commitId],
     })
   }
@@ -239,7 +250,7 @@ export function createRepo(userId: string) {
       [...treeHashes].flatMap(t => Object.values(trees.get(t)!)),
     )
     return {
-      format: 'aqua-personal-git/1' as const,
+      format: 'aqua-personal-git/2' as const,
       userId,
       branch,
       head: refs.get(branch) ?? null,
@@ -272,7 +283,7 @@ export type ExportBundle = ReturnType<Repo['exportBranch']>
 
 /** Importa um pacote exportado, conferindo cada hash. */
 export function importBranch(bundle: ExportBundle): Repo {
-  if (bundle.format !== 'aqua-personal-git/1')
+  if (bundle.format !== 'aqua-personal-git/2')
     throw new Error('formato desconhecido')
   for (const [h, v] of Object.entries(bundle.objects))
     if (hashOf(v) !== h) throw new Error(`objeto adulterado: ${h}`)
@@ -292,8 +303,8 @@ export function importBranch(bundle: ExportBundle): Repo {
       changes,
       reason: c.reason,
       evidenceRefs: c.evidenceRefs,
-      source: c.source,
-      certainty: c.certainty,
+      fonte: c.fonte,
+      status: c.status,
       timestamp: c.timestamp,
       ...(c.confidenceChange ? {confidenceChange: c.confidenceChange} : {}),
     })
