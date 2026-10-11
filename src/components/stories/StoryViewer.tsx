@@ -19,6 +19,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated'
 import {Image} from 'expo-image'
+import {LinearGradient} from 'expo-linear-gradient'
 
 import {type StoryView} from '#/lib/stories/model'
 import {
@@ -42,8 +43,12 @@ import * as Toast from '#/view/com/util/Toast'
 import {PreviewableUserAvatar} from '#/view/com/util/UserAvatar'
 import {atoms as a} from '#/alf'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
+import {DotGrid_Stroke2_Corner0_Rounded as MoreIcon} from '#/components/icons/DotGrid'
+import {Heart2_Stroke2_Corner0_Rounded as HeartIcon} from '#/components/icons/Heart2'
+import {PaperPlane_Stroke2_Corner0_Rounded as SendIcon} from '#/components/icons/PaperPlane'
 import {TimesLarge_Stroke2_Corner0_Rounded as CloseIcon} from '#/components/icons/Times'
 import {Trash_Stroke2_Corner0_Rounded as TrashIcon} from '#/components/icons/Trash'
+import {OnDarkIconButton} from '#/components/stories/OnDarkIconButton'
 import {frameSize, StoryFrame} from '#/components/stories/StoryFrame'
 import {Text} from '#/components/Typography'
 
@@ -87,6 +92,7 @@ export function StoryViewer({
   const [holding, setHolding] = useState(false)
   const [background, setBackground] = useState(false)
   const [replying, setReplying] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const progress = useSharedValue(0)
   const translateY = useSharedValue(0)
@@ -107,11 +113,13 @@ export function StoryViewer({
   // Text-only stories have nothing to wait for.
   const loaded = !!current && (!current.mediaUrl || loadedUri === current.uri)
   const failed = !!current && !!current.mediaUrl && failedUri === current.uri
-  const paused = holding || background || replying || confirmDelete || failed
+  const paused =
+    holding || background || replying || menuOpen || confirmDelete || failed
 
   const move = useCallback(
     (dir: 1 | -1) => {
       setConfirmDelete(false)
+      setMenuOpen(false)
       const next = stepPosition(sizes, pos, dir)
       if (next === 'close') onClose()
       else setPos(next)
@@ -301,6 +309,16 @@ export function StoryViewer({
         <View
           pointerEvents="box-none"
           style={[a.absolute, a.inset_0, {opacity: holding ? 0 : 1}]}>
+          <LinearGradient
+            pointerEvents="none"
+            colors={['rgba(0,0,0,0.55)', 'rgba(0,0,0,0)']}
+            style={[a.absolute, a.w_full, {top: 0, height: 150}]}
+          />
+          <LinearGradient
+            pointerEvents="none"
+            colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.6)']}
+            style={[a.absolute, a.w_full, {bottom: 0, height: 200}]}
+          />
           <View
             pointerEvents="none"
             style={[
@@ -330,23 +348,53 @@ export function StoryViewer({
             ]}>
             <PreviewableUserAvatar size={32} profile={group.author} />
             <View style={[a.flex_1, {minWidth: 0}]}>
-              <Text
-                numberOfLines={1}
-                style={[a.text_sm, a.font_bold, {color: '#fff'}]}>
-                {sanitizeDisplayName(
-                  group.author.displayName ||
-                    sanitizeHandle(group.author.handle),
-                )}
-              </Text>
               <TimeElapsed timestamp={current.createdAt}>
                 {({timeElapsed}) => (
-                  <Text style={[a.text_xs, {color: 'rgba(255,255,255,0.7)'}]}>
-                    {timeElapsed}
+                  <Text numberOfLines={1} style={[a.text_sm]}>
+                    <Text style={[a.font_bold, {color: '#fff'}]}>
+                      {sanitizeDisplayName(
+                        group.author.displayName ||
+                          sanitizeHandle(group.author.handle),
+                      )}
+                    </Text>
+                    <Text style={{color: 'rgba(255,255,255,0.75)'}}>
+                      {'  '}
+                      {timeElapsed}
+                    </Text>
                   </Text>
                 )}
               </TimeElapsed>
             </View>
             {canDelete && (
+              <OnDarkIconButton
+                label="Mais opções"
+                icon={MoreIcon}
+                onPress={() => {
+                  setConfirmDelete(false)
+                  setMenuOpen(v => !v)
+                }}
+              />
+            )}
+            <OnDarkIconButton
+              label="Fechar"
+              icon={CloseIcon}
+              onPress={onClose}
+            />
+          </View>
+
+          {menuOpen && canDelete && (
+            <View
+              style={[
+                a.absolute,
+                a.rounded_md,
+                a.p_xs,
+                {
+                  top: 64,
+                  right: 12,
+                  backgroundColor: 'rgba(28,28,32,0.96)',
+                  minWidth: 190,
+                },
+              ]}>
               <Button
                 label={
                   confirmDelete
@@ -354,11 +402,12 @@ export function StoryViewer({
                     : 'Excluir story'
                 }
                 size="small"
-                variant={confirmDelete ? 'solid' : 'ghost'}
+                variant="ghost"
                 color={confirmDelete ? 'negative' : 'secondary'}
                 onPress={() => {
                   if (!confirmDelete) return setConfirmDelete(true)
                   setConfirmDelete(false)
+                  setMenuOpen(false)
                   deleteStory(current.rkey, {
                     onError: () =>
                       Toast.show('Não foi possível excluir o story', 'error'),
@@ -366,22 +415,13 @@ export function StoryViewer({
                   setRemoved(prev => new Set(prev).add(current.uri))
                   Toast.show('Story excluído')
                 }}>
-                {confirmDelete ? (
-                  <ButtonText>Excluir?</ButtonText>
-                ) : (
-                  <ButtonIcon icon={TrashIcon} />
-                )}
+                <ButtonIcon icon={TrashIcon} />
+                <ButtonText>
+                  {confirmDelete ? 'Toque de novo para excluir' : 'Excluir'}
+                </ButtonText>
               </Button>
-            )}
-            <Button
-              label="Fechar"
-              size="small"
-              variant="ghost"
-              color="secondary"
-              onPress={onClose}>
-              <ButtonIcon icon={CloseIcon} />
-            </Button>
-          </View>
+            </View>
+          )}
 
           {canReply && (
             <ReplyBar
@@ -408,19 +448,26 @@ function ReplyBar({
   onFocusChange: (focused: boolean) => void
 }) {
   const [text, setText] = useState('')
+  const [focused, setFocused] = useState(false)
+  const [liked, setLiked] = useState(false)
   const {mutateAsync: send, isPending} = useSendStoryReply()
 
-  const submit = async (kind: 'reply' | 'reaction', body: string) => {
+  const submit = async (
+    kind: 'reply' | 'reaction',
+    body: string,
+  ): Promise<boolean> => {
     try {
       await send({did: authorDid, kind, body})
       Toast.show(kind === 'reaction' ? 'Reação enviada' : 'Resposta enviada')
       if (kind === 'reply') setText('')
+      return true
     } catch (e: any) {
       logger.error('Failed to send story reply', {message: String(e)})
       Toast.show(
         'Não foi possível enviar. A pessoa pode não aceitar mensagens suas.',
         'error',
       )
+      return false
     }
   }
 
@@ -429,29 +476,37 @@ function ReplyBar({
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       pointerEvents="box-none"
       style={[a.absolute, a.w_full, {bottom: 0}]}>
-      <View style={[a.gap_sm, a.p_md]}>
-        <View style={[a.flex_row, a.justify_center, a.gap_md]}>
-          {REACTIONS.map(emoji => (
-            <Pressable
-              key={emoji}
-              accessibilityRole="button"
-              accessibilityLabel={`Reagir com ${emoji}`}
-              accessibilityHint="Envia uma mensagem para a pessoa"
-              disabled={isPending}
-              onPress={() => submit('reaction', emoji)}>
-              <Text style={[a.text_2xl]}>{emoji}</Text>
-            </Pressable>
-          ))}
-        </View>
+      <View style={[a.gap_md, a.p_md]}>
+        {focused && (
+          <View style={[a.flex_row, a.justify_between, a.px_sm]}>
+            {REACTIONS.map(emoji => (
+              <Pressable
+                key={emoji}
+                accessibilityRole="button"
+                accessibilityLabel={`Reagir com ${emoji}`}
+                accessibilityHint="Envia uma mensagem para a pessoa"
+                disabled={isPending}
+                onPress={() => submit('reaction', emoji)}>
+                <Text style={[a.text_3xl]}>{emoji}</Text>
+              </Pressable>
+            ))}
+          </View>
+        )}
         <View style={[a.flex_row, a.align_center, a.gap_sm]}>
           <TextInput
             value={text}
             onChangeText={setText}
-            onFocus={() => onFocusChange(true)}
-            onBlur={() => onFocusChange(false)}
+            onFocus={() => {
+              setFocused(true)
+              onFocusChange(true)
+            }}
+            onBlur={() => {
+              setFocused(false)
+              onFocusChange(false)
+            }}
             maxLength={REPLY_MAX}
-            placeholder={`Responder a ${authorName}`}
-            placeholderTextColor="rgba(255,255,255,0.6)"
+            placeholder={`Enviar mensagem para ${authorName}…`}
+            placeholderTextColor="rgba(255,255,255,0.8)"
             accessibilityLabel={`Responder ao story de ${authorName}`}
             accessibilityHint="A resposta vai por mensagem direta"
             returnKeyType="send"
@@ -464,20 +519,32 @@ function ReplyBar({
               {
                 height: 44,
                 color: '#fff',
-                borderWidth: 1,
-                borderColor: 'rgba(255,255,255,0.5)',
-                backgroundColor: 'rgba(0,0,0,0.35)',
+                borderWidth: 1.5,
+                borderColor: 'rgba(255,255,255,0.65)',
+                backgroundColor: 'rgba(0,0,0,0.18)',
               },
             ]}
           />
-          <Button
-            label="Enviar resposta"
-            size="small"
-            color="secondary"
-            disabled={!text.trim() || isPending}
-            onPress={() => submit('reply', text)}>
-            <ButtonText>Enviar</ButtonText>
-          </Button>
+          {text.trim() ? (
+            <OnDarkIconButton
+              label="Enviar resposta"
+              icon={SendIcon}
+              size="xl"
+              disabled={isPending}
+              onPress={() => submit('reply', text)}
+            />
+          ) : (
+            <OnDarkIconButton
+              label="Curtir story"
+              icon={HeartIcon}
+              size="xl"
+              disabled={isPending || liked}
+              onPress={async () => {
+                setLiked(true)
+                if (!(await submit('reaction', REACTIONS[0]))) setLiked(false)
+              }}
+            />
+          )}
         </View>
       </View>
     </KeyboardAvoidingView>

@@ -11,6 +11,7 @@ import {atoms as a, useTheme} from '#/alf'
 import {Button, ButtonIcon} from '#/components/Button'
 import {PlusLarge_Stroke2_Corner0_Rounded as PlusIcon} from '#/components/icons/Plus'
 import {StoryPreview} from '#/components/stories/StoryFrame'
+import {RingArcs} from '#/components/stories/StoryRing'
 import {StoryViewer} from '#/components/stories/StoryViewer'
 import {Text} from '#/components/Typography'
 
@@ -100,7 +101,6 @@ function StoryCircle({
   story: StoryView
   onPress: () => void
 }) {
-  const t = useTheme()
   const seen = useIsStorySeen(story.uri)
 
   return (
@@ -110,19 +110,17 @@ function StoryCircle({
       style={[a.align_center, a.gap_xs, {width: RING_SIZE + 8}]}>
       <View
         style={[
-          a.rounded_full,
-          a.p_2xs,
-          a.overflow_hidden,
-          {
-            width: RING_SIZE,
-            height: RING_SIZE,
-            borderWidth: 2,
-            borderColor: seen
-              ? t.atoms.border_contrast_low.borderColor
-              : '#7C3AED',
-          },
+          a.align_center,
+          a.justify_center,
+          {width: RING_SIZE, height: RING_SIZE},
         ]}>
-        <View style={[a.flex_1, a.rounded_full, a.overflow_hidden]}>
+        <RingArcs size={RING_SIZE} seen={[seen]} />
+        <View
+          style={[
+            a.rounded_full,
+            a.overflow_hidden,
+            {width: RING_SIZE - 10, height: RING_SIZE - 10},
+          ]}>
           <StoryPreview story={story} />
         </View>
       </View>
