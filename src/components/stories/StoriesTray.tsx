@@ -15,7 +15,7 @@ import {StoryRing} from '#/components/stories/StoryRing'
 import {StoryViewer} from '#/components/stories/StoryViewer'
 import {Text} from '#/components/Typography'
 
-const SIZE = 68
+const SIZE = 74
 
 /**
  * Home tray: you first, then people you follow with an active story
@@ -116,19 +116,36 @@ function TrayItem({
   onPress: () => void
 }) {
   const t = useTheme()
+  const allSeen = seen.length > 0 && seen.every(Boolean)
   return (
     <Button
       label={`${label}. ${hint}`}
       onPress={onPress}
       style={[a.align_center, a.gap_xs, {width: SIZE + 8}]}>
       <View>
-        <StoryRing size={SIZE} seen={seen}>
-          <UserAvatar
-            size={SIZE - 10}
-            avatar={group.author.avatar}
-            type="user"
-          />
-        </StoryRing>
+        {seen.length ? (
+          <StoryRing size={SIZE} seen={seen}>
+            <UserAvatar
+              size={SIZE - 12}
+              avatar={group.author.avatar}
+              type="user"
+            />
+          </StoryRing>
+        ) : (
+          // No active story: plain avatar (no ring), like Instagram's "+".
+          <View
+            style={[
+              a.align_center,
+              a.justify_center,
+              {width: SIZE, height: SIZE},
+            ]}>
+            <UserAvatar
+              size={SIZE - 8}
+              avatar={group.author.avatar}
+              type="user"
+            />
+          </View>
+        )}
         {showAdd && (
           <View
             style={[
@@ -139,18 +156,30 @@ function TrayItem({
               {
                 right: 0,
                 bottom: 0,
-                width: 22,
-                height: 22,
+                width: 24,
+                height: 24,
                 backgroundColor: '#7C3AED',
+                borderWidth: 2.5,
+                borderColor: t.atoms.bg.backgroundColor,
               },
             ]}>
-            <Text style={[a.text_sm, a.font_bold, {color: '#fff'}]}>+</Text>
+            <Text
+              style={[
+                a.font_bold,
+                {color: '#fff', fontSize: 16, lineHeight: 18},
+              ]}>
+              +
+            </Text>
           </View>
         )}
       </View>
       <Text
         numberOfLines={1}
-        style={[a.text_xs, t.atoms.text_contrast_medium, {maxWidth: SIZE + 8}]}>
+        style={[
+          a.text_xs,
+          allSeen ? t.atoms.text_contrast_medium : t.atoms.text,
+          {maxWidth: SIZE + 8},
+        ]}>
         {label}
       </Text>
     </Button>

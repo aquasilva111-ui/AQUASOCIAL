@@ -51,11 +51,11 @@ export function HighlightsItems({
               a.align_center,
               a.justify_center,
               a.border,
-              {width: SIZE, height: SIZE, borderStyle: 'dashed'},
+              {width: SIZE, height: SIZE, borderWidth: 1.5},
             ]}>
             <ButtonIcon icon={PlusIcon} />
           </Button>
-          <StripLabelText>Destaque</StripLabelText>
+          <StripLabelText>Novo</StripLabelText>
         </View>
       )}
       {highlights?.map(h => (
