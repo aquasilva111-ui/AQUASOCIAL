@@ -4458,9 +4458,9 @@
   resolved "https://registry.npmjs.org/@mantine/hooks/-/hooks-8.3.18.tgz"
   integrity sha512-QoWr9+S8gg5050TQ06aTSxtlpGjYOpIllRbjYYXlRvZeTsUqiTbVfvQROLexu4rEaK+yy9Wwriwl9PMRgbLqPw==
 
-"@mattermost/react-native-paste-input@mattermost/react-native-paste-input":
-  version "2.0.1"
-  resolved "https://codeload.github.com/mattermost/react-native-paste-input/tar.gz/26489acf1f6b8636cc40e5b220f3af6432572598"
+"@mattermost/react-native-paste-input@mattermost/react-native-paste-input#f260447edc645a817ab1ba7b46d8341d84dba8e9":
+  version "0.8.1"
+  resolved "https://codeload.github.com/mattermost/react-native-paste-input/tar.gz/f260447edc645a817ab1ba7b46d8341d84dba8e9"
 
 "@messageformat/parser@^5.0.0":
   version "5.1.0"
