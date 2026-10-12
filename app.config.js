@@ -179,7 +179,7 @@ module.exports = function (_config) {
         adaptiveIcon: {
           foregroundImage: './assets/icon-android-foreground.png',
           monochromeImage: './assets/icon-android-monochrome.png',
-          backgroundColor: '#006AFF',
+          backgroundColor: '#002BEF',
         },
         googleServicesFile: './google-services.json',
         package: 'xyz.blueskyweb.app',
@@ -253,7 +253,7 @@ module.exports = function (_config) {
           'expo-notifications',
           {
             icon: './assets/icon-android-notification.png',
-            color: '#1185fe',
+            color: '#002BEF',
             sounds: PLATFORM === 'ios' ? ['assets/dm.aiff'] : ['assets/dm.mp3'],
           },
         ],
@@ -311,22 +311,22 @@ module.exports = function (_config) {
           {
             ios: {
               enableFullScreenImage_legacy: true,
-              backgroundColor: '#ffffff',
+              backgroundColor: '#002BEF',
               image: './assets/splash.png',
               resizeMode: 'cover',
               dark: {
                 enableFullScreenImage_legacy: true,
-                backgroundColor: '#001429',
+                backgroundColor: '#002BEF',
                 image: './assets/splash-dark.png',
                 resizeMode: 'cover',
               },
             },
             android: {
-              backgroundColor: '#0c7cff',
+              backgroundColor: '#002BEF',
               image: './assets/splash-android-icon.png',
               imageWidth: 150,
               dark: {
-                backgroundColor: '#0c2a49',
+                backgroundColor: '#002BEF',
                 image: './assets/splash-android-icon-dark.png',
                 imageWidth: 150,
               },
