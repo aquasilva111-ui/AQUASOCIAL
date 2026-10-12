@@ -58,7 +58,11 @@ export class MockPaymentProvider implements PaymentProvider {
   async getPaymentStatus(ref: string) {
     const status = this.payments.get(ref)?.status
     return (status ?? 'unknown') as
-      'pending' | 'succeeded' | 'failed' | 'refunded' | 'unknown'
+      | 'pending'
+      | 'succeeded'
+      | 'failed'
+      | 'refunded'
+      | 'unknown'
   }
 
   async refund(ref: string) {

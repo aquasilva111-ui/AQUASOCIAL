@@ -6,7 +6,12 @@ export function Mark(props: Props) {
   const {size, style, gradient, ...rest} = useCommonSVGProps(props)
 
   return (
-    <Svg viewBox="0 0 810 810" width={size} height={size} style={style} {...rest}>
+    <Svg
+      viewBox="0 0 810 810"
+      width={size}
+      height={size}
+      style={style}
+      {...rest}>
       {gradient}
       <Circle cx={413.18} cy={413.18} r={381.55} fill="#002bef" />
       <Circle cx={413.18} cy={413.18} r={218.66} fill="#ffffff" />

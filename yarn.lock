@@ -4458,9 +4458,12 @@
   resolved "https://registry.npmjs.org/@mantine/hooks/-/hooks-8.3.18.tgz"
   integrity sha512-QoWr9+S8gg5050TQ06aTSxtlpGjYOpIllRbjYYXlRvZeTsUqiTbVfvQROLexu4rEaK+yy9Wwriwl9PMRgbLqPw==
 
-"@mattermost/react-native-paste-input@mattermost/react-native-paste-input":
-  version "2.0.1"
-  resolved "https://codeload.github.com/mattermost/react-native-paste-input/tar.gz/26489acf1f6b8636cc40e5b220f3af6432572598"
+"@mattermost/react-native-paste-input@0.8.1":
+  version "0.8.1"
+  resolved "https://registry.yarnpkg.com/@mattermost/react-native-paste-input/-/react-native-paste-input-0.8.1.tgz#944ec69d0c49c3607265a02ad04103cc5b556caf"
+  integrity sha512-QHpwWORPALmX5FczCewRlJkVqtltD84mlpMpto5IGLKdHMAoHeXMiG4VJVh2XkRQvTyUhYegtrUrJzf8dkJokA==
+  dependencies:
+    semver "7.6.3"
 
 "@messageformat/parser@^5.0.0":
   version "5.1.0"
@@ -10141,7 +10144,6 @@ eslint-module-utils@^2.12.0:
 
 "eslint-plugin-bsky-internal@file:./eslint":
   version "0.0.0"
-  resolved "file:eslint"
 
 eslint-plugin-eslint-comments@^3.2.0:
   version "3.2.0"
@@ -10614,6 +10616,11 @@ expo-font@~14.0.9:
   integrity sha512-xCoQbR/36qqB6tew/LQ6GWICpaBmHLhg/Loix5Rku/0ZtNaXMJv08M9o1AcrdiGTn/Xf/BnLu6DgS45cWQEHZg==
   dependencies:
     fontfaceobserver "^2.1.0"
+
+expo-glass-effect@~0.1.10:
+  version "0.1.10"
+  resolved "https://registry.yarnpkg.com/expo-glass-effect/-/expo-glass-effect-0.1.10.tgz#d9d42616667804a7905e1e12b944e76bc0592f9a"
+  integrity sha512-R0OrsMbs2TxFQZp26rRDl1Wxu5PaBXM7qAxiT0Bfyb1bojr3eI90bMKry9lBM3aKbq7DOBXYT7ePrE3vUaf41g==
 
 expo-haptics@~15.0.7:
   version "15.0.7"
@@ -17323,6 +17330,11 @@ semver@7.3.2:
   version "7.3.2"
   resolved "https://registry.npmjs.org/semver/-/semver-7.3.2.tgz"
   integrity sha512-OrOb32TeeambH6UrhtShmF7CRDqhL6/5XpPNp2DuRH6+9QLw/orhp72j87v8Qa1ScDkvrrBNpZcDejAirJmfXQ==
+
+semver@7.6.3:
+  version "7.6.3"
+  resolved "https://registry.yarnpkg.com/semver/-/semver-7.6.3.tgz#980f7b5550bc175fb4dc09403085627f9eb33143"
+  integrity sha512-oVekP1cKtI+CTDvHWYFUcMtsK/00wmAEfyqKfNdARm8u1wNVhSgaX7A8d4UuIlUI5e84iEwOhs7ZPYRmzU9U6A==
 
 send@^0.19.0:
   version "0.19.1"

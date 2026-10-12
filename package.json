@@ -3,7 +3,7 @@
   "version": "1.111.0",
   "private": true,
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "packageManager": "yarn@1.22.22",
   "expo": {
@@ -103,7 +103,7 @@
     "@lingui/react": "^4.14.1",
     "@mantine/core": "^8.3.11",
     "@mantine/hooks": "^8.3.11",
-    "@mattermost/react-native-paste-input": "mattermost/react-native-paste-input",
+    "@mattermost/react-native-paste-input": "0.8.1",
     "@miblanchard/react-native-slider": "^2.6.0",
     "@mozzius/expo-dynamic-app-icon": "^1.8.0",
     "@opentelemetry/api": "^1.9.1",
@@ -327,6 +327,10 @@
       "__tests__/.*/__mocks__",
       "__e2e__/.*"
     ],
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "<rootDir>/(aqua-[^/]+|drops)/"
+    ],
     "coveragePathIgnorePatterns": [
       "<rootDir>/node_modules/",
       "<rootDir>/src/platform",
@@ -380,8 +384,7 @@
     ],
     "allowedUrls": [
       "https://codeload.github.com/bluesky-social/react-native-bottom-sheet/tar.gz/28a87d1bb55e10fc355fa1455545a30734995908",
-      "https://codeload.github.com/bluesky-social/react-native-progress/tar.gz/5a372f4f2ce5feb26f4f47b6a4d187ab9b923ab4",
-      "https://codeload.github.com/mattermost/react-native-paste-input/tar.gz/f260447edc645a817ab1ba7b46d8341d84dba8e9"
+      "https://codeload.github.com/bluesky-social/react-native-progress/tar.gz/5a372f4f2ce5feb26f4f47b6a4d187ab9b923ab4"
     ],
     "emptyHostname": false,
     "validatePackageNames": true,
