@@ -232,7 +232,7 @@ describe('toNiceDomain', () => {
     'https://bsky.social',
     '#123123123',
   ]
-  const outputs = ['example.com', 'bsky.app', 'Bluesky Social', '#123123123']
+  const outputs = ['example.com', 'bsky.app', 'Aqua Social', '#123123123']
 
   it("displays the url's host in a easily readable manner", () => {
     for (let i = 0; i < inputs.length; i++) {

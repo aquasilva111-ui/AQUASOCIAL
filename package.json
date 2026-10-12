@@ -327,6 +327,10 @@
       "__tests__/.*/__mocks__",
       "__e2e__/.*"
     ],
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "<rootDir>/(aqua-[^/]+|drops)/"
+    ],
     "coveragePathIgnorePatterns": [
       "<rootDir>/node_modules/",
       "<rootDir>/src/platform",
