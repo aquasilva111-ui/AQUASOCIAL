@@ -69,8 +69,10 @@ module.exports = async function (env, argv) {
   if (env.mode === 'development') {
     config.plugins.push(new ReactRefreshWebpackPlugin())
   } else {
-    // Support static CDN for chunks
-    config.output.publicPath = 'auto'
+    // Chunks resolve from the site root. `auto` follows the document URL, so
+    // a direct load of /views/watch/:did/:rkey requests ./static/js and the
+    // SPA fallback returns HTML instead of the bundle.
+    config.output.publicPath = '/'
   }
 
   if (GENERATE_STATS || OPEN_ANALYZER) {

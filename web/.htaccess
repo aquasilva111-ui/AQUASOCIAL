@@ -9,7 +9,11 @@ RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
 
 # Missing build assets must remain 404s instead of returning HTML.
-RewriteRule ^static/ - [L]
+# This includes a relative static/ URL that a deep route resolved under
+# itself (/views/watch/.../static/js/...) and any asset-looking path.
+RewriteCond %{REQUEST_URI} /static/ [OR]
+RewriteCond %{REQUEST_URI} \.(?:js|mjs|css|map|json|png|jpe?g|gif|webp|avif|svg|ico|woff2?|ttf|txt|webmanifest|mp3|mp4)$ [NC]
+RewriteRule ^ - [L]
 
 # App routes, including profiles with dots in their handles, use the SPA.
 RewriteRule ^ index.html [L]

@@ -9,6 +9,8 @@ import {useWebMediaQueries} from '#/lib/hooks/useWebMediaQueries'
 import {getCurrentRoute, isTab} from '#/lib/routes/helpers'
 import {makeProfileLink} from '#/lib/routes/links'
 import {type CommonNavigatorParams} from '#/lib/routes/types'
+import {useViewsAuthLabels} from '#/lib/views/authLabels'
+import {isAquaViewsRoute} from '#/lib/views/routes'
 import {useUnreadMessageCount} from '#/state/queries/messages/list-conversations'
 import {useUnreadNotifications} from '#/state/queries/notifications/unread'
 import {useSession} from '#/state/session'
@@ -68,6 +70,10 @@ export function BottomBarWeb() {
     closeAllActiveElements()
     requestSwitchToAccount({requestedAccount: 'new'})
   }, [requestSwitchToAccount, closeAllActiveElements])
+
+  const routeName = useNavigationState(state => getCurrentRoute(state)?.name)
+  const onViews = isAquaViewsRoute(routeName)
+  const viewsLabels = useViewsAuthLabels()
 
   const dockSurface =
     t.scheme === 'dark' ? 'rgba(22, 24, 28, 0.78)' : 'rgba(255, 255, 255, 0.78)'
@@ -248,25 +254,41 @@ export function BottomBarWeb() {
               </View>
             </View>
 
-            <View style={[a.flex_row, a.flex_wrap, a.gap_sm]}>
+            <View style={[a.flex_row, a.align_center, a.flex_wrap, a.gap_sm]}>
+              {onViews && (
+                <Text
+                  style={[
+                    a.text_sm,
+                    t.atoms.text,
+                    {flexShrink: 1, maxWidth: 320},
+                  ]}>
+                  Entre no Aqua para curtir, comentar e se inscrever.
+                </Text>
+              )}
               <Button
                 onPress={showCreateAccount}
-                label={_(msg`Create account`)}
+                label={
+                  onViews ? viewsLabels.createAccount : _(msg`Create account`)
+                }
                 size="small"
                 variant="solid"
                 color="primary">
                 <ButtonText>
-                  <Trans>Create account</Trans>
+                  {onViews ? (
+                    viewsLabels.createAccount
+                  ) : (
+                    <Trans>Create account</Trans>
+                  )}
                 </ButtonText>
               </Button>
               <Button
                 onPress={showSignIn}
-                label={_(msg`Sign in`)}
+                label={onViews ? viewsLabels.signIn : _(msg`Sign in`)}
                 size="small"
                 variant="solid"
                 color="secondary">
                 <ButtonText>
-                  <Trans>Sign in</Trans>
+                  {onViews ? viewsLabels.signIn : <Trans>Sign in</Trans>}
                 </ButtonText>
               </Button>
             </View>

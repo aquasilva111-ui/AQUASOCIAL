@@ -16,6 +16,7 @@ import {type MediaGalleryProps} from './MediaGallery'
 export function MediaGallery({
   items,
   mode,
+  pending,
   onLoadMore,
   onItemSeen,
   scrollElRef,
@@ -51,11 +52,33 @@ export function MediaGallery({
     observer.observe(sentinel.current)
     return () => observer.disconnect()
   }, [items.length, onLoadMore])
+  const showSkeletons = !!pending && items.length === 0 && mode === 'video'
   return (
-    <div className={`aqua-media-gallery aqua-media-gallery-${mode}`}>
-      {items.map(item => (
-        <Tile key={item.uri} item={item} mode={mode} onSeen={onItemSeen} />
-      ))}
+    <div
+      className={`aqua-media-gallery aqua-media-gallery-${mode}`}
+      aria-busy={showSkeletons || undefined}>
+      {showSkeletons
+        ? Array.from({length: 8}, (_, index) => (
+            <div key={index} className="aqua-media-tile" aria-hidden="true">
+              <div className="aqua-skel aqua-skel-thumb" />
+              <div style={{display: 'flex', gap: 12, marginTop: 12}}>
+                <div className="aqua-skel aqua-skel-avatar" />
+                <div style={{flex: 1}}>
+                  <div
+                    className="aqua-skel aqua-skel-line"
+                    style={{width: '90%'}}
+                  />
+                  <div
+                    className="aqua-skel aqua-skel-line"
+                    style={{width: '55%'}}
+                  />
+                </div>
+              </div>
+            </div>
+          ))
+        : items.map(item => (
+            <Tile key={item.uri} item={item} mode={mode} onSeen={onItemSeen} />
+          ))}
       <div ref={sentinel} className="aqua-media-sentinel" />
     </div>
   )

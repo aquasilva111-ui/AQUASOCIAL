@@ -126,7 +126,7 @@ function SlideInner({
     if (!v || !near) return
     let cancelled = false
     let hls: {destroy: () => void} | undefined
-    loadHls.then(Hls => {
+    loadHls().then(Hls => {
       if (cancelled) return
       if (Hls.isSupported()) {
         const instance = new Hls({maxMaxBufferLength: 20})

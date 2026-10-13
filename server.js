@@ -42,9 +42,11 @@ const server = http.createServer((req, res) => {
     fs.stat(filePath, (err, stat) => {
       let finalPath = filePath
       if (err || stat.isDirectory()) {
-        // SPA fallback: extensionless paths get index.html, missing assets 404
-        if (path.extname(pathname)) {
-          res.writeHead(404)
+        // SPA fallback: extensionless routes get index.html. A missing
+        // /static/ asset, including one resolved under a deep route, is a
+        // plain 404 so the browser does not execute the SPA document.
+        if (pathname.includes('/static/') || path.extname(pathname)) {
+          res.writeHead(404, {'Content-Type': 'text/plain; charset=utf-8'})
           res.end('Not found')
           return
         }

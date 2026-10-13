@@ -72,7 +72,7 @@ export const ViewPlayer = forwardRef<ViewPlayerHandle, ViewPlayerProps>(
       if (!video) return
       let cancelled = false
       let hls: HlsInstance | undefined
-      loadHls.then(Hls => {
+      loadHls().then(Hls => {
         if (cancelled) return
         if (!Hls.isSupported()) {
           // Safari plays HLS natively.
@@ -267,9 +267,14 @@ export const ViewPlayer = forwardRef<ViewPlayerHandle, ViewPlayerProps>(
         role="region"
         style={{
           position: 'relative',
-          width: '100%',
+          width: fullscreen
+            ? '100%'
+            : 'min(100%, calc((100vh - 180px) * 16 / 9))',
+          maxHeight: fullscreen ? undefined : 'calc(100vh - 180px)',
           aspectRatio: fullscreen ? undefined : '16 / 9',
           height: fullscreen ? '100%' : undefined,
+          marginLeft: fullscreen ? undefined : 'auto',
+          marginRight: fullscreen ? undefined : 'auto',
           background: '#000',
           borderRadius: fullscreen || theater ? 0 : 20,
           overflow: 'hidden',
@@ -591,6 +596,8 @@ export const ViewPlayer = forwardRef<ViewPlayerHandle, ViewPlayerProps>(
                 fontSize: 13,
                 fontWeight: 600,
                 fontVariantNumeric: 'tabular-nums',
+                minWidth: 110,
+                flexShrink: 0,
               }}>
               {formatTime(time)} / {formatTime(duration)}
             </span>
@@ -755,8 +762,13 @@ function IconButton({
       style={{
         background: 'none',
         border: 'none',
-        padding: 4,
+        padding: 0,
+        width: 36,
+        height: 36,
         display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexShrink: 0,
         cursor: 'pointer',
       }}>
       <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
