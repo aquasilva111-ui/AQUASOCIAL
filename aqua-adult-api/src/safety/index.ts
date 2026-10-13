@@ -538,11 +538,12 @@ registerRoutes(ctx => {
       if (r.kind === 'age') {
         // Only the result: outcome, provider reference, when, until when.
         await tx.query(
-          `insert into adult_accounts (did, age_verified_at, age_verification_ref, age_verification_expires_at)
-           values ($1, $2, $3, $4)
+          `insert into adult_accounts (did, age_verified_at, age_verification_ref, age_verification_expires_at, age_gate_status)
+           values ($1, $2, $3, $4, 'verified')
            on conflict (did) do update set age_verified_at = excluded.age_verified_at,
              age_verification_ref = excluded.age_verification_ref,
-             age_verification_expires_at = excluded.age_verification_expires_at`,
+             age_verification_expires_at = excluded.age_verification_expires_at,
+             age_gate_status = 'verified'`,
           [r.did, r.verifiedAt, r.reference, r.expiresAt ?? null],
         )
       } else {
@@ -550,6 +551,12 @@ registerRoutes(ctx => {
           `update creator_applications set identity_verified_at = $2, identity_verification_ref = $3, updated_at = now()
             where did = $1 and status in ('IDENTITY_PENDING', 'AGE_PENDING')`,
           [r.did, r.verifiedAt, r.reference],
+        )
+        await tx.query(
+          `insert into adult_accounts (did, identity_verification_status)
+           values ($1, 'verified')
+           on conflict (did) do update set identity_verification_status = 'verified'`,
+          [r.did],
         )
       }
       await advanceApplication(tx, r.did)

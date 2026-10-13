@@ -11,7 +11,7 @@ import {
   type NativeStackScreenProps,
 } from '#/lib/routes/types'
 import {logger} from '#/logger'
-import {isIOS} from '#/platform/detection'
+import {isNative, isWeb} from '#/platform/detection'
 import {useIsBirthdateUpdateAllowed} from '#/state/birthdate'
 import {
   useMyLabelersQuery,
@@ -182,8 +182,10 @@ export function ModerationScreenInner({
     (optimisticAdultContent && optimisticAdultContent.enabled) ||
     (!optimisticAdultContent && preferences.moderationPrefs.adultContentEnabled)
   )
-  const adultContentUIDisabledOnIOS = isIOS && !adultContentEnabled
-  let adultContentUIDisabled = adultContentUIDisabledOnIOS
+  // Native store builds keep the opt-in hidden until it was already enabled
+  // on the web. Turning it off stays available.
+  const adultContentUIDisabledOnNative = isNative && !adultContentEnabled
+  let adultContentUIDisabled = adultContentUIDisabledOnNative
 
   if (aa.flags.adultContentDisabled) {
     adultContentEnabled = false
@@ -388,7 +390,7 @@ export function ModerationScreenInner({
                   </View>
                 </Toggle.Item>
               </View>
-              {adultContentUIDisabledOnIOS && (
+              {adultContentUIDisabledOnNative && (
                 <View style={[a.pb_lg, a.px_lg]}>
                   <Text>
                     <Trans>
@@ -421,6 +423,19 @@ export function ModerationScreenInner({
                   />
                   <Divider />
                   <GlobalLabelPreference labelDefinition={LABELS.nudity} />
+                </>
+              )}
+              {isWeb && (
+                <>
+                  <Divider />
+                  <Link
+                    to="/adult"
+                    label="Abrir o Aqua +18"
+                    style={[a.px_lg, a.py_md]}>
+                    <Text style={[a.font_semi_bold, {color: '#E86A00'}]}>
+                      Abrir o Aqua +18
+                    </Text>
+                  </Link>
                 </>
               )}
             </>

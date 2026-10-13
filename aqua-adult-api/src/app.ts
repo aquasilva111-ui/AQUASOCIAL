@@ -70,6 +70,9 @@ const RATE_LIMITS: [string, number, number][] = [
   ['POST /reports', 60, HOUR],
   ['GET /studios/search', 120, MIN],
   ['POST /me/adult/self-declaration', 30, HOUR],
+  ['POST /portal/publish', 30, HOUR],
+  ['POST /portal/reports', 60, HOUR],
+  ['GET /portal/web', 120, MIN],
   ['POST /creator/applications', 20, HOUR],
   ['POST /dashboard/creator/payout-requests', 30, HOUR],
   ['* /admin/*', 600, MIN],
@@ -221,9 +224,10 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
     devOnly()
     const did = await user(req)
     await db.query(
-      `insert into adult_accounts (did, age_verified_at, age_verification_ref)
-       values ($1, now(), 'dev-simulated')
-       on conflict (did) do update set age_verified_at = now(), age_verification_ref = 'dev-simulated'`,
+      `insert into adult_accounts (did, age_verified_at, age_verification_ref, age_gate_status)
+       values ($1, now(), 'dev-simulated', 'verified')
+       on conflict (did) do update set age_verified_at = now(), age_verification_ref = 'dev-simulated',
+         age_gate_status = 'verified'`,
       [did],
     )
     return {verified: true}
@@ -274,10 +278,15 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
       })
       .parse(req.body)
     await db.query(
-      `insert into adult_accounts (did, self_declared_at, self_declaration_policy_version)
-       values ($1, now(), $2)
+      `insert into adult_accounts (did, self_declared_at, self_declaration_policy_version, age_gate_status)
+       values ($1, now(), $2, 'self_declared')
        on conflict (did) do update
-         set self_declared_at = now(), self_declaration_policy_version = excluded.self_declaration_policy_version`,
+         set self_declared_at = now(),
+             self_declaration_policy_version = excluded.self_declaration_policy_version,
+             age_gate_status = case
+               when adult_accounts.age_verified_at is not null then 'verified'
+               else 'self_declared'
+             end`,
       [did, body.policyVersion],
     )
     await audit(db, {

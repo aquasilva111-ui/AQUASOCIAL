@@ -82,6 +82,7 @@ import {
   AdultLiveStreamScreen,
   AdultMessagesScreen,
   AdultPostScreen,
+  AdultPublishScreen,
   AdultReadScreen,
   AdultReadsScreen,
   AdultSettingsScreen,
@@ -92,6 +93,7 @@ import {
   AdultVideoScreen,
   AdultViewsScreen,
   AdultVisionboardScreen,
+  AdultWebScreen,
 } from '#/screens/Adult'
 import {BookmarksScreen} from '#/screens/Bookmarks'
 import {
@@ -182,6 +184,7 @@ import {
   StarterPackScreenShort,
 } from '#/screens/StarterPack/StarterPackScreen'
 import {Wizard} from '#/screens/StarterPack/Wizard'
+import {StoryCreatorScreen} from '#/screens/Stories/StoryCreatorScreen'
 import TopicScreen from '#/screens/Topic'
 import {UIAIScreen} from '#/screens/UIAI'
 import {VideoFeed} from '#/screens/VideoFeed'
@@ -200,7 +203,6 @@ import {
 } from '#/screens/ViewLibrary/ListsScreen'
 import {ViewLiveScreen} from '#/screens/ViewLibrary/LiveScreen'
 import {ViewMyVideosScreen} from '#/screens/ViewLibrary/MyVideosScreen'
-import {StoryCreatorScreen} from '#/screens/Stories/StoryCreatorScreen'
 import {ViewPaidScreen} from '#/screens/ViewLibrary/PaidScreen'
 import {ViewSubscriptionsScreen} from '#/screens/ViewLibrary/SubscriptionsScreen'
 import {ViewWatchLaterScreen} from '#/screens/ViewLibrary/WatchLaterScreen'
@@ -920,6 +922,16 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
         name="AdultHome"
         component={AdultHomeScreen}
         options={{title: 'AQUA +18', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="AdultWeb"
+        component={AdultWebScreen}
+        options={{title: 'Aqua +18 · Web', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="AdultPublish"
+        component={AdultPublishScreen}
+        options={{title: 'Aqua +18 · Publicar', requireAuth: true}}
       />
       <Stack.Screen
         name="AdultFeed"

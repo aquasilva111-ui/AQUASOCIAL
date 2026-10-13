@@ -13,6 +13,10 @@ import {
   useInfiniteQuery,
 } from '@tanstack/react-query'
 
+import {
+  postMayEnterSocialFeed,
+  readHideAdultFromMain,
+} from '#/lib/moderation/adultContent'
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {useAgent} from '#/state/session'
 import {
@@ -39,12 +43,14 @@ export function useSearchPostsQuery({
 }) {
   const agent = useAgent()
   const moderationOpts = useModerationOpts()
+  const hideFromMain = readHideAdultFromMain()
   const selectArgs = React.useMemo(
     () => ({
       isSearchingSpecificUser: /from:(\w+)/.test(query),
       moderationOpts,
+      hideFromMain,
     }),
-    [query, moderationOpts],
+    [query, moderationOpts, hideFromMain],
   )
   const lastRun = React.useRef<{
     data: InfiniteData<AppBskyFeedSearchPosts.OutputSchema>
@@ -74,15 +80,31 @@ export function useSearchPostsQuery({
     enabled: enabled ?? !!moderationOpts,
     select: React.useCallback(
       (data: InfiniteData<AppBskyFeedSearchPosts.OutputSchema>) => {
-        const {moderationOpts, isSearchingSpecificUser} = selectArgs
+        const {
+          moderationOpts,
+          isSearchingSpecificUser,
+          hideFromMain: hideAdultFromMain,
+        } = selectArgs
 
         /*
          * If a user applies the `from:<user>` filter, don't apply any
-         * moderation. Note that if we add any more filtering logic below, we
-         * may need to adjust this.
+         * moderation. Adult posts are still kept out unless the viewer opted
+         * in and turned off "Ocultar do Aqua principal".
          */
+        const adultOpts = {
+          adultContentEnabled: !!moderationOpts?.prefs.adultContentEnabled,
+          hideFromMain: hideAdultFromMain,
+        }
         if (isSearchingSpecificUser) {
-          return data
+          return {
+            ...data,
+            pages: data.pages.map(page => ({
+              ...page,
+              posts: page.posts.filter(post =>
+                postMayEnterSocialFeed(post, adultOpts),
+              ),
+            })),
+          }
         }
 
         // Keep track of the last run and whether we can reuse
@@ -125,7 +147,10 @@ export function useSearchPostsQuery({
                 ...page,
                 posts: page.posts.filter(post => {
                   const mod = moderatePost(post, moderationOpts!)
-                  return !mod.ui('contentList').filter
+                  return (
+                    !mod.ui('contentList').filter &&
+                    postMayEnterSocialFeed(post, adultOpts)
+                  )
                 }),
               }
             }),

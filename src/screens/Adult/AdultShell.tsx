@@ -59,45 +59,48 @@ export function AdultShell({
 
   return (
     <Layout.Screen testID={testID}>
-      <Layout.Header.Outer>
-        <Layout.Header.BackButton />
-        <Layout.Header.Content>
-          <Layout.Header.TitleText>{title}</Layout.Header.TitleText>
-        </Layout.Header.Content>
-        <Layout.Header.Slot />
-      </Layout.Header.Outer>
-      <View
-        style={[
-          a.flex_row,
-          a.align_center,
-          a.justify_between,
-          a.px_md,
-          a.py_sm,
-          a.border_b,
-          t.atoms.border_contrast_low,
-        ]}>
-        <View style={[a.flex_row, a.align_center, a.gap_xs]}>
-          <View
-            style={[
-              a.rounded_full,
-              {width: 10, height: 10, backgroundColor: '#ff8a1f'},
-            ]}
-          />
-          <Text style={[a.text_sm, a.font_semi_bold, {color: CONTEXT_ACCENT}]}>
-            Ambiente +18
-          </Text>
+      <AdultGate ctx={ctx}>
+        <Layout.Header.Outer>
+          <Layout.Header.BackButton />
+          <Layout.Header.Content>
+            <Layout.Header.TitleText>{title}</Layout.Header.TitleText>
+          </Layout.Header.Content>
+          <Layout.Header.Slot />
+        </Layout.Header.Outer>
+        <View
+          style={[
+            a.flex_row,
+            a.align_center,
+            a.justify_between,
+            a.px_md,
+            a.py_sm,
+            a.border_b,
+            t.atoms.border_contrast_low,
+          ]}>
+          <View style={[a.flex_row, a.align_center, a.gap_xs]}>
+            <View
+              style={[
+                a.rounded_full,
+                {width: 10, height: 10, backgroundColor: '#ff8a1f'},
+              ]}
+            />
+            <Text
+              style={[a.text_sm, a.font_semi_bold, {color: CONTEXT_ACCENT}]}>
+              Ambiente +18
+            </Text>
+          </View>
+          <Button
+            label="Sair do +18"
+            size="small"
+            variant="ghost"
+            color="secondary"
+            onPress={exitAdult}>
+            <ButtonIcon icon={LeaveIcon} />
+            <ButtonText>Sair do +18</ButtonText>
+          </Button>
         </View>
-        <Button
-          label="Sair do +18"
-          size="small"
-          variant="ghost"
-          color="secondary"
-          onPress={exitAdult}>
-          <ButtonIcon icon={LeaveIcon} />
-          <ButtonText>Sair do +18</ButtonText>
-        </Button>
-      </View>
-      <AdultGate ctx={ctx}>{children}</AdultGate>
+        {children}
+      </AdultGate>
     </Layout.Screen>
   )
 }

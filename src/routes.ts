@@ -65,6 +65,8 @@ export const router = new Router<AllNavigatableRoutes>({
   WikiHome: '/wiki',
   // AQUA +18 (gated adult environment)
   AdultHome: '/adult',
+  AdultWeb: '/adult/web',
+  AdultPublish: '/adult/publish',
   AdultFeed: '/adult/feed',
   AdultCreators: '/adult/creators',
   // before AdultCreator: the router takes the first matching pattern

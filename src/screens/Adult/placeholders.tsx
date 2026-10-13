@@ -25,9 +25,3 @@ function AdultPlaceholder({title, testID}: {title: string; testID: string}) {
 export function AdultMessagesScreen() {
   return <AdultPlaceholder title="Mensagens +18" testID="adultMessagesScreen" />
 }
-
-export function AdultSettingsScreen() {
-  return (
-    <AdultPlaceholder title="Configurações +18" testID="adultSettingsScreen" />
-  )
-}
