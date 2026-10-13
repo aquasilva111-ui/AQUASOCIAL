@@ -109,6 +109,7 @@ import {DocEditorScreen, DocsHomeScreen} from '#/screens/Docs'
 import {DropsScreen} from '#/screens/Drops'
 import {SharedPreferencesTesterScreen} from '#/screens/E2E/SharedPreferencesTesterScreen'
 import HashtagScreen from '#/screens/Hashtag'
+import {IUChatScreen} from '#/screens/IUChat'
 import {LaunchHubScreen} from '#/screens/LaunchHub'
 import {LaunchDetailScreen} from '#/screens/LaunchHub/LaunchDetail'
 import {NewLaunchScreen} from '#/screens/LaunchHub/NewLaunch'
@@ -182,6 +183,7 @@ import {
   StarterPackScreenShort,
 } from '#/screens/StarterPack/StarterPackScreen'
 import {Wizard} from '#/screens/StarterPack/Wizard'
+import {StoryCreatorScreen} from '#/screens/Stories/StoryCreatorScreen'
 import TopicScreen from '#/screens/Topic'
 import {UIAIScreen} from '#/screens/UIAI'
 import {VideoFeed} from '#/screens/VideoFeed'
@@ -200,7 +202,6 @@ import {
 } from '#/screens/ViewLibrary/ListsScreen'
 import {ViewLiveScreen} from '#/screens/ViewLibrary/LiveScreen'
 import {ViewMyVideosScreen} from '#/screens/ViewLibrary/MyVideosScreen'
-import {StoryCreatorScreen} from '#/screens/Stories/StoryCreatorScreen'
 import {ViewPaidScreen} from '#/screens/ViewLibrary/PaidScreen'
 import {ViewSubscriptionsScreen} from '#/screens/ViewLibrary/SubscriptionsScreen'
 import {ViewWatchLaterScreen} from '#/screens/ViewLibrary/WatchLaterScreen'
@@ -895,6 +896,11 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
         name="CreativeHubTab"
         component={CreativeHubScreen}
         options={{title: 'Creative Hub', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="IUChat"
+        component={IUChatScreen}
+        options={{title: 'IU Chat'}}
       />
       <Stack.Screen
         name="UIAI"

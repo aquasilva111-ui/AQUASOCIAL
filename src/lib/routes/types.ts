@@ -124,6 +124,7 @@ export type CommonNavigatorParams = {
   LaunchDetail: {id: string}
   CreativeHub: undefined
   CreativeHubTab: {tab: string}
+  IUChat: undefined
   UIAI: undefined
   DocsHome: undefined
   DocEditor: {id: string}

@@ -72,11 +72,12 @@ const FULL_PAGE_ROUTES = [
   'CreativeHub',
   'CreativeHubTab',
   'UIAI',
+  'IUChat',
   'NewsAtlas',
 ]
 
 /** Full-page experiences that also hide the bottom dock (it would cover them). */
-const ROUTES_WITHOUT_DOCK = ['UIAI']
+const ROUTES_WITHOUT_DOCK = ['UIAI', 'IUChat']
 
 type NativeStackNavigationOptionsWithAuth = NativeStackNavigationOptions & {
   requireAuth?: boolean

@@ -57,6 +57,7 @@ export const router = new Router<AllNavigatableRoutes>({
   LaunchDetail: '/launch/view/:id',
   CreativeHub: '/creative-hub',
   CreativeHubTab: '/creative-hub/:tab',
+  IUChat: '/iu-chat',
   UIAI: '/ui-ai',
   // AQUA DOCS (block documents)
   DocsHome: '/docs',

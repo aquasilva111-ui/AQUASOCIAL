@@ -2,6 +2,8 @@ const http = require('http')
 const fs = require('fs')
 const path = require('path')
 
+const {handleIuChatProbe, PROBE_PATH} = require('./src/lib/iu-chat/embed')
+
 const PORT = process.env.PORT || 3000
 const ROOT = path.join(__dirname, 'web-build')
 
@@ -30,6 +32,24 @@ const server = http.createServer((req, res) => {
   try {
     const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`)
     let pathname = decodeURIComponent(url.pathname)
+    if (pathname === PROBE_PATH) {
+      handleIuChatProbe(req, res).catch(() => {
+        if (!res.headersSent) {
+          res.writeHead(200, {
+            'Content-Type': 'application/json; charset=utf-8',
+          })
+          res.end(
+            JSON.stringify({
+              reachable: false,
+              frameable: false,
+              sameSite: false,
+              url: '',
+            }),
+          )
+        }
+      })
+      return
+    }
     if (pathname === '/') pathname = '/index.html'
 
     const filePath = path.normalize(path.join(ROOT, pathname))
