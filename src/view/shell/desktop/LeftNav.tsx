@@ -806,7 +806,7 @@ export function DesktopLeftNav({embedded = false}: {embedded?: boolean} = {}) {
                 style={pal.text}
               />
             }
-            label="+18 Content"
+            label="Aqua +18"
           />
           <NavItem
             href="/settings"

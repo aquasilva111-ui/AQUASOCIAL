@@ -129,6 +129,8 @@ export type CommonNavigatorParams = {
   DocEditor: {id: string}
   WikiHome: undefined
   AdultHome: undefined
+  AdultWeb: undefined
+  AdultPublish: undefined
   AdultFeed: undefined
   AdultCreators: undefined
   AdultCreator: {name: string}

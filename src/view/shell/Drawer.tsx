@@ -13,7 +13,7 @@ import {getTabState, TabState} from '#/lib/routes/helpers'
 import {type NavigationProp} from '#/lib/routes/types'
 import {sanitizeHandle} from '#/lib/strings/handles'
 import {colors} from '#/lib/styles'
-import {isWeb} from '#/platform/detection'
+import {isNative, isWeb} from '#/platform/detection'
 import {emitSoftReset} from '#/state/events'
 import {useKawaiiMode} from '#/state/preferences/kawaii'
 import {useProfileQuery} from '#/state/queries/profile'
@@ -381,14 +381,16 @@ let DrawerContent = ({}: React.PropsWithoutRef<{}>): React.ReactNode => {
               label="Wallet"
               onPress={() => {}}
             />
-            <MenuItem
-              icon={<AquaLogo width={iconWidth} style={t.atoms.text} />}
-              label="+18 Content"
-              onPress={() => {
-                navigation.navigate('AdultHome')
-                setDrawerOpen(false)
-              }}
-            />
+            {!isNative && (
+              <MenuItem
+                icon={<AquaLogo width={iconWidth} style={t.atoms.text} />}
+                label="Aqua +18"
+                onPress={() => {
+                  navigation.navigate('AdultHome')
+                  setDrawerOpen(false)
+                }}
+              />
+            )}
             <MenuItem
               icon={<PlusIcon width={iconWidth} style={t.atoms.text} />}
               label="Creative Hub"

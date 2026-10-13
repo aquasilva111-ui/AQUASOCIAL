@@ -30,6 +30,10 @@ import {type FeedAPI, type ReasonFeedSource} from '#/lib/api/feed/types'
 import {aggregateUserInterests} from '#/lib/api/feed/utils'
 import {FeedTuner, type FeedTunerFn} from '#/lib/api/feed-manip'
 import {DISCOVER_FEED_URI} from '#/lib/constants'
+import {
+  postMayEnterSocialFeed,
+  readHideAdultFromMain,
+} from '#/lib/moderation/adultContent'
 import {logger} from '#/logger'
 import {STALE} from '#/state/queries'
 import {DEFAULT_LOGGED_OUT_PREFERENCES} from '#/state/queries/preferences/const'
@@ -164,14 +168,22 @@ export function usePostFeedQuery(
   const fetchLimit = MIN_POSTS
 
   // Make sure this doesn't invalidate unless really needed.
+  const hideFromMain = readHideAdultFromMain()
   const selectArgs = React.useMemo(
     () => ({
       feedTuners,
       moderationOpts,
       ignoreFilterFor: opts?.ignoreFilterFor,
       isDiscover,
+      hideFromMain,
     }),
-    [feedTuners, moderationOpts, opts?.ignoreFilterFor, isDiscover],
+    [
+      feedTuners,
+      moderationOpts,
+      opts?.ignoreFilterFor,
+      isDiscover,
+      hideFromMain,
+    ],
   )
 
   const query = useInfiniteQuery<
@@ -237,8 +249,13 @@ export function usePostFeedQuery(
       (data: InfiniteData<FeedPageUnselected, RQPageParam>) => {
         // If the selection depends on some data, that data should
         // be included in the selectArgs object and read here.
-        const {feedTuners, moderationOpts, ignoreFilterFor, isDiscover} =
-          selectArgs
+        const {
+          feedTuners,
+          moderationOpts,
+          ignoreFilterFor,
+          isDiscover,
+          hideFromMain: hideAdultFromMain,
+        } = selectArgs
 
         const tuner = new FeedTuner(feedTuners)
 
@@ -303,7 +320,12 @@ export function usePostFeedQuery(
                     }
                     if (
                       !ignoreFilter &&
-                      moderations[i]?.ui('contentList').filter
+                      (moderations[i]?.ui('contentList').filter ||
+                        !postMayEnterSocialFeed(slice.items[i].post, {
+                          adultContentEnabled:
+                            !!moderationOpts?.prefs.adultContentEnabled,
+                          hideFromMain: hideAdultFromMain,
+                        }))
                     ) {
                       return undefined
                     }
@@ -605,7 +627,13 @@ function assertSomePostsPassModeration(
       prefs: moderationPrefs,
     })
 
-    if (!moderation.ui('contentList').filter) {
+    if (
+      !moderation.ui('contentList').filter &&
+      postMayEnterSocialFeed(item.post, {
+        adultContentEnabled: !!moderationPrefs.adultContentEnabled,
+        hideFromMain: readHideAdultFromMain(),
+      })
+    ) {
       // we have a sfw post
       somePostsPassModeration = true
     }

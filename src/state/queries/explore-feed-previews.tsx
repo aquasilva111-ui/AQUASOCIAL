@@ -16,6 +16,10 @@ import {
 import {CustomFeedAPI} from '#/lib/api/feed/custom'
 import {aggregateUserInterests} from '#/lib/api/feed/utils'
 import {FeedTuner} from '#/lib/api/feed-manip'
+import {
+  postMayEnterSocialFeed,
+  readHideAdultFromMain,
+} from '#/lib/moderation/adultContent'
 import {cleanError} from '#/lib/strings/errors'
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {
@@ -211,8 +215,13 @@ export function useFeedPreviews(
               )
 
               // apply moderation filters
-              item.items = item.items.filter((_, i) => {
-                return !moderations[i]?.ui('contentList').filter
+              item.items = item.items.filter((sliceItem, i) => {
+                if (moderations[i]?.ui('contentList').filter) return false
+                return postMayEnterSocialFeed(sliceItem.post, {
+                  adultContentEnabled:
+                    !!moderationOpts?.prefs.adultContentEnabled,
+                  hideFromMain: readHideAdultFromMain(),
+                })
               })
 
               const slice = {

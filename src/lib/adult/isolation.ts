@@ -33,6 +33,10 @@ export const ADULT_DATA_DOMAINS = {
   'adult.liveHistory': 'adult_private',
   'adult.creatorTools': 'adult_creator',
   'adult.catalog': 'adult_public',
+  'adult.preferences': 'adult_private',
+  'adult.externalIndex': 'adult_public',
+  'adult.consent': 'adult_private',
+  'adult.reports': 'adult_private',
 } as const satisfies Record<string, DataClassification>
 
 export type AdultDataDomain = keyof typeof ADULT_DATA_DOMAINS
