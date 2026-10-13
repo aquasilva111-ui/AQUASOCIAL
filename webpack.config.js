@@ -6,6 +6,7 @@ const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin'
 const {BundleAnalyzerPlugin} = require('webpack-bundle-analyzer')
 const {sentryWebpackPlugin} = require('@sentry/webpack-plugin')
 const {version} = require('./package.json')
+const {handleIuChatProbe, PROBE_PATH} = require('./src/lib/iu-chat/embed')
 
 const GENERATE_STATS = process.env.EXPO_PUBLIC_GENERATE_STATS === '1'
 const OPEN_ANALYZER = process.env.EXPO_PUBLIC_OPEN_ANALYZER === '1'
@@ -68,6 +69,39 @@ module.exports = async function (env, argv) {
   config.plugins.push(tiptapV3Resolution)
   if (env.mode === 'development') {
     config.plugins.push(new ReactRefreshWebpackPlugin())
+    const previousSetup = config.devServer?.setupMiddlewares
+    config.devServer ??= {}
+    config.devServer.setupMiddlewares = (middlewares, devServer) => {
+      const next = previousSetup
+        ? previousSetup(middlewares, devServer)
+        : middlewares
+      next.unshift({
+        name: 'iu-chat-probe',
+        middleware: (req, res, nxt) => {
+          const pathname = (req.url || '').split('?')[0]
+          if (pathname !== PROBE_PATH) {
+            nxt()
+            return
+          }
+          handleIuChatProbe(req, res).catch(() => {
+            if (!res.headersSent) {
+              res.writeHead(200, {
+                'Content-Type': 'application/json; charset=utf-8',
+              })
+              res.end(
+                JSON.stringify({
+                  reachable: false,
+                  frameable: false,
+                  sameSite: false,
+                  url: '',
+                }),
+              )
+            }
+          })
+        },
+      })
+      return next
+    }
   } else {
     // Support static CDN for chunks
     config.output.publicPath = 'auto'

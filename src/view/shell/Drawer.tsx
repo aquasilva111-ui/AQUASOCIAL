@@ -32,6 +32,7 @@ import {
   HomeOpen_Stoke2_Corner0_Rounded as Home,
 } from '#/components/icons/HomeOpen'
 import {Image_Stroke2_Corner0_Rounded as ImagesIcon} from '#/components/icons/Image'
+import {IUChatIcon} from '#/components/icons/IUChat'
 import {LiveVideo_Stroke2_Corner0_Rounded as VideosIcon} from '#/components/icons/LiveVideo'
 import {MagnifyingGlass_Filled_Stroke2_Corner0_Rounded as MagnifyingGlassFilled} from '#/components/icons/MagnifyingGlass'
 import {MagnifyingGlass2_Stroke2_Corner0_Rounded as MagnifyingGlass} from '#/components/icons/MagnifyingGlass2'
@@ -252,6 +253,14 @@ let DrawerContent = ({}: React.PropsWithoutRef<{}>): React.ReactNode => {
           <Divider style={[a.mt_xl, a.mb_sm]} />
         </View>
 
+        <MenuItem
+          icon={<IUChatIcon size={iconWidth} />}
+          label="IU Chat"
+          onPress={() => {
+            navigation.navigate('IUChat')
+            setDrawerOpen(false)
+          }}
+        />
         <MenuItem
           icon={
             <Image

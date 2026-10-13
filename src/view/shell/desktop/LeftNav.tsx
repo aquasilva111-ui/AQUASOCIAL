@@ -36,6 +36,7 @@ import {ArrowBoxLeft_Stroke2_Corner0_Rounded as LeaveIcon} from '#/components/ic
 import {CirclePlus_Stroke2_Corner0_Rounded as CirclePlusIcon} from '#/components/icons/CirclePlus'
 import {DotGrid_Stroke2_Corner0_Rounded as EllipsisIcon} from '#/components/icons/DotGrid'
 import {Globe_Stroke2_Corner0_Rounded as GlobeIcon} from '#/components/icons/Globe'
+import {IUChatIcon} from '#/components/icons/IUChat'
 import {PlusLarge_Stroke2_Corner0_Rounded as PlusIcon} from '#/components/icons/Plus'
 import {Reads_Filled_Corner2_Rounded as Book} from '#/components/icons/Reads'
 import {
@@ -598,6 +599,12 @@ export function DesktopLeftNav({embedded = false}: {embedded?: boolean} = {}) {
         </View>
       ) : null}
 
+      <NavItem
+        href="/iu-chat"
+        icon={<IUChatIcon size={NAV_ICON_WIDTH} />}
+        iconFilled={<IUChatIcon size={NAV_ICON_WIDTH} />}
+        label="IU Chat"
+      />
       <NavItem
         href="/ui-ai"
         icon={
