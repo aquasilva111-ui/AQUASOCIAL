@@ -1,4 +1,5 @@
 import {getAdapter} from '#/lib/launch-hub/adapters'
+import {prepareAssist} from '#/lib/launch-hub/assist'
 import {
   FIELD_LABELS,
   getLaunchType,
@@ -72,6 +73,12 @@ export function validateDestination({
     ])
   }
   const provider = getProvider(profile.provider)
+  if (profile.mode === 'assistido') {
+    return summarize([
+      ...validateLaunchContent(type, content),
+      ...validateAssisted(content, destination, profile),
+    ])
+  }
   const adapter = getAdapter(profile.provider)
   if (!adapter.isConfigured()) {
     return summarize([
@@ -93,4 +100,38 @@ export function validateDestination({
     ...validateLaunchContent(type, content),
     ...adapter.validateContent({type, content, destination, profile}),
   ])
+}
+
+/** Assisted networks: warn (never block) about what the person will need to do. */
+export function validateAssisted(
+  content: ContentPackage,
+  destination: Pick<LaunchDestination, 'customCaption' | 'customTitle'>,
+  profile: Pick<ManagedProfile, 'provider'>,
+): ValidationIssue[] {
+  const prep = prepareAssist(
+    {contentPackage: content},
+    {provider: profile.provider, ...destination},
+    // a link back to the Aqua post exists once it goes out
+    {aquaUrl: 'https://aqua.invalid/p', instance: 'example.org'},
+  )
+  const {def, adapted} = prep
+  const issues: ValidationIssue[] = []
+  const warn = (message: string) => issues.push({level: 'warning', message})
+  if (adapted.truncated)
+    warn(
+      `Texto cortado para caber no limite de ${adapted.limit} caracteres do ${def.name}. Ajuste o texto deste destino se preferir.`,
+    )
+  if (adapted.droppedHashtags.length)
+    warn(
+      `Sem espaço para ${adapted.droppedHashtags.map(t => '#' + t).join(' ')}.`,
+    )
+  if (def.capabilities.mediaRequired && !content.media.length)
+    warn(`${def.name} pede uma imagem ou vídeo.`)
+  if (content.media.length && def.assist?.mediaByShareSheet)
+    warn(
+      'A mídia não vai pelo link: no celular use "Compartilhar mídia"; no computador, anexe na própria rede.',
+    )
+  if (content.media.some(m => m.kind === 'video') && !def.capabilities.video)
+    warn(`${def.name} não aceita vídeo.`)
+  return issues
 }

@@ -2,6 +2,7 @@ import {useMemo} from 'react'
 import {useQuery} from '@tanstack/react-query'
 
 import {integrationBackend} from '#/lib/launch-hub/backend'
+import {DESTINATIONS, effectiveMode} from '#/lib/launch-hub/destinations'
 import {
   type ConnectedAccount,
   type ManagedProfile,
@@ -75,6 +76,25 @@ export function useManagedProfiles(): {
           type: types[p.key] ?? p.type,
         })),
       )
+    }
+
+    // modo assistido: every network without a usable integration can still
+    // be picked; it opens that network's own composer, no account needed.
+    const configured = integrationBackend.isConfigured()
+    for (const def of DESTINATIONS) {
+      if (effectiveMode(def, configured) !== 'assistido') continue
+      if (profiles.some(p => p.provider === def.id)) continue
+      profiles.push({
+        key: `assistido:${def.id}`,
+        provider: def.id,
+        connectedAccountId: 'assistido',
+        externalProfileId: def.id,
+        displayName: def.name,
+        type: 'personal',
+        status: 'connected',
+        permissions: [],
+        mode: 'assistido',
+      })
     }
 
     return {accounts, profiles, isLoading}
