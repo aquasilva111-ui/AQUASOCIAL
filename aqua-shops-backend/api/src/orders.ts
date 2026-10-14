@@ -10,7 +10,7 @@ import type { OrderItem, OrderStore, StoredOrder } from './store.ts';
 export class OrderError extends Error {
   constructor(
     message: string,
-    readonly status: 400 | 404 | 409 | 422 | 502,
+    readonly status: 400 | 404 | 409 | 422 | 502 | 503,
   ) {
     super(message);
     this.name = 'OrderError';

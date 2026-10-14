@@ -4,6 +4,7 @@ import type { ProductQuery, SortOrder } from '../../../aqua-shops/shared/types/i
 import type { Catalog } from './catalog.ts';
 import { OrderError, type OrdersService } from './orders.ts';
 import type { PaymentProvider } from './payments.ts';
+import { ecosystemRoutes, type EcosystemOptions } from './ecosystem/routes.ts';
 
 const SORTS: SortOrder[] = ['new', 'price_asc', 'price_desc'];
 
@@ -13,6 +14,7 @@ export interface AppOptions {
   orders?: OrdersService;
   /** Provedores de pagamento; cada um recebe seus webhooks em /webhooks/<nome>. */
   providers?: PaymentProvider[];
+  ecosystem?: EcosystemOptions;
 }
 
 export function createApp(catalog: Catalog, options: AppOptions = {}) {
@@ -21,6 +23,7 @@ export function createApp(catalog: Catalog, options: AppOptions = {}) {
   if (corsOrigins.length) app.use('*', cors({ origin: corsOrigins }));
 
   app.get('/health', c => c.json({ ok: true }));
+  app.route('/ecosystem', ecosystemRoutes(options.ecosystem));
 
   app.get('/products', async c => {
     const q = c.req.query();
