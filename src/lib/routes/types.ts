@@ -125,6 +125,11 @@ export type CommonNavigatorParams = {
   CreativeHub: undefined
   CreativeHubTab: {tab: string}
   UIAI: undefined
+  // AQUA WALLET
+  Wallet: undefined
+  WalletReceive: undefined
+  WalletSend: undefined
+  WalletTransactions: undefined
   DocsHome: undefined
   DocEditor: {id: string}
   WikiHome: undefined
