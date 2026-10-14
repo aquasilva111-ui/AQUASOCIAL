@@ -21,6 +21,8 @@ const MIME = {
   '.ico': 'image/x-icon',
   '.woff': 'font/woff',
   '.woff2': 'font/woff2',
+  '.ttf': 'font/ttf',
+  '.otf': 'font/otf',
   '.mp3': 'audio/mpeg',
   '.webmanifest': 'application/manifest+json',
   '.txt': 'text/plain; charset=utf-8',
@@ -43,8 +45,10 @@ const server = http.createServer((req, res) => {
     fs.stat(filePath, (err, stat) => {
       let finalPath = filePath
       if (err || stat.isDirectory()) {
-        // SPA fallback: extensionless paths get index.html, missing assets 404
-        if (path.extname(pathname)) {
+        // Handles/topics can contain dots. Only recognized assets and static
+        // paths must stay 404; other app routes receive the SPA document.
+        const extension = path.extname(pathname).toLowerCase()
+        if (pathname.startsWith('/static/') || MIME[extension]) {
           res.writeHead(404)
           res.end('Not found')
           return
