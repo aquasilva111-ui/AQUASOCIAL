@@ -58,6 +58,11 @@ export const router = new Router<AllNavigatableRoutes>({
   CreativeHub: '/creative-hub',
   CreativeHubTab: '/creative-hub/:tab',
   UIAI: '/ui-ai',
+  // AQUA WALLET (Fase 2)
+  Wallet: '/wallet',
+  WalletReceive: '/wallet/receive',
+  WalletSend: '/wallet/send',
+  WalletTransactions: '/wallet/transactions',
   // AQUA DOCS (block documents)
   DocsHome: '/docs',
   DocEditor: '/docs/:id',
