@@ -9,6 +9,7 @@ import MelodyLab from './MelodyLab'
 import { useTonePlayer } from '../music/tone-player'
 import PianoRoll from '../music/PianoRoll'
 import Multitrack from '../music/Multitrack'
+import Mixer from '../music/Mixer'
 import { songToMidi, midiToSong } from '../music/midi'
 
 const COLORS = ['#ff5a8a', '#ffb703', '#2ee6a6', '#4cc9f0', '#b388ff', '#ff8a4c']
@@ -144,6 +145,9 @@ export default function MusicPanel({ itemId }: { itemId: string }) {
           setClipboard={setClipboard}
         />
       ) : null}
+      {song.tracks.length > 0 && (
+        <Mixer song={song} session={session} selectedTrackId={track?.id} />
+      )}
     </div>
   )
 }

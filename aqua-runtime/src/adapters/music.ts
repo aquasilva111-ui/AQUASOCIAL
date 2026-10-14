@@ -30,14 +30,38 @@ export interface AudioClip {
   fadeOut: number
 }
 
+/** Serializable effect. Never store Tone.js objects. */
+export interface AudioEffect {
+  id: string
+  type: 'eq' | 'compressor' | 'reverb' | 'delay' | 'chorus' | 'distortion' | 'filter' | 'limiter'
+  enabled: boolean
+  params: Record<string, number>
+}
+
+export interface TrackMixerState {
+  volumeDb: number
+  pan: number
+  muted: boolean
+  solo: boolean
+  effects: AudioEffect[]
+}
+
+export interface MasterBus {
+  volumeDb: number
+  effects: AudioEffect[]
+}
+
 export interface Track {
   id: string
   name: string
   instrument: 'synth' | 'pluck' | 'membrane' | 'sampler'
   volumeDb: number
+  /** -1 left .. 1 right */
+  pan: number
   muted: boolean
   /** When any track is soloed, only soloed tracks are heard. */
   solo?: boolean
+  effects?: AudioEffect[]
   notes: Note[]
   /** Optional audio clips (for vocal / imported audio tracks). */
   audioClips?: AudioClip[]
@@ -50,6 +74,7 @@ export interface Song {
   beatsPerBar: number
   bars: number
   tracks: Track[]
+  master?: MasterBus
 }
 
 export type MusicSession = JsonSession<Song> & {
@@ -82,7 +107,7 @@ export function musicAdapter(opts: MusicAdapterOptions = {}): ToolAdapter {
     }) as MusicSession
     s.addTrack = (name, instrument = 'synth') => {
       const id = `trk_${Math.random().toString(36).slice(2, 8)}`
-      s.update((d) => void d.tracks.push({ id, name, instrument, volumeDb: 0, muted: false, notes: [] }))
+      s.update((d) => void d.tracks.push({ id, name, instrument, volumeDb: 0, pan: 0, muted: false, notes: [] }))
       return id
     }
     s.addNote = (trackId, n) =>
