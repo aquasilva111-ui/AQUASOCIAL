@@ -8,6 +8,7 @@ import { IconButton } from './Icon'
 import MelodyLab from './MelodyLab'
 import { useTonePlayer } from '../music/tone-player'
 import PianoRoll from '../music/PianoRoll'
+import { songToMidi, midiToSong } from '../music/midi'
 
 const COLORS = ['#ff5a8a', '#ffb703', '#2ee6a6', '#4cc9f0', '#b388ff', '#ff8a4c']
 
@@ -67,6 +68,28 @@ export default function MusicPanel({ itemId }: { itemId: string }) {
           const out = await runtime.exportForLaunch(itemId, 'audio')
           if (out) download(out.bytes, 'musica.wav', out.mime)
         }}>Baixar WAV</button>
+        <button onClick={() => {
+          const bytes = songToMidi(song)
+          download(bytes, 'musica.mid', 'audio/midi')
+        }}>Exportar MIDI</button>
+        <label className="pill" style={{ cursor: 'pointer' }}>
+          Importar MIDI
+          <input type="file" accept=".mid,.midi" style={{ display: 'none' }} onChange={async (e) => {
+            const file = e.target.files?.[0]
+            if (!file) return
+            const buf = await file.arrayBuffer()
+            const imported = midiToSong(buf, file.name.replace(/\.mid(i)?$/i, ''))
+            session.update((d) => {
+              d.title = imported.title
+              d.bpm = imported.bpm
+              d.beatsPerBar = imported.beatsPerBar
+              d.bars = imported.bars
+              d.tracks = imported.tracks
+            })
+            setSelected(new Set())
+            e.target.value = ''
+          }} />
+        </label>
       </div>
       {url && <div style={{ padding: '10px 16px 0' }}><audio controls src={url} style={{ width: '100%' }} /></div>}
 

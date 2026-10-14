@@ -19,6 +19,7 @@
     "@huggingface/transformers": "^4.3.0",
     "@mantine/core": "^8.3.18",
     "@mantine/hooks": "^8.3.18",
+    "@tonejs/midi": "^2.0.28",
     "@univerjs/preset-sheets-core": "*",
     "@univerjs/presets": "*",
     "aqua-design-core": "file:../aqua-design-core",

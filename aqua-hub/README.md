@@ -12,7 +12,7 @@ cd aqua-hub && npm install && npm run dev      # http://localhost:5192
 | Design | prancheta Fabric (texto, retângulo, elipse, cores do kit AQUA), desfazer/refazer, PNG |
 | Apresentação | mesma prancheta por slide, notas, **Apresentar** (reveal.js), **Baixar PPTX** |
 | Gráfico | dados em texto, barras/linha/pizza (ECharts), PNG |
-| Música | piano roll: clicar/arrastar cria e estica notas, arrastar move (tempo e altura), borda direita redimensiona, teclado toca a nota, régua posiciona o cursor, grade 1/4–1/32, intensidade; mixer por faixa (volume, M, S); **playback via Tone.js + Piano Roll avançado (seleção múltipla, box select, copy/paste/duplicar, quantize, velocity lane)**; pré-escuta com cursor; WAV |
+| Música | piano roll: clicar/arrastar cria e estica notas, arrastar move (tempo e altura), borda direita redimensiona, teclado toca a nota, régua posiciona o cursor, grade 1/4–1/32, intensidade; mixer por faixa (volume, M, S); **playback via Tone.js + Piano Roll avançado + **MIDI import/export** (via @tonejs/midi) + Web MIDI input hook**; pré-escuta com cursor; WAV |
 | Mixagem | multitrack: faixas com volume/pan/M/S/master, clipes com onda, arrastar (inclusive entre faixas), cortar pelas bordas, dividir, ganho e fades; pré-escuta e WAV estéreo |
 | Áudio | (um arquivo) onda, seleção por arrasto, trechos mantidos, ganho e fades, WAV (importa WAV/MP3/M4A) |
 | Vídeo | timeline com cursor, pré-visualização e reprodução; arrastar bordas (cortar) e clipes (reordenar); dividir (S); fade, brilho/contraste/saturação; textos; trilha de música; render no servidor `aqua-render` |
