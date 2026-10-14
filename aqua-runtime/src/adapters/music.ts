@@ -17,6 +17,19 @@ export interface Note {
   velocity: number
 }
 
+/** Audio clip on a music track (references AQUA Asset by hash). Times in seconds. */
+export interface AudioClip {
+  id: string
+  asset: string
+  name?: string
+  start: number
+  duration: number
+  offset: number
+  gainDb: number
+  fadeIn: number
+  fadeOut: number
+}
+
 export interface Track {
   id: string
   name: string
@@ -26,6 +39,9 @@ export interface Track {
   /** When any track is soloed, only soloed tracks are heard. */
   solo?: boolean
   notes: Note[]
+  /** Optional audio clips (for vocal / imported audio tracks). */
+  audioClips?: AudioClip[]
+  type?: 'midi' | 'audio' | 'instrument'
 }
 
 export interface Song {

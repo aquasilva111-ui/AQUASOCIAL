@@ -8,6 +8,7 @@ import { IconButton } from './Icon'
 import MelodyLab from './MelodyLab'
 import { useTonePlayer } from '../music/tone-player'
 import PianoRoll from '../music/PianoRoll'
+import Multitrack from '../music/Multitrack'
 import { songToMidi, midiToSong } from '../music/midi'
 
 const COLORS = ['#ff5a8a', '#ffb703', '#2ee6a6', '#4cc9f0', '#b388ff', '#ff8a4c']
@@ -119,6 +120,14 @@ export default function MusicPanel({ itemId }: { itemId: string }) {
         <IconButton variant="pill" icon="plus" text="Adicionar faixa" label="Adicionar faixa" onClick={() => { setTrackId(session.addTrack(`Faixa ${song.tracks.length + 1}`)); setSelected(new Set()) }} />
       </div>
 
+      {song.tracks.length > 0 && (
+        <Multitrack
+          song={song}
+          session={session}
+          selectedTrackId={track?.id}
+          onSelectTrack={(id) => { setTrackId(id); setSelected(new Set()) }}
+        />
+      )}
       {!song.tracks.length ? (
         <div className="empty-hint">Adicione uma faixa para começar.</div>
       ) : track ? (
