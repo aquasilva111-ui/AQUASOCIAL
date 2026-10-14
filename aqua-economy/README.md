@@ -5,7 +5,7 @@ Domínio econômico central do AQUA.
 A UI **nunca** chama blockchain ou RPC diretamente. Tudo passa por:
 
 ```
-UI → WalletService / Economic Domain → EconomicNetworkAdapter → Mock616 / Real616
+UI → WalletService → EconomicNetworkAdapter → Mock616 / Real616
 ```
 
 ## O que esta fase entrega
@@ -13,8 +13,9 @@ UI → WalletService / Economic Domain → EconomicNetworkAdapter → Mock616 / 
 - Modelos: `EconomicIdentity`, `WalletAccount`, `Balance`, `Transaction`
 - Contrato `EconomicNetworkAdapter`
 - `Mock616Adapter` determinístico (contas, saldos, transferências, pending → confirmed, idempotency, network offline, saldo insuficiente)
+- `WalletService` (orquestração de alto nível: overview, prepare/submit send, receive info)
 - `MockSigner` (sem private key real)
-- Testes cobrindo os critérios de sucesso da Fase 1
+- Testes cobrindo os critérios de sucesso da Fase 1 + WalletService
 
 ## Como rodar
 
@@ -31,6 +32,7 @@ npm run typecheck
 - AQUA continua funcionando se a 616 estiver offline.
 - Retry com a mesma `idempotencyKey` não duplica transferência.
 - 616 é a moeda nativa no mock (sem tokenomics definida ainda).
+- A UI deve pedir confirmação explícita antes de chamar `submitSend`.
 
 ## Próximas fases
 
