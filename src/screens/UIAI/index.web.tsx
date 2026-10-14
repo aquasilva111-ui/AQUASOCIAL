@@ -2,6 +2,7 @@ import {useState} from 'react'
 import {View} from 'react-native'
 
 import {DesktopLeftNav} from '#/view/shell/desktop/LeftNav'
+import {WorkspacesScreen} from '#/screens/Ecosystem/Directory'
 import {atoms as a, useLayoutBreakpoints, useTheme} from '#/alf'
 import {LEFT_NAV_WIDTH} from '#/components/Layout/const'
 
@@ -43,7 +44,7 @@ const CSS = `
  * Sem a coluna da direita e sem a barra de baixo do Aqua. O menu da esquerda
  * mora dentro do olho do Aqua: clicando no olho ele nasce do centro dele e
  * empurra a U.I. para o lado (nunca fica por cima); clicando de novo, volta.
- * A página /ui-ai/ (web/ui-ai, repositório I.U-A.I) decide o que mostrar.
+ * O workspace compartilha a identidade AT; a consola local legada continua em /ui-ai/index.html.
  */
 export function UIAIScreen() {
   const t = useTheme()
@@ -82,17 +83,9 @@ export function UIAIScreen() {
           </span>
         </button>
       </div>
-      <iframe
-        src="/ui-ai/"
-        title="Unidade de Inteligência"
-        style={{
-          flex: 1,
-          minWidth: 0,
-          height: '100vh',
-          border: 'none',
-          display: 'block',
-        }}
-      />
+      <View style={[a.flex_1, {minWidth: 0}]}>
+        <WorkspacesScreen />
+      </View>
     </View>
   )
 }
