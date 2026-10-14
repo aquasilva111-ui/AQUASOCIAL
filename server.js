@@ -31,6 +31,7 @@ const server = http.createServer((req, res) => {
     const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`)
     let pathname = decodeURIComponent(url.pathname)
     if (pathname === '/') pathname = '/index.html'
+    if (pathname === '/ui-ai/') pathname = '/ui-ai/index.html'
 
     const filePath = path.normalize(path.join(ROOT, pathname))
     if (!filePath.startsWith(ROOT)) {

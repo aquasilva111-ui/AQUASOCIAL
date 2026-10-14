@@ -71,6 +71,15 @@ module.exports = async function (env, argv) {
   } else {
     // Support static CDN for chunks
     config.output.publicPath = 'auto'
+    // The SPA is hosted at the Hostinger site root. Entry assets must be
+    // root-relative so /profile/name and /verification/request do not request
+    // /profile/static/... or /verification/static/... after a direct load.
+    // Keep runtime chunk discovery automatic for the existing CDN templates.
+    for (const plugin of config.plugins) {
+      if (plugin.constructor.name === 'HtmlWebpackPlugin') {
+        plugin.userOptions.publicPath = '/'
+      }
+    }
   }
 
   if (GENERATE_STATS || OPEN_ANALYZER) {

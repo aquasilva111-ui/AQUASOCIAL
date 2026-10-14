@@ -3,6 +3,9 @@ RewriteEngine On
 # Old Aqua Views URLs (/videos/...) now live under /views/.
 RewriteRule ^videos(/.*)?$ /views$1 [R=301,L]
 
+# UI & AI is now an app route; /ui-ai/ and /ui-ai/index.html retain the local console.
+RewriteRule ^ui-ai$ index.html [L]
+
 # Serve existing static files and directories normally.
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
