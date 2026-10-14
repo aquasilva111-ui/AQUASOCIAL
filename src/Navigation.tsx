@@ -895,6 +895,103 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
         options={{title: 'Creative Hub', requireAuth: true}}
       />
       <Stack.Screen
+        name="Creators"
+        getComponent={() => require('#/screens/Ecosystem').CreatorsScreen}
+        options={{title: 'Creators', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="Communities"
+        getComponent={() => require('#/screens/Ecosystem').CommunitiesScreen}
+        options={{title: 'Communities', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="CommunityDetail"
+        getComponent={() =>
+          require('#/screens/Ecosystem').CommunityDetailScreen
+        }
+        options={{title: 'CommunityDetail', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="Portals"
+        getComponent={() => require('#/screens/Ecosystem').PortalsScreen}
+        options={{title: 'Portals', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="PortalDetail"
+        getComponent={() => require('#/screens/Ecosystem').PortalDetailScreen}
+        options={{title: 'PortalDetail', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="Charts"
+        getComponent={() => require('#/screens/Ecosystem').ChartsScreen}
+        options={{title: 'Charts', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="Apps"
+        getComponent={() => require('#/screens/Ecosystem').AppsScreen}
+        options={{title: 'Apps', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="AppDetail"
+        getComponent={() => require('#/screens/Ecosystem').AppDetailScreen}
+        options={{title: 'AppDetail', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="Broadcast"
+        getComponent={() => require('#/screens/Ecosystem').BroadcastScreen}
+        options={{title: 'Broadcast', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="BroadcastDetail"
+        getComponent={() =>
+          require('#/screens/Ecosystem').BroadcastDetailScreen
+        }
+        options={{title: 'BroadcastDetail', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="Wallet"
+        getComponent={() => require('#/screens/Ecosystem').WalletScreen}
+        options={{title: 'Wallet', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="Analytics"
+        getComponent={() => require('#/screens/Ecosystem').AnalyticsScreen}
+        options={{title: 'Analytics', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="VerificationRequest"
+        getComponent={() =>
+          require('#/screens/Ecosystem').VerificationRequestScreen
+        }
+        options={{title: 'VerificationRequest', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="VerificationReview"
+        getComponent={() =>
+          require('#/screens/Ecosystem').VerificationReviewScreen
+        }
+        options={{title: 'VerificationReview', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="Workspaces"
+        getComponent={() => require('#/screens/Ecosystem').WorkspacesScreen}
+        options={{title: 'Workspaces', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="WorkspaceDetail"
+        getComponent={() =>
+          require('#/screens/Ecosystem').WorkspaceDetailScreen
+        }
+        options={{title: 'WorkspaceDetail', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="EcosystemExplore"
+        getComponent={() =>
+          require('#/screens/Ecosystem').EcosystemExploreScreen
+        }
+        options={{title: 'EcosystemExplore', requireAuth: true}}
+      />
+      <Stack.Screen
         name="UIAI"
         component={UIAIScreen}
         options={{title: 'IU & AI'}}

@@ -171,6 +171,16 @@ export function SettingsScreen({}: Props) {
             <AddAccountRow />
           )}
           <SettingsList.Divider />
+          <SettingsList.LinkItem
+            to="/verification/request"
+            label="Solicitar verificação">
+            <SettingsList.ItemIcon icon={PersonIcon} />
+            <SettingsList.ItemText>Solicitar verificação</SettingsList.ItemText>
+          </SettingsList.LinkItem>
+          <SettingsList.LinkItem to="/explore/ecosystem" label="Explorar AQUA">
+            <SettingsList.ItemIcon icon={PersonGroupIcon} />
+            <SettingsList.ItemText>Explorar AQUA</SettingsList.ItemText>
+          </SettingsList.LinkItem>
           <SettingsList.LinkItem to="/settings/account" label={_(msg`Account`)}>
             <SettingsList.ItemIcon icon={PersonIcon} />
             <SettingsList.ItemText>

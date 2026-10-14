@@ -59,7 +59,6 @@ import {PlatformInfo} from '../../../../modules/expo-bluesky-swiss-army'
 import {router} from '../../../routes'
 
 const NAV_ICON_WIDTH = 28
-const newsConventionsIcon = require('../../../../assets/icons/news-conventions.png')
 const portalsIcon = require('../../../../assets/icons/portals.png')
 const shopIcon = require('../../../../assets/icons/shop.png')
 const uiAiIcon = require('../../../../assets/icons/ui-ai.png')
@@ -668,7 +667,7 @@ export function DesktopLeftNav({embedded = false}: {embedded?: boolean} = {}) {
             width={NAV_ICON_WIDTH}
           />
         }
-        label="Streams"
+        label="View"
       />
       {hasSession && (
         <>
@@ -706,7 +705,7 @@ export function DesktopLeftNav({embedded = false}: {embedded?: boolean} = {}) {
                 style={pal.text}
               />
             }
-            label="Notícias"
+            label="News & Conventions"
           />
           <PlaceholderNavItem
             icon={
@@ -722,8 +721,16 @@ export function DesktopLeftNav({embedded = false}: {embedded?: boolean} = {}) {
             }
             label="Shop"
           />
-          <PlaceholderNavItem
+          <NavItem
+            href="/charts"
             icon={
+              <ChartsIcon
+                aria-hidden={true}
+                width={NAV_ICON_WIDTH}
+                style={pal.text}
+              />
+            }
+            iconFilled={
               <ChartsIcon
                 aria-hidden={true}
                 width={NAV_ICON_WIDTH}
@@ -732,11 +739,13 @@ export function DesktopLeftNav({embedded = false}: {embedded?: boolean} = {}) {
             }
             label="Charts"
           />
-          <PlaceholderNavItem
+
+          <NavItem
+            href="/portals"
             icon={
               <Image
                 accessibilityIgnoresInvertColors
-                source={newsConventionsIcon}
+                source={portalsIcon}
                 style={{
                   width: NAV_ICON_WIDTH,
                   height: NAV_ICON_WIDTH,
@@ -744,10 +753,7 @@ export function DesktopLeftNav({embedded = false}: {embedded?: boolean} = {}) {
                 }}
               />
             }
-            label="News & Conventions"
-          />
-          <PlaceholderNavItem
-            icon={
+            iconFilled={
               <Image
                 accessibilityIgnoresInvertColors
                 source={portalsIcon}
@@ -760,8 +766,16 @@ export function DesktopLeftNav({embedded = false}: {embedded?: boolean} = {}) {
             }
             label="Portals"
           />
-          <PlaceholderNavItem
+          <NavItem
+            href="/communities"
             icon={
+              <UserCircle
+                aria-hidden={true}
+                width={NAV_ICON_WIDTH}
+                style={pal.text}
+              />
+            }
+            iconFilled={
               <UserCircle
                 aria-hidden={true}
                 width={NAV_ICON_WIDTH}
@@ -780,8 +794,16 @@ export function DesktopLeftNav({embedded = false}: {embedded?: boolean} = {}) {
             }
             label="Fund"
           />
-          <PlaceholderNavItem
+          <NavItem
+            href="/wallet"
             icon={
+              <TicketIcon
+                aria-hidden={true}
+                width={NAV_ICON_WIDTH}
+                style={pal.text}
+              />
+            }
+            iconFilled={
               <TicketIcon
                 aria-hidden={true}
                 width={NAV_ICON_WIDTH}
@@ -827,6 +849,96 @@ export function DesktopLeftNav({embedded = false}: {embedded?: boolean} = {}) {
             label={_(msg`Settings`)}
           />
 
+          <NavItem
+            href="/creators"
+            icon={
+              <UserCircle
+                aria-hidden={true}
+                width={NAV_ICON_WIDTH}
+                style={pal.text}
+              />
+            }
+            iconFilled={
+              <UserCircle
+                aria-hidden={true}
+                width={NAV_ICON_WIDTH}
+                style={pal.text}
+              />
+            }
+            label="Creators"
+          />
+          <NavItem
+            href="/apps"
+            icon={
+              <UserCircle
+                aria-hidden={true}
+                width={NAV_ICON_WIDTH}
+                style={pal.text}
+              />
+            }
+            iconFilled={
+              <UserCircle
+                aria-hidden={true}
+                width={NAV_ICON_WIDTH}
+                style={pal.text}
+              />
+            }
+            label="Games & Apps"
+          />
+          <NavItem
+            href="/broadcast"
+            icon={
+              <UserCircle
+                aria-hidden={true}
+                width={NAV_ICON_WIDTH}
+                style={pal.text}
+              />
+            }
+            iconFilled={
+              <UserCircle
+                aria-hidden={true}
+                width={NAV_ICON_WIDTH}
+                style={pal.text}
+              />
+            }
+            label="Broadcast"
+          />
+          <NavItem
+            href="/music"
+            icon={
+              <UserCircle
+                aria-hidden={true}
+                width={NAV_ICON_WIDTH}
+                style={pal.text}
+              />
+            }
+            iconFilled={
+              <UserCircle
+                aria-hidden={true}
+                width={NAV_ICON_WIDTH}
+                style={pal.text}
+              />
+            }
+            label="Music"
+          />
+          <NavItem
+            href="/analytics"
+            icon={
+              <UserCircle
+                aria-hidden={true}
+                width={NAV_ICON_WIDTH}
+                style={pal.text}
+              />
+            }
+            iconFilled={
+              <UserCircle
+                aria-hidden={true}
+                width={NAV_ICON_WIDTH}
+                style={pal.text}
+              />
+            }
+            label="Analytics"
+          />
           <HubButtons />
         </>
       )}

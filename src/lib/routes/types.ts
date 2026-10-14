@@ -125,6 +125,23 @@ export type CommonNavigatorParams = {
   CreativeHub: undefined
   CreativeHubTab: {tab: string}
   UIAI: undefined
+  Workspaces: undefined
+  WorkspaceDetail: {id: string}
+  Creators: undefined
+  Communities: undefined
+  CommunityDetail: {id: string}
+  Portals: undefined
+  PortalDetail: {id: string}
+  Charts: {chart?: string} | undefined
+  Apps: undefined
+  AppDetail: {creator: string; slug: string}
+  Broadcast: undefined
+  BroadcastDetail: {id: string}
+  Wallet: undefined
+  Analytics: undefined
+  VerificationRequest: undefined
+  VerificationReview: undefined
+  EcosystemExplore: undefined
   DocsHome: undefined
   DocEditor: {id: string}
   WikiHome: undefined
