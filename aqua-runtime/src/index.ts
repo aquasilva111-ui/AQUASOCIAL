@@ -1,6 +1,8 @@
 export * from './types'
 export * from './runtime'
 export * from './transport'
+export { WebRTCTransport } from './webrtc-transport'
+export { publishToAqua, type PublishPayload } from './publish'
 export { designAdapter, type DesignAdapterOptions, type DesignSession } from './adapters/design'
 export { docsAdapter, docSession, DOCS_FRAGMENT } from './adapters/docs'
 export { jsonSession, type JsonSession } from './adapters/json'
