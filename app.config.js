@@ -17,12 +17,10 @@ module.exports = function (_config) {
   const IS_PRODUCTION = process.env.EXPO_PUBLIC_ENV === 'production'
   const IS_DEV = !IS_TESTFLIGHT || !IS_PRODUCTION
 
+  // TODO: replace with real AQUA domains once available
   const ASSOCIATED_DOMAINS = [
-    'applinks:bsky.app',
-    'applinks:staging.bsky.app',
-    'appclips:bsky.app',
-    'appclips:go.bsky.app', // Allows App Clip to work when scanning QR codes
-    // When testing local services, enter an ngrok (et al) domain here. It must use a standard HTTP/HTTPS port.
+    // 'applinks:aqua.app',
+    // 'applinks:staging.aqua.app',
     ...(IS_DEV || IS_TESTFLIGHT ? [] : []),
   ]
 
@@ -34,9 +32,9 @@ module.exports = function (_config) {
     expo: {
       version: VERSION,
       name: 'Aqua',
-      slug: 'bluesky',
-      scheme: 'bluesky',
-      owner: 'blueskysocial',
+      slug: 'aqua',
+      scheme: 'aqua',
+      owner: 'aquasilva111-ui',
       runtimeVersion: {
         policy: 'appVersion',
       },
@@ -46,7 +44,7 @@ module.exports = function (_config) {
       newArchEnabled: false,
       ios: {
         supportsTablet: false,
-        bundleIdentifier: 'xyz.blueskyweb.app',
+        bundleIdentifier: 'app.aqua.social',
         config: {
           usesNonExemptEncryption: false,
         },
@@ -64,7 +62,7 @@ module.exports = function (_config) {
             'Used to save images to your library.',
           NSPhotoLibraryUsageDescription:
             'Used for profile pictures, posts, and other kinds of content',
-          CFBundleSpokenName: 'Blue Sky',
+          CFBundleSpokenName: 'Aqua',
           CFBundleLocalizations: [
             'en',
             'an',
@@ -113,7 +111,7 @@ module.exports = function (_config) {
         entitlements: {
           'com.apple.developer.kernel.increased-memory-limit': true,
           'com.apple.developer.kernel.extended-virtual-addressing': true,
-          'com.apple.security.application-groups': 'group.app.bsky',
+          'com.apple.security.application-groups': 'group.app.aqua',
         },
         privacyManifests: {
           NSPrivacyCollectedDataTypes: [
@@ -179,10 +177,10 @@ module.exports = function (_config) {
         adaptiveIcon: {
           foregroundImage: './assets/icon-android-foreground.png',
           monochromeImage: './assets/icon-android-monochrome.png',
-          backgroundColor: '#006AFF',
+          backgroundColor: '#002bef',
         },
         googleServicesFile: './google-services.json',
-        package: 'xyz.blueskyweb.app',
+        package: 'app.aqua.social',
         intentFilters: [
           {
             action: 'VIEW',
@@ -190,7 +188,7 @@ module.exports = function (_config) {
             data: [
               {
                 scheme: 'https',
-                host: 'bsky.app',
+                host: 'aqua.app',
               },
               IS_DEV && {
                 scheme: 'http',
@@ -205,18 +203,12 @@ module.exports = function (_config) {
         favicon: './assets/favicon.png',
       },
       updates: {
-        url: 'https://updates.bsky.app/manifest',
-        enabled: UPDATES_ENABLED,
+        // TODO: set your own Expo updates URL when you have one
+        // url: 'https://u.expo.dev/your-project-id',
+        enabled: false, // disabled until AQUA has its own update server
         fallbackToCacheTimeout: 30000,
-        codeSigningCertificate: UPDATES_ENABLED
-          ? './code-signing/certificate.pem'
-          : undefined,
-        codeSigningMetadata: UPDATES_ENABLED
-          ? {
-              keyid: 'main',
-              alg: 'rsa-v1_5-sha256',
-            }
-          : undefined,
+        codeSigningCertificate: undefined,
+        codeSigningMetadata: undefined,
         checkAutomatically: 'NEVER',
       },
       plugins: [
@@ -230,8 +222,8 @@ module.exports = function (_config) {
         USE_SENTRY && [
           '@sentry/react-native/expo',
           {
-            organization: 'blueskyweb',
-            project: 'app',
+            organization: 'aquasilva111-ui',
+            project: 'aqua',
             url: 'https://sentry.io',
           },
         ],
@@ -253,7 +245,7 @@ module.exports = function (_config) {
           'expo-notifications',
           {
             icon: './assets/icon-android-notification.png',
-            color: '#1185fe',
+            color: '#002bef',
             sounds: PLATFORM === 'ios' ? ['assets/dm.aiff'] : ['assets/dm.mp3'],
           },
         ],
@@ -322,7 +314,7 @@ module.exports = function (_config) {
               },
             },
             android: {
-              backgroundColor: '#0c7cff',
+              backgroundColor: '#002bef',
               image: './assets/splash-android-icon.png',
               imageWidth: 150,
               dark: {
@@ -351,7 +343,7 @@ module.exports = function (_config) {
             },
 
             /**
-             * Bluesky+ core set
+             * AQUA core set (previously Bluesky+)
              */
             core_aurora: {
               ios: './assets/app-icons/ios_icon_core_aurora.png',
@@ -410,26 +402,26 @@ module.exports = function (_config) {
               ios: {
                 appExtensions: [
                   {
-                    targetName: 'Share-with-Bluesky',
-                    bundleIdentifier: 'xyz.blueskyweb.app.Share-with-Bluesky',
+                    targetName: 'Share-with-Aqua',
+                    bundleIdentifier: 'app.aqua.social.Share-with-Aqua',
                     entitlements: {
                       'com.apple.security.application-groups': [
-                        'group.app.bsky',
+                        'group.app.aqua',
                       ],
                     },
                   },
                   {
-                    targetName: 'BlueskyNSE',
-                    bundleIdentifier: 'xyz.blueskyweb.app.BlueskyNSE',
+                    targetName: 'AquaNSE',
+                    bundleIdentifier: 'app.aqua.social.AquaNSE',
                     entitlements: {
                       'com.apple.security.application-groups': [
-                        'group.app.bsky',
+                        'group.app.aqua',
                       ],
                     },
                   },
                   {
-                    targetName: 'BlueskyClip',
-                    bundleIdentifier: 'xyz.blueskyweb.app.AppClip',
+                    targetName: 'AquaClip',
+                    bundleIdentifier: 'app.aqua.social.AppClip',
                   },
                 ],
               },
