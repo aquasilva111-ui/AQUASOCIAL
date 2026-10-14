@@ -1,5 +1,5 @@
 import * as React from 'react'
-import {View} from 'react-native'
+import {Pressable, View} from 'react-native'
 // Based on @react-navigation/native-stack/src/navigators/createNativeStackNavigator.ts
 // MIT License
 // Copyright (c) 2017 React Navigation Contributors
@@ -39,11 +39,15 @@ import {Deactivated} from '#/screens/Deactivated'
 import {Onboarding} from '#/screens/Onboarding'
 import {SignupQueued} from '#/screens/SignupQueued'
 import {Takendown} from '#/screens/Takendown'
+import {WriteNavEye} from '#/screens/Write/WriteNavEye'
 import {atoms as a, useLayoutBreakpoints} from '#/alf'
 import {PolicyUpdateOverlay} from '#/components/PolicyUpdateOverlay'
 import {BottomBarWeb} from './bottom-bar/BottomBarWeb'
 import {DesktopLeftNav} from './desktop/LeftNav'
 import {DesktopRightNav} from './desktop/RightNav'
+
+/** Write keeps the right column and hides the left one until the eye is pressed. */
+const WRITE_ROUTES = new Set(['Books', 'WriteRead', 'WriteCompose'])
 
 /** Pages that bring their own header and navigation instead of the side navs. */
 const FULL_PAGE_ROUTES = [
@@ -146,6 +150,21 @@ function NativeStackNavigator({
   const {setShowLoggedOut} = useLoggedOutViewControls()
   const {isMobile} = useWebMediaQueries()
   const {leftNavMinimal} = useLayoutBreakpoints()
+  const isWriteRoute = WRITE_ROUTES.has(activeRoute.name)
+  const [writeNavOpen, setWriteNavOpen] = React.useState(false)
+  const wasWriteRoute = React.useRef(false)
+  React.useEffect(() => {
+    if (isWriteRoute !== wasWriteRoute.current) setWriteNavOpen(false)
+    wasWriteRoute.current = isWriteRoute
+  }, [isWriteRoute])
+  React.useEffect(() => {
+    if (!isWeb || !isWriteRoute || !writeNavOpen) return
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setWriteNavOpen(false)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [isWriteRoute, writeNavOpen])
   if (!hasSession && (!PWI_ENABLED || activeRouteRequiresAuth || isNative)) {
     return <LoggedOut />
   }
@@ -183,7 +202,7 @@ function NativeStackNavigator({
   // Bottom dock is always visible (mobile + desktop). Left nav stays on
   // tablet/desktop for Feeds, Lists, Saved, and Settings.
   const showBottomBar = hasSession || leftNavMinimal
-  const showLeftNav = !isMobile
+  const showLeftNav = !isMobile && (!isWriteRoute || writeNavOpen)
   // Full-page experiences with their own header/navigation.
   const hasOwnChrome = FULL_PAGE_ROUTES.includes(activeRoute.name)
 
@@ -200,7 +219,23 @@ function NativeStackNavigator({
       </View>
       {isWeb && (
         <>
-          {showLeftNav && !hasOwnChrome && <DesktopLeftNav />}
+          {isWriteRoute && writeNavOpen && !isMobile && (
+            <Pressable
+              accessibilityLabel="Close menu"
+              accessibilityHint=""
+              onPress={() => setWriteNavOpen(false)}
+              style={[a.fixed, a.inset_0, a.z_10]}
+            />
+          )}
+          {showLeftNav && !hasOwnChrome && (
+            <DesktopLeftNav overlay={isWriteRoute && writeNavOpen} />
+          )}
+          {isWriteRoute && !isMobile && (
+            <WriteNavEye
+              open={writeNavOpen}
+              onPress={() => setWriteNavOpen(open => !open)}
+            />
+          )}
           {showBottomBar && !ROUTES_WITHOUT_DOCK.includes(activeRoute.name) && (
             <BottomBarWeb />
           )}
