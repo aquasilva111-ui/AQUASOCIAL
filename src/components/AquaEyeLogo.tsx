@@ -64,7 +64,7 @@ export function AquaEyeLogo({
           cx={550}
           cy={500}
           rx={205}
-          fill="#00A0FF"
+          fill="#7EC8F5"
           animatedProps={iris}
         />
         <AnimatedEllipse

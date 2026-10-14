@@ -5,7 +5,7 @@ import {type Props, useCommonSVGProps} from '#/components/icons/common'
 
 /**
  * Aqua eye mark, option A (Clássico), from aqua-olho.svg.
- * Circles are centered: outer #002BEF, sclera #FFFFFF, iris #009EFF, pupil #000000.
+ * Circles are centered: outer #002BEF, sclera #FFFFFF, iris #7EC8F5, pupil #000000.
  * `fill` and `gradient` stay on the props API so existing callers typecheck;
  * the mark keeps these brand colors.
  */
@@ -30,7 +30,7 @@ export const AquaLogo = React.forwardRef<Svg, Props>(
         style={[style]}>
         <Circle cx={550} cy={550} r={510} fill="#002BEF" />
         <Circle cx={550} cy={550} r={320} fill="#FFFFFF" />
-        <Circle cx={550} cy={550} r={205} fill="#009EFF" />
+        <Circle cx={550} cy={550} r={205} fill="#7EC8F5" />
         <Circle cx={550} cy={550} r={96} fill="#000000" />
       </Svg>
     )

@@ -13,7 +13,7 @@ export interface BrandKit {
 
 export const AQUA_BRAND_KIT: BrandKit = {
   name: 'AQUA',
-  colors: [AQUA.blue, AQUA.sky, AQUA.orange, AQUA.ink, AQUA.muted, AQUA.surface, AQUA.white],
+  colors: [AQUA.blue, AQUA.blueComplement, AQUA.sky, AQUA.orange, AQUA.ink, AQUA.muted, AQUA.surface, AQUA.white],
   gradients: AQUA_GRADIENTS,
   headingFont: AQUA_FONTS.heading,
   bodyFont: AQUA_FONTS.body,

@@ -13,7 +13,7 @@ export function Butterfly(props: React.SVGAttributes<SVGSVGElement>) {
       {...props}>
       <circle cx={550} cy={550} r={510} fill="#002BEF" />
       <circle cx={550} cy={550} r={320} fill="#FFFFFF" />
-      <circle cx={550} cy={550} r={205} fill="#009EFF" />
+      <circle cx={550} cy={550} r={205} fill="#7EC8F5" />
       <circle cx={550} cy={550} r={96} fill="#000000" />
     </svg>
   )

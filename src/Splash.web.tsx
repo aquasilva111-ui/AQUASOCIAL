@@ -20,7 +20,7 @@ export function Splash() {
         style={[a.relative, {width: size, height: size, top: -50}]}>
         <Circle cx={550} cy={550} r={510} fill="#002BEF" />
         <Circle cx={550} cy={550} r={320} fill="#FFFFFF" />
-        <Circle cx={550} cy={550} r={205} fill="#009EFF" />
+        <Circle cx={550} cy={550} r={205} fill="#7EC8F5" />
         <Circle cx={550} cy={550} r={96} fill="#000000" />
       </Svg>
     </View>
