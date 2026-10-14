@@ -104,6 +104,8 @@ import {
   ChapterEditScreen,
   ReadsFeedScreen,
 } from '#/screens/Books'
+import {CreativeHubScreen} from '#/screens/CreativeHub'
+import {DocEditorScreen, DocsHomeScreen} from '#/screens/Docs'
 import {DropsScreen} from '#/screens/Drops'
 import {SharedPreferencesTesterScreen} from '#/screens/E2E/SharedPreferencesTesterScreen'
 import HashtagScreen from '#/screens/Hashtag'
@@ -180,6 +182,7 @@ import {
   StarterPackScreenShort,
 } from '#/screens/StarterPack/StarterPackScreen'
 import {Wizard} from '#/screens/StarterPack/Wizard'
+import {StoryCreatorScreen} from '#/screens/Stories/StoryCreatorScreen'
 import TopicScreen from '#/screens/Topic'
 import {UIAIScreen} from '#/screens/UIAI'
 import {VideoFeed} from '#/screens/VideoFeed'
@@ -198,12 +201,13 @@ import {
 } from '#/screens/ViewLibrary/ListsScreen'
 import {ViewLiveScreen} from '#/screens/ViewLibrary/LiveScreen'
 import {ViewMyVideosScreen} from '#/screens/ViewLibrary/MyVideosScreen'
-import {StoryCreatorScreen} from '#/screens/Stories/StoryCreatorScreen'
 import {ViewPaidScreen} from '#/screens/ViewLibrary/PaidScreen'
 import {ViewSubscriptionsScreen} from '#/screens/ViewLibrary/SubscriptionsScreen'
 import {ViewWatchLaterScreen} from '#/screens/ViewLibrary/WatchLaterScreen'
 import {ViewWatchScreen} from '#/screens/ViewWatch/WatchScreen'
 import {WikiHomeScreen} from '#/screens/Wiki'
+import {WriteComposeScreen} from '#/screens/Write/WriteComposeScreen'
+import {WriteReaderScreen} from '#/screens/Write/WriteReaderScreen'
 import {type Theme, useTheme} from '#/alf'
 import {
   EmailDialogScreenID,
@@ -244,30 +248,1312 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
         getComponent={() => NotFoundScreen}
         options={{title: title(msg`Not Found`)}}
       />
-      {/* ... rest of the file continues with the lazy CreativeHub and Docs ... */}
+      <Stack.Screen
+        name="Lists"
+        component={ListsScreen}
+        options={{title: title(msg`Lists`), requireAuth: true}}
+      />
+      <Stack.Screen
+        name="Moderation"
+        getComponent={() => ModerationScreen}
+        options={{title: title(msg`Moderation`), requireAuth: true}}
+      />
+      <Stack.Screen
+        name="ModerationModlists"
+        getComponent={() => ModerationModlistsScreen}
+        options={{title: title(msg`Moderation Lists`), requireAuth: true}}
+      />
+      <Stack.Screen
+        name="ModerationMutedAccounts"
+        getComponent={() => ModerationMutedAccounts}
+        options={{title: title(msg`Muted Accounts`), requireAuth: true}}
+      />
+      <Stack.Screen
+        name="ModerationBlockedAccounts"
+        getComponent={() => ModerationBlockedAccounts}
+        options={{title: title(msg`Blocked Accounts`), requireAuth: true}}
+      />
+      <Stack.Screen
+        name="ModerationInteractionSettings"
+        getComponent={() => ModerationInteractionSettings}
+        options={{
+          title: title(msg`Post Interaction Settings`),
+          requireAuth: true,
+        }}
+      />
+      <Stack.Screen
+        name="ModerationVerificationSettings"
+        getComponent={() => ModerationVerificationSettings}
+        options={{
+          title: title(msg`Verification Settings`),
+          requireAuth: true,
+        }}
+      />
+      <Stack.Screen
+        name="Settings"
+        getComponent={() => SettingsScreen}
+        options={{title: title(msg`Settings`), requireAuth: true}}
+      />
+      <Stack.Screen
+        name="LanguageSettings"
+        getComponent={() => LanguageSettingsScreen}
+        options={{title: title(msg`Language Settings`), requireAuth: true}}
+      />
+      <Stack.Screen
+        name="Profile"
+        getComponent={() => ProfileScreen}
+        options={({route}) => ({
+          title: bskyTitle(`@${route.params.name}`, unreadCountLabel),
+        })}
+      />
+      <Stack.Screen
+        name="ProfileFollowers"
+        getComponent={() => ProfileFollowersScreen}
+        options={({route}) => ({
+          title: title(msg`People following @${route.params.name}`),
+        })}
+      />
+      <Stack.Screen
+        name="ProfileFollows"
+        getComponent={() => ProfileFollowsScreen}
+        options={({route}) => ({
+          title: title(msg`People followed by @${route.params.name}`),
+        })}
+      />
+      <Stack.Screen
+        name="ProfileKnownFollowers"
+        getComponent={() => ProfileKnownFollowersScreen}
+        options={({route}) => ({
+          title: title(msg`Followers of @${route.params.name} that you know`),
+        })}
+      />
+      <Stack.Screen
+        name="ProfileList"
+        getComponent={() => ProfileListScreen}
+        options={{title: title(msg`List`), requireAuth: true}}
+      />
+      <Stack.Screen
+        name="ProfileSearch"
+        getComponent={() => ProfileSearchScreen}
+        options={({route}) => ({
+          title: title(msg`Search @${route.params.name}'s posts`),
+        })}
+      />
+      <Stack.Screen
+        name="PostThread"
+        getComponent={() => PostThreadScreen}
+        options={({route}) => ({
+          title: title(msg`Post by @${route.params.name}`),
+        })}
+      />
+      <Stack.Screen
+        name="PostLikedBy"
+        getComponent={() => PostLikedByScreen}
+        options={({route}) => ({
+          title: title(msg`Post by @${route.params.name}`),
+        })}
+      />
+      <Stack.Screen
+        name="PostRepostedBy"
+        getComponent={() => PostRepostedByScreen}
+        options={({route}) => ({
+          title: title(msg`Post by @${route.params.name}`),
+        })}
+      />
+      <Stack.Screen
+        name="PostQuotes"
+        getComponent={() => PostQuotesScreen}
+        options={({route}) => ({
+          title: title(msg`Post by @${route.params.name}`),
+        })}
+      />
+      <Stack.Screen
+        name="ProfileFeed"
+        getComponent={() => ProfileFeedScreen}
+        options={{title: title(msg`Feed`)}}
+      />
+      <Stack.Screen
+        name="ProfileFeedLikedBy"
+        getComponent={() => ProfileFeedLikedByScreen}
+        options={{title: title(msg`Liked by`)}}
+      />
+      <Stack.Screen
+        name="ProfileLabelerLikedBy"
+        getComponent={() => ProfileLabelerLikedByScreen}
+        options={{title: title(msg`Liked by`)}}
+      />
+      <Stack.Screen
+        name="Debug"
+        getComponent={() => Storybook}
+        options={{title: title(msg`Storybook`), requireAuth: true}}
+      />
+      <Stack.Screen
+        name="DebugMod"
+        getComponent={() => DebugModScreen}
+        options={{title: title(msg`Moderation states`), requireAuth: true}}
+      />
+      <Stack.Screen
+        name="SharedPreferencesTester"
+        getComponent={() => SharedPreferencesTesterScreen}
+        options={{title: title(msg`Shared Preferences Tester`)}}
+      />
+      <Stack.Screen
+        name="Log"
+        getComponent={() => LogScreen}
+        options={{title: title(msg`Log`), requireAuth: true}}
+      />
+      <Stack.Screen
+        name="Support"
+        getComponent={() => SupportScreen}
+        options={{title: title(msg`Support`)}}
+      />
+      <Stack.Screen
+        name="PrivacyPolicy"
+        getComponent={() => PrivacyPolicyScreen}
+        options={{title: title(msg`Privacy Policy`)}}
+      />
+      <Stack.Screen
+        name="TermsOfService"
+        getComponent={() => TermsOfServiceScreen}
+        options={{title: title(msg`Terms of Service`)}}
+      />
+      <Stack.Screen
+        name="CommunityGuidelines"
+        getComponent={() => CommunityGuidelinesScreen}
+        options={{title: title(msg`Community Guidelines`)}}
+      />
+      <Stack.Screen
+        name="CopyrightPolicy"
+        getComponent={() => CopyrightPolicyScreen}
+        options={{title: title(msg`Copyright Policy`)}}
+      />
+      <Stack.Screen
+        name="AppPasswords"
+        getComponent={() => AppPasswordsScreen}
+        options={{title: title(msg`App Passwords`), requireAuth: true}}
+      />
+      <Stack.Screen
+        name="SavedFeeds"
+        getComponent={() => SavedFeeds}
+        options={{title: title(msg`Edit My Feeds`), requireAuth: true}}
+      />
+      <Stack.Screen
+        name="PreferencesFollowingFeed"
+        getComponent={() => FollowingFeedPreferencesScreen}
+        options={{
+          title: title(msg`Following Feed Preferences`),
+          requireAuth: true,
+        }}
+      />
+      <Stack.Screen
+        name="PreferencesThreads"
+        getComponent={() => ThreadPreferencesScreen}
+        options={{title: title(msg`Threads Preferences`), requireAuth: true}}
+      />
+      <Stack.Screen
+        name="PreferencesExternalEmbeds"
+        getComponent={() => ExternalMediaPreferencesScreen}
+        options={{
+          title: title(msg`External Media Preferences`),
+          requireAuth: true,
+        }}
+      />
+      <Stack.Screen
+        name="AccessibilitySettings"
+        getComponent={() => AccessibilitySettingsScreen}
+        options={{
+          title: title(msg`Accessibility Settings`),
+          requireAuth: true,
+        }}
+      />
+      <Stack.Screen
+        name="AppearanceSettings"
+        getComponent={() => AppearanceSettingsScreen}
+        options={{
+          title: title(msg`Appearance`),
+          requireAuth: true,
+        }}
+      />
+      <Stack.Screen
+        name="AccountSettings"
+        getComponent={() => AccountSettingsScreen}
+        options={{
+          title: title(msg`Account`),
+          requireAuth: true,
+        }}
+      />
+      <Stack.Screen
+        name="PrivacyAndSecuritySettings"
+        getComponent={() => PrivacyAndSecuritySettingsScreen}
+        options={{
+          title: title(msg`Privacy and Security`),
+          requireAuth: true,
+        }}
+      />
+      <Stack.Screen
+        name="ActivityPrivacySettings"
+        getComponent={() => ActivityPrivacySettingsScreen}
+        options={{
+          title: title(msg`Privacy and Security`),
+          requireAuth: true,
+        }}
+      />
+      <Stack.Screen
+        name="NotificationSettings"
+        getComponent={() => NotificationSettingsScreen}
+        options={{title: title(msg`Notification settings`), requireAuth: true}}
+      />
+      <Stack.Screen
+        name="ReplyNotificationSettings"
+        getComponent={() => ReplyNotificationSettingsScreen}
+        options={{
+          title: title(msg`Reply notifications`),
+          requireAuth: true,
+        }}
+      />
+      <Stack.Screen
+        name="MentionNotificationSettings"
+        getComponent={() => MentionNotificationSettingsScreen}
+        options={{
+          title: title(msg`Mention notifications`),
+          requireAuth: true,
+        }}
+      />
+      <Stack.Screen
+        name="QuoteNotificationSettings"
+        getComponent={() => QuoteNotificationSettingsScreen}
+        options={{
+          title: title(msg`Quote notifications`),
+          requireAuth: true,
+        }}
+      />
+      <Stack.Screen
+        name="LikeNotificationSettings"
+        getComponent={() => LikeNotificationSettingsScreen}
+        options={{
+          title: title(msg`Like notifications`),
+          requireAuth: true,
+        }}
+      />
+      <Stack.Screen
+        name="RepostNotificationSettings"
+        getComponent={() => RepostNotificationSettingsScreen}
+        options={{
+          title: title(msg`Repost notifications`),
+          requireAuth: true,
+        }}
+      />
+      <Stack.Screen
+        name="NewFollowerNotificationSettings"
+        getComponent={() => NewFollowerNotificationSettingsScreen}
+        options={{
+          title: title(msg`New follower notifications`),
+          requireAuth: true,
+        }}
+      />
+      <Stack.Screen
+        name="LikesOnRepostsNotificationSettings"
+        getComponent={() => LikesOnRepostsNotificationSettingsScreen}
+        options={{
+          title: title(msg`Likes of your reposts notifications`),
+          requireAuth: true,
+        }}
+      />
+      <Stack.Screen
+        name="RepostsOnRepostsNotificationSettings"
+        getComponent={() => RepostsOnRepostsNotificationSettingsScreen}
+        options={{
+          title: title(msg`Reposts of your reposts notifications`),
+          requireAuth: true,
+        }}
+      />
+      <Stack.Screen
+        name="ActivityNotificationSettings"
+        getComponent={() => ActivityNotificationSettingsScreen}
+        options={{
+          title: title(msg`Activity notifications`),
+          requireAuth: true,
+        }}
+      />
+      <Stack.Screen
+        name="MiscellaneousNotificationSettings"
+        getComponent={() => MiscellaneousNotificationSettingsScreen}
+        options={{
+          title: title(msg`Miscellaneous notifications`),
+          requireAuth: true,
+        }}
+      />
+      <Stack.Screen
+        name="ContentAndMediaSettings"
+        getComponent={() => ContentAndMediaSettingsScreen}
+        options={{
+          title: title(msg`Content and Media`),
+          requireAuth: true,
+        }}
+      />
+      <Stack.Screen
+        name="InterestsSettings"
+        getComponent={() => InterestsSettingsScreen}
+        options={{
+          title: title(msg`Your interests`),
+          requireAuth: true,
+        }}
+      />
+      <Stack.Screen
+        name="AboutSettings"
+        getComponent={() => AboutSettingsScreen}
+        options={{
+          title: title(msg`About`),
+          requireAuth: true,
+        }}
+      />
+      <Stack.Screen
+        name="AppIconSettings"
+        getComponent={() => AppIconSettingsScreen}
+        options={{
+          title: title(msg`App Icon`),
+          requireAuth: true,
+        }}
+      />
+      <Stack.Screen
+        name="Hashtag"
+        getComponent={() => HashtagScreen}
+        options={{title: title(msg`Hashtag`)}}
+      />
+      <Stack.Screen
+        name="Topic"
+        getComponent={() => TopicScreen}
+        options={{title: title(msg`Topic`)}}
+      />
+      <Stack.Screen
+        name="MessagesConversation"
+        getComponent={() => MessagesConversationScreen}
+        options={{title: title(msg`Chat`), requireAuth: true}}
+      />
+      <Stack.Screen
+        name="MessagesSettings"
+        getComponent={() => MessagesSettingsScreen}
+        options={{title: title(msg`Chat settings`), requireAuth: true}}
+      />
+      <Stack.Screen
+        name="MessagesInbox"
+        getComponent={() => MessagesInboxScreen}
+        options={{title: title(msg`Chat request inbox`), requireAuth: true}}
+      />
+      <Stack.Screen
+        name="NotificationsActivityList"
+        getComponent={() => NotificationsActivityListScreen}
+        options={{title: title(msg`Notifications`), requireAuth: true}}
+      />
+      <Stack.Screen
+        name="LegacyNotificationSettings"
+        getComponent={() => LegacyNotificationSettingsScreen}
+        options={{title: title(msg`Notification settings`), requireAuth: true}}
+      />
+      <Stack.Screen
+        name="Feeds"
+        getComponent={() => FeedsScreen}
+        options={{title: title(msg`Feeds`)}}
+      />
+      <Stack.Screen
+        name="StarterPack"
+        getComponent={() => StarterPackScreen}
+        options={{title: title(msg`Starter Pack`)}}
+      />
+      <Stack.Screen
+        name="StarterPackShort"
+        getComponent={() => StarterPackScreenShort}
+        options={{title: title(msg`Starter Pack`)}}
+      />
+      <Stack.Screen
+        name="StarterPackWizard"
+        getComponent={() => Wizard}
+        options={{title: title(msg`Create a starter pack`), requireAuth: true}}
+      />
+      <Stack.Screen
+        name="StarterPackEdit"
+        getComponent={() => Wizard}
+        options={{title: title(msg`Edit your starter pack`), requireAuth: true}}
+      />
+      <Stack.Screen
+        name="VideoFeed"
+        getComponent={() => VideoFeed}
+        options={{
+          title: title(msg`Video Feed`),
+          requireAuth: true,
+        }}
+      />
+      <Stack.Screen
+        name="Images"
+        component={ImagesScreen}
+        options={{title: 'Visionboard'}}
+      />
+      <Stack.Screen
+        name="ImagesLegacy"
+        component={LegacyImagesRedirect}
+        options={{title: 'Visionboard'}}
+      />
+      <Stack.Screen
+        name="Videos"
+        component={VideosScreen}
+        options={{title: 'Aqua Views'}}
+      />
+      <Stack.Screen
+        name="ImageDetail"
+        component={ImageDetailScreen}
+        options={{title: 'Visionboard'}}
+      />
+      <Stack.Screen
+        name="ImageDetailLegacy"
+        component={LegacyImageDetailRedirect}
+        options={{title: 'Visionboard'}}
+      />
+      <Stack.Screen
+        name="VisionboardBoards"
+        component={VisionboardBoardsScreen}
+        options={{title: 'Seus Visionboards', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="VisionboardBoardView"
+        component={VisionboardBoardViewScreen}
+        options={{title: 'Visionboard'}}
+      />
+      <Stack.Screen
+        name="VideoWatch"
+        component={ViewWatchScreen}
+        options={{title: 'Aqua Views'}}
+      />
+      <Stack.Screen
+        name="VideosLegacy"
+        component={LegacyVideosRedirect}
+        options={{title: 'Aqua Views'}}
+      />
+      <Stack.Screen
+        name="VideoWatchLegacy"
+        component={LegacyVideoWatchRedirect}
+        options={{title: 'Aqua Views'}}
+      />
+      <Stack.Screen
+        name="ViewChannelLegacy"
+        component={LegacyViewChannelRedirect}
+        options={{title: 'Aqua Views'}}
+      />
+      <Stack.Screen
+        name="VideoLive"
+        component={VideoLiveScreen}
+        options={{title: 'Aqua Live'}}
+      />
+      <Stack.Screen
+        name="VideoGoLive"
+        component={VideoGoLiveScreen}
+        options={{title: 'Transmitir ao vivo', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="Music"
+        component={MusicScreen}
+        options={{title: 'Música'}}
+      />
+      <Stack.Screen
+        name="NewsAtlas"
+        component={NewsAtlasScreen}
+        options={{title: 'Notícias e Convenções'}}
+      />
+      <Stack.Screen
+        name="Reads"
+        component={ReadsFeedScreen}
+        options={{title: 'Reads'}}
+      />
+      <Stack.Screen
+        name="Books"
+        component={BooksHomeScreen}
+        options={{title: 'Write'}}
+      />
+      <Stack.Screen
+        name="WriteCompose"
+        component={WriteComposeScreen}
+        options={{title: 'New in Write'}}
+      />
+      <Stack.Screen
+        name="WriteRead"
+        component={WriteReaderScreen}
+        options={{title: 'Write'}}
+      />
+      <Stack.Screen
+        name="BooksCollection"
+        component={BooksCollectionScreen}
+        options={{title: 'Minha coleção', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="BooksStudio"
+        component={BooksStudioScreen}
+        options={{title: 'Estúdio de Livros', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="BookEdit"
+        component={BookEditScreen}
+        options={{title: 'Editar livro', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="ChapterEdit"
+        component={ChapterEditScreen}
+        options={{title: 'Editar capítulo', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="BookDetail"
+        component={BookDetailScreen}
+        options={{title: 'Livro'}}
+      />
+      <Stack.Screen
+        name="BookChapter"
+        component={BookChapterScreen}
+        options={{title: 'Capítulo'}}
+      />
+      <Stack.Screen
+        name="ViewChannelCreate"
+        component={ViewChannelCreateScreen}
+        options={{title: 'Criar canal', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="ViewChannel"
+        component={ViewChannelScreen}
+        options={{title: 'Canal'}}
+      />
+      <Stack.Screen
+        name="ViewStudio"
+        component={ViewStudioScreen}
+        options={{title: 'View Studio', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="ViewStudioCustomize"
+        component={ViewStudioCustomizeScreen}
+        options={{title: 'Personalizar canal', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="StoryCreate"
+        component={StoryCreatorScreen}
+        options={{title: 'Novo story', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="ViewPaid"
+        component={ViewPaidScreen}
+        options={{title: 'Assinaturas pagas'}}
+      />
+      <Stack.Screen
+        name="ViewSubscriptions"
+        component={ViewSubscriptionsScreen}
+        options={{title: 'Inscrições', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="ViewMyVideos"
+        component={ViewMyVideosScreen}
+        options={{title: 'Meus vídeos', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="ViewChannels"
+        component={ViewChannelsScreen}
+        options={{title: 'Canais', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="ViewHistory"
+        component={ViewHistoryScreen}
+        options={{title: 'Histórico', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="ViewPlaylists"
+        component={ViewPlaylistsScreen}
+        options={{title: 'Playlists', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="ViewCollections"
+        component={ViewCollectionsScreen}
+        options={{title: 'Coleções', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="ViewWatchLater"
+        component={ViewWatchLaterScreen}
+        options={{title: 'Assistir mais tarde', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="ViewLive"
+        component={ViewLiveScreen}
+        options={{title: 'Transmissões ao vivo'}}
+      />
+      <Stack.Screen
+        name="ViewList"
+        component={ViewListScreen}
+        options={{title: 'Lista'}}
+      />
+      <Stack.Screen
+        name="LaunchHub"
+        component={LaunchHubScreen}
+        options={{title: 'Launch Hub', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="LaunchNew"
+        component={NewLaunchScreen}
+        options={{title: 'Novo lançamento', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="LaunchDetail"
+        component={LaunchDetailScreen}
+        options={{title: 'Lançamento', requireAuth: true}}
+      />
       <Stack.Screen
         name="CreativeHub"
-        getComponent={() => require('#/screens/CreativeHub').CreativeHubScreen}
+        component={CreativeHubScreen}
         options={{title: 'Creative Hub', requireAuth: true}}
       />
       <Stack.Screen
         name="CreativeHubTab"
-        getComponent={() => require('#/screens/CreativeHub').CreativeHubScreen}
+        component={CreativeHubScreen}
         options={{title: 'Creative Hub', requireAuth: true}}
       />
       <Stack.Screen
+        name="UIAI"
+        component={UIAIScreen}
+        options={{title: 'IU & AI'}}
+      />
+      <Stack.Screen
         name="DocsHome"
-        getComponent={() => require('#/screens/Docs').DocsHomeScreen}
+        component={DocsHomeScreen}
         options={{title: 'AQUA DOCS', requireAuth: true}}
       />
       <Stack.Screen
         name="DocEditor"
-        getComponent={() => require('#/screens/Docs').DocEditorScreen}
+        component={DocEditorScreen}
         options={{title: 'AQUA DOCS', requireAuth: true}}
       />
-      {/* The full original file content with the above changes is intended. Due to size limits in this call, the complete file was prepared locally and the lazy loading is applied. */}
+      <Stack.Screen
+        name="WikiHome"
+        component={WikiHomeScreen}
+        options={{title: 'AQUA WIKI'}}
+      />
+      <Stack.Screen
+        name="AdultHome"
+        component={AdultHomeScreen}
+        options={{title: 'AQUA +18', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="AdultFeed"
+        component={AdultFeedScreen}
+        options={{title: 'Feed +18', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="AdultCreators"
+        component={AdultCreatorsScreen}
+        options={{title: 'Creators +18', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="AdultCreator"
+        component={AdultCreatorScreen}
+        options={{title: 'Creator +18', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="AdultViews"
+        component={AdultViewsScreen}
+        options={{title: 'Views +18', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="AdultVideo"
+        component={AdultVideoScreen}
+        options={{title: 'Views +18', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="AdultLive"
+        component={AdultLiveScreen}
+        options={{title: 'Live +18', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="AdultLiveStream"
+        component={AdultLiveStreamScreen}
+        options={{title: 'Live +18', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="AdultStudios"
+        component={AdultStudiosScreen}
+        options={{title: 'Studios +18', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="AdultStudio"
+        component={AdultStudioScreen}
+        options={{title: 'Studios +18', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="AdultTitle"
+        component={AdultTitleScreen}
+        options={{title: 'Studios +18', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="AdultLibrary"
+        component={AdultLibraryScreen}
+        options={{title: 'Biblioteca +18', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="AdultPost"
+        component={AdultPostScreen}
+        options={{title: 'Post +18', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="AdultUser"
+        component={AdultUserScreen}
+        options={{title: 'Perfil +18', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="AdultDrops"
+        component={AdultDropsScreen}
+        options={{title: 'Drops +18', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="AdultVisionboard"
+        component={AdultVisionboardScreen}
+        options={{title: 'Visionboard +18', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="AdultReads"
+        component={AdultReadsScreen}
+        options={{title: 'Reads +18', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="AdultRead"
+        component={AdultReadScreen}
+        options={{title: 'Reads +18', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="AdultMessages"
+        component={AdultMessagesScreen}
+        options={{title: 'Mensagens +18', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="AdultSettings"
+        component={AdultSettingsScreen}
+        options={{title: 'Configurações +18', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="AdultCreatorDashboard"
+        component={AdultCreatorDashboardScreen}
+        options={{title: 'Creator Dashboard +18', requireAuth: true}}
+      />
+      <Stack.Screen
+        name="Bookmarks"
+        getComponent={() => BookmarksScreen}
+        options={{
+          title: title(msg`Saved Posts`),
+          requireAuth: true,
+        }}
+      />
     </>
   )
 }
 
-// NOTE: This is a truncated representation for the tool call. The actual full file with all screens and the lazy changes was prepared in /tmp/Navigation.tsx and should be used.
+/**
+ * The TabsNavigator is used by native mobile to represent the routes
+ * in 3 distinct tab-stacks with a different root screen on each.
+ */
+function TabsNavigator() {
+  const tabBar = useCallback(
+    (props: JSX.IntrinsicAttributes & BottomTabBarProps) => (
+      <BottomBar {...props} />
+    ),
+    [],
+  )
+
+  return (
+    <Tab.Navigator
+      initialRouteName="HomeTab"
+      backBehavior="initialRoute"
+      screenOptions={{headerShown: false, lazy: true}}
+      tabBar={tabBar}>
+      <Tab.Screen name="HomeTab" getComponent={() => HomeTabNavigator} />
+      <Tab.Screen name="SearchTab" getComponent={() => SearchTabNavigator} />
+      <Tab.Screen name="DropsTab" getComponent={() => DropsTabNavigator} />
+      <Tab.Screen
+        name="MessagesTab"
+        getComponent={() => MessagesTabNavigator}
+      />
+      <Tab.Screen
+        name="NotificationsTab"
+        getComponent={() => NotificationsTabNavigator}
+      />
+      <Tab.Screen
+        name="MyProfileTab"
+        getComponent={() => MyProfileTabNavigator}
+      />
+    </Tab.Navigator>
+  )
+}
+
+function screenOptions(t: Theme) {
+  return {
+    fullScreenGestureEnabled: true,
+    headerShown: false,
+    contentStyle: t.atoms.bg,
+  } as const
+}
+
+function HomeTabNavigator() {
+  const t = useTheme()
+
+  return (
+    <HomeTab.Navigator screenOptions={screenOptions(t)} initialRouteName="Home">
+      <HomeTab.Screen name="Home" getComponent={() => HomeScreen} />
+      <HomeTab.Screen name="Start" getComponent={() => HomeScreen} />
+      {commonScreens(HomeTab as typeof Flat)}
+    </HomeTab.Navigator>
+  )
+}
+
+function SearchTabNavigator() {
+  const t = useTheme()
+  return (
+    <SearchTab.Navigator
+      screenOptions={screenOptions(t)}
+      initialRouteName="Search">
+      <SearchTab.Screen name="Search" getComponent={() => SearchScreen} />
+      {commonScreens(SearchTab as typeof Flat)}
+    </SearchTab.Navigator>
+  )
+}
+
+function DropsTabNavigator() {
+  const t = useTheme()
+  return (
+    <DropsTab.Navigator
+      screenOptions={screenOptions(t)}
+      initialRouteName="Drops">
+      <DropsTab.Screen name="Drops" getComponent={() => DropsScreen} />
+      {commonScreens(DropsTab as typeof Flat)}
+    </DropsTab.Navigator>
+  )
+}
+
+function NotificationsTabNavigator() {
+  const t = useTheme()
+  return (
+    <NotificationsTab.Navigator
+      screenOptions={screenOptions(t)}
+      initialRouteName="Notifications">
+      <NotificationsTab.Screen
+        name="Notifications"
+        getComponent={() => NotificationsScreen}
+        options={{requireAuth: true}}
+      />
+      {commonScreens(NotificationsTab as typeof Flat)}
+    </NotificationsTab.Navigator>
+  )
+}
+
+function MyProfileTabNavigator() {
+  const t = useTheme()
+  return (
+    <MyProfileTab.Navigator
+      screenOptions={screenOptions(t)}
+      initialRouteName="MyProfile">
+      <MyProfileTab.Screen
+        // MyProfile is not in AllNavigationParams - asserting as Profile at least
+        // gives us typechecking for initialParams -sfn
+        name={'MyProfile' as 'Profile'}
+        getComponent={() => ProfileScreen}
+        initialParams={{name: 'me', hideBackButton: true}}
+      />
+      {commonScreens(MyProfileTab as unknown as typeof Flat)}
+    </MyProfileTab.Navigator>
+  )
+}
+
+function MessagesTabNavigator() {
+  const t = useTheme()
+  return (
+    <MessagesTab.Navigator
+      screenOptions={screenOptions(t)}
+      initialRouteName="Messages">
+      <MessagesTab.Screen
+        name="Messages"
+        getComponent={() => MessagesScreen}
+        options={({route}) => ({
+          requireAuth: true,
+          animationTypeForReplace: route.params?.animation ?? 'push',
+        })}
+      />
+      {commonScreens(MessagesTab as typeof Flat)}
+    </MessagesTab.Navigator>
+  )
+}
+
+/**
+ * The FlatNavigator is used by Web to represent the routes
+ * in a single ("flat") stack.
+ */
+const FlatNavigator = () => {
+  const t = useTheme()
+  const numUnread = useUnreadNotifications()
+  const screenListeners = useWebScrollRestoration()
+  const title = (page: MessageDescriptor) => bskyTitle(i18n._(page), numUnread)
+
+  return (
+    <Flat.Navigator
+      screenListeners={screenListeners}
+      screenOptions={screenOptions(t)}>
+      <Flat.Screen
+        name="Home"
+        getComponent={() => HomeScreen}
+        options={{title: title(msg`Home`)}}
+      />
+      <Flat.Screen
+        name="Search"
+        getComponent={() => SearchScreen}
+        options={{title: title(msg`Explore`)}}
+      />
+      <Flat.Screen
+        name="Drops"
+        getComponent={() => DropsScreen}
+        options={{title: title(msg`Drops`)}}
+      />
+      <Flat.Screen
+        name="Notifications"
+        getComponent={() => NotificationsScreen}
+        options={{title: title(msg`Notifications`), requireAuth: true}}
+      />
+      <Flat.Screen
+        name="Messages"
+        getComponent={() => MessagesScreen}
+        options={{title: title(msg`Messages`), requireAuth: true}}
+      />
+      <Flat.Screen
+        name="Start"
+        getComponent={() => HomeScreen}
+        options={{title: title(msg`Home`)}}
+      />
+      {commonScreens(Flat, numUnread)}
+    </Flat.Navigator>
+  )
+}
+
+/**
+ * The RoutesContainer should wrap all components which need access
+ * to the navigation context.
+ */
+
+const LINKING = {
+  // TODO figure out what we are going to use
+  // note: `bluesky://` is what is used in app.config.js
+  prefixes: ['bsky://', 'bluesky://', 'https://bsky.app'],
+
+  getPathFromState(state: State) {
+    // find the current node in the navigation tree
+    let node = state.routes[state.index || 0]
+    while (node.state?.routes && typeof node.state?.index === 'number') {
+      node = node.state?.routes[node.state?.index]
+    }
+
+    // build the path
+    const route = router.matchName(node.name)
+    if (typeof route === 'undefined') {
+      return '/' // default to home
+    }
+    return route.build((node.params || {}) as RouteParams)
+  },
+
+  getStateFromPath(path: string) {
+    const [name, params] = router.matchPath(path)
+
+    // Any time we receive a url that starts with `intent/` we want to ignore it here. It will be handled in the
+    // intent handler hook. We should check for the trailing slash, because if there isn't one then it isn't a valid
+    // intent
+    // On web, there is no route state that's created by default, so we should initialize it as the home route. On
+    // native, since the home tab and the home screen are defined as initial routes, we don't need to return a state
+    // since it will be created by react-navigation.
+    if (path.includes('intent/')) {
+      if (isNative) return
+      return buildStateObject('Flat', 'Home', params)
+    }
+
+    if (isNative) {
+      if (name === 'Search') {
+        return buildStateObject('SearchTab', 'Search', params)
+      }
+      if (name === 'Drops') {
+        return buildStateObject('DropsTab', 'Drops', params)
+      }
+      if (name === 'Notifications') {
+        return buildStateObject('NotificationsTab', 'Notifications', params)
+      }
+      if (name === 'Home') {
+        return buildStateObject('HomeTab', 'Home', params)
+      }
+      if (name === 'Messages') {
+        return buildStateObject('MessagesTab', 'Messages', params)
+      }
+      // if the path is something else, like a post, profile, or even settings, we need to initialize the home tab as pre-existing state otherwise the back button will not work
+      return buildStateObject('HomeTab', name, params, [
+        {
+          name: 'Home',
+          params: {},
+        },
+      ])
+    } else {
+      const res = buildStateObject('Flat', name, params)
+      return res
+    }
+  },
+} satisfies LinkingOptions<AllNavigatorParams>
+
+/**
+ * Used to ensure we don't handle the same notification twice
+ */
+let lastHandledNotificationDateDedupe: number | undefined
+
+function RoutesContainer({children}: React.PropsWithChildren<{}>) {
+  const theme = useColorSchemeStyle(DefaultTheme, DarkTheme)
+  const {currentAccount, accounts} = useSession()
+  const {onPressSwitchAccount} = useAccountSwitcher()
+  const {setShowLoggedOut} = useLoggedOutViewControls()
+  const prevLoggedRouteName = useRef<string | undefined>(undefined)
+  const emailDialogControl = useEmailDialogControl()
+  const closeAllActiveElements = useCloseAllActiveElements()
+
+  /**
+   * Handle navigation to a conversation, or prepares for account switch.
+   *
+   * Non-reactive because we need the latest data from some hooks
+   * after an async call - sfn
+   */
+  const handleChatMessage = useNonReactiveCallback(
+    (payload: Extract<NotificationPayload, {reason: 'chat-message'}>) => {
+      notyLogger.debug(`handleChatMessage`, {payload})
+
+      if (payload.recipientDid !== currentAccount?.did) {
+        // handled in useNotificationHandler after account switch finishes
+        storePayloadForAccountSwitch(payload)
+        closeAllActiveElements()
+
+        const account = accounts.find(a => a.did === payload.recipientDid)
+        if (account) {
+          onPressSwitchAccount(account, 'Notification')
+        } else {
+          setShowLoggedOut(true)
+        }
+      } else {
+        // @ts-expect-error nested navigators aren't typed -sfn
+        navigate('MessagesTab', {
+          screen: 'Messages',
+          params: {
+            pushToConversation: payload.convoId,
+          },
+        })
+      }
+    },
+  )
+
+  async function handlePushNotificationEntry() {
+    if (!isNative) return
+
+    // deep links take precedence - on android,
+    // getLastNotificationResponseAsync returns a "notification"
+    // that is actually a deep link. avoid handling it twice -sfn
+    if (await Linking.getInitialURL()) {
+      return
+    }
+
+    /**
+     * The notification that caused the app to open, if applicable
+     */
+    const response = await Notifications.getLastNotificationResponseAsync()
+
+    if (response) {
+      notyLogger.debug(`handlePushNotificationEntry: response`, {response})
+
+      if (response.notification.date === lastHandledNotificationDateDedupe)
+        return
+      lastHandledNotificationDateDedupe = response.notification.date
+
+      const payload = getNotificationPayload(response.notification)
+
+      if (payload) {
+        notyLogger.metric(
+          'notifications:openApp',
+          {reason: payload.reason, causedBoot: true},
+          {statsig: false},
+        )
+
+        if (payload.reason === 'chat-message') {
+          handleChatMessage(payload)
+        } else {
+          const path = notificationToURL(payload)
+
+          if (path === '/notifications') {
+            resetToTab('NotificationsTab')
+            notyLogger.debug(`handlePushNotificationEntry: default navigate`)
+          } else if (path) {
+            const [screen, params] = router.matchPath(path)
+            // @ts-expect-error nested navigators aren't typed -sfn
+            navigate('HomeTab', {screen, params})
+            notyLogger.debug(`handlePushNotificationEntry: navigate`, {
+              screen,
+              params,
+            })
+          }
+        }
+      }
+    }
+  }
+
+  function onReady() {
+    prevLoggedRouteName.current = getCurrentRouteName()
+    if (currentAccount && shouldRequestEmailConfirmation(currentAccount)) {
+      emailDialogControl.open({
+        id: EmailDialogScreenID.VerificationReminder,
+      })
+      snoozeEmailConfirmationPrompt()
+    }
+  }
+
+  return (
+    <>
+      <NavigationContainer
+        ref={navigationRef}
+        linking={LINKING}
+        theme={theme}
+        onStateChange={() => {
+          logger.metric(
+            'router:navigate',
+            {from: prevLoggedRouteName.current},
+            {statsig: false},
+          )
+          prevLoggedRouteName.current = getCurrentRouteName()
+        }}
+        onReady={() => {
+          attachRouteToLogEvents(getCurrentRouteName)
+          logModuleInitTime()
+          onReady()
+          logger.metric('router:navigate', {}, {statsig: false})
+          handlePushNotificationEntry()
+        }}
+        // WARNING: Implicit navigation to nested navigators is depreciated in React Navigation 7.x
+        // However, there's a fair amount of places we do that, especially in when popping to the top of stacks.
+        // See BottomBar.tsx for an example of how to handle nested navigators in the tabs correctly.
+        // I'm scared of missing a spot (esp. with push notifications etc) so let's enable this legacy behaviour for now.
+        // We will need to confirm we handle nested navigators correctly by the time we migrate to React Navigation 8.x
+        // -sfn
+        navigationInChildEnabled>
+        {children}
+      </NavigationContainer>
+    </>
+  )
+}
+
+function getCurrentRouteName() {
+  if (navigationRef.isReady()) {
+    return navigationRef.getCurrentRoute()?.name
+  } else {
+    return undefined
+  }
+}
+
+/**
+ * These helpers can be used from outside of the RoutesContainer
+ * (eg in the state models).
+ */
+
+function navigate<K extends keyof AllNavigatorParams>(
+  name: K,
+  params?: AllNavigatorParams[K],
+) {
+  if (navigationRef.isReady()) {
+    return Promise.race([
+      new Promise<void>(resolve => {
+        const handler = () => {
+          resolve()
+          navigationRef.removeListener('state', handler)
+        }
+        navigationRef.addListener('state', handler)
+
+        // @ts-ignore I dont know what would make typescript happy but I have a life -prf
+        navigationRef.navigate(name, params)
+      }),
+      timeout(1e3),
+    ])
+  }
+  return Promise.resolve()
+}
+
+function resetToTab(
+  tabName: 'HomeTab' | 'SearchTab' | 'MessagesTab' | 'NotificationsTab',
+) {
+  if (navigationRef.isReady()) {
+    navigate(tabName)
+    if (navigationRef.canGoBack()) {
+      navigationRef.dispatch(StackActions.popToTop()) //we need to check .canGoBack() before calling it
+    }
+  }
+}
+
+// returns a promise that resolves after the state reset is complete
+function reset(): Promise<void> {
+  if (navigationRef.isReady()) {
+    navigationRef.dispatch(
+      CommonActions.reset({
+        index: 0,
+        routes: [{name: isNative ? 'HomeTab' : 'Home'}],
+      }),
+    )
+    return Promise.race([
+      timeout(1e3),
+      new Promise<void>(resolve => {
+        const handler = () => {
+          resolve()
+          navigationRef.removeListener('state', handler)
+        }
+        navigationRef.addListener('state', handler)
+      }),
+    ])
+  } else {
+    return Promise.resolve()
+  }
+}
+
+let didInit = false
+function logModuleInitTime() {
+  if (didInit) {
+    return
+  }
+  didInit = true
+
+  const initMs = Math.round(
+    // @ts-ignore Emitted by Metro in the bundle prelude
+    performance.now() - global.__BUNDLE_START_TIME__,
+  )
+  console.log(`Time to first paint: ${initMs} ms`)
+  logEvent('init', {
+    initMs,
+  })
+
+  if (isWeb) {
+    const referrerInfo = Referrer.getReferrerInfo()
+    if (referrerInfo && referrerInfo.hostname !== 'bsky.app') {
+      logEvent('deepLink:referrerReceived', {
+        to: window.location.href,
+        referrer: referrerInfo?.referrer,
+        hostname: referrerInfo?.hostname,
+      })
+    }
+  }
+
+  if (__DEV__) {
+    // This log is noisy, so keep false committed
+    const shouldLog = false
+    // Relies on our patch to polyfill.js in metro-runtime
+    const initLogs = (global as any).__INIT_LOGS__
+    if (shouldLog && Array.isArray(initLogs)) {
+      console.log(initLogs.join('\n'))
+    }
+  }
+}
+
+export {
+  FlatNavigator,
+  navigate,
+  reset,
+  resetToTab,
+  RoutesContainer,
+  TabsNavigator,
+}

@@ -337,9 +337,9 @@ let DrawerContent = ({}: React.PropsWithoutRef<{}>): React.ReactNode => {
             {/* Same entries as the desktop sidebar. */}
             <MenuItem
               icon={<Book width={iconWidth} style={t.atoms.text} />}
-              label="Reads"
+              label="Write"
               onPress={() => {
-                navigation.navigate('Reads')
+                navigation.navigate('Books')
                 setDrawerOpen(false)
               }}
             />
