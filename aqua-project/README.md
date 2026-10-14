@@ -27,7 +27,36 @@ histórico por item, ler um commit antigo, e **branches** para testar variaçõe
 `fs` é injetado: `@isomorphic-git/lightning-fs` (IndexedDB) no navegador, memfs nos testes.
 Ainda não ligado ao `CreativeRuntime` (hoje o runtime usa o snapshot) nem a um remoto.
 
+### Git pessoal semântico
+
+`semantic.ts` + método `commitSemantic` em `ProjectGit` adicionam significado aos commits:
+
+- Tipos convencionais (`feat`, `style`, `content`, `structure`, `remix`...)
+- Escopo (tipo do item: design, doc, music...)
+- Descrição humana
+- Tags opcionais (Convenções, intenção criativa)
+- `suggestSemanticMessage` gera uma sugestão básica a partir do tamanho da mudança
+- `parseSemanticMessage` extrai a informação de volta do histórico
+
+Exemplo de uso:
+
+```ts
+await git.commitSemantic(itemId, bytes, {
+  type: 'style',
+  scope: 'design',
+  description: 'aumentou contraste e saturação',
+  tags: ['nazar', 'intenso']
+})
+```
+
+ou deixa gerar automaticamente:
+
+```ts
+await git.commitSemantic(itemId, bytes, { itemType: 'design', previousSize: old.length })
+```
+
 ## Ainda não feito
 
 Persistência (IndexedDB/PDS), sincronização Yjs entre itens, ligação com a tela Projetos do
-Creative Hub (hoje só lista docs) e geração real dos exports.
+Creative Hub (hoje só lista docs) e geração real dos exports. Análise semântica real de
+conteúdo (diff de texto, mudança visual, etc.) ainda é heurística simples.
