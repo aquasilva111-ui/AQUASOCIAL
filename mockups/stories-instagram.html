@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Mockup — Aqua Stories estilo Instagram · AquaSocial</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0e1620;
+    --panel: #161e27;
+    --text: #f1f3f5;
+    --muted: #8696a8;
+    --line: #26323f;
+    --brand: #7c3aed;
+    --ring: conic-gradient(from 210deg, #7c3aed, #d946ef, #f59e0b, #d946ef, #7c3aed);
+    --seen: #3a4757;
+  }
+  body.light {
+    --bg: #eef1f5; --panel: #ffffff; --text: #111418; --muted: #667585;
+    --line: #e3e8ee; --seen: #cfd6de;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 48px 24px 80px;
+    display: flex; flex-direction: column; align-items: center; gap: 40px;
+  }
+  h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; text-align: center; }
+  .subtitle { color: var(--muted); font-size: 15px; margin-top: 8px; max-width: 760px; text-align: center; line-height: 1.5; }
+  .toggle {
+    margin-top: 16px; border: 1px solid var(--line); background: var(--panel); color: var(--text);
+    padding: 8px 16px; border-radius: 999px; font-size: 13px; font-weight: 600; cursor: pointer;
+  }
+  .frames { display: flex; gap: 48px; flex-wrap: wrap; justify-content: center; align-items: flex-start; max-width: 1500px; }
+  .frame-wrap { display: flex; flex-direction: column; align-items: center; gap: 14px; width: 380px; }
+  .frame-label { color: var(--muted); font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; }
+  .notes { width: 100%; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; font-size: 13px; line-height: 1.55; color: var(--muted); }
+  .notes b { color: var(--text); }
+  .notes li { margin-left: 16px; margin-top: 3px; }
+
+  /* ---------- Phone ---------- */
+  .phone { width: 380px; height: 780px; border-radius: 44px; padding: 10px; background: #1c2733; box-shadow: 0 30px 80px rgba(0,0,0,.45), inset 0 0 0 2px #2e3d4d; }
+  .screen { width: 100%; height: 100%; border-radius: 36px; overflow: hidden; position: relative; display: flex; flex-direction: column; background: var(--panel); color: var(--text); }
+  .screen.black { background: #000; color: #fff; }
+  .notch { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 110px; height: 26px; background: #000; border-radius: 14px; z-index: 40; }
+  .status { height: 44px; flex: none; display: flex; justify-content: space-between; align-items: flex-end; padding: 0 26px 6px; font-size: 13px; font-weight: 600; z-index: 30; }
+  .screen.black .status { position: absolute; left: 0; right: 0; top: 0; color: #fff; }
+
+  /* ---------- Avatars / ring ---------- */
+  .av { border-radius: 50%; flex: none; display: grid; place-items: center; font-weight: 700; color: #fff; }
+  .ring { border-radius: 50%; padding: 3px; background: var(--ring); flex: none; }
+  .ring.seen { background: var(--seen); }
+  .ring.close { background: conic-gradient(#22c55e, #86efac, #22c55e); }
+  .ring > .gap { border-radius: 50%; padding: 2.5px; background: var(--panel); }
+  .screen.black .ring > .gap { background: #000; }
+  .g1 { background: linear-gradient(135deg,#7c3aed,#06b6d4); }
+  .g2 { background: linear-gradient(135deg,#f59e0b,#ef4444); }
+  .g3 { background: linear-gradient(135deg,#10b981,#3b82f6); }
+  .g4 { background: linear-gradient(135deg,#ec4899,#8b5cf6); }
+  .g5 { background: linear-gradient(135deg,#0ea5e9,#6366f1); }
+  .g6 { background: linear-gradient(135deg,#f97316,#eab308); }
+
+  /* ---------- Frame 1: Home ---------- */
+  .appbar { display: flex; justify-content: space-between; align-items: center; padding: 6px 16px 8px; }
+  .wordmark { font-size: 22px; font-weight: 800; letter-spacing: -0.03em; }
+  .wordmark span { color: var(--brand); }
+  .icons { display: flex; gap: 18px; font-size: 20px; }
+  .tray { display: flex; gap: 14px; padding: 8px 14px 12px; overflow-x: auto; scrollbar-width: none; border-bottom: 1px solid var(--line); }
+  .tray::-webkit-scrollbar { display: none; }
+  .tray-item { display: flex; flex-direction: column; align-items: center; gap: 5px; width: 74px; flex: none; cursor: pointer; }
+  .tray-item .label { font-size: 12px; max-width: 74px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tray-item.seen .label { color: var(--muted); }
+  .me { position: relative; }
+  .plus { position: absolute; right: -1px; bottom: -1px; width: 22px; height: 22px; border-radius: 50%; background: var(--brand); border: 2.5px solid var(--panel); color: #fff; display: grid; place-items: center; font-size: 15px; font-weight: 700; line-height: 1; }
+  .post-head { display: flex; align-items: center; gap: 10px; padding: 12px 14px 10px; font-size: 14px; font-weight: 700; }
+  .post-head small { color: var(--muted); font-weight: 400; margin-left: 4px; }
+  .post-img { height: 250px; background: linear-gradient(160deg,#0ea5e9,#6366f1 55%,#d946ef); }
+  .post-actions { display: flex; gap: 16px; padding: 10px 14px; font-size: 21px; }
+  .tabbar { margin-top: auto; height: 62px; border-top: 1px solid var(--line); display: flex; justify-content: space-around; align-items: center; font-size: 22px; padding-bottom: 8px; flex: none; }
+
+  /* ---------- Frame 2: Viewer ---------- */
+  .story-bg { position: absolute; inset: 0; transition: background .2s; }
+  .scrim-top { position: absolute; top: 0; left: 0; right: 0; height: 150px; background: linear-gradient(rgba(0,0,0,.55), transparent); z-index: 5; pointer-events: none; }
+  .scrim-bot { position: absolute; bottom: 0; left: 0; right: 0; height: 190px; background: linear-gradient(transparent, rgba(0,0,0,.6)); z-index: 5; pointer-events: none; }
+  .bars { position: absolute; top: 40px; left: 8px; right: 8px; display: flex; gap: 3px; z-index: 10; }
+  .bar { flex: 1; height: 2.5px; border-radius: 2px; background: rgba(255,255,255,.35); overflow: hidden; }
+  .bar i { display: block; height: 100%; width: 0; background: #fff; }
+  .viewer-head { position: absolute; top: 52px; left: 12px; right: 10px; display: flex; align-items: center; gap: 10px; z-index: 10; }
+  .viewer-head .who { font-size: 14px; font-weight: 700; text-shadow: 0 1px 3px rgba(0,0,0,.4); }
+  .viewer-head .who small { font-weight: 400; opacity: .8; margin-left: 6px; }
+  .viewer-head .sp { flex: 1; }
+  .viewer-head .ic { font-size: 20px; width: 30px; text-align: center; cursor: pointer; }
+  .tap { position: absolute; top: 100px; bottom: 120px; z-index: 6; }
+  .tap.l { left: 0; width: 30%; } .tap.r { right: 0; width: 70%; }
+  .overlay-text { position: absolute; left: 50%; transform: translateX(-50%); text-align: center; font-weight: 800; z-index: 4; text-shadow: 0 2px 8px rgba(0,0,0,.4); }
+  .poll { position: absolute; left: 50%; transform: translateX(-50%); top: 52%; width: 250px; background: #fff; color: #111; border-radius: 16px; padding: 10px 12px 12px; z-index: 7; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+  .poll p { font-size: 14px; font-weight: 800; margin-bottom: 8px; }
+  .poll .opts { display: flex; gap: 6px; }
+  .poll .opt { flex: 1; border-radius: 10px; padding: 9px 4px; font-size: 13px; font-weight: 700; background: #f1f3f5; }
+  .poll .opt.win { background: linear-gradient(90deg,#c4b5fd 62%,#f1f3f5 62%); }
+  .mention { position: absolute; z-index: 7; background: #fff; color: #7c3aed; font-weight: 800; font-size: 13px; padding: 5px 10px; border-radius: 8px; }
+  .reply-area { position: absolute; left: 0; right: 0; bottom: 0; padding: 0 12px 22px; z-index: 12; display: flex; flex-direction: column; gap: 10px; }
+  .reactions { display: none; justify-content: space-between; padding: 0 6px; font-size: 28px; }
+  .reply-area.focus .reactions { display: flex; }
+  .reply-row { display: flex; gap: 12px; align-items: center; }
+  .reply-in { flex: 1; height: 44px; border-radius: 999px; border: 1.5px solid rgba(255,255,255,.65); display: flex; align-items: center; padding: 0 16px; font-size: 14px; color: rgba(255,255,255,.85); background: rgba(0,0,0,.18); cursor: text; }
+  .reply-row .ic { font-size: 24px; cursor: pointer; }
+  .heart.on { color: #ef4444; }
+  .viewers { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; }
+  .viewers .stack { display: flex; } .viewers .stack .av { margin-left: -8px; border: 2px solid #000; }
+  .viewers .stack .av:first-child { margin-left: 0; }
+  .hint { position: absolute; z-index: 20; left: 50%; bottom: 96px; transform: translateX(-50%); background: rgba(0,0,0,.6); color: #fff; font-size: 12px; padding: 5px 12px; border-radius: 999px; white-space: nowrap; opacity: 0; transition: opacity .2s; pointer-events: none; }
+  .hint.show { opacity: 1; }
+  .paused .bars, .paused .viewer-head, .paused .reply-area { opacity: 0; }
+  .bars, .viewer-head, .reply-area { transition: opacity .15s; }
+
+  /* ---------- Frame 3/4: Creator ---------- */
+  .cam { position: absolute; inset: 0; background: radial-gradient(circle at 30% 30%, #1f3a52, #0b121a 70%); }
+  .cam::after { content:""; position:absolute; inset:0; background: linear-gradient(transparent 60%, rgba(0,0,0,.6)); }
+  .top-tools { position: absolute; top: 48px; left: 14px; right: 14px; display: flex; justify-content: space-between; align-items: center; z-index: 10; font-size: 22px; }
+  .side-tools { position: absolute; right: 12px; top: 100px; display: flex; flex-direction: column; gap: 18px; z-index: 10; align-items: center; }
+  .side-tools .t { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 22px; text-shadow: 0 1px 4px rgba(0,0,0,.6); }
+  .side-tools .t small { font-size: 10px; font-weight: 600; }
+  .shutter-row { position: absolute; left: 0; right: 0; bottom: 86px; display: flex; justify-content: space-around; align-items: center; z-index: 10; }
+  .shutter { width: 76px; height: 76px; border-radius: 50%; border: 4px solid #fff; display: grid; place-items: center; }
+  .shutter i { width: 60px; height: 60px; border-radius: 50%; background: #fff; display: block; }
+  .thumb { width: 38px; height: 38px; border-radius: 10px; border: 2px solid #fff; background: linear-gradient(135deg,#f59e0b,#ef4444); }
+  .flip { font-size: 28px; }
+  .modes { position: absolute; left: 0; right: 0; bottom: 30px; display: flex; justify-content: center; gap: 22px; font-size: 13px; font-weight: 700; letter-spacing: .06em; z-index: 10; }
+  .modes span { opacity: .55; cursor: pointer; } .modes span.on { opacity: 1; background: rgba(255,255,255,.18); padding: 4px 12px; border-radius: 999px; margin: -4px 0; }
+  .edit-bg { position: absolute; inset: 0; background: linear-gradient(170deg,#0ea5e9,#6366f1 50%,#d946ef); }
+  .share-bar { position: absolute; left: 0; right: 0; bottom: 0; padding: 0 14px 26px; z-index: 12; display: flex; gap: 8px; align-items: center; }
+  .pill { white-space: nowrap; height: 42px; border-radius: 999px; display: flex; align-items: center; gap: 8px; padding: 0 14px 0 6px; font-size: 13px; font-weight: 700; background: rgba(0,0,0,.45); backdrop-filter: blur(6px); }
+  .pill.close { background: rgba(0,0,0,.45); }
+  .pill .star { width: 28px; height: 28px; border-radius: 50%; background: #22c55e; display: grid; place-items: center; font-size: 14px; }
+  .send { margin-left: auto; width: 46px; height: 46px; border-radius: 50%; background: #fff; color: #111; display: grid; place-items: center; font-size: 20px; font-weight: 800; }
+  .palette { position: absolute; left: 14px; bottom: 96px; display: flex; gap: 8px; z-index: 12; }
+  .palette i { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #fff; display: block; }
+  .sticker-tray { position: absolute; left: 0; right: 0; bottom: 0; height: 290px; background: var(--panel); color: var(--text); border-radius: 22px 22px 0 0; z-index: 20; padding: 8px 16px; }
+  .sticker-tray .grab { width: 38px; height: 4px; border-radius: 2px; background: var(--line); margin: 0 auto 10px; }
+  .sticker-tray .search { height: 36px; border-radius: 10px; background: var(--bg); color: var(--muted); font-size: 13px; display: flex; align-items: center; padding: 0 12px; margin-bottom: 12px; }
+  .sticker-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .sticker-grid .s { height: 46px; border-radius: 12px; display: grid; place-items: center; font-size: 13px; font-weight: 800; background: var(--bg); }
+  .emoji-row { display: flex; justify-content: space-between; font-size: 30px; margin-top: 14px; }
+
+  /* ---------- Frame 5: Profile ---------- */
+  .prof-head, .prof-bio, .prof-btns, .grid-tabs { flex: none; }
+  .prof-head { display: flex; align-items: center; gap: 22px; padding: 10px 18px 6px; }
+  .prof-stats { display: flex; gap: 20px; flex: 1; justify-content: space-around; text-align: center; font-size: 12px; color: var(--muted); }
+  .prof-stats b { display: block; font-size: 17px; color: var(--text); }
+  .prof-bio { padding: 4px 18px 10px; font-size: 13px; line-height: 1.45; }
+  .prof-bio b { font-size: 14px; }
+  .prof-btns { display: flex; gap: 6px; padding: 0 18px 12px; }
+  .prof-btns div { flex: 1; text-align: center; font-size: 13px; font-weight: 700; padding: 8px 0; border-radius: 9px; background: var(--bg); }
+  .highlights { flex: none; display: flex; gap: 14px; padding: 4px 16px 14px; overflow-x: auto; scrollbar-width: none; }
+  .hl { display: flex; flex-direction: column; align-items: center; gap: 5px; width: 66px; flex: none; font-size: 12px; }
+  .hl .c { flex: none; width: 64px; height: 64px; border-radius: 50%; border: 1.5px solid var(--seen); padding: 3px; }
+  .hl .c .av { width: 100%; height: 100%; font-size: 22px; }
+  .hl .c.new { display: grid; place-items: center; font-size: 28px; color: var(--muted); font-weight: 300; }
+  .grid-tabs { display: flex; border-top: 1px solid var(--line); }
+  .grid-tabs div { flex: 1; text-align: center; padding: 10px 0; font-size: 20px; opacity: .45; }
+  .grid-tabs div.on { opacity: 1; border-bottom: 2px solid var(--text); }
+  .photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+  .photo-grid i { aspect-ratio: 1; display: block; }
+
+  /* ---------- Change table ---------- */
+  .table { width: 100%; max-width: 1100px; background: var(--panel); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+  .table h2 { font-size: 16px; padding: 16px 20px; border-bottom: 1px solid var(--line); }
+  .row { display: grid; grid-template-columns: 1.1fr 1fr 1fr 1.2fr; gap: 16px; padding: 12px 20px; border-bottom: 1px solid var(--line); font-size: 13px; line-height: 1.45; }
+  .row:last-child { border-bottom: 0; }
+  .row.h { color: var(--muted); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; }
+  .row code { font-size: 12px; color: var(--brand); }
+  .row .old { color: var(--muted); }
+  @media (max-width: 900px) { .row { grid-template-columns: 1fr; gap: 4px; } .row.h { display: none; } }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Aqua Stories — estilo Instagram</h1>
+  <p class="subtitle">Proposta visual para deixar o Aqua Stories mais familiar: anel em degradê, ícone "+" no seu story, player com barra de progresso fina e resposta em pílula, criador com barra lateral de ferramentas e compartilhamento em "Seu story / Amigos próximos". Os frames são interativos.</p>
+  <button class="toggle" id="theme">☀️ / 🌙 Alternar tema</button>
+</header>
+
+<div class="frames">
+
+  <!-- ============ 1. HOME / BANDEJA ============ -->
+  <div class="frame-wrap">
+    <div class="frame-label">1 · Bandeja na Home</div>
+    <div class="phone"><div class="screen">
+      <div class="notch"></div>
+      <div class="status"><span>9:41</span><span>5G ▮▮▮</span></div>
+      <div class="appbar"><div class="wordmark">aqua<span>social</span></div><div class="icons"><span>♡</span><span>✉</span></div></div>
+
+      <div class="tray">
+        <div class="tray-item" data-open="0">
+          <div class="me">
+            <div class="av g1" style="width:74px;height:74px;font-size:26px;border:3px solid var(--panel);box-shadow:0 0 0 1.5px var(--seen)">AS</div>
+            <div class="plus">+</div>
+          </div>
+          <div class="label">Seu story</div>
+        </div>
+        <div class="tray-item" data-open="1"><div class="ring"><div class="gap"><div class="av g2" style="width:62px;height:62px;font-size:22px">LM</div></div></div><div class="label">luma.m</div></div>
+        <div class="tray-item" data-open="2"><div class="ring"><div class="gap"><div class="av g3" style="width:62px;height:62px;font-size:22px">RB</div></div></div><div class="label">rafa_bastos</div></div>
+        <div class="tray-item" data-open="0"><div class="ring close"><div class="gap"><div class="av g4" style="width:62px;height:62px;font-size:22px">JP</div></div></div><div class="label">jpaulo ★</div></div>
+        <div class="tray-item seen"><div class="ring seen"><div class="gap"><div class="av g5" style="width:62px;height:62px;font-size:22px">NK</div></div></div><div class="label">nina.k</div></div>
+        <div class="tray-item seen"><div class="ring seen"><div class="gap"><div class="av g6" style="width:62px;height:62px;font-size:22px">TV</div></div></div><div class="label">tavares</div></div>
+      </div>
+
+      <div class="post-head"><div class="av g2" style="width:34px;height:34px;font-size:12px">LM</div>luma.m <small>· 2 h</small><span style="margin-left:auto">⋯</span></div>
+      <div class="post-img"></div>
+      <div class="post-actions"><span>♡</span><span>💬</span><span>➤</span><span style="margin-left:auto">🔖</span></div>
+      <div class="tabbar"><span>⌂</span><span>⌕</span><span>＋</span><span>▶</span><span>◉</span></div>
+    </div></div>
+    <div class="notes"><b>O que muda</b>
+      <ul>
+        <li>Anel em <b>degradê</b> (violeta → magenta → âmbar) em vez de roxo chapado; visto = cinza.</li>
+        <li><b>Amigos próximos</b>: anel verde.</li>
+        <li>"Seu story" com <b>avatar grande + botão +</b> com borda; sem anel quando não há story.</li>
+        <li>Avatares 74 px, rótulo 12 px; vistos ficam com rótulo apagado.</li>
+      </ul>
+      <p style="margin-top:6px">Toque num avatar para abrir o player (frame 2).</p>
+    </div>
+  </div>
+
+  <!-- ============ 2. VIEWER ============ -->
+  <div class="frame-wrap">
+    <div class="frame-label">2 · Player de story</div>
+    <div class="phone"><div class="screen black" id="viewer">
+      <div class="notch"></div>
+      <div class="story-bg" id="storyBg"></div>
+      <div class="status"><span>9:41</span><span>5G ▮▮▮</span></div>
+      <div class="scrim-top"></div><div class="scrim-bot"></div>
+
+      <div class="bars" id="bars"></div>
+      <div class="viewer-head">
+        <div class="ring"><div class="gap"><div class="av g2" style="width:30px;height:30px;font-size:11px">LM</div></div></div>
+        <div class="who">luma.m<small id="when">3 h</small></div>
+        <div class="sp"></div>
+        <div class="ic">⋯</div><div class="ic">✕</div>
+      </div>
+
+      <div id="content"></div>
+
+      <div class="tap l" id="tapL"></div><div class="tap r" id="tapR"></div>
+
+      <div class="reply-area" id="reply">
+        <div class="reactions"><span>😂</span><span>😮</span><span>😍</span><span>😢</span><span>👏</span><span>🔥</span></div>
+        <div class="reply-row">
+          <div class="reply-in" id="replyIn">Enviar mensagem para luma.m…</div>
+          <span class="ic heart" id="heart">♡</span>
+          <span class="ic">➤</span>
+        </div>
+      </div>
+      <div class="hint" id="hint"></div>
+    </div></div>
+    <div class="notes"><b>O que muda</b>
+      <ul>
+        <li>Barras de progresso <b>2,5 px</b> com degradê no topo (já existe, mantém o comportamento de pausa/retomar).</li>
+        <li>Cabeçalho: avatar com anel + <b>nome em negrito e tempo na mesma linha</b>; menu <b>⋯</b> (excluir, silenciar, denunciar) em vez do ícone de lixeira solto.</li>
+        <li>Resposta em <b>pílula com contorno</b> + <b>coração</b> e <b>enviar</b>, como o Instagram; as 6 reações aparecem ao focar o campo.</li>
+        <li>Figurinhas novas: <b>enquete</b> e <b>@menção</b>.</li>
+        <li>No seu próprio story: <b>"Visto por 12"</b> no rodapé.</li>
+      </ul>
+      <p style="margin-top:6px">Toque à direita/esquerda para avançar/voltar · segure para pausar · toque no campo para ver as reações · toque no ♡.</p>
+    </div>
+  </div>
+
+  <!-- ============ 3. CRIADOR: CAPTURA ============ -->
+  <div class="frame-wrap">
+    <div class="frame-label">3 · Criar story — câmera</div>
+    <div class="phone"><div class="screen black">
+      <div class="notch"></div>
+      <div class="cam"></div>
+      <div class="status"><span>9:41</span><span>5G ▮▮▮</span></div>
+      <div class="top-tools"><span>✕</span><span style="font-size:15px;font-weight:700">⚡ Flash</span><span>⚙</span></div>
+      <div class="side-tools">
+        <div class="t"><b style="font-size:20px">Aa</b><small>Texto</small></div>
+        <div class="t"><span>☺</span><small>Figurinha</small></div>
+        <div class="t"><span>♫</span><small>Música</small></div>
+        <div class="t"><span>✨</span><small>Efeitos</small></div>
+        <div class="t"><span>▦</span><small>Layout</small></div>
+        <div class="t"><span>⌄</span></div>
+      </div>
+      <div class="shutter-row"><div class="thumb"></div><div class="shutter"><i></i></div><div class="flip">⟲</div></div>
+      <div class="modes" id="modes"><span>TEXTO</span><span class="on">FOTO</span><span>BOOMERANG</span></div>
+    </div></div>
+    <div class="notes"><b>O que muda</b>
+      <ul>
+        <li>Hoje o criador abre num <b>seletor "Foto / Texto"</b> em cartões; passa a abrir direto na <b>câmera</b> com galeria no canto, como o Instagram.</li>
+        <li>Barra lateral de ferramentas à direita (Texto, Figurinha, Música, Efeitos, Layout) no lugar dos botões "Aa Texto / Figurinha / Trocar foto" abaixo da prévia.</li>
+        <li>Carrossel de modos embaixo: <b>Texto</b> (fundo colorido, já existe), <b>Foto</b>, <b>Boomerang</b>.</li>
+      </ul>
+      <p style="margin-top:6px">Clique nos modos para alternar.</p>
+    </div>
+  </div>
+
+  <!-- ============ 4. CRIADOR: EDITOR / COMPARTILHAR ============ -->
+  <div class="frame-wrap">
+    <div class="frame-label">4 · Editar e compartilhar</div>
+    <div class="phone"><div class="screen black" id="editor">
+      <div class="notch"></div>
+      <div class="edit-bg"></div>
+      <div class="status"><span>9:41</span><span>5G ▮▮▮</span></div>
+      <div class="top-tools"><span>‹</span><span style="display:flex;gap:18px"><span>Aa</span><span>☺</span><span>✎</span><span>⋯</span></span></div>
+      <div class="overlay-text" style="top:230px;font-size:34px">Sábado no<br>mar 🌊</div>
+      <div class="mention" style="top:340px;left:80px;transform:rotate(-4deg)">@rafa_bastos</div>
+      <div class="palette"><i style="background:#fff"></i><i style="background:#111"></i><i style="background:#7c3aed"></i><i style="background:#f59e0b"></i><i style="background:#22c55e"></i></div>
+      <div class="share-bar" id="shareBar">
+        <div class="pill"><div class="av g1" style="width:28px;height:28px;font-size:10px">AS</div>Seu story</div>
+        <div class="pill close"><div class="star">★</div>Amigos próximos</div>
+        <div class="send">➤</div>
+      </div>
+      <div class="sticker-tray" id="stickers" style="display:none">
+        <div class="grab"></div>
+        <div class="search">⌕ Buscar figurinhas</div>
+        <div class="sticker-grid">
+          <div class="s">📍 LOCAL</div><div class="s">@ MENÇÃO</div><div class="s">📊 ENQUETE</div>
+          <div class="s">❓ PERGUNTAS</div><div class="s">🕐 HORA</div><div class="s">#️⃣ HASHTAG</div>
+        </div>
+        <div class="emoji-row"><span>😍</span><span>🔥</span><span>🌊</span><span>✨</span><span>🥳</span><span>💜</span></div>
+      </div>
+    </div></div>
+    <div class="notes"><b>O que muda</b>
+      <ul>
+        <li>Rodapé de compartilhamento: <b>Seu story</b> e <b>Amigos próximos ★</b> + botão de enviar redondo, no lugar do botão "Publicar story" + legenda.</li>
+        <li>Ferramentas no topo (Texto, Figurinha, Desenho, Mais) e <b>seletor de cor</b> em bolinhas.</li>
+        <li><b>Bandeja de figurinhas</b> deslizante com busca, local, menção, enquete, perguntas, emojis.</li>
+      </ul>
+      <p style="margin-top:6px">Clique em <b>☺</b> no topo para abrir a bandeja de figurinhas.</p>
+    </div>
+  </div>
+
+  <!-- ============ 5. PERFIL / DESTAQUES ============ -->
+  <div class="frame-wrap">
+    <div class="frame-label">5 · Perfil e destaques</div>
+    <div class="phone"><div class="screen">
+      <div class="notch"></div>
+      <div class="status"><span>9:41</span><span>5G ▮▮▮</span></div>
+      <div class="appbar"><div style="font-weight:800;font-size:17px">aquasamuel ⌄</div><div class="icons"><span>＋</span><span>☰</span></div></div>
+      <div class="prof-head">
+        <div class="ring"><div class="gap"><div class="av g1" style="width:80px;height:80px;font-size:28px">AS</div></div></div>
+        <div class="prof-stats"><div><b>128</b>posts</div><div><b>4,2 mil</b>seguidores</div><div><b>310</b>seguindo</div></div>
+      </div>
+      <div class="prof-bio"><b>Samuel Aqua</b><br>Criador · mar, música e código 🌊<br>aquasocial.app</div>
+      <div class="prof-btns"><div>Editar perfil</div><div>Compartilhar</div></div>
+      <div class="highlights">
+        <div class="hl"><div class="c"><div class="av g2">🌅</div></div>Verão</div>
+        <div class="hl"><div class="c"><div class="av g3">🎧</div></div>Sets</div>
+        <div class="hl"><div class="c"><div class="av g4">✈️</div></div>Viagens</div>
+        <div class="hl"><div class="c"><div class="av g5">🐠</div></div>Mergulho</div>
+        <div class="hl"><div class="c new">+</div>Novo</div>
+      </div>
+      <div class="grid-tabs"><div class="on">▦</div><div>▶</div><div>☺</div></div>
+      <div class="photo-grid">
+        <i class="g1"></i><i class="g2"></i><i class="g3"></i><i class="g4"></i><i class="g5"></i><i class="g6"></i><i class="g3"></i><i class="g1"></i><i class="g2"></i>
+      </div>
+    </div></div>
+    <div class="notes"><b>O que muda</b>
+      <ul>
+        <li>Avatar do perfil com <b>anel de story</b> quando há story ativo (toque abre o player).</li>
+        <li>Destaques em círculos de <b>64 px</b> com borda fina e botão <b>"Novo"</b> no fim, como no Instagram.</li>
+        <li>Rótulos curtos e centralizados abaixo de cada destaque.</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+<section class="table">
+  <h2>Mapa de implementação</h2>
+  <div class="row h"><div>Arquivo</div><div>Hoje</div><div>Proposta</div><div>Esforço</div></div>
+  <div class="row"><div><code>components/stories/StoryRing.tsx</code></div><div class="old">Arcos roxos <code>#7C3AED</code> por story, cinza quando visto</div><div>Degradê via <code>react-native-svg</code> <code>LinearGradient</code> + anel verde p/ amigos próximos</div><div>Pequeno — só trocar o <code>stroke</code></div></div>
+  <div class="row"><div><code>components/stories/StoriesTray.tsx</code></div><div class="old">Anel 68 px, "+" roxo sem borda, "Seu story" sempre com anel</div><div>74 px, "+" com borda da cor do fundo, sem anel quando vazio, rótulo apagado quando visto</div><div>Pequeno</div></div>
+  <div class="row"><div><code>components/stories/StoryViewer.tsx</code></div><div class="old">Lixeira + X soltos, botão "Enviar" texto, reações sempre visíveis</div><div>Menu ⋯, ♡ + ➤ no campo, reações só ao focar, "Visto por N" no seu story, scrims em degradê</div><div>Médio — "Visto por" precisa de dado novo no backend</div></div>
+  <div class="row"><div><code>screens/Stories/StoryCreatorScreen.tsx</code></div><div class="old">Seletor Foto/Texto em cartões; botões abaixo da prévia; "Publicar story"</div><div>Abre na câmera, barra lateral de ferramentas, rodapé "Seu story / Amigos próximos", bandeja de figurinhas</div><div>Maior — refatoração do fluxo; "Amigos próximos" precisa de lista e de permissão no backend</div></div>
+  <div class="row"><div><code>components/stories/HighlightsRow.tsx</code></div><div class="old">Destaques sem "Novo" padronizado</div><div>64 px + borda fina + botão "Novo"</div><div>Pequeno</div></div>
+</section>
+
+<script>
+  // theme
+  document.getElementById('theme').onclick = () => document.body.classList.toggle('light');
+
+  // tray -> scroll to viewer
+  document.querySelectorAll('[data-open]').forEach(el => el.onclick = () => {
+    document.getElementById('viewer').scrollIntoView({behavior:'smooth', block:'center'});
+    go(0);
+  });
+
+  // ---- viewer
+  const stories = [
+    {bg:'linear-gradient(170deg,#0f2027,#2c5364 55%,#f59e0b)', when:'3 h',
+     html:'<div class="overlay-text" style="top:200px;font-size:36px">Pôr do sol<br>na praia 🌅</div><div class="poll"><p>Vamos amanhã?</p><div class="opts"><div class="opt win">Sim 🙌</div><div class="opt">Não</div></div></div>'},
+    {bg:'linear-gradient(170deg,#312e81,#7c3aed 60%,#ec4899)', when:'2 h',
+     html:'<div class="overlay-text" style="top:260px;font-size:40px">Set novo<br>no ar 🎧</div><div class="mention" style="top:420px;left:90px;transform:rotate(-4deg)">@rafa_bastos</div>'},
+    {bg:'linear-gradient(170deg,#064e3b,#10b981 60%,#a7f3d0)', when:'35 min',
+     html:'<div class="overlay-text" style="top:300px;font-size:32px">Bom dia, mar 🌊</div>'},
+  ];
+  const DUR = 5000;
+  let idx = 0, start = 0, elapsed = 0, raf = null, paused = false;
+  const bars = document.getElementById('bars');
+  const content = document.getElementById('content');
+  const viewer = document.getElementById('viewer');
+
+  function render() {
+    bars.innerHTML = stories.map(() => '<div class="bar"><i></i></div>').join('');
+    document.getElementById('storyBg').style.background = stories[idx].bg;
+    document.getElementById('when').textContent = stories[idx].when;
+    content.innerHTML = stories[idx].html;
+    [...bars.children].forEach((b, i) => { if (i < idx) b.firstChild.style.width = '100%'; });
+  }
+  function tick(now) {
+    if (!paused) {
+      const p = Math.min(1, (elapsed + (now - start)) / DUR);
+      bars.children[idx].firstChild.style.width = (p * 100) + '%';
+      if (p >= 1) return go(idx + 1);
+    }
+    raf = requestAnimationFrame(tick);
+  }
+  function go(n) {
+    cancelAnimationFrame(raf);
+    idx = ((n % stories.length) + stories.length) % stories.length;
+    elapsed = 0; start = performance.now(); paused = false;
+    viewer.classList.remove('paused');
+    render(); raf = requestAnimationFrame(tick);
+  }
+  function setPaused(p) {
+    if (p === paused) return;
+    const now = performance.now();
+    if (p) elapsed += now - start; else start = now;
+    paused = p; viewer.classList.toggle('paused', p);
+  }
+  function bind(el, dir) {
+    let t = 0, held = false, timer;
+    el.addEventListener('pointerdown', () => { held = false; t = Date.now(); timer = setTimeout(() => { held = true; setPaused(true); }, 200); });
+    const up = () => { clearTimeout(timer); if (held) { setPaused(false); } else go(idx + dir); };
+    el.addEventListener('pointerup', up);
+    el.addEventListener('pointerleave', () => { clearTimeout(timer); if (held) { held = false; setPaused(false); } });
+  }
+  bind(document.getElementById('tapL'), -1);
+  bind(document.getElementById('tapR'), 1);
+
+  const reply = document.getElementById('reply');
+  document.getElementById('replyIn').onclick = () => { reply.classList.toggle('focus'); setPaused(reply.classList.contains('focus')); };
+  const hint = document.getElementById('hint');
+  reply.querySelectorAll('.reactions span').forEach(s => s.onclick = () => {
+    hint.textContent = 'Reação ' + s.textContent + ' enviada'; hint.classList.add('show');
+    setTimeout(() => hint.classList.remove('show'), 1400);
+  });
+  const heart = document.getElementById('heart');
+  heart.onclick = () => { heart.classList.toggle('on'); heart.textContent = heart.classList.contains('on') ? '♥' : '♡'; };
+  go(0);
+
+  // ---- creator modes
+  document.querySelectorAll('#modes span').forEach(s => s.onclick = () => {
+    document.querySelectorAll('#modes span').forEach(x => x.classList.remove('on')); s.classList.add('on');
+  });
+
+  // ---- sticker tray
+  const tools = document.querySelectorAll('#editor .top-tools span span');
+  const tray = document.getElementById('stickers');
+  const bar = document.getElementById('shareBar');
+  tools[1].style.cursor = 'pointer';
+  tools[1].onclick = () => { const open = tray.style.display === 'none'; tray.style.display = open ? 'block' : 'none'; bar.style.display = open ? 'none' : 'flex'; };
+  tray.onclick = e => { if (e.target.closest('.grab')) { tray.style.display = 'none'; bar.style.display = 'flex'; } };
+</script>
+</body>
+</html>

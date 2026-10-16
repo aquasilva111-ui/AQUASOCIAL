@@ -127,7 +127,7 @@ export function TextInput({
   )
 
   const onPaste = useCallback(
-    async (err: string | undefined, files: PastedFile[]) => {
+    async (err: string | null | undefined, files: PastedFile[]) => {
       if (err) {
         return onError(cleanError(err))
       }
