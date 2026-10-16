@@ -131,7 +131,8 @@ function Rail() {
         a.gap_xs,
         a.py_lg,
         a.border_r,
-        t.atoms.border_contrast_low,
+        // Keep the 1px rail edge so the rail width does not change.
+        {borderRightColor: 'transparent'},
         web({
           position: 'sticky',
           top: 0,
