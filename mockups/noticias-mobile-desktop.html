@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Notícias — Mockup Smartphone e Desktop — Aqua</title>
+<style>
+/* Mockup da página de Notícias (smartphone + desktop).
+   Inspirado em layout editorial: logo em pílula, menu hambúrguer, título grande,
+   imagens com cantos muito arredondados, texto corrido e botão "Ler mais" em contorno.
+   Identidade Aqua: azul #0045f0 / #00a0ff, tinta preta, tipografia pesada e compacta. */
+:root{
+  --bg:#ececf1; --paper:#fff; --ink:#000; --muted:#5d6675; --line:#d9dde6;
+  --aqua:#00a0ff; --aqua-deep:#002af0; --btn:#0045f0;
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);-webkit-font-smoothing:antialiased}
+.wrap{max-width:1280px;margin:0 auto;padding:36px 20px 80px}
+h1.title{margin:0 0 6px;font-size:clamp(30px,5vw,52px);letter-spacing:-.045em;font-weight:900;line-height:1}
+.lead{margin:0 0 36px;color:var(--muted);font-size:15px;max-width:60ch;line-height:1.45}
+.lbl{font:700 12px ui-monospace,Menlo,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 14px}
+
+/* ---------- escala (cada mockup é desenhado em tamanho fixo e escalado) ---------- */
+.fit{width:100%;position:relative;margin-bottom:56px}
+.fit>.inner{transform-origin:0 0;position:absolute;left:0;top:0}
+
+/* ---------- smartphones ---------- */
+.phones{display:flex;gap:44px;width:max-content}
+.phone{width:310px;height:640px;background:#000;border-radius:46px;padding:9px;position:relative;box-shadow:0 24px 50px -20px #0006}
+.phone:before{content:"";position:absolute;left:50%;top:16px;width:84px;height:22px;background:#000;border-radius:99px;transform:translateX(-50%);z-index:5}
+.screen{width:100%;height:100%;background:var(--paper);border-radius:38px;overflow:hidden;position:relative;display:flex;flex-direction:column}
+.status{height:44px;flex:none;display:flex;justify-content:space-between;align-items:flex-end;padding:0 24px 6px;font:700 12px var(--font)}
+.status i{display:inline-block;width:16px;height:9px;border:1.5px solid #000;border-radius:3px;position:relative}
+.status i:after{content:"";position:absolute;inset:1.5px;right:5px;background:#000;border-radius:1px}
+.scroll{flex:1;overflow:hidden;padding:6px 16px 0;position:relative}
+.scroll:after{content:"";position:absolute;left:0;right:0;bottom:0;height:34px;background:linear-gradient(#fff0,#fff)}
+.tabbar{flex:none;height:62px;border-top:1px solid var(--line);display:flex;justify-content:space-around;align-items:center;padding:0 10px 8px;background:#fff}
+.tabbar span{display:flex;flex-direction:column;align-items:center;gap:3px;font:700 9.5px var(--font);color:var(--muted)}
+.tabbar span.on{color:var(--btn)}
+.tabbar svg{width:22px;height:22px}
+
+/* cabeçalho mobile */
+.mh{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.logo{width:34px;height:34px;flex:none}
+.pill-s{flex:1;height:34px;border:2px solid var(--ink);border-radius:99px;display:flex;align-items:center;gap:6px;padding:0 10px;font:500 11.5px var(--font);color:var(--muted);min-width:0;white-space:nowrap;overflow:hidden}
+.pill-s svg{width:15px;height:15px;flex:none}
+.burger{width:34px;height:34px;border:2px solid var(--ink);border-radius:50%;display:grid;place-content:center;gap:3.5px;flex:none}
+.burger b{display:block;width:14px;height:2px;background:#000;border-radius:2px}
+
+.sec{margin:0;font-size:40px;line-height:.95;letter-spacing:-.05em;font-weight:900;color:var(--aqua)}
+.sec.sm{font-size:30px}
+.sub{font-size:11px;color:var(--muted);margin:6px 0 12px;line-height:1.35}
+
+/* arte (placeholder para foto) */
+.art{position:relative;overflow:hidden;border:2px solid var(--ink);background:var(--g);flex:none}
+.art:after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(118deg,#ffffff30 0 2px,transparent 2px 12px)}
+.art em{position:absolute;left:10px;bottom:8px;z-index:1;font:800 9px var(--font);font-style:normal;letter-spacing:.09em;color:#fff;text-transform:uppercase}
+.sq{border-radius:30px 30px 30px 8px}
+.sq2{border-radius:8px 30px 30px 30px}
+.sq3{border-radius:30px}
+
+.meta{font-size:10.5px;color:var(--muted);display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.meta b{color:var(--ink)}
+.live{width:7px;height:7px;border-radius:50%;background:#ff3b30;display:inline-block;animation:pu 1.3s infinite}
+@keyframes pu{50%{opacity:.25}}
+.news h3{margin:6px 0 6px;font-size:19px;line-height:1.12;letter-spacing:-.03em;font-weight:900}
+.news p{margin:0 0 10px;font-size:11.5px;line-height:1.45;color:#222}
+.chips{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+.chips span{font-size:9.5px;font-weight:700;padding:3px 8px;border-radius:99px;background:#000;color:#fff}
+.more{display:inline-block;border:2px solid var(--ink);border-radius:99px;padding:5px 14px;font:700 11px var(--font);background:#fff}
+.more.fill{background:var(--btn);border-color:var(--btn);color:#fff}
+.dots{display:flex;gap:6px;justify-content:center;margin:10px 0 12px}
+.dots i{width:7px;height:7px;border-radius:50%;background:#c9ced9}
+.dots i.on{background:#000}
+
+.row{display:grid;grid-template-columns:1fr 92px;gap:12px;align-items:start;margin-bottom:16px}
+.row h4{margin:2px 0 6px;font-size:13.5px;line-height:1.15;letter-spacing:-.02em;font-weight:900}
+.row .meta{margin-bottom:8px}
+
+/* convenção (arte abstrata sobre escuro) */
+.conv{background:#05070d;border-radius:30px;position:relative;overflow:hidden;color:#dfe8ff}
+.conv .dots-bg{position:absolute;inset:0;background:
+  radial-gradient(circle at 30% 35%,#00a0ffcc 0 6px,transparent 7px),
+  radial-gradient(circle at 68% 28%,#fff 0 4px,transparent 5px),
+  radial-gradient(circle at 55% 66%,#ffd24d 0 5px,transparent 6px),
+  radial-gradient(circle at 22% 72%,#7cf3ff 0 3px,transparent 4px),
+  radial-gradient(circle at 80% 70%,#ff6ab0 0 4px,transparent 5px);}
+.conv svg{position:absolute;inset:0;width:100%;height:100%}
+.conv .tag{position:absolute;left:14px;bottom:12px;font:800 11px var(--font);letter-spacing:.08em;text-transform:uppercase;color:#fff}
+
+/* ---------- desktop ---------- */
+.browser{width:1180px;background:#fff;border-radius:16px;box-shadow:0 30px 70px -28px #0007;overflow:hidden;border:1px solid #c9ced9}
+.bar{height:40px;background:#e6e8ee;display:flex;align-items:center;gap:8px;padding:0 14px}
+.bar i{width:11px;height:11px;border-radius:50%;background:#c3c8d2}
+.bar .url{margin:0 auto;width:420px;height:24px;border-radius:99px;background:#fff;font:500 11.5px var(--font);color:var(--muted);display:flex;align-items:center;justify-content:center}
+.dpage{padding:26px 40px 36px;background:var(--bg-d,#f8f8f8)}
+.dh{display:grid;grid-template-columns:1fr 360px 1fr;align-items:center;gap:20px;margin-bottom:26px}
+.dh .logo{width:60px;height:60px}
+.dh .pill-s{height:42px;font-size:13.5px;padding:0 16px}
+.nav{justify-self:end;display:flex;gap:8px}
+.nav span{border:2px solid var(--ink);border-radius:99px;padding:7px 16px;font:700 13px var(--font);background:#fff}
+.nav span.on{background:var(--btn);border-color:var(--btn);color:#fff}
+.dhead{display:flex;align-items:baseline;gap:18px;margin-bottom:20px}
+.dhead .sec{font-size:66px}
+.dhead small{color:var(--muted);font-size:13.5px;max-width:48ch;line-height:1.4}
+.dgrid{display:grid;grid-template-columns:repeat(12,1fr);gap:26px 22px;align-items:start}
+.dgrid .news h3{font-size:25px}
+.dgrid .news.s h3{font-size:18px}
+.dgrid .news p{font-size:13px}
+.dgrid .news.s p{font-size:12.5px}
+.dgrid .meta{font-size:12px}
+.dgrid .chips span{font-size:11px;padding:4px 10px}
+.dgrid .more{font-size:12.5px;padding:7px 18px}
+.side{grid-column:span 3;background:#fff;border:2px solid var(--ink);border-radius:30px;padding:18px}
+.side h5{margin:0 0 12px;font-size:20px;letter-spacing:-.03em;font-weight:900;color:var(--aqua-deep)}
+.side .conv{height:120px;margin-bottom:10px}
+.side .it{display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid var(--line);padding:9px 0;font:800 14px var(--font);letter-spacing:-.02em}
+.side .it em{font:600 11px ui-monospace,Menlo,monospace;color:var(--muted);font-style:normal}
+.dfoot{margin-top:28px;padding-top:16px;border-top:1px solid var(--line);color:var(--muted);font-size:12px;display:flex;gap:24px}
+.dfoot b{color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1 class="title">Notícias — mockup</h1>
+  <p class="lead">Versão smartphone e desktop da página de Notícias do Aqua, com a mesma linguagem editorial: título grande em azul, imagens com cantos muito arredondados, texto corrido e botão “Ler mais” em contorno. Cada notícia mostra as Convenções que ela ativa.</p>
+
+  <div class="lbl">Smartphone</div>
+  <div class="fit" id="fitPhones"><div class="inner"><div class="phones" id="phones"></div></div></div>
+
+  <div class="lbl">Desktop</div>
+  <div class="fit" id="fitDesk"><div class="inner" id="desk"></div></div>
+</div>
+
+<script>
+/* ---------- peças ---------- */
+const LOGO=`<svg class="logo" viewBox="0 0 1100 1100" role="img" aria-label="Aqua"><circle cx="550" cy="550" r="510" fill="#002AF0"/><circle cx="550" cy="500" r="320" fill="#fff"/><circle cx="550" cy="500" r="205" fill="#00A0FF"/><circle cx="550" cy="500" r="96"/></svg>`;
+const SEARCH=`<svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7.5"/><path d="m20.5 20.5-4.2-4.2"/></svg>`;
+const NET=`<svg viewBox="0 0 200 120" preserveAspectRatio="xMidYMid slice" fill="none" stroke-width=".7"><g stroke="#00a0ff" stroke-opacity=".5"><path d="M60 42 L136 34 L110 80 L44 86 Z"/><path d="M60 42 L110 80"/><path d="M136 34 L44 86"/><path d="M136 34 L160 84 L110 80"/></g><g stroke="#ffd24d" stroke-opacity=".45"><path d="M44 86 L80 104 L110 80"/><path d="M160 84 L186 50 L136 34"/></g></svg>`;
+const G={
+  a:'linear-gradient(135deg,#00a0ff,#002af0)', b:'linear-gradient(135deg,#ffd24d,#ff7a00)',
+  c:'linear-gradient(135deg,#ff3b30,#ffe83a)', d:'linear-gradient(135deg,#ff6ab0,#ffd24d)',
+  e:'linear-gradient(135deg,#2bff7a,#27d9ff)', f:'linear-gradient(135deg,#d6a8ff,#6ad1ff)'
+};
+const art=(g,cls,style,label='mídia')=>`<div class="art ${cls}" style="--g:${G[g]};${style}"><em>${label}</em></div>`;
+const chips=a=>`<div class="chips">${a.map(x=>`<span>${x}</span>`).join('')}</div>`;
+const meta=(src,ago,live)=>`<div class="meta">${live?'<span class="live"></span>':''}<b>${src}</b> · ${ago}</div>`;
+const header=()=>`<div class="mh">${LOGO}<div class="pill-s">${SEARCH}Buscar na realidade</div><div class="burger"><b></b><b></b><b></b></div></div>`;
+const tab=on=>{const t=[['Início','<path d="M3 11 12 3l9 8v10h-6v-6H9v6H3z"/>'],['Notícias','<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 9h8M8 13h8M8 17h5"/>'],['Convenções','<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/>'],['Perfil','<circle cx="12" cy="8" r="4"/><path d="M4 21c1-5 15-5 16 0"/>']];
+  return `<div class="tabbar">${t.map(([n,p],i)=>`<span class="${i===on?'on':''}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">${p}</svg>${n}</span>`).join('')}</div>`};
+const phone=(body,on)=>`<div class="phone"><div class="screen"><div class="status"><span>11:00</span><i></i></div><div class="scroll">${header()}${body}</div>${tab(on)}</div></div>`;
+
+/* ---------- celular 1: lista de notícias ---------- */
+const p1=`
+  <h2 class="sec">Notícias</h2>
+  <div class="sub">O que está acontecendo agora, ligado às Convenções.</div>
+  <div class="row"><div class="news">${meta('Agência Aqua','há 12 min',1)}<h4>Eleições entram na reta final e movimentam o mercado</h4>${chips(['Democracia','Economia'])}<span class="more">Ler mais</span></div>${art('a','sq','aspect-ratio:1/1')}</div>
+  <div class="row"><div class="news">${meta('Tech Aqua','há 1 h')}<h4>Nova geração de modelos de IA chega aos celulares</h4>${chips(['IA'])}<span class="more">Ler mais</span></div>${art('f','sq2','aspect-ratio:1/1')}</div>
+  <div class="row"><div class="news">${meta('Mundo','há 2 h')}<h4>Cúpula discute transição energética</h4>${chips(['Energia'])}<span class="more">Ler mais</span></div>${art('b','sq','aspect-ratio:1/1')}</div>
+  <div class="row"><div class="news">${meta('Mundo','há 3 h')}<h4>Fluxo migratório volta ao debate europeu</h4>${chips(['Migração'])}</div>${art('c','sq3','aspect-ratio:1/1')}</div>`;
+
+/* ---------- celular 2: destaque + carrossel ---------- */
+const p2=`
+  ${art('a','sq3','height:176px;border-radius:30px 30px 8px 30px','Ao vivo')}
+  <div class="dots"><i></i><i class="on"></i><i></i><i></i></div>
+  <div class="news">${meta('Agência Aqua','há 6 h',1)}
+  <h3>Cessar-fogo é anunciado após semanas de conflito</h3>
+  <p>Mediadores internacionais confirmam trégua inicial de 72 horas. O mapa de áreas afetadas foi atualizado e as organizações humanitárias retomam o acesso às regiões isoladas. Analistas veem impacto direto em energia e migração.</p>
+  ${chips(['Guerra','Território','Energia'])}
+  <span class="more fill">Ler mais</span></div>`;
+
+/* ---------- celular 3: Convenção ---------- */
+const p3=`
+  <div class="conv" style="height:170px"><div class="dots-bg"></div>${NET}<span class="tag">Convenção · Território</span></div>
+  <div class="news">
+  <h3 style="margin-top:12px">Território e suas relações</h3>
+  <div class="meta" style="margin-bottom:8px"><b>6 relações</b> · 4 notícias ativas</div>
+  <p>Estrutura persistente: fronteiras, regiões e disputas que se conectam a Migração, Guerra e Energia. Toque numa relação para ver as notícias que a ativam.</p>
+  ${chips(['Migração','Guerra','Energia','País'])}
+  <div class="meta" style="margin:4px 0 8px"><b>Notícias ligadas</b></div>
+  <div class="row" style="margin-bottom:0"><div><h4>Cessar-fogo é anunciado…</h4>${meta('Agência Aqua','há 6 h')}</div>${art('c','sq','aspect-ratio:1/1')}</div>
+  </div>`;
+
+document.getElementById('phones').innerHTML=phone(p1,1)+phone(p2,1)+phone(p3,2);
+
+/* ---------- desktop ---------- */
+const desk=`
+<div class="browser">
+  <div class="bar"><i></i><i></i><i></i><div class="url">aqua.social/noticias</div></div>
+  <div class="dpage">
+    <div class="dh">${LOGO}<div class="pill-s">${SEARCH}Buscar na realidade: notícias e convenções</div>
+      <div class="nav"><span>Início</span><span class="on">Notícias</span><span>Convenções</span><span>Perfil</span></div></div>
+    <div class="dhead"><h2 class="sec">Notícias</h2><small>O que está acontecendo agora. Cada notícia mostra as Convenções que ela ativa.</small></div>
+    <div class="dgrid">
+      <article class="news" style="grid-column:span 6">
+        ${art('a','','aspect-ratio:16/9;border-radius:34px 34px 34px 10px','Ao vivo')}
+        <div style="margin-top:12px">${meta('Agência Aqua','há 12 min',1)}
+        <h3>Eleições no Brasil entram na reta final e movimentam o mercado</h3>
+        <p>Pesquisas mostram disputa acirrada; analistas observam a reação da bolsa e do câmbio enquanto os candidatos intensificam a agenda nos estados decisivos.</p>
+        ${chips(['Democracia','Economia','Eleição'])}<span class="more fill">Ler mais</span></div>
+      </article>
+      <div style="grid-column:span 3;display:grid;gap:26px">
+        <article class="news s">${art('f','','aspect-ratio:4/3;border-radius:10px 28px 28px 28px')}<div style="margin-top:10px">${meta('Tech Aqua','há 1 h')}<h3>IA chega aos celulares</h3><p>Rodar no aparelho reduz custo e reforça a discussão sobre privacidade.</p>${chips(['IA','Economia'])}<span class="more">Ler mais</span></div></article>
+      </div>
+      <aside class="side">
+        <h5>Convenções ativas</h5>
+        <div class="conv"><div class="dots-bg"></div>${NET}<span class="tag">Território</span></div>
+        <div class="it">Democracia<em>3 notícias</em></div>
+        <div class="it">Energia<em>2 notícias</em></div>
+        <div class="it">Migração<em>2 notícias</em></div>
+        <div class="it">Guerra<em>2 notícias</em></div>
+      </aside>
+      <article class="news s" style="grid-column:span 4">${art('b','','aspect-ratio:16/10;border-radius:28px')}<div style="margin-top:10px">${meta('Mundo','há 2 h')}<h3>Cúpula discute transição energética</h3><p>Países divergem sobre metas e prazos.</p>${chips(['Energia','Território'])}<span class="more">Ler mais</span></div></article>
+      <article class="news s" style="grid-column:span 4">${art('c','','aspect-ratio:16/10;border-radius:28px 10px 28px 28px')}<div style="margin-top:10px">${meta('Mundo','há 3 h')}<h3>Fluxo migratório volta ao centro do debate europeu</h3><p>Governos revisam regras de fronteira.</p>${chips(['Migração','Território'])}<span class="more">Ler mais</span></div></article>
+      <article class="news s" style="grid-column:span 4">${art('d','','aspect-ratio:16/10;border-radius:28px')}<div style="margin-top:10px">${meta('Cultura','há 5 h')}<h3>Festival reúne artistas e debate identidade cultural</h3><p>Programação mistura música, religião e memória.</p>${chips(['Cultura','Religião'])}<span class="more">Ler mais</span></div></article>
+    </div>
+    <div class="dfoot"><span><b>Notícias</b> = temporais · isto aconteceu / está acontecendo</span><span><b>Convenções</b> = persistentes · isto existe e se relaciona assim</span></div>
+  </div>
+</div>`;
+document.getElementById('desk').innerHTML=desk;
+
+/* ---------- escala responsiva ---------- */
+function fit(id){const box=document.getElementById(id),inner=box.firstElementChild;
+  const apply=()=>{inner.style.transform='none';const w=inner.scrollWidth,h=inner.scrollHeight,s=Math.min(1,box.clientWidth/w);
+    inner.style.transform=`scale(${s})`;box.style.height=h*s+'px'};
+  new ResizeObserver(apply).observe(box);addEventListener('load',apply);apply()}
+fit('fitPhones');fit('fitDesk');
+</script>
+</body>
+</html>
