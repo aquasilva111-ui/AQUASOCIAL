@@ -1,4 +1,5 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi, type Mocked } from 'vitest';
+import type { MercurCheckout } from '../src/checkout.ts';
 import type { Catalog } from '../src/catalog.ts';
 import { createOrdersService, OrderError } from '../src/orders.ts';
 import { createFakeProvider } from '../src/payments.ts';
@@ -12,7 +13,7 @@ const cart = { items: [{ productId: 'p~a', quantity: 1 }], buyer, paymentMethod:
 let store: OrderStore;
 let provider: ReturnType<typeof createFakeProvider>;
 let catalog: Catalog;
-let checkout: { prepare: ReturnType<typeof vi.fn>; complete: ReturnType<typeof vi.fn> };
+let checkout: Mocked<MercurCheckout>;
 
 const make = () =>
   createOrdersService({

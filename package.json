@@ -103,7 +103,7 @@
     "@lingui/react": "^4.14.1",
     "@mantine/core": "^8.3.11",
     "@mantine/hooks": "^8.3.11",
-    "@mattermost/react-native-paste-input": "mattermost/react-native-paste-input",
+    "@mattermost/react-native-paste-input": "2.0.1",
     "@miblanchard/react-native-slider": "^2.6.0",
     "@mozzius/expo-dynamic-app-icon": "^1.8.0",
     "@opentelemetry/api": "^1.9.1",
@@ -386,5 +386,11 @@
     "emptyHostname": false,
     "validatePackageNames": true,
     "validateIntegrity": true
+  },
+  "overrides": {
+    "postcss@^8.0.0": "^8.5.23",
+    "semver@^7.0.0": "^7.7.4",
+    "minimatch@^3.0.0": "^3.1.4",
+    "yaml@^2.0.0": "^2.8.3"
   }
 }

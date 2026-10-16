@@ -1,0 +1,23 @@
+diff --git a/node_modules/expo-updates/ios/EXUpdates/Update/ExpoUpdatesUpdate.swift b/node_modules/expo-updates/ios/EXUpdates/Update/ExpoUpdatesUpdate.swift
+--- a/node_modules/expo-updates/ios/EXUpdates/Update/ExpoUpdatesUpdate.swift
++++ b/node_modules/expo-updates/ios/EXUpdates/Update/ExpoUpdatesUpdate.swift
+@@ -78,13 +78,18 @@
+       status = UpdateStatus.StatusPending
+     }
+ 
++    let dateFormatter = DateFormatter()
++    dateFormatter.locale = Locale(identifier: "en_US_POSIX")
++    dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
++    let date = dateFormatter.date(from: commitTime) ?? RCTConvert.nsDate(commitTime)!
++
+     return Update(
+       manifest: manifest,
+       config: config,
+       database: database,
+       updateId: uuid,
+       scopeKey: config.scopeKey,
+-      commitTime: RCTConvert.nsDate(commitTime),
++      commitTime: date,
+       runtimeVersion: runtimeVersion,
+       keep: true,
+       status: status,

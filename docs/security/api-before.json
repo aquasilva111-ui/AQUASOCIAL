@@ -1,0 +1,166 @@
+{
+  "auditReportVersion": 2,
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 3,
+      "high": 1,
+      "critical": 2,
+      "total": 6
+    },
+    "dependencies": {
+      "prod": 137,
+      "dev": 94,
+      "optional": 86,
+      "peer": 0,
+      "peerOptional": 0,
+      "total": 267
+    }
+  },
+  "vulnerabilities": {
+    "@vitest/mocker": {
+      "severity": "moderate",
+      "isDirect": false,
+      "range": "<=4.1.10",
+      "nodes": [
+        "node_modules/@vitest/mocker"
+      ],
+      "fixAvailable": {
+        "name": "vitest",
+        "version": "5.0.5",
+        "isSemVerMajor": true
+      },
+      "advisories": [
+        {
+          "title": "Vitest: Path Traversal / Arbitrary File Read via @vitest/mocker Redirect Mock",
+          "url": "https://github.com/advisories/GHSA-82fw-gwwq-j7x9",
+          "severity": "moderate",
+          "range": ">=2.1.0 <4.1.11"
+        }
+      ]
+    },
+    "esbuild": {
+      "severity": "moderate",
+      "isDirect": false,
+      "range": "<=0.24.2",
+      "nodes": [
+        "node_modules/vite/node_modules/esbuild"
+      ],
+      "fixAvailable": {
+        "name": "vitest",
+        "version": "5.0.5",
+        "isSemVerMajor": true
+      },
+      "advisories": [
+        {
+          "title": "esbuild enables any website to send any requests to the development server and read the response",
+          "url": "https://github.com/advisories/GHSA-67mh-4wv8-2f99",
+          "severity": "moderate",
+          "range": "<=0.24.2"
+        }
+      ]
+    },
+    "tinypool": {
+      "severity": "critical",
+      "isDirect": false,
+      "range": "<=2.1.1",
+      "nodes": [
+        "node_modules/tinypool"
+      ],
+      "fixAvailable": {
+        "name": "vitest",
+        "version": "5.0.5",
+        "isSemVerMajor": true
+      },
+      "advisories": [
+        {
+          "title": "Tinypool: Prototype Pollution gadget in worker options leads to Remote Code Execution",
+          "url": "https://github.com/advisories/GHSA-5gmw-xhrv-c9v3",
+          "severity": "critical",
+          "range": "<=2.1.0"
+        },
+        {
+          "title": "Tinypool: Prototype Pollution Gadget to RCE in run() options",
+          "url": "https://github.com/advisories/GHSA-85c8-ppgw-ccpr",
+          "severity": "critical",
+          "range": "<2.1.2"
+        }
+      ]
+    },
+    "vite": {
+      "severity": "high",
+      "isDirect": false,
+      "range": "<=6.4.2",
+      "nodes": [
+        "node_modules/vite"
+      ],
+      "fixAvailable": {
+        "name": "vitest",
+        "version": "5.0.5",
+        "isSemVerMajor": true
+      },
+      "advisories": [
+        {
+          "title": "Vite Vulnerable to Path Traversal in Optimized Deps `.map` Handling",
+          "url": "https://github.com/advisories/GHSA-4w7w-66w2-5vf9",
+          "severity": "moderate",
+          "range": "<=6.4.1"
+        },
+        {
+          "title": "launch-editor: NTLMv2 hash disclosure via UNC path handling on Windows",
+          "url": "https://github.com/advisories/GHSA-v6wh-96g9-6wx3",
+          "severity": "moderate",
+          "range": "<=6.4.2"
+        },
+        {
+          "title": "vite: `server.fs.deny` bypass on Windows alternate paths",
+          "url": "https://github.com/advisories/GHSA-fx2h-pf6j-xcff",
+          "severity": "high",
+          "range": "<=6.4.2"
+        }
+      ]
+    },
+    "vite-node": {
+      "severity": "moderate",
+      "isDirect": false,
+      "range": "<=2.2.0-beta.2",
+      "nodes": [
+        "node_modules/vite-node"
+      ],
+      "fixAvailable": {
+        "name": "vitest",
+        "version": "5.0.5",
+        "isSemVerMajor": true
+      },
+      "advisories": []
+    },
+    "vitest": {
+      "severity": "critical",
+      "isDirect": true,
+      "range": "<=4.1.10",
+      "nodes": [
+        "node_modules/vitest"
+      ],
+      "fixAvailable": {
+        "name": "vitest",
+        "version": "5.0.5",
+        "isSemVerMajor": true
+      },
+      "advisories": [
+        {
+          "title": "When Vitest UI server is listening, arbitrary file can be read and executed",
+          "url": "https://github.com/advisories/GHSA-5xrq-8626-4rwp",
+          "severity": "critical",
+          "range": "<3.2.6"
+        },
+        {
+          "title": "Vitest: Path Traversal / Arbitrary File Read via @vitest/mocker Redirect Mock",
+          "url": "https://github.com/advisories/GHSA-82fw-gwwq-j7x9",
+          "severity": "moderate",
+          "range": ">=2.1.0 <4.1.11"
+        }
+      ]
+    }
+  }
+}
