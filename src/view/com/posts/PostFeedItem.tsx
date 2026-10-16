@@ -254,13 +254,12 @@ let FeedItemInner = ({
   const outerStyles = [
     styles.outer,
     {
-      borderColor: pal.colors.border,
+      borderColor: 'transparent',
       paddingBottom:
         isThreadLastChild || (!isThreadChild && !isThreadParent)
           ? 8
           : undefined,
-      borderTopWidth:
-        hideTopBorder || isThreadChild ? 0 : StyleSheet.hairlineWidth,
+      borderTopWidth: 0,
     },
   ]
 

@@ -53,7 +53,6 @@ export function Outer({
       ref={headerRef}
       style={[
         a.w_full,
-        !noBottomBorder && a.border_b,
         a.flex_row,
         a.align_center,
         a.gap_sm,
@@ -63,7 +62,6 @@ export function Outer({
           native: [a.pb_xs, {minHeight: 48}],
           web: [a.py_xs, {minHeight: 52}],
         }),
-        t.atoms.border_contrast_low,
         gtMobile && [a.mx_auto, {maxWidth: CENTER_COLUMN_WIDTH}],
         !isWithinOffsetView && {
           transform: [

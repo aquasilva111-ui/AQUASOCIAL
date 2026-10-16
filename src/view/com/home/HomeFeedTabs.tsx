@@ -39,8 +39,6 @@ export function HomeFeedTabs({
         a.w_full,
         a.flex_row,
         a.align_center,
-        a.border_b,
-        t.atoms.border_contrast_low,
         t.atoms.bg,
       ]}>
       <View style={{width: SIDE_SLOT}} />
