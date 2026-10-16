@@ -33,6 +33,7 @@ import {Logotype} from '#/view/icons/Logotype'
 import {atoms as a, useTheme} from '#/alf'
 import {Button, ButtonText} from '#/components/Button'
 import {useDialogControl} from '#/components/Dialog'
+import {CreateActionDialog} from '#/components/dialogs/CreateActionDialog'
 import {SwitchAccountDialog} from '#/components/dialogs/SwitchAccount'
 import {GlassSurface} from '#/components/GlassSurface'
 import {
@@ -79,6 +80,7 @@ export function BottomBar({navigation}: BottomTabBarProps) {
   const closeAllActiveElements = useCloseAllActiveElements()
   const dedupe = useDedupe()
   const accountSwitchControl = useDialogControl()
+  const createActionControl = useDialogControl()
   const playHaptic = useHaptics()
   const {openComposer} = useOpenComposer()
   const hasHomeBadge = useHomeBadge()
@@ -152,6 +154,7 @@ export function BottomBar({navigation}: BottomTabBarProps) {
   return (
     <>
       <SwitchAccountDialog control={accountSwitchControl} />
+      <CreateActionDialog control={createActionControl} />
 
       <Animated.View
         pointerEvents="box-none"
@@ -204,7 +207,7 @@ export function BottomBar({navigation}: BottomTabBarProps) {
               hasNew={hasHomeBadge && gate('remove_show_latest_button')}
               onPress={onPressHome}
               accessibilityRole="tab"
-              accessibilityLabel="Home"
+              accessibilityLabel="Início"
               accessibilityHint=""
             />
             <Btn
@@ -238,9 +241,9 @@ export function BottomBar({navigation}: BottomTabBarProps) {
                   <PlusIcon width={22} style={{color: t.palette.white}} />
                 </View>
               }
-              onPress={() => openComposer({})}
+              onPress={() => createActionControl.open()}
               accessibilityRole="button"
-              accessibilityLabel="Create"
+              accessibilityLabel="Criar"
               accessibilityHint=""
             />
             <Btn
@@ -294,7 +297,7 @@ export function BottomBar({navigation}: BottomTabBarProps) {
               notificationCount={numUnreadNotifications}
               accessible={true}
               accessibilityRole="tab"
-              accessibilityLabel="Notifications"
+              accessibilityLabel="Notificações"
               accessibilityHint={
                 numUnreadNotifications === ''
                   ? ''

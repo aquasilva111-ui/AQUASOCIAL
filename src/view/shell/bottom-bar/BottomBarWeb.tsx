@@ -20,6 +20,8 @@ import {Logo} from '#/view/icons/Logo'
 import {Logotype} from '#/view/icons/Logotype'
 import {atoms as a, useTheme, web} from '#/alf'
 import {Button, ButtonText} from '#/components/Button'
+import {useDialogControl} from '#/components/Dialog'
+import {CreateActionDialog} from '#/components/dialogs/CreateActionDialog'
 import {
   Bell_Filled_Corner0_Rounded as BellFilled,
   Bell_Stroke2_Corner0_Rounded as Bell,
@@ -53,6 +55,7 @@ export function BottomBarWeb() {
   const {footerHeight} = useShellLayout()
   const {isTabletOrDesktop} = useWebMediaQueries()
   const {openComposer} = useOpenComposer()
+  const createActionControl = useDialogControl()
   const iconWidth = 24
   const showLabels = isTabletOrDesktop
 
@@ -75,148 +78,150 @@ export function BottomBarWeb() {
     t.scheme === 'dark' ? 'rgba(255, 255, 255, 0.12)' : 'rgba(15, 23, 42, 0.08)'
 
   return (
-    <View
-      role="navigation"
-      pointerEvents="box-none"
-      style={[styles.bottomBar, styles.bottomBarWeb]}
-      onLayout={event => footerHeight.set(event.nativeEvent.layout.height)}>
-      {hasSession ? (
-        <View
-          style={[
-            styles.dock,
-            {
-              backgroundColor: dockSurface,
-              borderColor: dockBorder,
-              boxShadow:
-                t.scheme === 'dark'
-                  ? '0 8px 28px rgba(0, 0, 0, 0.35)'
-                  : '0 8px 28px rgba(15, 23, 42, 0.10)',
-            },
-            web({
-              backdropFilter: 'blur(18px)',
-              WebkitBackdropFilter: 'blur(18px)',
-            }),
-          ]}>
-          <NavItem
-            routeName="Home"
-            href="/"
-            label="Home"
-            showLabel={showLabels}>
-            {({isActive}) => {
-              const Icon = isActive ? HomeFilled : Home
-              return (
-                <Icon
-                  aria-hidden={true}
-                  width={iconWidth + 1}
-                  style={[styles.ctrlIcon, t.atoms.text, styles.homeIcon]}
-                />
-              )
-            }}
-          </NavItem>
-          <NavItem
-            routeName="Drops"
-            href="/drops"
-            label="Drops"
-            showLabel={showLabels}>
-            {({isActive}) => {
-              const Icon = isActive ? DropFilled : Drop
-              return (
-                <Icon
-                  aria-hidden={true}
-                  width={iconWidth + 2}
-                  style={[styles.ctrlIcon, t.atoms.text, styles.searchIcon]}
-                />
-              )
-            }}
-          </NavItem>
+    <>
+      <CreateActionDialog control={createActionControl} />
+      <View
+        role="navigation"
+        pointerEvents="box-none"
+        style={[styles.bottomBar, styles.bottomBarWeb]}
+        onLayout={event => footerHeight.set(event.nativeEvent.layout.height)}>
+        {hasSession ? (
+          <View
+            style={[
+              styles.dock,
+              {
+                backgroundColor: dockSurface,
+                borderColor: dockBorder,
+                boxShadow:
+                  t.scheme === 'dark'
+                    ? '0 8px 28px rgba(0, 0, 0, 0.35)'
+                    : '0 8px 28px rgba(15, 23, 42, 0.10)',
+              },
+              web({
+                backdropFilter: 'blur(18px)',
+                WebkitBackdropFilter: 'blur(18px)',
+              }),
+            ]}>
+            <NavItem
+              routeName="Home"
+              href="/"
+              label="Início"
+              showLabel={showLabels}>
+              {({isActive}) => {
+                const Icon = isActive ? HomeFilled : Home
+                return (
+                  <Icon
+                    aria-hidden={true}
+                    width={iconWidth + 1}
+                    style={[styles.ctrlIcon, t.atoms.text, styles.homeIcon]}
+                  />
+                )
+              }}
+            </NavItem>
+            <NavItem
+              routeName="Drops"
+              href="/drops"
+              label="Drops"
+              showLabel={showLabels}>
+              {({isActive}) => {
+                const Icon = isActive ? DropFilled : Drop
+                return (
+                  <Icon
+                    aria-hidden={true}
+                    width={iconWidth + 2}
+                    style={[styles.ctrlIcon, t.atoms.text, styles.searchIcon]}
+                  />
+                )
+              }}
+            </NavItem>
 
-          <View style={styles.createCtrl}>
-            <Button
-              onPress={() => openComposer({})}
-              label="Create"
-              style={[
-                styles.createBtn,
-                {backgroundColor: t.palette.primary_500},
-              ]}>
-              <PlusIcon
-                aria-hidden={true}
-                width={22}
-                fill={t.palette.white}
-                style={{color: t.palette.white}}
-              />
-            </Button>
-            {showLabels && (
-              <Text
+            <View style={styles.createCtrl}>
+              <Button
+                onPress={() => createActionControl.open()}
+                label="Criar"
                 style={[
-                  styles.ctrlLabel,
-                  t.atoms.text_contrast_medium,
-                  {marginTop: 4},
+                  styles.createBtn,
+                  {backgroundColor: t.palette.primary_500},
                 ]}>
-                Create
-              </Text>
-            )}
-          </View>
+                <PlusIcon
+                  aria-hidden={true}
+                  width={22}
+                  fill={t.palette.white}
+                  style={{color: t.palette.white}}
+                />
+              </Button>
+              {showLabels && (
+                <Text
+                  style={[
+                    styles.ctrlLabel,
+                    t.atoms.text_contrast_medium,
+                    {marginTop: 4},
+                  ]}>
+                  Criar
+                </Text>
+              )}
+            </View>
 
-          <NavItem
-            routeName="Messages"
-            href="/messages"
-            label="Mailssage"
-            notificationCount={unreadMessageCount.numUnread}
-            hasNew={unreadMessageCount.hasNew}
-            showLabel={showLabels}>
-            {({isActive}) => {
-              const Icon = isActive ? MessageFilled : Message
-              return (
-                <Icon
-                  aria-hidden={true}
-                  width={iconWidth - 1}
-                  style={[styles.ctrlIcon, t.atoms.text, styles.messagesIcon]}
-                />
-              )
-            }}
-          </NavItem>
-          <NavItem
-            routeName="Notifications"
-            href="/notifications"
-            label="Notifications"
-            notificationCount={notificationCountStr}
-            showLabel={showLabels}>
-            {({isActive}) => {
-              const Icon = isActive ? BellFilled : Bell
-              return (
-                <Icon
-                  aria-hidden={true}
-                  width={iconWidth}
-                  style={[styles.ctrlIcon, t.atoms.text, styles.bellIcon]}
-                />
-              )
-            }}
-          </NavItem>
-          <NavItem
-            routeName="Profile"
-            href={
-              currentAccount
-                ? makeProfileLink({
-                    did: currentAccount.did,
-                    handle: currentAccount.handle,
-                  })
-                : '/'
-            }
-            label="Profile"
-            showLabel={showLabels}>
-            {({isActive}) => {
-              const Icon = isActive ? UserCircleFilled : UserCircle
-              return (
-                <Icon
-                  aria-hidden={true}
-                  width={iconWidth}
-                  style={[styles.ctrlIcon, t.atoms.text, styles.profileIcon]}
-                />
-              )
-            }}
-          </NavItem>
-        </View>
-      ) : (
+            <NavItem
+              routeName="Messages"
+              href="/messages"
+              label="Mailssage"
+              notificationCount={unreadMessageCount.numUnread}
+              hasNew={unreadMessageCount.hasNew}
+              showLabel={showLabels}>
+              {({isActive}) => {
+                const Icon = isActive ? MessageFilled : Message
+                return (
+                  <Icon
+                    aria-hidden={true}
+                    width={iconWidth - 1}
+                    style={[styles.ctrlIcon, t.atoms.text, styles.messagesIcon]}
+                  />
+                )
+              }}
+            </NavItem>
+            <NavItem
+              routeName="Notifications"
+              href="/notifications"
+              label="Notificações"
+              notificationCount={notificationCountStr}
+              showLabel={showLabels}>
+              {({isActive}) => {
+                const Icon = isActive ? BellFilled : Bell
+                return (
+                  <Icon
+                    aria-hidden={true}
+                    width={iconWidth}
+                    style={[styles.ctrlIcon, t.atoms.text, styles.bellIcon]}
+                  />
+                )
+              }}
+            </NavItem>
+            <NavItem
+              routeName="Profile"
+              href={
+                currentAccount
+                  ? makeProfileLink({
+                      did: currentAccount.did,
+                      handle: currentAccount.handle,
+                    })
+                  : '/'
+              }
+              label="Perfil"
+              showLabel={showLabels}>
+              {({isActive}) => {
+                const Icon = isActive ? UserCircleFilled : UserCircle
+                return (
+                  <Icon
+                    aria-hidden={true}
+                    width={iconWidth}
+                    style={[styles.ctrlIcon, t.atoms.text, styles.profileIcon]}
+                  />
+                )
+              }}
+            </NavItem>
+          </View>
+        ) : (
         <View
           style={[
             styles.dock,
@@ -274,6 +279,7 @@ export function BottomBarWeb() {
         </View>
       )}
     </View>
+  </>
   )
 }
 

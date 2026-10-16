@@ -274,7 +274,7 @@ let DrawerContent = ({}: React.PropsWithoutRef<{}>): React.ReactNode => {
         />
         <MenuItem
           icon={<ImagesIcon width={iconWidth} style={t.atoms.text} />}
-          label="Pics"
+          label="Visionboard"
           onPress={() => {
             navigation.navigate('Images')
             setDrawerOpen(false)
@@ -282,7 +282,7 @@ let DrawerContent = ({}: React.PropsWithoutRef<{}>): React.ReactNode => {
         />
         <MenuItem
           icon={<VideosIcon width={iconWidth} style={t.atoms.text} />}
-          label="Video+Stream"
+          label="Streams & Vídeo"
           onPress={() => {
             navigation.navigate('Videos')
             setDrawerOpen(false)
@@ -303,7 +303,7 @@ let DrawerContent = ({}: React.PropsWithoutRef<{}>): React.ReactNode => {
                 ]}
               />
             }
-            label="Docs"
+            label="Aqua Docs"
             onPress={() => {
               navigation.navigate('DocsHome')
               setDrawerOpen(false)
@@ -334,7 +334,6 @@ let DrawerContent = ({}: React.PropsWithoutRef<{}>): React.ReactNode => {
         )}
         {hasSession && (
           <>
-            {/* Same entries as the desktop sidebar. */}
             <MenuItem
               icon={<Book width={iconWidth} style={t.atoms.text} />}
               label="Reads"
@@ -344,42 +343,12 @@ let DrawerContent = ({}: React.PropsWithoutRef<{}>): React.ReactNode => {
               }}
             />
             <MenuItem
-              icon={tintedIcon(shopIcon, t.atoms.text.color)}
-              label="Shop"
-              onPress={() => {}}
-            />
-            <MenuItem
-              icon={<ChartsIcon width={iconWidth} style={t.atoms.text} />}
-              label="Charts"
-              onPress={() => {}}
-            />
-            <MenuItem
               icon={tintedIcon(newsConventionsIcon, t.atoms.text.color)}
-              label="News & Conventions"
+              label="Notícias"
               onPress={() => {
                 navigation.navigate('NewsAtlas')
                 setDrawerOpen(false)
               }}
-            />
-            <MenuItem
-              icon={tintedIcon(portalsIcon, t.atoms.text.color)}
-              label="Portals"
-              onPress={() => {}}
-            />
-            <MenuItem
-              icon={<UserCircle width={iconWidth} style={t.atoms.text} />}
-              label="Communities"
-              onPress={() => {}}
-            />
-            <MenuItem
-              icon={<CirclePlusIcon width={iconWidth} style={t.atoms.text} />}
-              label="Fund"
-              onPress={() => {}}
-            />
-            <MenuItem
-              icon={<TicketIcon width={iconWidth} style={t.atoms.text} />}
-              label="Wallet"
-              onPress={() => {}}
             />
             <MenuItem
               icon={<AquaLogo width={iconWidth} style={t.atoms.text} />}

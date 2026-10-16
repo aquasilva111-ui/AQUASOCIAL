@@ -16,6 +16,7 @@ import {
   TEMPLATE_CATEGORIES,
   TEMPLATES,
 } from '#/lib/creative-hub/model'
+import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
 import {
   type CommonNavigatorParams,
   type NativeStackScreenProps,
@@ -75,14 +76,32 @@ function SectionTitle({
   )
 }
 
-/** Creates a doc, or says the design editor is not there yet. */
+/** Creates a doc, story, post, video, or opens studio. */
 function useStartFormat() {
   const navigation = useNavigation<NavigationProp>()
   const {createDoc} = useDocsApi()
+  const {openComposer} = useOpenComposer()
+
   return (format: DesignFormat) => {
     if (format.id === 'doc') {
       const doc = createDoc()
       if (doc) navigation.navigate('DocEditor', {id: doc.id})
+      return
+    }
+    if (format.id === 'story') {
+      navigation.navigate('StoryCreate')
+      return
+    }
+    if (format.id === 'post') {
+      openComposer({})
+      return
+    }
+    if (format.id === 'video') {
+      navigation.navigate('Drops')
+      return
+    }
+    if (format.id === 'book_cover') {
+      navigation.navigate('BooksStudio')
       return
     }
     Toast.show(
