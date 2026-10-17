@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AQUA — Mockup do site</title>
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<div class="v">
+  <header class="vbar">
+    <button class="vbtn only-narrow" id="sideToggle" aria-label="Mapa de telas">☰</button>
+    <div class="vlogo"><i></i><b>AQUA</b><span>Mockup do site</span></div>
+    <div class="seg" id="modeSeg" role="tablist" aria-label="Dispositivo">
+      <button data-mode="m">Celular</button>
+      <button data-mode="d">Desktop</button>
+      <button data-mode="both">Lado a lado</button>
+    </div>
+    <div class="vspacer"></div>
+    <div class="vprog" id="prog"></div>
+    <button class="vbtn" id="themeBtn" aria-label="Alternar tema">◐ <span>Tema</span></button>
+  </header>
+  <div class="vbody">
+    <aside class="vside" id="side"></aside>
+    <main class="stage" id="stage"></main>
+  </div>
+</div>
+<script src="icons.js"></script>
+<script src="screens.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

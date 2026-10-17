@@ -92,6 +92,12 @@
       "port": 5194
     },
     {
+      "name": "mockup-site",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "5199"],
+      "port": 5199
+    },
+    {
       "name": "aqua-docs",
       "runtimeExecutable": "sh",
       "runtimeArgs": [
