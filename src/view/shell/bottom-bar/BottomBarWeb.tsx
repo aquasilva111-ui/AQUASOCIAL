@@ -4,11 +4,12 @@ import {msg, plural, Trans} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 import {useNavigationState} from '@react-navigation/native'
 
-import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
 import {useWebMediaQueries} from '#/lib/hooks/useWebMediaQueries'
 import {getCurrentRoute, isTab} from '#/lib/routes/helpers'
 import {makeProfileLink} from '#/lib/routes/links'
 import {type CommonNavigatorParams} from '#/lib/routes/types'
+import {useViewsAuthLabels} from '#/lib/views/authLabels'
+import {isAquaViewsRoute} from '#/lib/views/routes'
 import {useUnreadMessageCount} from '#/state/queries/messages/list-conversations'
 import {useUnreadNotifications} from '#/state/queries/notifications/unread'
 import {useSession} from '#/state/session'
@@ -54,7 +55,6 @@ export function BottomBarWeb() {
   const closeAllActiveElements = useCloseAllActiveElements()
   const {footerHeight} = useShellLayout()
   const {isTabletOrDesktop} = useWebMediaQueries()
-  const {openComposer} = useOpenComposer()
   const createActionControl = useDialogControl()
   const iconWidth = 24
   const showLabels = isTabletOrDesktop
@@ -71,6 +71,10 @@ export function BottomBarWeb() {
     closeAllActiveElements()
     requestSwitchToAccount({requestedAccount: 'new'})
   }, [requestSwitchToAccount, closeAllActiveElements])
+
+  const routeName = useNavigationState(state => getCurrentRoute(state)?.name)
+  const onViews = isAquaViewsRoute(routeName)
+  const viewsLabels = useViewsAuthLabels()
 
   const dockSurface =
     t.scheme === 'dark' ? 'rgba(22, 24, 28, 0.78)' : 'rgba(255, 255, 255, 0.78)'
@@ -222,64 +226,81 @@ export function BottomBarWeb() {
             </NavItem>
           </View>
         ) : (
-        <View
-          style={[
-            styles.dock,
-            {
-              backgroundColor: dockSurface,
-              borderColor: dockBorder,
-            },
-            web({
-              backdropFilter: 'blur(18px)',
-              WebkitBackdropFilter: 'blur(18px)',
-            }),
-          ]}>
           <View
-            style={{
-              width: '100%',
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              paddingTop: 8,
-              paddingBottom: 8,
-              paddingLeft: 14,
-              paddingRight: 6,
-              gap: 8,
-            }}>
-            <View style={{flexDirection: 'row', alignItems: 'center', gap: 12}}>
-              <Logo width={32} />
-              <View style={{paddingTop: 4}}>
-                <Logotype width={80} fill={t.atoms.text.color} />
+            style={[
+              styles.dock,
+              {
+                backgroundColor: dockSurface,
+                borderColor: dockBorder,
+              },
+              web({
+                backdropFilter: 'blur(18px)',
+                WebkitBackdropFilter: 'blur(18px)',
+              }),
+            ]}>
+            <View
+              style={{
+                width: '100%',
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                paddingTop: 8,
+                paddingBottom: 8,
+                paddingLeft: 14,
+                paddingRight: 6,
+                gap: 8,
+              }}>
+              <View
+                style={{flexDirection: 'row', alignItems: 'center', gap: 12}}>
+                <Logo width={32} />
+                <View style={{paddingTop: 4}}>
+                  <Logotype width={80} fill={t.atoms.text.color} />
+                </View>
+              </View>
+
+              <View style={[a.flex_row, a.align_center, a.flex_wrap, a.gap_sm]}>
+                {onViews && (
+                  <Text
+                    style={[
+                      a.text_sm,
+                      t.atoms.text,
+                      {flexShrink: 1, maxWidth: 320},
+                    ]}>
+                    Entre no Aqua para curtir, comentar e se inscrever.
+                  </Text>
+                )}
+                <Button
+                  onPress={showCreateAccount}
+                  label={
+                    onViews ? viewsLabels.createAccount : _(msg`Create account`)
+                  }
+                  size="small"
+                  variant="solid"
+                  color="primary">
+                  <ButtonText>
+                    {onViews ? (
+                      viewsLabels.createAccount
+                    ) : (
+                      <Trans>Create account</Trans>
+                    )}
+                  </ButtonText>
+                </Button>
+                <Button
+                  onPress={showSignIn}
+                  label={onViews ? viewsLabels.signIn : _(msg`Sign in`)}
+                  size="small"
+                  variant="solid"
+                  color="secondary">
+                  <ButtonText>
+                    {onViews ? viewsLabels.signIn : <Trans>Sign in</Trans>}
+                  </ButtonText>
+                </Button>
               </View>
             </View>
-
-            <View style={[a.flex_row, a.flex_wrap, a.gap_sm]}>
-              <Button
-                onPress={showCreateAccount}
-                label={_(msg`Create account`)}
-                size="small"
-                variant="solid"
-                color="primary">
-                <ButtonText>
-                  <Trans>Create account</Trans>
-                </ButtonText>
-              </Button>
-              <Button
-                onPress={showSignIn}
-                label={_(msg`Sign in`)}
-                size="small"
-                variant="solid"
-                color="secondary">
-                <ButtonText>
-                  <Trans>Sign in</Trans>
-                </ButtonText>
-              </Button>
-            </View>
           </View>
-        </View>
-      )}
-    </View>
-  </>
+        )}
+      </View>
+    </>
   )
 }
 

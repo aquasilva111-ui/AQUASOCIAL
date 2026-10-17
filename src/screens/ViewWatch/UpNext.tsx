@@ -7,6 +7,8 @@ import {DISCOVER_FEED_URI} from '#/lib/constants'
 import {getPostMedia, getRelatedMedia} from '#/lib/media/experiences'
 import {liveThumbUrl} from '#/lib/streamplace'
 import {splitTitle} from '#/lib/view-watch/chapters'
+import {diversifyChannels} from '#/lib/views/diversify'
+import {formatDuration, knownDurationSeconds} from '#/lib/views/format'
 import {
   type FeedPostSliceItem,
   usePostFeedQuery,
@@ -36,6 +38,8 @@ export function toVideoRef(post: AppBskyFeedDefs.PostView): ViewVideoRef {
       splitTitle((post.record as {text?: string}).text ?? '').title || 'Vídeo',
     author: post.author.displayName || post.author.handle,
     thumbnail: media.type === 'video' ? media.view.thumbnail : undefined,
+    duration:
+      media.type === 'video' ? knownDurationSeconds(media.view) : undefined,
   }
 }
 
@@ -71,7 +75,7 @@ export function useRecommendations(post: AppBskyFeedDefs.PostView) {
       .filter(i => i.uri !== post.uri)
       .map(i => toVideoRef(i.post))
     const seen = new Set<string>()
-    const all: ViewVideoRef[] = []
+    const mixed: ViewVideoRef[] = []
     // Mix: a couple from the channel first, then related, then the rest.
     for (const v of [
       ...fromChannel.slice(0, 2),
@@ -80,12 +84,12 @@ export function useRecommendations(post: AppBskyFeedDefs.PostView) {
     ]) {
       if (seen.has(v.uri)) continue
       seen.add(v.uri)
-      all.push(v)
+      mixed.push(v)
     }
     return {
-      all: all.slice(0, 20),
+      all: diversifyChannels(mixed, v => v.did).slice(0, 20),
       channel: fromChannel.slice(0, 20),
-      related: fromRelated.slice(0, 20),
+      related: diversifyChannels(fromRelated, v => v.did).slice(0, 20),
       live: live.data ?? [],
       loading: related.isLoading || channel.isLoading,
     }
@@ -174,13 +178,18 @@ export function UpNextPanel({
           </Text>
         )}
 
-        <View
-          style={[a.gap_sm, a.pt_sm, a.border_t, t.atoms.border_contrast_low]}>
-          <View style={[a.flex_row, a.align_center]}>
-            <Text style={[a.text_sm, a.font_bold, a.flex_1]}>
-              Fila · {queued.length}
-            </Text>
-            {queued.length > 0 && (
+        {queued.length > 0 && (
+          <View
+            style={[
+              a.gap_sm,
+              a.pt_sm,
+              a.border_t,
+              t.atoms.border_contrast_low,
+            ]}>
+            <View style={[a.flex_row, a.align_center]}>
+              <Text style={[a.text_sm, a.font_bold, a.flex_1]}>
+                Fila · {queued.length}
+              </Text>
               <Button
                 label="Limpar fila"
                 size="tiny"
@@ -189,33 +198,32 @@ export function UpNextPanel({
                 onPress={clearQueue}>
                 <ButtonText>Limpar</ButtonText>
               </Button>
-            )}
-          </View>
-          {queued.length === 0 && (
-            <Text style={[a.text_xs, t.atoms.text_contrast_medium]}>
-              Use "+ Fila" nos vídeos abaixo para escolher o que vem depois.
-            </Text>
-          )}
-          {queued.map((v, i) => (
-            <View key={v.uri} style={[a.flex_row, a.align_center, a.gap_sm]}>
-              <Text
-                style={[a.text_xs, t.atoms.text_contrast_medium, {width: 16}]}>
-                {i + 1}
-              </Text>
-              <View style={[a.flex_1]}>
-                <VideoRow video={v} compact />
-              </View>
-              <Button
-                label={`Tirar da fila: ${v.title}`}
-                size="tiny"
-                variant="ghost"
-                color="secondary"
-                onPress={() => removeFromQueue(v.uri)}>
-                <ButtonText>Tirar</ButtonText>
-              </Button>
             </View>
-          ))}
-        </View>
+            {queued.map((v, i) => (
+              <View key={v.uri} style={[a.flex_row, a.align_center, a.gap_sm]}>
+                <Text
+                  style={[
+                    a.text_xs,
+                    t.atoms.text_contrast_medium,
+                    {width: 16},
+                  ]}>
+                  {i + 1}
+                </Text>
+                <View style={[a.flex_1]}>
+                  <VideoRow video={v} compact />
+                </View>
+                <Button
+                  label={`Tirar da fila: ${v.title}`}
+                  size="tiny"
+                  variant="ghost"
+                  color="secondary"
+                  onPress={() => removeFromQueue(v.uri)}>
+                  <ButtonText>Tirar</ButtonText>
+                </Button>
+              </View>
+            ))}
+          </View>
+        )}
       </View>
 
       <View
@@ -292,7 +300,8 @@ function QueueButton({video, queued}: {video: ViewVideoRef; queued: boolean}) {
       size="tiny"
       variant="ghost"
       color="secondary"
-      onPress={() => (queued ? removeFromQueue(video.uri) : addToQueue(video))}>
+      onPress={() => (queued ? removeFromQueue(video.uri) : addToQueue(video))}
+      style={{width: 72, flexShrink: 0, alignSelf: 'flex-start'}}>
       <ButtonText>{queued ? 'Na fila' : '+ Fila'}</ButtonText>
     </Button>
   )
@@ -302,11 +311,14 @@ function Thumb({
   uri,
   live,
   compact,
+  duration,
 }: {
   uri?: string
   live?: boolean
   compact?: boolean
+  duration?: number
 }) {
+  const durationLabel = formatDuration(duration)
   const t = useTheme()
   return (
     <View
@@ -337,6 +349,19 @@ function Thumb({
           </Text>
         </View>
       )}
+      {durationLabel && (
+        <View
+          style={[
+            a.absolute,
+            a.rounded_xs,
+            a.px_xs,
+            {right: 4, bottom: 4, backgroundColor: 'rgba(0,0,0,0.75)'},
+          ]}>
+          <Text style={[a.text_2xs, a.font_bold, {color: '#FFFFFF'}]}>
+            {durationLabel}
+          </Text>
+        </View>
+      )}
     </View>
   )
 }
@@ -360,7 +385,11 @@ function VideoRow({
         a.gap_md,
         highlight && [a.p_xs, a.rounded_md, t.atoms.bg_contrast_25],
       ]}>
-      <Thumb uri={video.thumbnail} compact={compact} />
+      <Thumb
+        uri={video.thumbnail}
+        compact={compact}
+        duration={video.duration}
+      />
       <View style={[a.flex_1, a.gap_2xs]}>
         <Text style={[a.text_sm, a.font_bold]} numberOfLines={2}>
           {video.title}

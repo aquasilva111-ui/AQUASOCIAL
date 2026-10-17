@@ -26,7 +26,6 @@ import {atoms as a, tokens, useTheme, web} from '#/alf'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
 import {Divider} from '#/components/Divider'
 import {AquaLogo} from '#/components/icons/AquaLogo'
-import {CirclePlus_Stroke2_Corner0_Rounded as CirclePlusIcon} from '#/components/icons/CirclePlus'
 import {
   HomeOpen_Filled_Corner0_Rounded as HomeFilled,
   HomeOpen_Stoke2_Corner0_Rounded as Home,
@@ -39,9 +38,6 @@ import {Message_Stroke2_Corner0_Rounded as Message} from '#/components/icons/Mes
 import {PlusLarge_Stroke2_Corner0_Rounded as PlusIcon} from '#/components/icons/Plus'
 import {Reads_Filled_Corner2_Rounded as Book} from '#/components/icons/Reads'
 import {SettingsGear2_Stroke2_Corner0_Rounded as Settings} from '#/components/icons/SettingsGear2'
-import {Ticket_Stroke2_Corner0_Rounded as TicketIcon} from '#/components/icons/Ticket'
-import {Trending3_Stroke2_Corner1_Rounded as ChartsIcon} from '#/components/icons/Trending'
-import {UserCircle_Stroke2_Corner0_Rounded as UserCircle} from '#/components/icons/UserCircle'
 import {InlineLinkText} from '#/components/Link'
 import {Text} from '#/components/Typography'
 import {useSimpleVerificationState} from '#/components/verification'
@@ -50,9 +46,7 @@ import {VerificationCheck} from '#/components/verification/VerificationCheck'
 const iconWidth = 26
 const uiAiIcon = require('../../../assets/icons/ui-ai.png')
 const wikiIcon = require('../../../assets/icons/wiki.png')
-const shopIcon = require('../../../assets/icons/shop.png')
 const newsConventionsIcon = require('../../../assets/icons/news-conventions.png')
-const portalsIcon = require('../../../assets/icons/portals.png')
 
 let DrawerProfileCard = ({
   account,

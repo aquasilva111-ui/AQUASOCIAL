@@ -151,7 +151,7 @@ let FeedItemInner = ({
   isThreadChild,
   isThreadLastChild,
   isThreadParent,
-  hideTopBorder,
+  hideTopBorder: _hideTopBorder,
   isParentBlocked,
   isParentNotFound,
   rootPost,

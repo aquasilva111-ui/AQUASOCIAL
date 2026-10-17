@@ -1,4 +1,4 @@
-import {useMemo} from 'react'
+import {useMemo, useState} from 'react'
 import {View} from 'react-native'
 import {Image} from 'expo-image'
 import {
@@ -9,8 +9,17 @@ import {
 
 import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
 import {getPostMedia, type MediaExperience} from '#/lib/media/experiences'
-import {formatViewCount, useViewCount} from '#/lib/media/views'
+import {sanitizeDisplayName} from '#/lib/strings/display-names'
+import {sanitizeHandle} from '#/lib/strings/handles'
 import {getPostTextAndFacets} from '#/lib/strings/long-post'
+import {splitTitle} from '#/lib/view-watch/chapters'
+import {
+  formatDuration,
+  formatRelativePt,
+  formatViewLabel,
+  knownDurationSeconds,
+  knownViewCount,
+} from '#/lib/views/format'
 import {
   POST_TOMBSTONE,
   type Shadow,
@@ -50,7 +59,7 @@ function MediaCardInner({
   const t = useTheme()
   const {openComposer} = useOpenComposer()
   const media = getPostMedia(post)
-  const viewCount = useViewCount(post.uri)
+  const [thumbFailed, setThumbFailed] = useState(false)
   const richText = useMemo(
     () => new RichTextAPI(getPostTextAndFacets(record)),
     [record],
@@ -77,6 +86,108 @@ function MediaCardInner({
         : 1
   const rkey = new AtUri(post.uri).rkey
   const href = `/${mode === 'video' ? 'views/watch' : 'visionboard/view'}/${post.author.did}/${rkey}`
+  if (mode === 'video') {
+    const {title} = splitTitle(record.text ?? '')
+    const channel = sanitizeDisplayName(
+      post.author.displayName || sanitizeHandle(post.author.handle),
+    )
+    const duration = formatDuration(knownDurationSeconds(media.view))
+    const views = formatViewLabel(knownViewCount(post))
+    const when = formatRelativePt(post.indexedAt)
+    const meta = [views, when].filter(Boolean).join(' · ')
+    const showThumb = !!thumbnail && !thumbFailed
+    return (
+      <View style={[a.w_full, {minWidth: 0}]} testID="media-card-video">
+        <Hider.Outer modui={modui}>
+          <Hider.Mask>
+            <MediaMask aspectRatio={16 / 9} />
+          </Hider.Mask>
+          <Hider.Content>
+            <Link
+              to={href}
+              label={title || 'Assistir vídeo'}
+              style={[a.w_full, {display: 'flex', flexDirection: 'column'}]}>
+              <View
+                style={[
+                  a.w_full,
+                  a.overflow_hidden,
+                  a.align_center,
+                  a.justify_center,
+                  {
+                    aspectRatio: 16 / 9,
+                    borderRadius: 12,
+                    backgroundColor: '#16324a',
+                  },
+                ]}>
+                {showThumb ? (
+                  <Image
+                    accessibilityIgnoresInvertColors
+                    accessibilityHint="Abre o vídeo"
+                    source={{uri: thumbnail}}
+                    style={[a.w_full, a.h_full]}
+                    contentFit="cover"
+                    accessibilityLabel={title || channel}
+                    transition={150}
+                    recyclingKey={post.uri}
+                    onError={() => setThumbFailed(true)}
+                  />
+                ) : (
+                  <Text style={[a.text_xl, a.font_bold, {color: '#fff'}]}>
+                    {(channel || 'V').slice(0, 1).toLocaleUpperCase('pt-BR')}
+                  </Text>
+                )}
+                {!!duration && (
+                  <View
+                    style={[
+                      a.absolute,
+                      a.rounded_xs,
+                      a.px_xs,
+                      {
+                        right: 6,
+                        bottom: 6,
+                        backgroundColor: 'rgba(0,0,0,0.78)',
+                      },
+                    ]}>
+                    <Text style={[a.text_xs, a.font_bold, {color: '#fff'}]}>
+                      {duration}
+                    </Text>
+                  </View>
+                )}
+              </View>
+              <View style={[a.flex_row, a.gap_sm, a.pt_sm]}>
+                <PreviewableUserAvatar
+                  size={36}
+                  profile={post.author}
+                  moderation={moderation.ui('avatar')}
+                />
+                <View style={[a.flex_1, {minWidth: 0}]}>
+                  {!!title && (
+                    <Text
+                      numberOfLines={2}
+                      style={[a.text_md, a.font_bold, a.leading_snug]}>
+                      {title}
+                    </Text>
+                  )}
+                  <Text
+                    numberOfLines={1}
+                    style={[a.text_xs, t.atoms.text_contrast_medium, a.pt_2xs]}>
+                    {channel}
+                  </Text>
+                  {!!meta && (
+                    <Text
+                      numberOfLines={1}
+                      style={[a.text_xs, t.atoms.text_contrast_medium]}>
+                      {meta}
+                    </Text>
+                  )}
+                </View>
+              </View>
+            </Link>
+          </Hider.Content>
+        </Hider.Outer>
+      </View>
+    )
+  }
   return (
     <View
       style={[a.overflow_hidden, a.pb_sm, {borderRadius: IMAGE_BORDER_RADIUS}]}
@@ -88,9 +199,7 @@ function MediaCardInner({
         <Hider.Content>
           <Link
             to={href}
-            label={
-              record.text || (mode === 'video' ? 'Watch video' : 'View image')
-            }
+            label={record.text || 'Ver imagem'}
             style={[a.w_full, {display: 'flex', flexDirection: 'column'}]}>
             <View
               style={[
@@ -110,7 +219,7 @@ function MediaCardInner({
                 recyclingKey={post.uri}
               />
             </View>
-            {!!record.text && mode !== 'video' && (
+            {!!record.text && (
               <Text
                 numberOfLines={3}
                 style={[a.pt_sm, a.text_sm, a.font_semi_bold, a.leading_snug]}>
@@ -131,11 +240,6 @@ function MediaCardInner({
                 timestamp={post.indexedAt}
                 postHref={href}
               />
-              {mode === 'video' && (
-                <Text style={[a.text_xs, t.atoms.text_contrast_medium]}>
-                  {formatViewCount(viewCount)} visualizações
-                </Text>
-              )}
             </View>
           </View>
           <PostControls

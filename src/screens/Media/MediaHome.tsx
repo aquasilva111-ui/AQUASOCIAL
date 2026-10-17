@@ -23,17 +23,19 @@ import {
 import {useSearchPostsQuery} from '#/state/queries/search-posts'
 import {useSession} from '#/state/session'
 import {useSelectedFeed} from '#/state/shell/selected-feed'
-import {atoms as a, useTheme, web} from '#/alf'
+import {atoms as a, useTheme} from '#/alf'
 import {Button, ButtonText} from '#/components/Button'
 import {LiveNowSection} from '#/components/feeds/LiveNowSection'
 import {MediaGallery} from '#/components/feeds/MediaGallery'
-import {ViewsAdFrames} from '#/components/feeds/ViewsAdFrames'
-import {SearchInput} from '#/components/forms/SearchInput'
+import {
+  ViewsCategoryChips,
+  ViewsHero,
+} from '#/components/feeds/ViewsHomeSections'
 import * as Layout from '#/components/Layout'
 import {Text} from '#/components/Typography'
 import {VisionboardMasonry} from '#/components/visionboard/VisionboardMasonry'
 import * as bsky from '#/types/bsky'
-import {VideosNavSidebar} from './VideosNavSidebar'
+import {ViewsChrome} from './ViewsChrome'
 import {VisionboardBoard} from './VisionboardBoard'
 
 type Source =
@@ -73,6 +75,7 @@ function MediaHome({mode}: {mode: MediaExperience}) {
   const [draft, setDraft] = useState('')
   const [query, setQuery] = useState('')
   const [topic, setTopic] = useState<string | undefined>()
+  const [chip, setChip] = useState('all')
   const route = useRoute()
   const routeParams = route.params as {source?: Source; q?: string} | undefined
   const trackView = usePostViewTracking('FeedItem')
@@ -135,9 +138,16 @@ function MediaHome({mode}: {mode: MediaExperience}) {
     return candidates.filter(item => {
       if (!isMediaPost(item, mode) || seen.has(item.uri)) return false
       seen.add(item.uri)
-      return !topic || getPostTopics(item.post).includes(topic)
+      if (topic && !getPostTopics(item.post).includes(topic)) return false
+      if (!chip || chip === 'all' || chip === 'live') return true
+      const needle = chip.toLocaleLowerCase('pt-BR')
+      const tags = getPostTopics(item.post)
+      if (tags.some(tag => tag.includes(needle) || needle.includes(tag)))
+        return true
+      const text = (item.record.text ?? '').toLocaleLowerCase('pt-BR')
+      return text.includes(needle)
     })
-  }, [candidates, mode, topic])
+  }, [candidates, mode, topic, chip])
   const topics = useMemo(
     () =>
       Array.from(
@@ -212,26 +222,14 @@ function MediaHome({mode}: {mode: MediaExperience}) {
   const controls = (
     <>
       {isVideoWeb ? (
-        <View
-          style={[
-            a.flex_row,
-            a.align_center,
-            a.gap_sm,
-            a.px_lg,
-            a.pt_md,
-            a.pb_md,
-          ]}>
-          <View style={[a.flex_1]}>
-            <SearchInput
-              value={draft}
-              onChangeText={setDraft}
-              onSubmitEditing={submitSearch}
-              onClearText={clearSearch}
-              placeholder="Pesquisar vídeos"
-              radius={20}
-            />
-          </View>
-        </View>
+        <ViewsCategoryChips
+          topics={topics}
+          selected={chip}
+          onSelect={id => {
+            setChip(id)
+            setTopic(undefined)
+          }}
+        />
       ) : (
         <ScrollView
           horizontal
@@ -282,7 +280,7 @@ function MediaHome({mode}: {mode: MediaExperience}) {
           </Button>
         </View>
       )}
-      {topics.length > 0 && (
+      {topics.length > 0 && !isVideoWeb && (
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -317,18 +315,21 @@ function MediaHome({mode}: {mode: MediaExperience}) {
           <ButtonText>Tentar novamente</ButtonText>
         </Button>
       )}
-      {active.isFetching && !items.length && (
+      {active.isFetching && !items.length && !isVideoWeb && (
         <Text style={[a.p_md]} accessibilityRole="progressbar">
           Carregando...
         </Text>
       )}
-      {!active.isFetching && !active.isError && !items.length && (
-        <Text style={[a.p_md, t.atoms.text_contrast_medium]}>
-          {source === 'search' && !query
-            ? 'Busque por um tema ou criador.'
-            : 'Nenhuma publicação compatível nas páginas carregadas.'}
-        </Text>
-      )}
+      {!active.isFetching &&
+        !active.isError &&
+        !items.length &&
+        chip !== 'live' && (
+          <Text style={[a.p_md, t.atoms.text_contrast_medium]}>
+            {source === 'search' && !query
+              ? 'Busque por um tema ou criador.'
+              : 'Nenhuma publicação compatível nas páginas carregadas.'}
+          </Text>
+        )}
       {/* With results the gallery loads more on scroll; the button is only
           for filters that matched nothing in the pages loaded so far. */}
       {active.hasNextPage && !items.length && !active.isFetching && (
@@ -344,27 +345,31 @@ function MediaHome({mode}: {mode: MediaExperience}) {
     () => (mode === 'images' ? toVisionboardItems(items) : []),
     [items, mode],
   )
+  const showLiveRow =
+    mode === 'video' &&
+    !topic &&
+    source !== 'search' &&
+    (chip === 'all' || chip === 'live')
   const gallery = (
     <>
-      {mode === 'video' && !topic && source !== 'search' && <ViewsAdFrames />}
-      {mode === 'video' &&
-        !topic &&
-        (source === 'current' || source === 'discover') && (
-          <LiveNowSection enabled={focused} />
-        )}
+      {isVideoWeb && chip !== 'live' && <ViewsHero items={items} />}
       {mode === 'images' ? (
         <VisionboardMasonry
           items={visionboardItems}
           onLoadMore={items.length ? loadMore : undefined}
           onItemSeen={item => trackView(item.post)}
         />
-      ) : (
+      ) : chip === 'live' ? null : (
         <MediaGallery
           items={items}
           mode={mode}
+          pending={active.isFetching && !items.length}
           onLoadMore={items.length ? loadMore : undefined}
           onItemSeen={item => trackView(item.post)}
         />
+      )}
+      {showLiveRow && (
+        <LiveNowSection enabled={focused} showEmpty={chip === 'live'} />
       )}
     </>
   )
@@ -432,23 +437,10 @@ function MediaHome({mode}: {mode: MediaExperience}) {
         </Layout.Header.Outer>
       )}
       {isVideoWeb ? (
-        <View
-          style={[
-            a.flex_row,
-            a.w_full,
-            web({
-              alignItems: 'flex-start',
-              alignSelf: 'stretch',
-              minHeight: '100vh',
-              width: '100%',
-            }),
-          ]}>
-          <VideosNavSidebar />
-          <View style={[a.flex_1, {minWidth: 0}]}>
-            {controls}
-            {gallery}
-          </View>
-        </View>
+        <ViewsChrome>
+          {controls}
+          {gallery}
+        </ViewsChrome>
       ) : (
         <>
           <Layout.Center style={wideContent}>{controls}</Layout.Center>

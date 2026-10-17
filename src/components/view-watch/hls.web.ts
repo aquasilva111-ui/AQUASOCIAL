@@ -1,15 +1,20 @@
 import type * as HlsTypes from 'hls.js'
 
-type CachedPromise<T> = Promise<T> & {value: undefined | T}
-
-/** hls.js, loaded once and shared by the View player and miniplayer. */
-export const loadHls = import(
-  // @ts-ignore
-  'hls.js/dist/hls.min'
-).then(mod => mod.default) as CachedPromise<typeof HlsTypes.default>
-loadHls.value = undefined
-loadHls.then(Hls => {
-  loadHls.value = Hls
-})
-
 export type HlsInstance = HlsTypes.default
+
+let pending: Promise<typeof HlsTypes.default> | undefined
+
+/**
+ * hls.js, loaded the first time a player actually starts. The shell imports
+ * the miniplayer, so a top-level import() would download the player on every
+ * page.
+ */
+export function loadHls(): Promise<typeof HlsTypes.default> {
+  if (!pending) {
+    pending = import(
+      // @ts-ignore
+      'hls.js/dist/hls.min'
+    ).then(mod => mod.default)
+  }
+  return pending
+}

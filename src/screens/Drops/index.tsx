@@ -11,10 +11,10 @@ import {
   type ViewToken,
 } from 'react-native'
 import {useSafeAreaInsets} from 'react-native-safe-area-context'
-import {AtUri} from '@atproto/api'
 import {Image} from 'expo-image'
 import {LinearGradient} from 'expo-linear-gradient'
 import {useVideoPlayer, VideoView} from 'expo-video'
+import {AtUri} from '@atproto/api'
 import {useNavigation} from '@react-navigation/native'
 
 import {useHaptics} from '#/lib/haptics'

@@ -10,6 +10,7 @@ import {MediaCard} from './MediaCard'
 export type MediaGalleryProps = {
   items: FeedPostSliceItem[]
   mode: MediaExperience
+  pending?: boolean
   onLoadMore?: () => void
   onItemSeen?: (item: FeedPostSliceItem) => void
   scrollElRef?: ListRef
