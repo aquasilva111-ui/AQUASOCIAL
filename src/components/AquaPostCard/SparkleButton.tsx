@@ -1,0 +1,46 @@
+import {msg} from '@lingui/macro'
+import {useLingui} from '@lingui/react'
+
+import {EventStopper} from '#/view/com/util/EventStopper'
+import {atoms as a, useTheme, web} from '#/alf'
+import {Button} from '#/components/Button'
+import {Sparkle_Stroke2_Corner0_Rounded as Sparkle} from '#/components/icons/Sparkle'
+import {AQUA} from './palette'
+
+export function SparkleButton({onPress}: {onPress: () => void}) {
+  const {_} = useLingui()
+  const t = useTheme()
+  const light = t.name === 'light'
+  return (
+    <EventStopper onKeyDown={false}>
+      <Button
+        label={_(msg`Why am I seeing this?`)}
+        onPress={onPress}
+        hitSlop={8}
+        style={[
+          a.align_center,
+          a.justify_center,
+          a.rounded_full,
+          {
+            width: 34,
+            height: 34,
+            backgroundColor: light
+              ? 'rgba(255,255,255,0.55)'
+              : 'rgba(15,23,42,0.72)',
+            borderWidth: 1,
+            borderColor: light
+              ? 'rgba(255,255,255,0.7)'
+              : 'rgba(255,255,255,0.16)',
+          },
+          web({backdropFilter: 'blur(18px) saturate(1.6)'}),
+        ]}
+        hoverStyle={{
+          backgroundColor: light
+            ? 'rgba(255,255,255,0.8)'
+            : 'rgba(15,23,42,0.85)',
+        }}>
+        <Sparkle width={15} height={15} style={{color: AQUA.primary}} />
+      </Button>
+    </EventStopper>
+  )
+}

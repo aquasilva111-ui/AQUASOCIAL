@@ -1,5 +1,6 @@
 import {
   createContext,
+  type ReactNode,
   useCallback,
   useContext,
   useEffect,
@@ -15,6 +16,7 @@ import {isFirefox} from '#/lib/browser'
 import {ErrorBoundary} from '#/view/com/util/ErrorBoundary'
 import {IMAGE_BORDER_RADIUS} from '#/view/com/util/images/constants'
 import {atoms as a} from '#/alf'
+import {AQUA_RADIUS} from '#/components/AquaPostCard/palette'
 import {useIsWithinMessage} from '#/components/dms/MessageContext'
 import {useFullscreen} from '#/components/hooks/useFullscreen'
 import {MediaInsetBorder} from '#/components/MediaInsetBorder'
@@ -26,7 +28,13 @@ import {
 import {useActiveVideoWeb} from './ActiveVideoWebContext'
 import * as VideoFallback from './VideoEmbedInner/VideoFallback'
 
-export function VideoEmbed({embed}: {embed: AppBskyEmbedVideo.View}) {
+export function VideoEmbed({
+  embed,
+  mediaChrome,
+}: {
+  embed: AppBskyEmbedVideo.View
+  mediaChrome?: ReactNode
+}) {
   const ref = useRef<HTMLDivElement>(null)
   const {active, setActive, sendPosition, currentActiveView} =
     useActiveVideoWeb()
@@ -102,7 +110,7 @@ export function VideoEmbed({embed}: {embed: AppBskyEmbedVideo.View}) {
   )
 
   return (
-    <View style={[a.pt_xs]}>
+    <View style={[mediaChrome ? {paddingTop: 0} : a.pt_xs]}>
       <ViewportObserver
         sendPosition={sendPosition}
         isAnyViewActive={currentActiveView !== null}>
@@ -113,11 +121,15 @@ export function VideoEmbed({embed}: {embed: AppBskyEmbedVideo.View}) {
             {
               aspectRatio: ratio,
               maxWidth: MAX_HEIGHT * ratio,
-              borderRadius: IMAGE_BORDER_RADIUS,
+              borderRadius: mediaChrome
+                ? AQUA_RADIUS.media
+                : IMAGE_BORDER_RADIUS,
+              borderBottomLeftRadius: mediaChrome ? 0 : IMAGE_BORDER_RADIUS,
+              position: 'relative',
             },
           ]}>
           {contents}
-          <MediaInsetBorder />
+          {mediaChrome ? mediaChrome : <MediaInsetBorder />}
         </View>
       </ViewportObserver>
     </View>

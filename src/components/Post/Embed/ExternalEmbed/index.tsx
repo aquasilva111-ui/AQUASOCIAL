@@ -13,6 +13,7 @@ import {toNiceDomain} from '#/lib/strings/url-helpers'
 import {isNative} from '#/platform/detection'
 import {useExternalEmbedsPrefs} from '#/state/preferences'
 import {atoms as a, useTheme} from '#/alf'
+import {AQUA_RADIUS} from '#/components/AquaPostCard/palette'
 import {Divider} from '#/components/Divider'
 import {Earth_Stroke2_Corner0_Rounded as Globe} from '#/components/icons/Globe'
 import {Link} from '#/components/Link'
@@ -26,11 +27,14 @@ export const ExternalEmbed = ({
   onOpen,
   style,
   hideAlt,
+  imageOverlay,
 }: {
   link: AppBskyEmbedExternal.ViewExternal
   onOpen?: () => void
   style?: StyleProp<ViewStyle>
   hideAlt?: boolean
+  /** Notch chrome, drawn on the cover image only. */
+  imageOverlay?: React.ReactNode
 }) => {
   const {_} = useLingui()
   const t = useTheme()
@@ -46,6 +50,14 @@ export const ExternalEmbed = ({
     }
   }, [link.uri, externalEmbedPrefs])
   const hasMedia = Boolean(imageUri || embedPlayerParams)
+  const coverFrame = imageOverlay
+    ? {
+        position: 'relative' as const,
+        borderRadius: AQUA_RADIUS.media,
+        borderBottomLeftRadius: 0,
+        overflow: 'hidden' as const,
+      }
+    : undefined
 
   const onPress = useCallback(() => {
     playHaptic('Light')
@@ -62,14 +74,23 @@ export const ExternalEmbed = ({
   if (embedPlayerParams?.source === 'tenor') {
     const parsedAlt = parseAltFromGIFDescription(link.description)
     return (
-      <View style={style}>
+      <View style={[style, coverFrame]}>
         <GifEmbed
           params={embedPlayerParams}
           thumb={link.thumb}
           altText={parsedAlt.alt}
           isPreferredAltText={parsedAlt.isPreferred}
           hideAlt={hideAlt}
+          style={
+            imageOverlay
+              ? {
+                  borderRadius: AQUA_RADIUS.media,
+                  borderBottomLeftRadius: 0,
+                }
+              : undefined
+          }
         />
+        {imageOverlay}
       </View>
     )
   }
@@ -86,7 +107,7 @@ export const ExternalEmbed = ({
           style={[
             a.transition_color,
             a.flex_col,
-            a.rounded_md,
+            imageOverlay ? {borderRadius: AQUA_RADIUS.media} : a.rounded_md,
             a.overflow_hidden,
             a.w_full,
             a.border,
@@ -96,17 +117,26 @@ export const ExternalEmbed = ({
               : t.atoms.border_contrast_low,
           ]}>
           {imageUri && !embedPlayerParams ? (
-            <Image
-              style={[a.aspect_card]}
-              source={{uri: imageUri}}
-              accessibilityIgnoresInvertColors
-            />
+            <View style={coverFrame}>
+              <Image
+                style={[a.aspect_card]}
+                source={{uri: imageUri}}
+                accessibilityIgnoresInvertColors
+              />
+              {imageOverlay}
+            </View>
           ) : undefined}
 
           {embedPlayerParams?.isGif ? (
-            <ExternalGif link={link} params={embedPlayerParams} />
+            <View style={coverFrame}>
+              <ExternalGif link={link} params={embedPlayerParams} />
+              {imageOverlay}
+            </View>
           ) : embedPlayerParams ? (
-            <ExternalPlayer link={link} params={embedPlayerParams} />
+            <View style={coverFrame}>
+              <ExternalPlayer link={link} params={embedPlayerParams} />
+              {imageOverlay}
+            </View>
           ) : undefined}
 
           <View

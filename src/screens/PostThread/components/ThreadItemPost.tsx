@@ -1,4 +1,4 @@
-import {memo, type ReactNode, useCallback, useMemo, useState} from 'react'
+import {memo, type ReactNode, useCallback, useMemo} from 'react'
 import {View} from 'react-native'
 import {
   type AppBskyFeedDefs,
@@ -8,11 +8,8 @@ import {
 } from '@atproto/api'
 import {Trans} from '@lingui/macro'
 
-import {useActorStatus} from '#/lib/actor-status'
-import {MAX_POST_LINES} from '#/lib/constants'
 import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
 import {makeProfileLink} from '#/lib/routes/links'
-import {countLines} from '#/lib/strings/helpers'
 import {getPostTextAndFacets} from '#/lib/strings/long-post'
 import {
   POST_TOMBSTONE,
@@ -20,28 +17,19 @@ import {
   usePostShadow,
 } from '#/state/cache/post-shadow'
 import {type ThreadItem} from '#/state/queries/usePostThread/types'
-import {useSession} from '#/state/session'
 import {type OnPostSuccessData} from '#/state/shell/composer'
-import {useMergedThreadgateHiddenReplies} from '#/state/threadgate-hidden-replies'
-import {PostMeta} from '#/view/com/util/PostMeta'
-import {PreviewableUserAvatar} from '#/view/com/util/UserAvatar'
 import {
   LINEAR_AVI_WIDTH,
   OUTER_SPACE,
   REPLY_LINE_WIDTH,
 } from '#/screens/PostThread/const'
 import {atoms as a, useTheme} from '#/alf'
+import {AquaPostCard} from '#/components/AquaPostCard'
 import {DebugFieldDisplay} from '#/components/DebugFieldDisplay'
 import {useInteractionState} from '#/components/hooks/useInteractionState'
 import {Trash_Stroke2_Corner0_Rounded as TrashIcon} from '#/components/icons/Trash'
-import {LabelsOnMyPost} from '#/components/moderation/LabelsOnMe'
-import {PostAlerts} from '#/components/moderation/PostAlerts'
 import {PostHider} from '#/components/moderation/PostHider'
-import {type AppModerationCause} from '#/components/Pills'
-import {Embed, PostEmbedViewContext} from '#/components/Post/Embed'
-import {ShowMoreTextButton} from '#/components/Post/ShowMoreTextButton'
-import {PostControls, PostControlsSkeleton} from '#/components/PostControls'
-import {RichText} from '#/components/RichText'
+import {PostControlsSkeleton} from '#/components/PostControls'
 import * as Skele from '#/components/Skeleton'
 import {SubtleHover} from '#/components/SubtleHover'
 import {Text} from '#/components/Typography'
@@ -121,19 +109,13 @@ function ThreadItemPostDeleted({
 
 const ThreadItemPostOuterWrapper = memo(function ThreadItemPostOuterWrapper({
   item,
-  overrides,
   children,
 }: Pick<ThreadItemPostProps, 'item' | 'overrides'> & {
   children: ReactNode
 }) {
-  const t = useTheme()
-  const showTopBorder =
-    !item.ui.showParentReplyLine && overrides?.topBorder !== true
-
   return (
     <View
       style={[
-        showTopBorder && [a.border_t, t.atoms.border_contrast_low],
         {paddingHorizontal: OUTER_SPACE},
         // If there's no next child, add a little padding to bottom
         !item.ui.showChildReplyLine &&
@@ -187,7 +169,6 @@ const ThreadItemPostInner = memo(function ThreadItemPostInner({
 }) {
   const t = useTheme()
   const {openComposer} = useOpenComposer()
-  const {currentAccount} = useSession()
 
   const post = item.value.post
   const record = item.value.post.record
@@ -196,31 +177,10 @@ const ThreadItemPostInner = memo(function ThreadItemPostInner({
     () => new RichTextAPI(getPostTextAndFacets(record)),
     [record],
   )
-  const [limitLines, setLimitLines] = useState(
-    () => countLines(richText?.text) >= MAX_POST_LINES,
-  )
-  const threadRootUri = record.reply?.root?.uri || post.uri
   const postHref = useMemo(() => {
     const urip = new AtUri(post.uri)
     return makeProfileLink(post.author, 'post', urip.rkey)
   }, [post.uri, post.author])
-  const threadgateHiddenReplies = useMergedThreadgateHiddenReplies({
-    threadgateRecord,
-  })
-  const additionalPostAlerts: AppModerationCause[] = useMemo(() => {
-    const isPostHiddenByThreadgate = threadgateHiddenReplies.has(post.uri)
-    const isControlledByViewer =
-      new AtUri(threadRootUri).host === currentAccount?.did
-    return isControlledByViewer && isPostHiddenByThreadgate
-      ? [
-          {
-            type: 'reply-hidden',
-            source: {type: 'user', did: currentAccount?.did},
-            priority: 6,
-          },
-        ]
-      : []
-  }, [post, currentAccount?.did, threadgateHiddenReplies, threadRootUri])
 
   const onPressReply = useCallback(() => {
     openComposer({
@@ -237,12 +197,6 @@ const ThreadItemPostInner = memo(function ThreadItemPostInner({
     })
   }, [openComposer, post, record, onPostSuccess, moderation])
 
-  const onPressShowMore = useCallback(() => {
-    setLimitLines(false)
-  }, [setLimitLines])
-
-  const {isActive: live} = useActorStatus(post.author)
-
   return (
     <SubtleHoverWrapper>
       <ThreadItemPostOuterWrapper item={item} overrides={overrides}>
@@ -257,85 +211,30 @@ const ThreadItemPostInner = memo(function ThreadItemPostInner({
           profile={post.author}
           interpretFilterAsBlur>
           <ThreadItemPostParentReplyLine item={item} />
-
-          <View style={[a.flex_row, a.gap_md]}>
-            <View>
-              <PreviewableUserAvatar
-                size={LINEAR_AVI_WIDTH}
-                profile={post.author}
-                moderation={moderation.ui('avatar')}
-                type={post.author.associated?.labeler ? 'labeler' : 'user'}
-                live={live}
-              />
-
-              {(item.ui.showChildReplyLine ||
-                item.ui.precedesChildReadMore) && (
-                <View
-                  style={[
-                    a.mx_auto,
-                    a.mt_xs,
-                    a.flex_1,
-                    {
-                      width: REPLY_LINE_WIDTH,
-                      backgroundColor: t.atoms.border_contrast_low.borderColor,
-                    },
-                  ]}
-                />
-              )}
-            </View>
-
-            <View style={[a.flex_1]}>
-              <PostMeta
-                author={post.author}
-                moderation={moderation}
-                timestamp={post.indexedAt}
-                postHref={postHref}
-                style={[a.pb_xs]}
-              />
-              <LabelsOnMyPost post={post} style={[a.pb_xs]} />
-              <PostAlerts
-                modui={moderation.ui('contentList')}
-                style={[a.pb_2xs]}
-                additionalCauses={additionalPostAlerts}
-              />
-              {richText?.text ? (
-                <>
-                  <RichText
-                    enableTags
-                    value={richText}
-                    style={[a.flex_1, a.text_md]}
-                    numberOfLines={limitLines ? MAX_POST_LINES : undefined}
-                    authorHandle={post.author.handle}
-                    shouldProxyLinks={true}
-                  />
-                  {limitLines && (
-                    <ShowMoreTextButton
-                      style={[a.text_md]}
-                      onPress={onPressShowMore}
-                    />
-                  )}
-                </>
-              ) : undefined}
-              {post.embed && (
-                <View style={[a.pb_xs]}>
-                  <Embed
-                    embed={post.embed}
-                    moderation={moderation}
-                    viewContext={PostEmbedViewContext.Feed}
-                  />
-                </View>
-              )}
-              <PostControls
-                post={postShadow}
-                record={record}
-                richText={richText}
-                onPressReply={onPressReply}
-                logContext="PostThreadItem"
-                threadgateRecord={threadgateRecord}
-              />
-              <DebugFieldDisplay subject={post} />
-            </View>
-          </View>
+          <AquaPostCard
+            post={postShadow}
+            moderation={moderation}
+            record={record}
+            richText={richText}
+            onPressReply={onPressReply}
+            logContext="PostThreadItem"
+            threadgateRecord={threadgateRecord}
+            postHref={postHref}
+            trailing={<DebugFieldDisplay subject={post} />}
+          />
+          {(item.ui.showChildReplyLine || item.ui.precedesChildReadMore) && (
+            <View
+              style={[
+                a.mt_xs,
+                {
+                  width: REPLY_LINE_WIDTH,
+                  height: 12,
+                  marginLeft: 28,
+                  backgroundColor: t.atoms.border_contrast_low.borderColor,
+                },
+              ]}
+            />
+          )}
         </PostHider>
       </ThreadItemPostOuterWrapper>
     </SubtleHoverWrapper>

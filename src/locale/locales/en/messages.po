@@ -11139,3 +11139,80 @@ msgstr ""
 #: src/components/verification/VerificationsDialog.tsx:65
 msgid "Your verifications"
 msgstr ""
+
+# Aqua post card
+msgid "…more"
+msgstr ""
+
+msgid "{0} liked"
+msgstr ""
+
+msgid "{first} and {second} liked this post"
+msgstr ""
+
+msgid "{first} and others liked this post"
+msgstr ""
+
+msgid "{first} liked this post"
+msgstr ""
+
+msgid "{first}, {second} and others liked this post"
+msgstr ""
+
+msgid "From Bluesky"
+msgstr ""
+
+msgid "Inferred"
+msgstr ""
+
+msgid "Mute topic"
+msgstr ""
+
+msgid "My Conventions"
+msgstr ""
+
+msgid "No Convention is attached to this post yet"
+msgstr ""
+
+msgid "No Conventions are attached to this post yet."
+msgstr ""
+
+msgid "React to this post"
+msgstr ""
+
+msgid "React with {reaction}"
+msgstr ""
+
+msgid "Reacted with {emoji}"
+msgstr ""
+
+msgid "Show less of this"
+msgstr ""
+
+msgid "Show more of this"
+msgstr ""
+
+msgid "This post showed up because it matches these Conventions of yours."
+msgstr ""
+
+msgid "Topic muted on this device"
+msgstr ""
+
+msgid "We only show the link between ideas, never your personal data."
+msgstr ""
+
+msgid "We'll show less of this"
+msgstr ""
+
+msgid "We'll show more of this"
+msgstr ""
+
+msgid "Why am I seeing this?"
+msgstr ""
+
+msgid "You asked"
+msgstr ""
+
+msgid "Your Conventions will be listed here when the feed explains a post."
+msgstr ""
+

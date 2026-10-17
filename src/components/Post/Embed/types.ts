@@ -1,3 +1,4 @@
+import {type ReactNode} from 'react'
 import {type StyleProp, type ViewStyle} from 'react-native'
 import {type AppBskyFeedDefs, type ModerationDecision} from '@atproto/api'
 
@@ -19,6 +20,8 @@ export type CommonProps = {
   viewContext?: PostEmbedViewContext
   isWithinQuote?: boolean
   allowNestedQuotes?: boolean
+  /** White-notch chrome drawn over photos, video, and article covers. */
+  mediaChrome?: ReactNode
 }
 
 export type EmbedProps = CommonProps & {
