@@ -6,7 +6,7 @@ import {type ImageSource} from 'expo-image'
  *
  * To place a creative: add the file under `assets/views-frames/` and set
  * `image: require('../../../assets/views-frames/<file>')`. A frame without
- * an image renders as an empty placeholder.
+ * an image is hidden.
  */
 export type ViewsFrame = {
   id: string
@@ -18,6 +18,11 @@ export type ViewsFrame = {
   alt: string
   /** Marks the frame as paid placement ("Patrocinado"). */
   sponsored?: boolean
+}
+
+/** Only frames with a creative are shown; empty slots never render as gray boxes. */
+export function filledFrames(frames: ViewsFrame[] = VIEWS_FRAMES) {
+  return frames.filter(f => !!f.image)
 }
 
 export const VIEWS_FRAMES: ViewsFrame[] = [

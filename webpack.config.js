@@ -69,10 +69,10 @@ module.exports = async function (env, argv) {
   if (env.mode === 'development') {
     config.plugins.push(new ReactRefreshWebpackPlugin())
   } else {
-    // Chunks resolve from the site root. `auto` follows the document URL, so
-    // a direct load of /views/watch/:did/:rkey requests ./static/js and the
-    // SPA fallback returns HTML instead of the bundle.
-    config.output.publicPath = '/'
+    // Absolute public path. `auto` follows the document URL, so a direct load
+    // of /views/watch/:did/:rkey requests ./static/js and the SPA fallback
+    // returns HTML. A static CDN can still be set with WEB_PUBLIC_PATH.
+    config.output.publicPath = process.env.WEB_PUBLIC_PATH || '/'
   }
 
   if (GENERATE_STATS || OPEN_ANALYZER) {

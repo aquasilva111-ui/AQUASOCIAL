@@ -10,7 +10,7 @@ import {
   useState,
 } from 'react'
 
-import {chapterAt, formatTime} from '#/lib/view-watch/chapters'
+import {chapterAt, formatTime, usableDuration} from '#/lib/view-watch/chapters'
 import {type HlsInstance, loadHls} from './hls.web'
 import {type ViewPlayerHandle, type ViewPlayerProps} from './ViewPlayer.types'
 
@@ -66,11 +66,23 @@ export const ViewPlayer = forwardRef<ViewPlayerHandle, ViewPlayerProps>(
       pause: () => videoRef.current?.pause(),
     }))
 
+    const lastDuration = useRef(0)
+    const reportDuration = (d: number) => {
+      const usable = usableDuration(d)
+      if (usable === undefined || usable === lastDuration.current) return
+      lastDuration.current = usable
+      setDuration(usable)
+      props.onDuration?.(usable)
+    }
+    const reportDurationRef = useRef(reportDuration)
+    reportDurationRef.current = reportDuration
+
     // ---------------------------------------------------------- hls setup
     useEffect(() => {
       const video = videoRef.current
       if (!video) return
       let cancelled = false
+      lastDuration.current = 0
       let hls: HlsInstance | undefined
       loadHls().then(Hls => {
         if (cancelled) return
@@ -96,6 +108,12 @@ export const ViewPlayer = forwardRef<ViewPlayerHandle, ViewPlayerProps>(
               .filter(l => l.height > 0)
               .sort((x, y) => y.height - x.height),
           )
+        })
+        // Fallback: the playlist's own total (VOD), in case the element
+        // never reports a finite duration.
+        hls.on(Hls.Events.LEVEL_LOADED, (_e, data) => {
+          if (!data.details.live)
+            reportDurationRef.current(data.details.totalduration)
         })
         hls.on(Hls.Events.LEVEL_SWITCHED, (_e, data) => {
           setAutoHeight(hls?.levels[data.level]?.height)
@@ -301,13 +319,11 @@ export const ViewPlayer = forwardRef<ViewPlayerHandle, ViewPlayerProps>(
             setTime(t)
             props.onTimeUpdate?.(t)
           }}
-          onLoadedMetadata={e => {
-            const d = e.currentTarget.duration
-            if (Number.isFinite(d)) {
-              setDuration(d)
-              props.onDuration?.(d)
-            }
-          }}
+          // With hls.js (MediaSource) the duration is usually NaN/Infinity at
+          // loadedmetadata and only arrives later via durationchange; listening
+          // to loadedmetadata alone left the player at 0:00 / 0:00.
+          onLoadedMetadata={e => reportDuration(e.currentTarget.duration)}
+          onDurationChange={e => reportDuration(e.currentTarget.duration)}
           aria-label={embed.alt || 'Vídeo'}
           style={{
             width: '100%',

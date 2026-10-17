@@ -9,7 +9,7 @@ import {
 } from '#/lib/routes/types'
 import {shareUrl} from '#/lib/sharing'
 import {toShareUrl} from '#/lib/strings/url-helpers'
-import {channelAccess, channelPath} from '#/lib/view-channel/model'
+import {channelPageState, channelPath} from '#/lib/view-channel/model'
 import {useProfileShadow} from '#/state/cache/profile-shadow'
 import {useProfileFollowMutationQueue} from '#/state/queries/profile'
 import {useSession} from '#/state/session'
@@ -93,21 +93,41 @@ function ChannelPage({handle}: {handle: string}) {
       </Notice>
     )
 
-  const access = channelAccess({
+  const page = channelPageState({
     channel,
     isOwner,
     moderated: data.moderated,
+    videoCount: data.videos.length + data.drops.length,
+    videosLoading: data.feed.isLoading,
   })
-  if (access.state === 'suspended')
+  if (page.state === 'loading')
+    return (
+      <Text style={[a.p_xl, t.atoms.text_contrast_medium]}>Carregando…</Text>
+    )
+  if (page.state === 'suspended')
     return (
       <Notice
         title="Canal indisponível"
         body="Este canal está indisponível por decisão de moderação do AQUA."
       />
     )
-  if (access.state === 'unavailable')
+  if (page.state === 'unavailable')
     return <Notice title="Este canal não está disponível" />
-  if (access.state === 'none' || !channel)
+  // A failed video feed has zero items, which would otherwise look like
+  // "this profile has not published any videos".
+  if (page.state === 'none' && data.feed.isError)
+    return (
+      <Notice title="Não foi possível carregar os vídeos">
+        <Button
+          label="Tentar novamente"
+          size="small"
+          color="secondary"
+          onPress={() => data.feed.refetch()}>
+          <ButtonText>Tentar novamente</ButtonText>
+        </Button>
+      </Notice>
+    )
+  if (page.state === 'none')
     return isOwner ? (
       <Notice
         title="Você ainda não tem um canal no View"
@@ -127,7 +147,8 @@ function ChannelPage({handle}: {handle: string}) {
         </Link>
       </Notice>
     ) : (
-      <Notice title={`@${profile.data.handle} ainda não tem um canal no View`}>
+      <Notice
+        title={`@${profile.data.handle} ainda não publicou vídeos no View`}>
         <Link
           to={makeProfileLink(profile.data)}
           label={`Ver perfil de @${profile.data.handle}`}>
@@ -137,10 +158,19 @@ function ChannelPage({handle}: {handle: string}) {
         </Link>
       </Notice>
     )
+  const shown = page.channel
 
   return (
     <View>
-      {isOwner && access.status === 'draft' && (
+      {isOwner && page.implicit && (
+        <View style={[a.px_lg, a.py_sm, t.atoms.bg_contrast_25]}>
+          <Text style={[a.text_sm, t.atoms.text_contrast_medium]}>
+            Este é o canal automático montado com os seus vídeos. Crie o seu
+            canal em /views/channel/new para personalizar capa, seções e links.
+          </Text>
+        </View>
+      )}
+      {isOwner && !page.implicit && shown.status === 'draft' && (
         <View style={[a.px_lg, a.py_sm, {backgroundColor: '#fff4d6'}]}>
           <Text style={[a.text_sm, {color: '#5c4400'}]}>
             Rascunho: só você vê este canal. Publique em Personalizar canal →
@@ -148,7 +178,7 @@ function ChannelPage({handle}: {handle: string}) {
           </Text>
         </View>
       )}
-      {isOwner && channel.visibility === 'private' && (
+      {isOwner && shown.visibility === 'private' && (
         <View style={[a.px_lg, a.py_sm, t.atoms.bg_contrast_25]}>
           <Text style={[a.text_sm, t.atoms.text_contrast_medium]}>
             Canal privado: fica oculto para outras pessoas no AQUA.
@@ -157,7 +187,7 @@ function ChannelPage({handle}: {handle: string}) {
       )}
       <ChannelView
         profile={profile.data}
-        channel={channel}
+        channel={shown}
         bannerUri={data.bannerUrl}
         watermarkUri={data.watermarkUrl}
         videos={data.videos}
