@@ -28,7 +28,7 @@ function topM(s) {
   if (s.top === 'none') return '';
   const me = `<button class="ib" data-act="open" data-v="drawer" aria-label="Menu">${av(ME, 32)}</button>`;
   let row;
-  if (s.top === 'main') row = `${me}<div class="title"><span class="wm" style="justify-content:center"><i></i>AQUA</span></div><button class="ib" data-go="search" aria-label="Buscar">${ico('search')}</button>`;
+  if (s.top === 'main') row = `${me}<div class="title"><span class="wm" style="justify-content:center">${logo(26)}AQUA</span></div><button class="ib" data-go="search" aria-label="Buscar">${ico('search')}</button>`;
   else if (s.top === 'tab') row = `${me}<div class="title">${s.title}</div><button class="ib" data-act="noop">${ico('more')}</button>`;
   else row = `<button class="ib" data-act="back" aria-label="Voltar">${ico('back')}</button><div class="title">${s.title}</div><span class="slot"></span>`;
   return `<div class="mtop"><div class="row">${row}</div>${tabsHtml(s)}</div>`;
@@ -91,7 +91,7 @@ function desktop(s0) {
   const nav = NAV.map(n => `<button class="nv ${s.nav === n[0] ? 'on' : ''}" data-go="${n[0]}">${ico(n[2])}<span>${n[1]}</span>${n[3] ? `<span class="badge">${n[3]}</span>` : ''}</button>`).join('');
   const ov = state.ov === 'create' || state.ov === 'compose' ? composer(true) : '';
   return `<div class="dev d ${state.light ? 'light' : ''}"><div class="browser"><div class="chrome"><i></i><i></i><i></i><div class="url">${ico('lock')} aquaapp.online/${path}</div></div>
-    <div class="dapp"><div class="dwrap"><aside class="lnav"><div class="wm"><i></i>AQUA</div>${nav}<button class="pub" data-act="open" data-v="compose">Publicar</button>
+    <div class="dapp"><div class="dwrap"><aside class="lnav"><div class="wm">${logo(32)}AQUA</div>${nav}<button class="pub" data-act="open" data-v="compose">Publicar</button>
       <button class="acct" data-go="profile">${av(ME, 40)}<div><b>${ME.n}</b><span>@aqua.aquaapp.online</span></div></button></aside>
       <section class="dcol ${s.rail ? '' : 'full'}">${head}<div class="scroll" data-sc="d" ${s.flush ? 'style="overflow:hidden"' : ''}>${body}</div></section>${s.rail ? rail() : ''}</div>${ov}</div></div></div>`;
 }

@@ -47,3 +47,6 @@ const I = {
   palette: '<path d="M12 3a9 9 0 1 0 0 18c1.5 0 2-1 1.5-2-.6-1.2.2-2.5 1.6-2.5H17a4 4 0 0 0 4-4C21 6.6 17 3 12 3z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10" cy="7" r="1"/><circle cx="15" cy="7.5" r="1"/>',
 };
 const ico = (n, c = '') => `<svg class="ic ${c}" viewBox="0 0 24 24" aria-hidden="true">${I[n] || ''}</svg>`;
+
+/* Logo oficial (olho da Aqua) — mesmas medidas de src/view/icons/Logo.tsx */
+const logo = (s = 24) => `<svg class="lg" width="${s}" height="${s}" viewBox="0 0 810 810" role="img" aria-label="Aqua"><circle cx="413.18" cy="413.18" r="381.55" fill="#002bef"/><circle cx="413.18" cy="413.18" r="218.66" fill="#fff"/><circle cx="413.18" cy="413.18" r="155.56" fill="#009eff"/><circle cx="413.18" cy="413.18" r="79.69" fill="#000"/></svg>`;
