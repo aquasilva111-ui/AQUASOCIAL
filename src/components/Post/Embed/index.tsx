@@ -68,7 +68,7 @@ export function Embed({embed: rawEmbed, ...rest}: EmbedProps) {
       return (
         <View style={rest.style}>
           <MediaEmbed embed={embed.media} {...rest} />
-          <RecordEmbed embed={embed.view} {...rest} />
+          <RecordEmbed embed={embed.view} {...rest} mediaChrome={undefined} />
         </View>
       )
     }
@@ -102,7 +102,8 @@ function MediaEmbed({
           <ExternalEmbed
             link={embed.view.external}
             onOpen={rest.onOpen}
-            style={[a.mt_sm, rest.style]}
+            style={[rest.mediaChrome ? undefined : a.mt_sm, rest.style]}
+            imageOverlay={rest.mediaChrome}
           />
         </ContentHider>
       )
@@ -112,7 +113,7 @@ function MediaEmbed({
         <ContentHider
           modui={rest.moderation?.ui('contentMedia')}
           activeStyle={[a.mt_sm]}>
-          <VideoEmbed embed={embed.view} />
+          <VideoEmbed embed={embed.view} mediaChrome={rest.mediaChrome} />
         </ContentHider>
       )
     }

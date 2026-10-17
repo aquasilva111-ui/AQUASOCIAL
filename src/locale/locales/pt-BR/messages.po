@@ -11138,3 +11138,80 @@ msgstr "Seus interesses escolhidos nos ajudam a entregar o conteúdo que interes
 #: src/components/verification/VerificationsDialog.tsx:65
 msgid "Your verifications"
 msgstr "Suas verificações"
+
+# Aqua post card
+msgid "…more"
+msgstr "…mais"
+
+msgid "{0} liked"
+msgstr "{0} curtiram"
+
+msgid "{first} and {second} liked this post"
+msgstr "{first} e {second} curtiram esta publicação"
+
+msgid "{first} and others liked this post"
+msgstr "{first} e outras pessoas curtiram esta publicação"
+
+msgid "{first} liked this post"
+msgstr "{first} curtiu esta publicação"
+
+msgid "{first}, {second} and others liked this post"
+msgstr "{first}, {second} e outras pessoas curtiram esta publicação"
+
+msgid "From Bluesky"
+msgstr "Do Bluesky"
+
+msgid "Inferred"
+msgstr "Inferido"
+
+msgid "Mute topic"
+msgstr "Silenciar tema"
+
+msgid "My Conventions"
+msgstr "Minhas Convenções"
+
+msgid "No Convention is attached to this post yet"
+msgstr "Nenhuma Convenção está ligada a esta publicação ainda"
+
+msgid "No Conventions are attached to this post yet."
+msgstr "Nenhuma Convenção está ligada a esta publicação ainda."
+
+msgid "React to this post"
+msgstr "Reagir a esta publicação"
+
+msgid "React with {reaction}"
+msgstr "Reagir com {reaction}"
+
+msgid "Reacted with {emoji}"
+msgstr "Reagiu com {emoji}"
+
+msgid "Show less of this"
+msgstr "Mostrar menos disso"
+
+msgid "Show more of this"
+msgstr "Mostrar mais disso"
+
+msgid "This post showed up because it matches these Conventions of yours."
+msgstr "Esta publicação apareceu porque combina com estas Convenções suas."
+
+msgid "Topic muted on this device"
+msgstr "Tema silenciado neste aparelho"
+
+msgid "We only show the link between ideas, never your personal data."
+msgstr "Mostramos só o vínculo entre as ideias, nunca os seus dados pessoais."
+
+msgid "We'll show less of this"
+msgstr "Vamos mostrar menos disso"
+
+msgid "We'll show more of this"
+msgstr "Vamos mostrar mais disso"
+
+msgid "Why am I seeing this?"
+msgstr "Por que estou vendo isso?"
+
+msgid "You asked"
+msgstr "Você pediu"
+
+msgid "Your Conventions will be listed here when the feed explains a post."
+msgstr "Suas Convenções aparecem aqui quando o feed explicar uma publicação."
+
