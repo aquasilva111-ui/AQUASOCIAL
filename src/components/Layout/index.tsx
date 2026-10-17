@@ -205,27 +205,5 @@ export const Center = memo(function LayoutCenter({
  * Only used within `Layout.Screen`, not for reuse
  */
 const WebCenterBorders = memo(function LayoutWebCenterBorders() {
-  const t = useTheme()
-  const {gtMobile} = useBreakpoints()
-  const {centerColumnOffset} = useLayoutBreakpoints()
-  return gtMobile ? (
-    <View
-      style={[
-        a.fixed,
-        a.inset_0,
-        a.border_l,
-        a.border_r,
-        t.atoms.border_contrast_low,
-        web({
-          width: CENTER_COLUMN_WIDTH + 2,
-          left: '50%',
-          transform: [
-            {translateX: '-50%'},
-            {translateX: centerColumnOffset ? CENTER_COLUMN_OFFSET : 0},
-            ...a.scrollbar_offset.transform,
-          ],
-        }),
-      ]}
-    />
-  ) : null
+  return null
 })

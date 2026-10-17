@@ -18,6 +18,34 @@ cd aqua-hub && npm install && npm run dev      # http://localhost:5192
 | Vídeo | timeline com cursor, pré-visualização e reprodução; arrastar bordas (cortar) e clipes (reordenar); dividir (S); fade, brilho/contraste/saturação; textos; trilha de música; render no servidor `aqua-render` |
 | Planilha | Univer carregado só ao abrir a planilha; snapshot salvo no projeto |
 
+## Colaboração em tempo real
+
+O Hub usa o mesmo stack do Docs (Yjs + y-webrtc).
+
+- Sem parâmetro: modo local (`MemoryHub`, uma aba).
+- Com `?room=nome`: ativa colaboração em tempo real via WebRTC.
+  Exemplo: `http://localhost:5192/?room=musica-teste`
+
+Quando a colaboração está ativa, a barra lateral mostra o selo **“Colaboração ativa”**.
+
+## Publicar no AQUA
+
+Cada item tem um botão **Publicar** na barra superior.
+
+Ele envia um `postMessage` para o app hospedeiro (mesmo padrão do `aqua-docs`):
+
+```ts
+{
+  type: "aqua-hub:publish",
+  title: string,
+  preview: string,
+  source: "music" | "video" | "design" | ...
+}
+```
+
+Se o Hub estiver embutido com `?host=<origin>`, a mensagem é enviada só para essa origem.  
+Fora do embed, faz fallback (download simples do preview).
+
 ## Melody Lab ([AQUA-045], dentro da Música)
 
 Botão **🎙 Melody Lab** na barra da Música. Cante (microfone) ou importe um áudio: o sistema detecta
@@ -46,7 +74,6 @@ enviadas ao piano roll); o microfone não foi testado no painel embutido (testei
 - Piano roll: sem seleção múltipla, copiar/colar, faixa de intensidade, loop nem quantização; o som vem de osciladores simples (synth/pluck/percussão/quadrada), não de instrumentos amostrados.
 - Mixagem: sem automação de volume, sem esticar tempo/mudar tom, sem alças de fade para arrastar (fades são números), sem efeitos (EQ, compressão); tudo em 44,1 kHz; as ondas e o mix são calculados no navegador (arquivos muito longos pesam). Exporta WAV, não MP3.
 - A pré-escuta usa o mesmo cálculo da exportação (`renderMix`/`renderSong`) e toca por Web Audio; confirmei que o contexto roda e o cursor avança, mas não ouvi o áudio.
-- Colaboração: o runtime está ligado ao `MemoryHub` (uma aba). Falta um transporte de rede.
 - O gráfico/ECharts e o Univer pesam; o Hub carrega cada editor sob demanda.
 - Sem login nem sincronização com o PDS; sem ligação com a tela Projetos do app nem Launch Hub.
 

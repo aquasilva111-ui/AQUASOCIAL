@@ -248,7 +248,7 @@ function ProfileScreenLoaded({
     showVideosTab ? _(msg`Videos`) : undefined,
     showBooksTab ? 'Livros' : undefined,
     showMarketplaceTab ? 'Marketplace' : undefined,
-    showBrandsTab ? 'Brands' : undefined,
+    showBrandsTab ? 'Marcas' : undefined,
     showLikesTab ? _(msg`Likes`) : undefined,
     showFeedsTab ? _(msg`Feeds`) : undefined,
     showStarterPacksTab ? _(msg`Starter Packs`) : undefined,

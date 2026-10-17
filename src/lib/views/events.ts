@@ -109,6 +109,22 @@ function eventAttributes(event: NormalizedViewEvent): Attributes {
   }
 }
 
+export type ViewEventListener = (event: ViewEvent) => void
+
+const viewEventListeners = new Set<ViewEventListener>()
+
+/**
+ * Optional interpreters (for example Reality Conventions) can observe view
+ * events. Listeners run after the event is recorded. A throwing listener
+ * cannot fail view accounting.
+ */
+export function subscribeViewEvents(listener: ViewEventListener): () => void {
+  viewEventListeners.add(listener)
+  return () => {
+    viewEventListeners.delete(listener)
+  }
+}
+
 export function recordViewEvent(input: ViewEvent) {
   const event: NormalizedViewEvent = {
     id: input.id ?? createId(),
@@ -135,6 +151,14 @@ export function recordViewEvent(input: ViewEvent) {
     span.setStatus({code: SpanStatusCode.ERROR})
   } finally {
     span.end()
+  }
+
+  for (const listener of viewEventListeners) {
+    try {
+      listener(event)
+    } catch {
+      // View accounting must survive a downstream interpreter.
+    }
   }
 
   return event

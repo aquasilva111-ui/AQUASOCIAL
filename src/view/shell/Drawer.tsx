@@ -26,7 +26,6 @@ import {atoms as a, tokens, useTheme, web} from '#/alf'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
 import {Divider} from '#/components/Divider'
 import {AquaLogo} from '#/components/icons/AquaLogo'
-import {CirclePlus_Stroke2_Corner0_Rounded as CirclePlusIcon} from '#/components/icons/CirclePlus'
 import {
   HomeOpen_Filled_Corner0_Rounded as HomeFilled,
   HomeOpen_Stoke2_Corner0_Rounded as Home,
@@ -39,9 +38,6 @@ import {Message_Stroke2_Corner0_Rounded as Message} from '#/components/icons/Mes
 import {PlusLarge_Stroke2_Corner0_Rounded as PlusIcon} from '#/components/icons/Plus'
 import {Reads_Filled_Corner2_Rounded as Book} from '#/components/icons/Reads'
 import {SettingsGear2_Stroke2_Corner0_Rounded as Settings} from '#/components/icons/SettingsGear2'
-import {Ticket_Stroke2_Corner0_Rounded as TicketIcon} from '#/components/icons/Ticket'
-import {Trending3_Stroke2_Corner1_Rounded as ChartsIcon} from '#/components/icons/Trending'
-import {UserCircle_Stroke2_Corner0_Rounded as UserCircle} from '#/components/icons/UserCircle'
 import {InlineLinkText} from '#/components/Link'
 import {Text} from '#/components/Typography'
 import {useSimpleVerificationState} from '#/components/verification'
@@ -50,9 +46,7 @@ import {VerificationCheck} from '#/components/verification/VerificationCheck'
 const iconWidth = 26
 const uiAiIcon = require('../../../assets/icons/ui-ai.png')
 const wikiIcon = require('../../../assets/icons/wiki.png')
-const shopIcon = require('../../../assets/icons/shop.png')
 const newsConventionsIcon = require('../../../assets/icons/news-conventions.png')
-const portalsIcon = require('../../../assets/icons/portals.png')
 
 let DrawerProfileCard = ({
   account,
@@ -274,7 +268,7 @@ let DrawerContent = ({}: React.PropsWithoutRef<{}>): React.ReactNode => {
         />
         <MenuItem
           icon={<ImagesIcon width={iconWidth} style={t.atoms.text} />}
-          label="Pics"
+          label="Visionboard"
           onPress={() => {
             navigation.navigate('Images')
             setDrawerOpen(false)
@@ -282,7 +276,7 @@ let DrawerContent = ({}: React.PropsWithoutRef<{}>): React.ReactNode => {
         />
         <MenuItem
           icon={<VideosIcon width={iconWidth} style={t.atoms.text} />}
-          label="Video+Stream"
+          label="Streams & Vídeo"
           onPress={() => {
             navigation.navigate('Videos')
             setDrawerOpen(false)
@@ -303,7 +297,7 @@ let DrawerContent = ({}: React.PropsWithoutRef<{}>): React.ReactNode => {
                 ]}
               />
             }
-            label="Docs"
+            label="Aqua Docs"
             onPress={() => {
               navigation.navigate('DocsHome')
               setDrawerOpen(false)
@@ -334,7 +328,6 @@ let DrawerContent = ({}: React.PropsWithoutRef<{}>): React.ReactNode => {
         )}
         {hasSession && (
           <>
-            {/* Same entries as the desktop sidebar. */}
             <MenuItem
               icon={<Book width={iconWidth} style={t.atoms.text} />}
               label="Reads"
@@ -344,42 +337,12 @@ let DrawerContent = ({}: React.PropsWithoutRef<{}>): React.ReactNode => {
               }}
             />
             <MenuItem
-              icon={tintedIcon(shopIcon, t.atoms.text.color)}
-              label="Shop"
-              onPress={() => {}}
-            />
-            <MenuItem
-              icon={<ChartsIcon width={iconWidth} style={t.atoms.text} />}
-              label="Charts"
-              onPress={() => {}}
-            />
-            <MenuItem
               icon={tintedIcon(newsConventionsIcon, t.atoms.text.color)}
-              label="News & Conventions"
+              label="Notícias"
               onPress={() => {
                 navigation.navigate('NewsAtlas')
                 setDrawerOpen(false)
               }}
-            />
-            <MenuItem
-              icon={tintedIcon(portalsIcon, t.atoms.text.color)}
-              label="Portals"
-              onPress={() => {}}
-            />
-            <MenuItem
-              icon={<UserCircle width={iconWidth} style={t.atoms.text} />}
-              label="Communities"
-              onPress={() => {}}
-            />
-            <MenuItem
-              icon={<CirclePlusIcon width={iconWidth} style={t.atoms.text} />}
-              label="Fund"
-              onPress={() => {}}
-            />
-            <MenuItem
-              icon={<TicketIcon width={iconWidth} style={t.atoms.text} />}
-              label="Wallet"
-              onPress={() => {}}
             />
             <MenuItem
               icon={<AquaLogo width={iconWidth} style={t.atoms.text} />}

@@ -1,8 +1,9 @@
 import { lazy, Suspense, useEffect, useState, useSyncExternalStore } from 'react'
 
 import type { ItemKind } from 'aqua-project/src/index'
+import { publishToAqua } from 'aqua-runtime/src/publish'
 
-import { KIND_LABEL, onProjectChange, runtime } from './hub'
+import { KIND_LABEL, onProjectChange, runtime, collabActive } from './hub'
 
 const Doc = lazy(() => import('./panels/DocPanel'))
 const Design = lazy(() => import('./panels/DesignPanel'))
@@ -43,10 +44,21 @@ export function App() {
   }
   const Panel = item && PANELS[item.kind]
 
+  const onPublish = () => {
+    if (!item) return
+    publishToAqua({
+      type: 'aqua-hub:publish',
+      title: item.name,
+      preview: `${KIND_LABEL[item.kind] ?? item.kind}: ${item.name}`,
+      source: item.kind,
+    })
+  }
+
   return (
     <div className="app">
       <aside className="side">
         <h1>AQUA Create · {project.name}</h1>
+        {collabActive && <p className="note" style={{ color: '#002bef', fontWeight: 600 }}>Colaboração ativa</p>}
         <div className="new">
           {(Object.keys(KIND_LABEL) as ItemKind[]).map((k) => (
             <button key={k} onClick={() => create(k)}>
@@ -69,6 +81,7 @@ export function App() {
           <>
             <div className="bar">
               <h2>{item.name}</h2>
+              <button onClick={onPublish}>Publicar</button>
               <button
                 onClick={() => {
                   const name = prompt('Novo nome', item.name)

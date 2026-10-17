@@ -11,6 +11,7 @@ import { videoAdapter } from 'aqua-runtime/src/adapters/video'
 import { CreativeRuntime } from 'aqua-runtime/src/runtime'
 import { decodeWav, type Pcm } from 'aqua-runtime/src/render/wav'
 import { MemoryHub } from 'aqua-runtime/src/transport'
+import { WebRTCTransport } from 'aqua-runtime/src/webrtc-transport'
 
 const PROJECT_KEY = 'aqua-hub-project'
 
@@ -76,13 +77,19 @@ export async function decodeAny(bytes: Uint8Array): Promise<Pcm> {
   }
 }
 
-export const collabHub = new MemoryHub() // single-tab for now; a network transport replaces it
+// Collaboration: use WebRTC when ?room= is present (same as aqua-docs), otherwise MemoryHub
+const room = typeof location !== 'undefined' ? new URLSearchParams(location.search).get('room') : null
+export const collabTransport = room
+  ? new WebRTCTransport()
+  : new MemoryHub().connect()
+
+export const collabActive = !!room
 
 export const runtime = new CreativeRuntime({
   project: loadProject(),
   store,
   autosaveMs: 800,
-  transport: collabHub.connect(),
+  transport: collabTransport,
   onProject: (p) => {
     try {
       localStorage.setItem(PROJECT_KEY, JSON.stringify(p))
