@@ -1,5 +1,6 @@
 import {type ReactNode, useMemo, useState} from 'react'
 import {type StyleProp, View, type ViewStyle} from 'react-native'
+import {LinearGradient} from 'expo-linear-gradient'
 import {
   type AppBskyFeedDefs,
   AppBskyFeedPost,
@@ -168,16 +169,35 @@ export function AquaPostCard({
   const capsule = (
     <LikeCapsule postUri={post.uri} likeCount={post.likeCount ?? 0} />
   )
-  const chrome =
-    kind === 'none' ? null : (
-      <AquaMediaChrome
-        notchColor={cardBg}
-        actions={controls}
-        capsule={capsule}
-        sparkle={sparkle}
-        duration={duration}
-      />
-    )
+  const bleed = kind !== 'none' && !!post.embed
+  const header = (
+    <AquaPostHeader
+      overlay={bleed}
+      post={post}
+      moderation={moderation}
+      record={record}
+      richText={richText}
+      postHref={postHref}
+      onOpenAuthor={onOpenAuthor}
+      threadgateRecord={threadgateRecord}
+      feedContext={feedContext}
+      reqId={reqId}
+      onShowLess={onShowLess}
+      big={big}
+      trailing={headerTrailing}
+    />
+  )
+  const chrome = bleed ? (
+    <AquaMediaChrome
+      placement="card"
+      notchColor={cardBg}
+      actions={controls}
+      capsule={capsule}
+      sparkle={sparkle}
+      duration={duration}
+      header={header}
+    />
+  ) : null
 
   const textStyle = [
     textSize === 'lg' ? a.text_lg : a.text_md,
@@ -192,51 +212,41 @@ export function AquaPostCard({
         {
           backgroundColor: cardBg,
           borderRadius: AQUA_RADIUS.card,
-          borderWidth: 1,
+          borderWidth: bleed ? 0 : 1,
           borderColor: light
             ? AQUA.line
             : t.atoms.border_contrast_low.borderColor,
-          padding: 14,
+          padding: bleed ? 0 : 14,
         },
         web({boxShadow: '0 10px 30px rgba(15,23,42,0.06)'}),
         style,
       ]}>
       {leading}
-      <AquaPostHeader
-        post={post}
-        moderation={moderation}
-        record={record}
-        richText={richText}
-        postHref={postHref}
-        onOpenAuthor={onOpenAuthor}
-        threadgateRecord={threadgateRecord}
-        feedContext={feedContext}
-        reqId={reqId}
-        onShowLess={onShowLess}
-        big={big}
-        trailing={headerTrailing}
-      />
-      {notices}
-      <LabelsOnMyPost post={post} style={[a.pb_xs]} />
+      {bleed ? null : header}
+      {bleed ? null : notices}
+      {bleed ? null : <LabelsOnMyPost post={post} style={[a.pb_xs]} />}
       <ContentHider
         testID="contentHider-post"
         modui={moderation.ui(moderationContext)}
         ignoreMute={ignoreMute}
-        childContainerStyle={a.gap_xs}>
-        <PostAlerts
-          modui={moderation.ui(moderationContext)}
-          size={alertSize}
-          includeMute={includeMute}
-          style={[a.pb_2xs]}
-          additionalCauses={hiddenReplyAlerts}
-        />
-        {kind !== 'none' && post.embed ? (
+        childContainerStyle={bleed ? undefined : a.gap_xs}>
+        {bleed ? null : (
+          <PostAlerts
+            modui={moderation.ui(moderationContext)}
+            size={alertSize}
+            includeMute={includeMute}
+            style={[a.pb_2xs]}
+            additionalCauses={hiddenReplyAlerts}
+          />
+        )}
+        {bleed && post.embed ? (
           <Embed
             embed={post.embed}
             moderation={moderation}
             onOpen={onOpenEmbed}
             viewContext={viewContext}
             mediaChrome={chrome}
+            bleed
             style={{marginTop: 0}}
           />
         ) : null}
@@ -260,94 +270,114 @@ export function AquaPostCard({
             viewContext={viewContext}
           />
         ) : null}
-        {kind !== 'none' && richText.text ? (
-          <View style={[a.mt_sm]}>
-            <Text
-              emoji
-              selectable={selectable}
-              testID="postText"
-              numberOfLines={limit ? lines : undefined}
-              style={textStyle}>
-              {kind !== 'video' ? (
-                <Text style={[a.font_bold, {fontWeight: '800', color: ink}]}>
-                  {displayName}{' '}
-                </Text>
-              ) : null}
-              <RichText
-                enableTags
-                selectable={selectable}
-                value={richText}
-                style={textStyle}
-                authorHandle={post.author.handle}
-                shouldProxyLinks
+        <View
+          style={
+            bleed
+              ? {paddingHorizontal: 16, paddingTop: 12, paddingBottom: 16}
+              : undefined
+          }>
+          {bleed ? (
+            <>
+              {notices}
+              <LabelsOnMyPost post={post} style={[a.pb_xs]} />
+              <PostAlerts
+                modui={moderation.ui(moderationContext)}
+                size={alertSize}
+                includeMute={includeMute}
+                style={[a.pb_2xs]}
+                additionalCauses={hiddenReplyAlerts}
               />
-            </Text>
-            {limit ? (
-              <Button
-                label={_(msg`Show more`)}
-                onPress={() => setExpanded(true)}
-                style={[a.self_start, a.mt_2xs]}>
-                {({hovered}) => (
-                  <Text
-                    style={[
-                      a.text_sm,
-                      {
-                        color: muted,
-                        textDecorationLine: hovered ? 'underline' : 'none',
-                      },
-                    ]}>
-                    {_(msg`…more`)}
-                  </Text>
-                )}
-              </Button>
-            ) : null}
-          </View>
-        ) : null}
-        {kind === 'none' && limit ? (
-          <Button
-            label={_(msg`Show more`)}
-            onPress={() => setExpanded(true)}
-            style={a.self_start}>
-            {({hovered}) => (
+            </>
+          ) : null}
+          {kind !== 'none' && richText.text ? (
+            <View style={bleed ? undefined : [a.mt_sm]}>
               <Text
-                style={[
-                  a.text_sm,
-                  {
-                    color: muted,
-                    textDecorationLine: hovered ? 'underline' : 'none',
-                  },
-                ]}>
-                {_(msg`…more`)}
+                emoji
+                selectable={selectable}
+                testID="postText"
+                numberOfLines={limit ? lines : undefined}
+                style={textStyle}>
+                {kind !== 'video' ? (
+                  <Text style={[a.font_bold, {fontWeight: '800', color: ink}]}>
+                    {displayName}{' '}
+                  </Text>
+                ) : null}
+                <RichText
+                  enableTags
+                  selectable={selectable}
+                  value={richText}
+                  style={textStyle}
+                  authorHandle={post.author.handle}
+                  shouldProxyLinks
+                />
               </Text>
-            )}
-          </Button>
-        ) : null}
-        {views ? (
-          <Text style={[a.text_sm, {color: muted}]}>{views}</Text>
-        ) : null}
-        <LikedByLine postUri={post.uri} likeCount={post.likeCount ?? 0} />
-        {kind === 'none' ? (
-          <View
-            style={[
-              a.flex_row,
-              a.align_center,
-              a.mt_sm,
-              a.pl_2xs,
-              a.pr_sm,
-              {
-                minHeight: 50,
-                borderRadius: 25,
-                backgroundColor: light
-                  ? AQUA.surface
-                  : t.atoms.bg_contrast_25.backgroundColor,
-              },
-            ]}>
-            {controls}
-            {sparkle}
-            <View style={a.flex_1} />
-            {capsule}
-          </View>
-        ) : null}
+              {limit ? (
+                <Button
+                  label={_(msg`Show more`)}
+                  onPress={() => setExpanded(true)}
+                  style={[a.self_start, a.mt_2xs]}>
+                  {({hovered}) => (
+                    <Text
+                      style={[
+                        a.text_sm,
+                        {
+                          color: muted,
+                          textDecorationLine: hovered ? 'underline' : 'none',
+                        },
+                      ]}>
+                      {_(msg`…more`)}
+                    </Text>
+                  )}
+                </Button>
+              ) : null}
+            </View>
+          ) : null}
+          {kind === 'none' && limit ? (
+            <Button
+              label={_(msg`Show more`)}
+              onPress={() => setExpanded(true)}
+              style={a.self_start}>
+              {({hovered}) => (
+                <Text
+                  style={[
+                    a.text_sm,
+                    {
+                      color: muted,
+                      textDecorationLine: hovered ? 'underline' : 'none',
+                    },
+                  ]}>
+                  {_(msg`…more`)}
+                </Text>
+              )}
+            </Button>
+          ) : null}
+          {views ? (
+            <Text style={[a.text_sm, {color: muted}]}>{views}</Text>
+          ) : null}
+          <LikedByLine postUri={post.uri} likeCount={post.likeCount ?? 0} />
+          {kind === 'none' ? (
+            <View
+              style={[
+                a.flex_row,
+                a.align_center,
+                a.mt_sm,
+                a.pl_2xs,
+                a.pr_sm,
+                {
+                  minHeight: 50,
+                  borderRadius: 25,
+                  backgroundColor: light
+                    ? AQUA.surface
+                    : t.atoms.bg_contrast_25.backgroundColor,
+                },
+              ]}>
+              {controls}
+              {sparkle}
+              <View style={a.flex_1} />
+              {capsule}
+            </View>
+          ) : null}
+        </View>
       </ContentHider>
       {trailing}
       <WhySheet control={whyControl} data={why} />
@@ -368,6 +398,7 @@ function AquaPostHeader({
   onShowLess,
   big,
   trailing,
+  overlay,
 }: {
   post: Shadow<AppBskyFeedDefs.PostView>
   moderation: ModerationDecision
@@ -381,6 +412,8 @@ function AquaPostHeader({
   onShowLess?: (interaction: AppBskyFeedDefs.Interaction) => void
   big?: boolean
   trailing?: ReactNode
+  /** Name and menu sit on the media, in white, under a dark fade. */
+  overlay?: boolean
 }) {
   const t = useTheme()
   const {_, i18n} = useLingui()
@@ -389,8 +422,19 @@ function AquaPostHeader({
   const {isActive: live} = useActorStatus(author)
   const verification = useSimpleVerificationState({profile: author})
   const light = t.name === 'light'
-  const ink = light ? AQUA.ink : t.atoms.text.color
-  const muted = light ? AQUA.muted : t.atoms.text_contrast_medium.color
+  const ink = overlay ? '#FFFFFF' : light ? AQUA.ink : t.atoms.text.color
+  const muted = overlay
+    ? 'rgba(255,255,255,0.92)'
+    : light
+      ? AQUA.muted
+      : t.atoms.text_contrast_medium.color
+  const legible = overlay
+    ? {
+        textShadowColor: 'rgba(0,0,0,0.45)',
+        textShadowOffset: {width: 0, height: 1},
+        textShadowRadius: 3,
+      }
+    : null
   const displayName = sanitizeDisplayName(
     author.displayName || author.handle,
     moderation.ui('displayName'),
@@ -400,7 +444,32 @@ function AquaPostHeader({
   const origin = postOrigin(author)
 
   return (
-    <View style={[a.flex_row, a.align_center, a.gap_sm, a.mb_md, a.z_20]}>
+    <View
+      pointerEvents={overlay ? 'box-none' : 'auto'}
+      style={[
+        a.flex_row,
+        a.align_center,
+        a.gap_sm,
+        overlay
+          ? {
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              zIndex: 4,
+              paddingTop: 16,
+              paddingHorizontal: 16,
+              paddingBottom: 34,
+            }
+          : [a.mb_md, a.z_20],
+      ]}>
+      {overlay ? (
+        <LinearGradient
+          pointerEvents="none"
+          colors={['rgba(10,16,40,0.45)', 'rgba(10,16,40,0)']}
+          style={[a.absolute, {top: 0, left: 0, right: 0, bottom: 0}]}
+        />
+      ) : null}
       <View
         style={{
           padding: 2,
@@ -411,7 +480,7 @@ function AquaPostHeader({
           style={{
             borderRadius: 999,
             borderWidth: 2,
-            borderColor: light ? AQUA.white : cardSafe(t),
+            borderColor: overlay || light ? AQUA.white : cardSafe(t),
           }}>
           <PreviewableUserAvatar
             size={42}
@@ -440,6 +509,7 @@ function AquaPostHeader({
                 a.font_bold,
                 a.leading_tight,
                 {fontSize: 15, fontWeight: '800', color: ink, maxWidth: '100%'},
+                legible,
               ]}>
               {forceLTR(displayName)}
             </WebOnlyInlineLinkText>
@@ -466,11 +536,11 @@ function AquaPostHeader({
                 precacheProfile(queryClient, author)
                 onOpenAuthor?.()
               }}
-              style={[a.text_sm, a.leading_tight, {color: muted}]}>
+              style={[a.text_sm, a.leading_tight, {color: muted}, legible]}>
               {sanitizeHandle(author.handle, '@')}
             </WebOnlyInlineLinkText>
           </ProfileHoverCard>
-          <Text style={[a.text_sm, {color: muted}]} accessible={false}>
+          <Text style={[a.text_sm, {color: muted}, legible]} accessible={false}>
             {' '}
             &middot;{' '}
           </Text>
@@ -482,7 +552,7 @@ function AquaPostHeader({
                 title={timestampLabel}
                 disableMismatchWarning
                 disableUnderline
-                style={[a.text_sm, a.leading_tight, {color: muted}]}>
+                style={[a.text_sm, a.leading_tight, {color: muted}, legible]}>
                 {timeElapsed}
               </WebOnlyInlineLinkText>
             )}
@@ -492,6 +562,7 @@ function AquaPostHeader({
       {trailing}
       <PostMenuButton
         testID="postDropdownBtn"
+        iconColor={overlay ? '#FFFFFF' : undefined}
         post={post}
         postFeedContext={feedContext}
         postReqId={reqId}

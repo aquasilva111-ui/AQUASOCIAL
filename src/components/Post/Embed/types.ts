@@ -22,6 +22,11 @@ export type CommonProps = {
   allowNestedQuotes?: boolean
   /** White-notch chrome drawn over photos, video, and article covers. */
   mediaChrome?: ReactNode
+  /**
+   * Media sits flush with the post card. The card's own radius clips the
+   * outer corners, so the embed itself is square and cover-cropped.
+   */
+  bleed?: boolean
 }
 
 export type EmbedProps = CommonProps & {

@@ -29,20 +29,41 @@ export function AquaMediaChrome({
   sparkle,
   duration,
   notchColor,
+  header,
+  placement = 'tile',
 }: {
   actions: ReactNode
   capsule?: ReactNode
   sparkle?: ReactNode
   duration?: string
   notchColor: string
+  /** Author row drawn over the top of a full-bleed card. */
+  header?: ReactNode
+  /**
+   * `card` matches card-sem-moldura: sparkle and duration sit just above the
+   * notch, because the header already occupies the top of the media.
+   */
+  placement?: 'tile' | 'card'
 }) {
+  const onCard = placement === 'card'
   return (
     <View pointerEvents="box-none" style={[a.absolute, a.inset_0, {zIndex: 2}]}>
-      {duration ? <DurationChip label={duration} /> : null}
+      {header}
+      {duration ? (
+        <DurationChip
+          label={duration}
+          placement={onCard ? 'above-notch' : 'top-left'}
+        />
+      ) : null}
       {sparkle ? (
         <View
           pointerEvents="box-none"
-          style={[a.absolute, {top: 10, right: 10, zIndex: 3}]}>
+          style={[
+            a.absolute,
+            onCard
+              ? {right: 14, bottom: 60, zIndex: 3}
+              : {top: 10, right: 10, zIndex: 3},
+          ]}>
           {sparkle}
         </View>
       ) : null}
@@ -90,7 +111,13 @@ export function AquaMediaChrome({
   )
 }
 
-export function DurationChip({label}: {label: string}) {
+export function DurationChip({
+  label,
+  placement = 'top-left',
+}: {
+  label: string
+  placement?: 'top-left' | 'above-notch'
+}) {
   const t = useTheme()
   return (
     <View
@@ -101,10 +128,10 @@ export function DurationChip({label}: {label: string}) {
         a.absolute,
         a.rounded_sm,
         a.px_xs,
+        placement === 'above-notch'
+          ? {right: 60, bottom: 62, zIndex: 3}
+          : {top: 12, left: 12, zIndex: 3},
         {
-          top: 12,
-          left: 12,
-          zIndex: 3,
           backgroundColor: 'rgba(15,23,42,0.72)',
           paddingVertical: 3,
         },

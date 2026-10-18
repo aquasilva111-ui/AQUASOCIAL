@@ -16,12 +16,14 @@ export function VideoEmbedInnerWeb({
   setActive,
   onScreen,
   lastKnownTime,
+  objectFit = 'contain',
 }: {
   embed: AppBskyEmbedVideo.View
   active: boolean
   setActive: () => void
   onScreen: boolean
   lastKnownTime: React.MutableRefObject<number | undefined>
+  objectFit?: 'contain' | 'cover'
 }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -53,7 +55,11 @@ export function VideoEmbedInnerWeb({
 
   return (
     <View
-      style={[a.flex_1, a.rounded_md, a.overflow_hidden]}
+      style={[
+        a.flex_1,
+        objectFit === 'cover' ? null : a.rounded_md,
+        a.overflow_hidden,
+      ]}
       accessibilityLabel={_(msg`Embedded video player`)}
       accessibilityHint="">
       <div ref={containerRef} style={{height: '100%', width: '100%'}}>
@@ -61,7 +67,7 @@ export function VideoEmbedInnerWeb({
           <video
             ref={videoRef}
             poster={embed.thumbnail}
-            style={{width: '100%', height: '100%', objectFit: 'contain'}}
+            style={{width: '100%', height: '100%', objectFit}}
             playsInline
             preload="none"
             muted={!focused}

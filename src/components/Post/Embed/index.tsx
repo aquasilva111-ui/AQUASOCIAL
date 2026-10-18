@@ -104,6 +104,7 @@ function MediaEmbed({
             onOpen={rest.onOpen}
             style={[rest.mediaChrome ? undefined : a.mt_sm, rest.style]}
             imageOverlay={rest.mediaChrome}
+            bleed={rest.bleed}
           />
         </ContentHider>
       )
@@ -113,7 +114,11 @@ function MediaEmbed({
         <ContentHider
           modui={rest.moderation?.ui('contentMedia')}
           activeStyle={[a.mt_sm]}>
-          <VideoEmbed embed={embed.view} mediaChrome={rest.mediaChrome} />
+          <VideoEmbed
+            embed={embed.view}
+            mediaChrome={rest.mediaChrome}
+            bleed={rest.bleed}
+          />
         </ContentHider>
       )
     }

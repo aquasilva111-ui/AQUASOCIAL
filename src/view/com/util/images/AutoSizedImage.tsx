@@ -79,9 +79,12 @@ export function AutoSizedImage({
   onPressIn,
   borderRadius = IMAGE_BORDER_RADIUS,
   notch,
+  fullBleed,
 }: {
   image: AppBskyEmbedImages.ViewImage
   crop?: 'none' | 'square' | 'constrained'
+  /** Fill the frame. Portrait shots crop instead of leaving side bars. */
+  fullBleed?: boolean
   hideBadge?: boolean
   onPress?: (
     containerRef: AnimatedRef<any>,
@@ -141,7 +144,7 @@ export function AutoSizedImage({
           }
         }}
       />
-      {notch ? null : <MediaInsetBorder style={{borderRadius}} />}
+      {notch || fullBleed ? null : <MediaInsetBorder style={{borderRadius}} />}
 
       {(hasAlt || isCropped) && !hideBadge ? (
         <View
@@ -237,7 +240,7 @@ export function AutoSizedImage({
   } else {
     return (
       <ConstrainedImage
-        fullBleed={crop === 'square'}
+        fullBleed={fullBleed || crop === 'square'}
         aspectRatio={constrained ?? 1}
         borderRadius={borderRadius}
         notch={notch}>

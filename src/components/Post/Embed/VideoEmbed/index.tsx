@@ -18,9 +18,11 @@ import * as VideoFallback from './VideoEmbedInner/VideoFallback'
 interface Props {
   embed: AppBskyEmbedVideo.View
   mediaChrome?: ReactNode
+  /** Flush with the post card. Cover-cropped, no side bars. */
+  bleed?: boolean
 }
 
-export function VideoEmbed({embed, mediaChrome}: Props) {
+export function VideoEmbed({embed, mediaChrome, bleed}: Props) {
   const [key, setKey] = useState(0)
 
   const renderError = useCallback(
@@ -57,7 +59,11 @@ export function VideoEmbed({embed, mediaChrome}: Props) {
         mediaChrome ? {paddingTop: 0} : a.pt_xs,
         mediaChrome
           ? {
-              borderRadius: AQUA_RADIUS.media,
+              borderTopLeftRadius: bleed ? AQUA_RADIUS.card : AQUA_RADIUS.media,
+              borderTopRightRadius: bleed
+                ? AQUA_RADIUS.card
+                : AQUA_RADIUS.media,
+              borderBottomRightRadius: bleed ? 0 : AQUA_RADIUS.media,
               borderBottomLeftRadius: 0,
               overflow: 'hidden',
               position: 'relative',
@@ -65,12 +71,15 @@ export function VideoEmbed({embed, mediaChrome}: Props) {
           : null,
       ]}>
       <ConstrainedImage
-        aspectRatio={constrained || 1}
+        fullBleed={!!bleed}
+        aspectRatio={
+          bleed ? Math.max(constrained || 1, 9 / 12) : constrained || 1
+        }
         // slightly smaller max height than images
         // images use 16 / 9, for reference
-        minMobileAspectRatio={14 / 9}
-        borderRadius={mediaChrome ? AQUA_RADIUS.media : undefined}
-        notch={!!mediaChrome}>
+        minMobileAspectRatio={bleed ? 12 / 9 : 14 / 9}
+        borderRadius={bleed ? 0 : mediaChrome ? AQUA_RADIUS.media : undefined}
+        notch={!!mediaChrome && !bleed}>
         {contents}
       </ConstrainedImage>
       {mediaChrome}

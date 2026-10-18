@@ -28,6 +28,7 @@ export const ExternalEmbed = ({
   style,
   hideAlt,
   imageOverlay,
+  bleed,
 }: {
   link: AppBskyEmbedExternal.ViewExternal
   onOpen?: () => void
@@ -35,6 +36,8 @@ export const ExternalEmbed = ({
   hideAlt?: boolean
   /** Notch chrome, drawn on the cover image only. */
   imageOverlay?: React.ReactNode
+  /** Cover is flush with the post card; the card clips the outer radius. */
+  bleed?: boolean
 }) => {
   const {_} = useLingui()
   const t = useTheme()
@@ -50,10 +53,13 @@ export const ExternalEmbed = ({
     }
   }, [link.uri, externalEmbedPrefs])
   const hasMedia = Boolean(imageUri || embedPlayerParams)
+  const coverRadius = bleed ? AQUA_RADIUS.card : AQUA_RADIUS.media
   const coverFrame = imageOverlay
     ? {
         position: 'relative' as const,
-        borderRadius: AQUA_RADIUS.media,
+        borderTopLeftRadius: coverRadius,
+        borderTopRightRadius: coverRadius,
+        borderBottomRightRadius: bleed ? 0 : coverRadius,
         borderBottomLeftRadius: 0,
         overflow: 'hidden' as const,
       }
@@ -84,7 +90,7 @@ export const ExternalEmbed = ({
           style={
             imageOverlay
               ? {
-                  borderRadius: AQUA_RADIUS.media,
+                  borderRadius: coverRadius,
                   borderBottomLeftRadius: 0,
                 }
               : undefined
@@ -107,10 +113,15 @@ export const ExternalEmbed = ({
           style={[
             a.transition_color,
             a.flex_col,
-            imageOverlay ? {borderRadius: AQUA_RADIUS.media} : a.rounded_md,
+            bleed
+              ? {borderRadius: 0, borderWidth: 0}
+              : imageOverlay
+                ? {borderRadius: AQUA_RADIUS.media}
+                : a.rounded_md,
             a.overflow_hidden,
             a.w_full,
             a.border,
+            bleed ? {borderWidth: 0} : null,
             style,
             hovered
               ? t.atoms.border_contrast_high
@@ -119,7 +130,8 @@ export const ExternalEmbed = ({
           {imageUri && !embedPlayerParams ? (
             <View style={coverFrame}>
               <Image
-                style={[a.aspect_card]}
+                style={[a.w_full, a.aspect_card]}
+                contentFit="cover"
                 source={{uri: imageUri}}
                 accessibilityIgnoresInvertColors
               />

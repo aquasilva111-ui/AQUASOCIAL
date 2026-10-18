@@ -75,28 +75,47 @@ export function ImageEmbed({
     const clip = rest.mediaChrome
       ? {
           marginTop: 0,
-          borderRadius: AQUA_RADIUS.media,
+          borderTopLeftRadius: rest.bleed
+            ? AQUA_RADIUS.card
+            : AQUA_RADIUS.media,
+          borderTopRightRadius: rest.bleed
+            ? AQUA_RADIUS.card
+            : AQUA_RADIUS.media,
+          borderBottomRightRadius: rest.bleed ? 0 : AQUA_RADIUS.media,
           borderBottomLeftRadius: 0,
           overflow: 'hidden' as const,
         }
       : null
-    const mediaRadius = rest.mediaChrome ? AQUA_RADIUS.media : undefined
-    const notch = !!rest.mediaChrome
+    const mediaRadius = rest.bleed
+      ? 0
+      : rest.mediaChrome
+        ? AQUA_RADIUS.media
+        : undefined
+    const notch = !!rest.mediaChrome && !rest.bleed
 
     if (images.length === 1) {
       const image = images[0]
       return (
-        <View style={[a.mt_sm, clip, {position: 'relative'}, rest.style]}>
+        <View
+          style={[
+            rest.mediaChrome ? {marginTop: 0} : a.mt_sm,
+            clip,
+            {position: 'relative'},
+            rest.style,
+          ]}>
           <AutoSizedImage
             crop={
-              rest.viewContext === PostEmbedViewContext.ThreadHighlighted ||
-              rest.viewContext === PostEmbedViewContext.FeedImages
-                ? 'none'
-                : rest.viewContext ===
-                    PostEmbedViewContext.FeedEmbedRecordWithMedia
-                  ? 'square'
-                  : 'constrained'
+              rest.bleed
+                ? 'constrained'
+                : rest.viewContext === PostEmbedViewContext.ThreadHighlighted ||
+                    rest.viewContext === PostEmbedViewContext.FeedImages
+                  ? 'none'
+                  : rest.viewContext ===
+                      PostEmbedViewContext.FeedEmbedRecordWithMedia
+                    ? 'square'
+                    : 'constrained'
             }
+            fullBleed={!!rest.bleed}
             image={image}
             onPress={(containerRef, dims) => onPress(0, [containerRef], [dims])}
             onPressIn={() => onPressIn(0)}
@@ -112,7 +131,13 @@ export function ImageEmbed({
     }
 
     return (
-      <View style={[a.mt_sm, clip, {position: 'relative'}, rest.style]}>
+      <View
+        style={[
+          rest.mediaChrome ? {marginTop: 0} : a.mt_sm,
+          clip,
+          {position: 'relative'},
+          rest.style,
+        ]}>
         <ImageLayoutGrid
           images={images}
           onPress={onPress}
