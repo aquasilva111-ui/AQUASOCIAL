@@ -1,17 +1,11 @@
 import {useMemo, useState} from 'react'
 import {View} from 'react-native'
 import {Image} from 'expo-image'
-import {
-  type AppBskyFeedDefs,
-  AtUri,
-  RichText as RichTextAPI,
-} from '@atproto/api'
+import {type AppBskyFeedDefs, AtUri} from '@atproto/api'
 
-import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
 import {getPostMedia, type MediaExperience} from '#/lib/media/experiences'
 import {sanitizeDisplayName} from '#/lib/strings/display-names'
 import {sanitizeHandle} from '#/lib/strings/handles'
-import {getPostTextAndFacets} from '#/lib/strings/long-post'
 import {splitTitle} from '#/lib/view-watch/chapters'
 import {
   formatDuration,
@@ -26,14 +20,14 @@ import {
   usePostShadow,
 } from '#/state/cache/post-shadow'
 import {type FeedPostSliceItem} from '#/state/queries/post-feed'
-import {IMAGE_BORDER_RADIUS} from '#/view/com/util/images/constants'
 import {PostMeta} from '#/view/com/util/PostMeta'
 import {PreviewableUserAvatar} from '#/view/com/util/UserAvatar'
 import {atoms as a, useTheme} from '#/alf'
+import {AquaEmbedChrome} from '#/components/AquaPostCard'
+import {AQUA_RADIUS} from '#/components/AquaPostCard/palette'
 import {Button, ButtonText} from '#/components/Button'
 import {Link} from '#/components/Link'
 import * as Hider from '#/components/moderation/Hider'
-import {PostControls} from '#/components/PostControls'
 import {Text} from '#/components/Typography'
 
 export function MediaCard({
@@ -57,13 +51,8 @@ function MediaCardInner({
 }) {
   const {post, record, moderation} = item
   const t = useTheme()
-  const {openComposer} = useOpenComposer()
   const media = getPostMedia(post)
   const [thumbFailed, setThumbFailed] = useState(false)
-  const richText = useMemo(
-    () => new RichTextAPI(getPostTextAndFacets(record)),
-    [record],
-  )
   const modui = useMemo(() => {
     const list = moderation.ui('contentList')
     const image = moderation.ui('contentMedia')
@@ -115,7 +104,8 @@ function MediaCardInner({
                   a.justify_center,
                   {
                     aspectRatio: 16 / 9,
-                    borderRadius: 12,
+                    borderRadius: AQUA_RADIUS.media,
+                    borderBottomLeftRadius: 0,
                     backgroundColor: '#16324a',
                   },
                 ]}>
@@ -136,23 +126,11 @@ function MediaCardInner({
                     {(channel || 'V').slice(0, 1).toLocaleUpperCase('pt-BR')}
                   </Text>
                 )}
-                {!!duration && (
-                  <View
-                    style={[
-                      a.absolute,
-                      a.rounded_xs,
-                      a.px_xs,
-                      {
-                        right: 6,
-                        bottom: 6,
-                        backgroundColor: 'rgba(0,0,0,0.78)',
-                      },
-                    ]}>
-                    <Text style={[a.text_xs, a.font_bold, {color: '#fff'}]}>
-                      {duration}
-                    </Text>
-                  </View>
-                )}
+                <AquaEmbedChrome
+                  post={post}
+                  logContext="FeedItem"
+                  duration={duration}
+                />
               </View>
               <View style={[a.flex_row, a.gap_sm, a.pt_sm]}>
                 <PreviewableUserAvatar
@@ -190,7 +168,7 @@ function MediaCardInner({
   }
   return (
     <View
-      style={[a.overflow_hidden, a.pb_sm, {borderRadius: IMAGE_BORDER_RADIUS}]}
+      style={[a.overflow_hidden, a.pb_sm, {borderRadius: AQUA_RADIUS.card}]}
       testID={`media-card-${mode}`}>
       <Hider.Outer modui={modui}>
         <Hider.Mask>
@@ -206,7 +184,11 @@ function MediaCardInner({
                 a.w_full,
                 a.overflow_hidden,
                 t.atoms.bg_contrast_25,
-                {aspectRatio, borderRadius: IMAGE_BORDER_RADIUS},
+                {
+                  aspectRatio,
+                  borderRadius: AQUA_RADIUS.media,
+                  borderBottomLeftRadius: 0,
+                },
               ]}>
               <Image
                 accessibilityIgnoresInvertColors
@@ -218,6 +200,7 @@ function MediaCardInner({
                 transition={150}
                 recyclingKey={post.uri}
               />
+              <AquaEmbedChrome post={post} logContext="FeedItem" />
             </View>
             {!!record.text && (
               <Text
@@ -242,25 +225,6 @@ function MediaCardInner({
               />
             </View>
           </View>
-          <PostControls
-            style={{paddingTop: 6}}
-            post={post}
-            record={record}
-            richText={richText}
-            logContext="FeedItem"
-            variant="compact"
-            onPressReply={() =>
-              openComposer({
-                replyTo: {
-                  uri: post.uri,
-                  cid: post.cid,
-                  text: record.text,
-                  author: post.author,
-                },
-                onPost: () => {},
-              })
-            }
-          />
         </Hider.Content>
       </Hider.Outer>
     </View>

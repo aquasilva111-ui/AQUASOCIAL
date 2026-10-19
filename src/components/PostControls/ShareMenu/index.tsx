@@ -20,6 +20,7 @@ import {EventStopper} from '#/view/com/util/EventStopper'
 import {native} from '#/alf'
 import {ArrowOutOfBoxModified_Stroke2_Corner2_Rounded as ArrowOutOfBoxIcon} from '#/components/icons/ArrowOutOfBox'
 import {ArrowShareRight_Stroke2_Corner2_Rounded as ArrowShareRightIcon} from '#/components/icons/ArrowShareRight'
+import {type Props as SVGIconProps} from '#/components/icons/common'
 import {useMenuControl} from '#/components/Menu'
 import * as Menu from '#/components/Menu'
 import {PostControlButton, PostControlButtonIcon} from '../PostControlButton'
@@ -35,6 +36,8 @@ let ShareMenuButton = ({
   threadgateRecord,
   onShare,
   hitSlop,
+  icon,
+  iconColor,
 }: {
   testID: string
   post: Shadow<AppBskyFeedDefs.PostView>
@@ -45,13 +48,14 @@ let ShareMenuButton = ({
   threadgateRecord?: AppBskyFeedThreadgate.Record
   onShare: () => void
   hitSlop?: Insets
+  icon?: React.ComponentType<SVGIconProps>
+  iconColor?: string
 }): React.ReactNode => {
   const {_} = useLingui()
   const gate = useGate()
 
-  const ShareIcon = gate('alt_share_icon')
-    ? ArrowShareRightIcon
-    : ArrowOutOfBoxIcon
+  const ShareIcon =
+    icon ?? (gate('alt_share_icon') ? ArrowShareRightIcon : ArrowOutOfBoxIcon)
 
   const menuControl = useMenuControl()
   const [hasBeenOpen, setHasBeenOpen] = useState(false)
@@ -96,7 +100,10 @@ let ShareMenuButton = ({
                 {...props}
                 onLongPress={native(onNativeLongPress)}
                 hitSlop={hitSlop}>
-                <PostControlButtonIcon icon={ShareIcon} />
+                <PostControlButtonIcon
+                  icon={ShareIcon}
+                  style={iconColor ? {color: iconColor} : undefined}
+                />
               </PostControlButton>
             )
           }}

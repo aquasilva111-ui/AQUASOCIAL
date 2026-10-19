@@ -31,6 +31,7 @@ interface Props {
   insetBorderStyle?: StyleProp<ViewStyle>
   containerRefs: AnimatedRef<any>[]
   thumbDimsRef: React.MutableRefObject<(Dimensions | null)[]>
+  borderRadius?: number
 }
 
 export function GalleryItem({
@@ -44,6 +45,7 @@ export function GalleryItem({
   insetBorderStyle,
   containerRefs,
   thumbDimsRef,
+  borderRadius = IMAGE_BORDER_RADIUS,
 }: Props) {
   const t = useTheme()
   const {_} = useLingui()
@@ -70,7 +72,7 @@ export function GalleryItem({
           a.flex_1,
           a.overflow_hidden,
           t.atoms.bg_contrast_25,
-          {borderRadius: IMAGE_BORDER_RADIUS},
+          {borderRadius},
           imageStyle,
         ]}
         accessibilityRole="button"
@@ -90,9 +92,7 @@ export function GalleryItem({
             }
           }}
         />
-        <MediaInsetBorder
-          style={[{borderRadius: IMAGE_BORDER_RADIUS}, insetBorderStyle]}
-        />
+        <MediaInsetBorder style={[{borderRadius}, insetBorderStyle]} />
       </Pressable>
       {hasAlt && !hideBadges ? (
         <View

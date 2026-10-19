@@ -20,9 +20,17 @@ interface ImageLayoutGridProps {
   onPressIn?: (index: number) => void
   style?: StyleProp<ViewStyle>
   viewContext?: PostEmbedViewContext
+  borderRadius?: number
+  /** Square the grid's bottom-left corner for the white notch. */
+  notch?: boolean
 }
 
-export function ImageLayoutGrid({style, ...props}: ImageLayoutGridProps) {
+export function ImageLayoutGrid({
+  style,
+  borderRadius = IMAGE_BORDER_RADIUS,
+  notch,
+  ...props
+}: ImageLayoutGridProps) {
   const {gtMobile} = useBreakpoints()
   const gap =
     props.viewContext === PostEmbedViewContext.FeedEmbedRecordWithMedia
@@ -34,8 +42,19 @@ export function ImageLayoutGrid({style, ...props}: ImageLayoutGridProps) {
   return (
     <View style={style}>
       <View
-        style={[gap, a.overflow_hidden, {borderRadius: IMAGE_BORDER_RADIUS}]}>
-        <ImageLayoutGridInner {...props} gap={gap} />
+        style={[
+          gap,
+          a.overflow_hidden,
+          {
+            borderRadius,
+            borderBottomLeftRadius: notch ? 0 : borderRadius,
+          },
+        ]}>
+        <ImageLayoutGridInner
+          {...props}
+          gap={gap}
+          borderRadius={notch ? 0 : borderRadius}
+        />
       </View>
     </View>
   )
@@ -52,6 +71,7 @@ interface ImageLayoutGridInnerProps {
   onPressIn?: (index: number) => void
   viewContext?: PostEmbedViewContext
   gap: {gap: number}
+  borderRadius?: number
 }
 
 function ImageLayoutGridInner(props: ImageLayoutGridInnerProps) {
