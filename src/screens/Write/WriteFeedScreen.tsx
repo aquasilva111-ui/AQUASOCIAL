@@ -5,29 +5,16 @@ import {useNavigation} from '@react-navigation/native'
 import {GENRES} from '#/lib/books/model'
 import {type NavigationProp} from '#/lib/routes/types'
 import {type RankInput, rankWriteFeed} from '#/lib/write/ranking'
-import {useWriteSnapshot, writeRepository} from '#/lib/write/store'
-import {
-  type BookPost,
-  type WritePost,
-  type WriteTab,
-  type WriteTypeFilter,
-} from '#/lib/write/types'
+import {useWriteSnapshot} from '#/lib/write/store'
+import {type WriteTab, type WriteTypeFilter} from '#/lib/write/types'
 import {atoms as a, useTheme, web} from '#/alf'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
 import {Pencil_Stroke2_Corner0_Rounded as Pencil} from '#/components/icons/Pencil'
 import * as Layout from '#/components/Layout'
 import {Link} from '#/components/Link'
 import {Text} from '#/components/Typography'
-import {
-  Avatar,
-  bookSubtitle,
-  Chip,
-  formatAge,
-  MetaLine,
-  PlaceholderBanner,
-  PostActions,
-  ProgressBar,
-} from './ui'
+import {Chip, PlaceholderBanner} from './ui'
+import {WritePostCard} from './WritePostCard'
 
 const TABS: {id: WriteTab; label: string}[] = [
   {id: 'following', label: 'Following'},
@@ -173,18 +160,20 @@ export function WriteFeedScreen() {
             </Text>
           </View>
         ) : (
-          posts.map(post => (
-            <FeedPost
-              key={post.id}
-              post={post}
-              liked={data.likedPostIds.includes(post.id)}
-              reposted={data.repostedPostIds.includes(post.id)}
-              saved={data.savedPostIds.includes(post.id)}
-              inLibrary={
-                post.type === 'book' && data.library.includes(post.book.id)
-              }
-            />
-          ))
+          <View style={[a.px_lg, a.gap_md, {paddingBottom: 120}]}>
+            {posts.map(post => (
+              <WritePostCard
+                key={post.id}
+                post={post}
+                liked={data.likedPostIds.includes(post.id)}
+                reposted={data.repostedPostIds.includes(post.id)}
+                saved={data.savedPostIds.includes(post.id)}
+                inLibrary={
+                  post.type === 'book' && data.library.includes(post.book.id)
+                }
+              />
+            ))}
+          </View>
         )}
       </Layout.Content>
       <Link
@@ -207,232 +196,5 @@ export function WriteFeedScreen() {
         </View>
       </Link>
     </Layout.Screen>
-  )
-}
-
-function FeedPost({
-  post,
-  liked,
-  reposted,
-  saved,
-  inLibrary,
-}: {
-  post: WritePost
-  liked: boolean
-  reposted: boolean
-  saved: boolean
-  inLibrary: boolean
-}) {
-  const t = useTheme()
-  return (
-    <View
-      testID={`writePost-${post.id}`}
-      style={[
-        a.flex_row,
-        a.gap_md,
-        a.px_lg,
-        a.py_md,
-        a.border_b,
-        t.atoms.border_contrast_low,
-      ]}>
-      <Avatar author={post.author} />
-      <View style={[a.flex_1, a.gap_xs, {minWidth: 0}]}>
-        <MetaLine
-          author={post.author}
-          age={formatAge(post.createdAt)}
-          type={post.type}
-        />
-        {post.type === 'book' && <BookBody post={post} inLibrary={inLibrary} />}
-        {post.type === 'article' && <ArticleBody post={post} />}
-        {post.type === 'opinion' && (
-          <Text style={[a.text_md, {lineHeight: 22}]}>{post.text}</Text>
-        )}
-        {post.type === 'recipe' && <RecipeBody post={post} />}
-        <PostActions
-          replies={post.engagement.replies}
-          reposts={post.engagement.reposts}
-          likes={post.engagement.likes}
-          liked={liked}
-          reposted={reposted}
-          saved={saved}
-          onLike={() => writeRepository.toggleLike(post.id)}
-          onRepost={() => writeRepository.toggleRepost(post.id)}
-          onSave={() => writeRepository.toggleSave(post.id)}
-        />
-      </View>
-    </View>
-  )
-}
-
-function BookBody({post, inLibrary}: {post: BookPost; inLibrary: boolean}) {
-  const t = useTheme()
-  const fresh = post.chapter.number > post.book.chaptersRead
-  const pct =
-    post.book.chapterCount === 0
-      ? 0
-      : (post.book.chaptersRead / post.book.chapterCount) * 100
-  return (
-    <View style={[a.gap_sm]}>
-      <Text style={[a.text_md]}>{post.text}</Text>
-      <View
-        style={[
-          a.flex_row,
-          a.gap_md,
-          a.p_md,
-          a.rounded_md,
-          a.border,
-          t.atoms.border_contrast_low,
-          web({borderRadius: 14}),
-        ]}>
-        <View
-          style={[
-            a.justify_end,
-            a.p_sm,
-            {
-              width: 92,
-              height: 136,
-              borderRadius: 8,
-              backgroundColor: t.palette.primary_500,
-            },
-          ]}>
-          <Text style={[a.font_bold, {color: 'white', fontSize: 13}]}>
-            {post.book.title}
-          </Text>
-        </View>
-        <View style={[a.flex_1, a.gap_xs, {minWidth: 0}]}>
-          <Text style={[a.font_bold, {fontSize: 17}]}>{post.book.title}</Text>
-          <Text style={[a.text_sm, t.atoms.text_contrast_medium]}>
-            {bookSubtitle(post)}
-          </Text>
-          <ProgressBar value={pct} />
-          <Text style={[a.text_sm, t.atoms.text_contrast_medium]}>
-            You read {post.book.chaptersRead} of {post.book.chapterCount} · Ch.{' '}
-            {post.chapter.number} “{post.chapter.title}”{fresh ? ' is new' : ''}
-          </Text>
-          <View
-            style={[
-              a.flex_row,
-              a.align_center,
-              a.gap_sm,
-              a.flex_wrap,
-              a.mt_xs,
-            ]}>
-            <Link
-              to={`/books/read/${post.chapter.id}`}
-              label={`Continue reading ${post.book.title}`}
-              onPress={() =>
-                writeRepository.recordEvent({
-                  kind: 'continue_reading',
-                  postId: post.id,
-                  authorId: post.author.id,
-                  bookId: post.book.id,
-                })
-              }>
-              <View
-                style={[
-                  a.rounded_full,
-                  a.px_md,
-                  a.py_sm,
-                  {backgroundColor: t.palette.primary_500},
-                ]}>
-                <Text style={[a.font_bold, a.text_sm, {color: 'white'}]}>
-                  Continue reading
-                </Text>
-              </View>
-            </Link>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={inLibrary ? 'In library' : 'Add to library'}
-              accessibilityHint=""
-              onPress={() => writeRepository.toggleLibrary(post.book.id)}
-              style={[
-                a.rounded_full,
-                a.px_md,
-                a.py_sm,
-                t.atoms.bg_contrast_50,
-              ]}>
-              <Text style={[a.font_bold, a.text_sm]}>
-                {inLibrary ? 'In library' : '+ Library'}
-              </Text>
-            </Pressable>
-          </View>
-        </View>
-      </View>
-    </View>
-  )
-}
-
-function ArticleBody({post}: {post: Extract<WritePost, {type: 'article'}>}) {
-  const t = useTheme()
-  return (
-    <Link to={`/books/read/${post.id}`} label={post.title}>
-      <View
-        style={[
-          a.rounded_md,
-          a.border,
-          a.overflow_hidden,
-          t.atoms.border_contrast_low,
-          web({borderRadius: 14}),
-        ]}>
-        <View style={{height: 150, backgroundColor: t.palette.primary_100}} />
-        <View style={[a.p_md, a.gap_xs]}>
-          <Text style={[a.font_bold, {fontSize: 17}]}>{post.title}</Text>
-          <Text style={[a.text_sm, t.atoms.text_contrast_medium]}>
-            {post.subtitle}
-          </Text>
-          <View style={[a.flex_row, a.gap_sm, a.mt_xs]}>
-            <Pill label={`${post.readMinutes} min read`} />
-            {post.tags.map(tag => (
-              <Pill
-                key={tag}
-                label={tag === 'tecnologia' ? 'Tecnologia' : tag}
-              />
-            ))}
-          </View>
-        </View>
-      </View>
-    </Link>
-  )
-}
-
-function RecipeBody({post}: {post: Extract<WritePost, {type: 'recipe'}>}) {
-  const t = useTheme()
-  const minutes = post.prepMinutes + post.cookMinutes
-  const difficulty =
-    post.difficulty === 'easy'
-      ? 'Easy'
-      : post.difficulty === 'medium'
-        ? 'Medium'
-        : 'Hard'
-  return (
-    <Link to={`/books/read/${post.id}`} label={post.title}>
-      <View
-        style={[
-          a.rounded_md,
-          a.border,
-          a.overflow_hidden,
-          t.atoms.border_contrast_low,
-          web({borderRadius: 14}),
-        ]}>
-        <View style={{height: 150, backgroundColor: '#FFE3C2'}} />
-        <View style={[a.p_md, a.gap_sm]}>
-          <Text style={[a.font_bold, {fontSize: 17}]}>{post.title}</Text>
-          <View style={[a.flex_row, a.gap_sm, a.flex_wrap]}>
-            <Pill label={`${minutes} min`} />
-            <Pill label={`${post.servings} servings`} />
-            <Pill label={difficulty} />
-          </View>
-        </View>
-      </View>
-    </Link>
-  )
-}
-
-function Pill({label}: {label: string}) {
-  const t = useTheme()
-  return (
-    <View style={[a.rounded_full, a.px_sm, a.py_xs, t.atoms.bg_contrast_50]}>
-      <Text style={[a.text_xs, a.font_bold]}>{label}</Text>
-    </View>
   )
 }

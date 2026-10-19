@@ -4,7 +4,7 @@ import Svg, {Path} from 'react-native-svg'
 
 import {atoms as a, useTheme} from '#/alf'
 import {Text} from '#/components/Typography'
-import {AQUA_RADIUS, aquaMediaFrame} from './palette'
+import {AQUA, AQUA_RADIUS, aquaMediaFrame} from './palette'
 
 /**
  * Inverted corner: a square the size of the notch curve, minus the circle
@@ -107,6 +107,42 @@ export function AquaMediaChrome({
           {capsule}
         </View>
       ) : null}
+    </View>
+  )
+}
+
+/** Text-only posts keep the same icons in a pill under the caption. */
+export function AquaTextActionBar({
+  actions,
+  sparkle,
+  capsule,
+}: {
+  actions: ReactNode
+  sparkle?: ReactNode
+  capsule?: ReactNode
+}) {
+  const t = useTheme()
+  const light = t.name === 'light'
+  return (
+    <View
+      style={[
+        a.flex_row,
+        a.align_center,
+        a.mt_sm,
+        a.pl_2xs,
+        a.pr_sm,
+        {
+          minHeight: 50,
+          borderRadius: 25,
+          backgroundColor: light
+            ? AQUA.surface
+            : t.atoms.bg_contrast_25.backgroundColor,
+        },
+      ]}>
+      {actions}
+      {sparkle}
+      <View style={a.flex_1} />
+      {capsule}
     </View>
   )
 }

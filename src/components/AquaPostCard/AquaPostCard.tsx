@@ -52,7 +52,7 @@ import {useSimpleVerificationState} from '#/components/verification'
 import {VerificationCheck} from '#/components/verification/VerificationCheck'
 import * as bsky from '#/types/bsky'
 import {LikeCapsule, LikedByLine} from './LikeCapsule'
-import {AquaMediaChrome} from './MediaChrome'
+import {AquaMediaChrome, AquaTextActionBar} from './MediaChrome'
 import {aquaMediaKind, postOrigin, videoEmbedOf} from './model'
 import {OriginBadge} from './OriginBadge'
 import {AQUA, AQUA_RADIUS} from './palette'
@@ -356,26 +356,11 @@ export function AquaPostCard({
           ) : null}
           <LikedByLine postUri={post.uri} likeCount={post.likeCount ?? 0} />
           {kind === 'none' ? (
-            <View
-              style={[
-                a.flex_row,
-                a.align_center,
-                a.mt_sm,
-                a.pl_2xs,
-                a.pr_sm,
-                {
-                  minHeight: 50,
-                  borderRadius: 25,
-                  backgroundColor: light
-                    ? AQUA.surface
-                    : t.atoms.bg_contrast_25.backgroundColor,
-                },
-              ]}>
-              {controls}
-              {sparkle}
-              <View style={a.flex_1} />
-              {capsule}
-            </View>
+            <AquaTextActionBar
+              actions={controls}
+              sparkle={sparkle}
+              capsule={capsule}
+            />
           ) : null}
         </View>
       </ContentHider>
