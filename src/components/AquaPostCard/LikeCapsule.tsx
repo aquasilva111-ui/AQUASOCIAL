@@ -7,21 +7,25 @@ import {atoms as a, useTheme, web} from '#/alf'
 import {useFormatPostStatCount} from '#/components/PostControls/util'
 import {Text} from '#/components/Typography'
 import {AQUA} from './palette'
-import {usePostLikerPreviews} from './plugins'
+import {type PostLikerPreview, usePostLikerPreviews} from './plugins'
 
 export function LikeCapsule({
   postUri,
   likeCount,
+  likers: likersOverride,
 }: {
   postUri: string
   likeCount: number
+  /** Sample or local faces. When set, skips the global liker provider. */
+  likers?: PostLikerPreview[]
 }) {
   const t = useTheme()
   const {_} = useLingui()
   const format = useFormatPostStatCount()
-  const likers = usePostLikerPreviews(postUri)
+  const provided = usePostLikerPreviews(postUri)
+  const likers = likersOverride ?? provided
   const light = t.name === 'light'
-  const faces = likers.filter(liker => liker.avatar).slice(0, 2)
+  const faces = likers.filter(liker => liker.avatar || liker.color).slice(0, 2)
   if (likeCount <= 0 && faces.length === 0) return null
 
   const label =
@@ -70,7 +74,18 @@ export function LikeCapsule({
                   borderColor: AQUA.white,
                 },
               ]}>
-              <UserAvatar type="user" size={22} avatar={liker.avatar} />
+              {liker.avatar ? (
+                <UserAvatar type="user" size={22} avatar={liker.avatar} />
+              ) : (
+                <View
+                  style={{
+                    width: 22,
+                    height: 22,
+                    borderRadius: 11,
+                    backgroundColor: liker.color,
+                  }}
+                />
+              )}
             </View>
           ))}
         </View>
