@@ -1,8 +1,9 @@
 import {useMemo, useState} from 'react'
 import {View} from 'react-native'
 import {type AppBskyActorDefs, type AppBskyUnspeccedDefs} from '@atproto/api'
+import {useNavigationState} from '@react-navigation/native'
 
-import {HELP_DESK_URL} from '#/lib/constants'
+import {getCurrentRoute} from '#/lib/routes/helpers'
 import {makeProfileLink} from '#/lib/routes/links'
 import {sanitizeDisplayName} from '#/lib/strings/display-names'
 import {sanitizeHandle} from '#/lib/strings/handles'
@@ -11,17 +12,16 @@ import {useSuggestedFollowsQuery} from '#/state/queries/suggested-follows'
 import {useTrendingTopics} from '#/state/queries/trending/useTrendingTopics'
 import {useSession} from '#/state/session'
 import {PreviewableUserAvatar} from '#/view/com/util/UserAvatar'
-import {Logo} from '#/view/icons/Logo'
-import {atoms as a, useBreakpoints, useTheme, web} from '#/alf'
+import {atoms as a, useTheme, web} from '#/alf'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
 import {Divider} from '#/components/Divider'
 import {Bell_Stroke2_Corner0_Rounded as SubscriptionsIcon} from '#/components/icons/Bell'
 import {Bookmark as WatchLaterIcon} from '#/components/icons/Bookmark'
 import {Clock_Stroke2_Corner0_Rounded as HistoryIcon} from '#/components/icons/Clock'
 import {type Props as SVGIconProps} from '#/components/icons/common'
-import {DotGrid_Stroke2_Corner0_Rounded as GridIcon} from '#/components/icons/DotGrid'
 import {EditBig_Stroke2_Corner0_Rounded as EditIcon} from '#/components/icons/EditBig'
 import {Group3_Stroke2_Corner0_Rounded as ChannelsIcon} from '#/components/icons/Group'
+import {HomeOpen_Stoke2_Corner0_Rounded as HomeIcon} from '#/components/icons/HomeOpen'
 import {ListPlus_Stroke2_Corner0_Rounded as PlaylistIcon} from '#/components/icons/ListPlus'
 import {LiveVideo_Stroke2_Corner0_Rounded as LiveIcon} from '#/components/icons/LiveVideo'
 import {PaintRoller_Stroke2_Corner2_Rounded as StudioIcon} from '#/components/icons/PaintRoller'
@@ -35,19 +35,27 @@ import {Text} from '#/components/Typography'
 import {CreateMenu} from './CreateMenu'
 
 const SECTION_LIMIT = 6
-const EXPANDED_WIDTH = 250
-const COLLAPSED_WIDTH = 76
+const EXPANDED_WIDTH = 240
+const COLLAPSED_WIDTH = 72
 
 const NAV_ITEMS: {
   label: string
   to: string
   icon: React.ComponentType<SVGIconProps>
+  route?: string
 }[] = [
-  {label: 'Assinaturas pagas', to: '/views/paid', icon: PaidIcon},
+  {label: 'Início', to: '/views', icon: HomeIcon, route: 'Videos'},
   {
     label: 'Inscrições',
     to: '/views/subscriptions',
     icon: SubscriptionsIcon,
+    route: 'ViewSubscriptions',
+  },
+  {
+    label: 'Assinaturas pagas',
+    to: '/views/paid',
+    icon: PaidIcon,
+    route: 'ViewPaid',
   },
   {label: 'Canais', to: '/views/channels', icon: ChannelsIcon},
   {label: 'Histórico', to: '/views/history', icon: HistoryIcon},
@@ -99,134 +107,114 @@ function AnimatedLabel({
 }
 
 /**
- * Video-specific left sidebar for the "Aqua Views" page (web, desktop).
- * Rendered in-flow as the left column of the Videos screen layout.
- * Collapsible: expanded shows the Aqua Views brand + labels, collapsed
- * shrinks to an icon rail (Streamplace-style) with an animated transition.
+ * Video sidebar for Aqua Views. The header owns the menu button and the
+ * logo (which links to /views). Below 900px this is a drawer.
  */
-export function VideosNavSidebar() {
+export function VideosNavSidebar({
+  collapsed,
+  drawer = false,
+  open = true,
+  onNavigate,
+}: {
+  collapsed: boolean
+  drawer?: boolean
+  open?: boolean
+  onNavigate?: () => void
+}) {
   const t = useTheme()
   const {currentAccount} = useSession()
+  const routeName = useNavigationState(state => getCurrentRoute(state).name)
   // The channel is the signed-in AQUA profile's; no separate account.
-  const navItems = useMemo(
-    () =>
-      currentAccount
-        ? [
-            {
-              label: 'Seu canal',
-              to: channelPath(currentAccount.handle),
-              icon: MyChannelIcon,
-            },
-            {label: 'View Studio', to: '/views/studio', icon: StudioIcon},
-            ...NAV_ITEMS,
-          ]
-        : NAV_ITEMS,
-    [currentAccount],
-  )
-  const {gtMobile} = useBreakpoints()
-  const [collapsed, setCollapsed] = useState(!gtMobile)
-  const hPad = collapsed ? a.px_xs : a.px_lg
+  const navItems: (typeof NAV_ITEMS)[number][] = useMemo(() => {
+    const [home, ...rest] = NAV_ITEMS
+    return currentAccount
+      ? [
+          home,
+          {
+            label: 'Seu canal',
+            to: channelPath(currentAccount.handle),
+            icon: MyChannelIcon,
+          },
+          {label: 'View Studio', to: '/views/studio', icon: StudioIcon},
+          ...rest,
+        ]
+      : NAV_ITEMS
+  }, [currentAccount])
+  const showLabels = drawer || !collapsed
+  const hPad = showLabels ? a.px_lg : a.px_xs
 
   return (
     <View
       role="navigation"
+      aria-label="Navegação principal"
       style={[
+        t.atoms.bg,
         web({
-          position: 'sticky',
-          top: 0,
-          alignSelf: 'flex-start',
-          width: collapsed ? COLLAPSED_WIDTH : EXPANDED_WIDTH,
+          position: 'fixed',
+          top: 56,
+          bottom: 0,
+          left: 0,
+          width: drawer
+            ? EXPANDED_WIDTH
+            : collapsed
+              ? COLLAPSED_WIDTH
+              : EXPANDED_WIDTH,
           flexShrink: 0,
           paddingTop: 12,
-          paddingBottom: 110,
-          maxHeight: '100vh',
+          paddingBottom: 24,
           overflowY: 'auto',
           overflowX: 'hidden',
-          transition: `width 240ms ${EASE}`,
+          zIndex: 40,
+          transform: drawer && !open ? 'translateX(-100%)' : 'none',
+          transition: `width 200ms ${EASE}, transform 200ms ${EASE}`,
+          boxShadow: drawer && open ? '0 4px 18px rgba(0,0,0,0.12)' : 'none',
+          pointerEvents: drawer && !open ? 'none' : 'auto',
         }),
       ]}>
-      <View
-        style={[
-          hPad,
-          a.pb_md,
-          a.flex_row,
-          a.align_center,
-          a.gap_sm,
-          collapsed && a.justify_center,
-        ]}>
-        <Button
-          label={collapsed ? 'Expandir menu' : 'Recolher menu'}
-          size="small"
-          variant="ghost"
-          color="secondary"
-          shape="round"
-          onPress={() => setCollapsed(v => !v)}>
-          <ButtonIcon icon={GridIcon} />
-        </Button>
-        <Link
-          to="/"
-          label="Ir para o início do Aqua"
-          style={[a.flex_row, a.align_center, a.gap_sm]}>
-          <View
-            style={[
-              {overflow: 'hidden'},
-              web({
-                maxWidth: collapsed ? 0 : 200,
-                opacity: collapsed ? 0 : 1,
-                transition: `max-width 220ms ${EASE}, opacity 150ms ease`,
-              }),
-              a.flex_row,
-              a.align_center,
-              a.gap_sm,
-            ]}>
-            <Logo width={30} />
-            <Text
-              numberOfLines={1}
-              style={[
-                a.text_xl,
-                a.font_bold,
-                {color: '#000000'},
-                web({whiteSpace: 'nowrap'}),
-              ]}>
-              Aqua Views
-            </Text>
-          </View>
-        </Link>
-      </View>
-
       <View style={[hPad]}>
         <View style={[a.pb_sm]}>
-          {navItems.map(item => (
-            <Link
-              key={item.label}
-              to={item.to}
-              label={item.label}
-              style={[
-                a.rounded_sm,
-                a.flex_row,
-                a.align_center,
-                a.gap_md,
-                collapsed ? a.justify_center : a.px_sm,
-                {paddingVertical: 7},
-              ]}>
-              {({hovered}) => (
-                <>
-                  <item.icon
-                    size="md"
-                    style={[
-                      hovered ? t.atoms.text : t.atoms.text_contrast_medium,
-                    ]}
-                  />
-                  <AnimatedLabel
-                    collapsed={collapsed}
-                    width={180}
-                    style={[a.text_md, t.atoms.text, hovered && a.underline]}>
-                    {item.label}
-                  </AnimatedLabel>
-                </>
-              )}
-            </Link>
-          ))}
+          {navItems.map(item => {
+            const selected = item.route === routeName
+            return (
+              <Link
+                key={item.label}
+                to={item.to}
+                label={item.label}
+                onPress={onNavigate}
+                style={[
+                  a.rounded_md,
+                  a.flex_row,
+                  a.align_center,
+                  a.gap_md,
+                  showLabels ? a.px_sm : a.justify_center,
+                  {paddingVertical: 10},
+                  selected && t.atoms.bg_contrast_25,
+                ]}>
+                {({hovered}) => (
+                  <>
+                    <item.icon
+                      size="md"
+                      style={[
+                        hovered || selected
+                          ? t.atoms.text
+                          : t.atoms.text_contrast_medium,
+                      ]}
+                    />
+                    <AnimatedLabel
+                      collapsed={!showLabels}
+                      width={180}
+                      style={[
+                        a.text_md,
+                        t.atoms.text,
+                        (hovered || selected) && a.font_bold,
+                      ]}>
+                      {item.label}
+                    </AnimatedLabel>
+                  </>
+                )}
+              </Link>
+            )
+          })}
           <View
             style={[
               a.pt_sm,
@@ -272,19 +260,15 @@ export function VideosNavSidebar() {
             <TrendingVideos />
 
             <Text style={[a.leading_snug, a.pt_md, t.atoms.text_contrast_low]}>
-              <InlineLinkText
-                to="https://bsky.social/about/support/privacy-policy"
-                label="Privacidade">
+              <InlineLinkText to="/support/privacy" label="Privacidade">
                 Privacidade
               </InlineLinkText>
               {' · '}
-              <InlineLinkText
-                to="https://bsky.social/about/support/tos"
-                label="Termos">
+              <InlineLinkText to="/support/tos" label="Termos">
                 Termos
               </InlineLinkText>
               {' · '}
-              <InlineLinkText label="Ajuda" to={HELP_DESK_URL}>
+              <InlineLinkText label="Ajuda" to="/support">
                 Ajuda
               </InlineLinkText>
             </Text>

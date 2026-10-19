@@ -55,7 +55,7 @@ export const FORMATS: DesignFormat[] = [
     height: 1350,
     color: '#002bef',
     publishTo: 'post',
-    available: false,
+    available: true,
   },
   {
     id: 'story',
@@ -64,7 +64,7 @@ export const FORMATS: DesignFormat[] = [
     height: 1920,
     color: '#f04c24',
     publishTo: 'story',
-    available: false,
+    available: true,
   },
   {
     id: 'video',
@@ -73,7 +73,7 @@ export const FORMATS: DesignFormat[] = [
     height: 1080,
     color: '#12a58a',
     publishTo: 'post',
-    available: false,
+    available: true,
   },
   {
     id: 'presentation',
@@ -100,7 +100,7 @@ export const FORMATS: DesignFormat[] = [
     height: 2400,
     color: '#8a3b0b',
     publishTo: 'book_cover',
-    available: false,
+    available: true,
   },
   {
     id: 'doc',

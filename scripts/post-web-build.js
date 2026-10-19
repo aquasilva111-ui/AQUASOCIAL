@@ -44,6 +44,17 @@ const outputFile = entrypoints
   .join('\n')
 fs.writeFileSync(templateFile, outputFile)
 
+const indexPath = path.join(projectRoot, 'web-build/index.html')
+if (fs.existsSync(indexPath)) {
+  let html = fs.readFileSync(indexPath, 'utf8')
+  if (!/<base\s+href="\/"\s*>/i.test(html)) {
+    html = html.replace(/<head>/i, '<head>\n    <base href="/">')
+  }
+  html = html.replace(/(src|href)="(?!\/|https?:|data:)(static\/)/g, '$1="/$2')
+  fs.writeFileSync(indexPath, html)
+  console.log('Absolutized static URLs in web-build/index.html')
+}
+
 function copyFiles(sourceDir, targetDir) {
   const files = fs.readdirSync(path.join(projectRoot, sourceDir))
   files.forEach(file => {

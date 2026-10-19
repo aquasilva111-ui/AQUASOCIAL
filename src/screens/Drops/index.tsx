@@ -4,6 +4,7 @@ import {
   FlatList,
   type LayoutChangeEvent,
   Pressable,
+  Share,
   StyleSheet,
   Text,
   View,
@@ -13,23 +14,29 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context'
 import {Image} from 'expo-image'
 import {LinearGradient} from 'expo-linear-gradient'
 import {useVideoPlayer, VideoView} from 'expo-video'
+import {AtUri} from '@atproto/api'
 import {useNavigation} from '@react-navigation/native'
 
 import {useHaptics} from '#/lib/haptics'
 import {type NavigationProp} from '#/lib/routes/types'
 import {POST_TOMBSTONE, usePostShadow} from '#/state/cache/post-shadow'
 import {DOCK_HEIGHT, DOCK_INSET} from '#/view/shell/bottom-bar/BottomBarStyles'
+import {ArrowShareRight_Stroke2_Corner0_Rounded as ShareIcon} from '#/components/icons/ArrowShareRight'
+import {Bubble_Stroke2_Corner2_Rounded as CommentIcon} from '#/components/icons/Bubble'
 import {
   Heart2_Filled_Stroke2_Corner0_Rounded as HeartFilled,
   Heart2_Stroke2_Corner0_Rounded as Heart,
 } from '#/components/icons/Heart2'
 import {MagnifyingGlass2_Stroke2_Corner0_Rounded as SearchIcon} from '#/components/icons/MagnifyingGlass2'
+import {Repost_Stroke2_Corner2_Rounded as RepostIcon} from '#/components/icons/Repost'
 import {type Drop} from './data'
 import {useDropLike} from './useDropLike'
+import {useDropRepost} from './useDropRepost'
 import {useDropsFeed} from './useDropsFeed'
 
-/** Likes in Drops are orange. */
+/** Likes in Drops are orange, reposts are green. */
 const LIKE = '#FF7A00'
+const REPOST = '#20BC07'
 const AQUA = '#1185FE'
 const DOUBLE_TAP_MS = 250
 
@@ -82,9 +89,12 @@ function DropPageInner({
   bottom: number
   post: Parameters<typeof useDropLike>[0]
 }) {
+  const navigation = useNavigation<NavigationProp>()
   const lastTap = useRef(0)
   const playHaptic = useHaptics()
   const {liked, likeCount, toggle} = useDropLike(post)
+  const {reposted, repostCount, toggle: toggleRepost} = useDropRepost(post)
+
   const onTap = () => {
     const now = Date.now()
     if (now - lastTap.current < DOUBLE_TAP_MS) {
@@ -95,6 +105,26 @@ function DropPageInner({
       lastTap.current = now
     }
   }
+
+  const openComments = () => {
+    try {
+      const uri = new AtUri(drop.post.uri)
+      navigation.navigate('PostThread', {
+        name: uri.host,
+        rkey: uri.rkey,
+      })
+    } catch {}
+  }
+
+  const onShare = async () => {
+    try {
+      const uri = new AtUri(drop.post.uri)
+      await Share.share({
+        message: `Assista a este Drop no AQUA: https://aqua.social/profile/${uri.host}/post/${uri.rkey}`,
+      })
+    } catch {}
+  }
+
   const LikeIcon = liked ? HeartFilled : Heart
   return (
     <View style={[styles.page, {height}]}>
@@ -125,6 +155,7 @@ function DropPageInner({
             {drop.authorName[0]?.toUpperCase() ?? '?'}
           </Text>
         </View>
+
         <Pressable
           style={styles.action}
           hitSlop={10}
@@ -135,8 +166,43 @@ function DropPageInner({
             playHaptic()
             toggle()
           }}>
-          <LikeIcon width={32} style={{color: liked ? LIKE : '#fff'}} />
+          <LikeIcon width={28} style={{color: liked ? LIKE : '#fff'}} />
           <Text style={styles.count}>{compact(likeCount)}</Text>
+        </Pressable>
+
+        <Pressable
+          style={styles.action}
+          hitSlop={10}
+          accessibilityRole="button"
+          accessibilityLabel="Comentários"
+          accessibilityHint=""
+          onPress={openComments}>
+          <CommentIcon width={28} style={{color: '#fff'}} />
+          <Text style={styles.count}>{compact(post.replyCount ?? 0)}</Text>
+        </Pressable>
+
+        <Pressable
+          style={styles.action}
+          hitSlop={10}
+          accessibilityRole="button"
+          accessibilityLabel={reposted ? 'Desfazer republicação' : 'Republicar'}
+          accessibilityHint=""
+          onPress={() => {
+            playHaptic()
+            toggleRepost()
+          }}>
+          <RepostIcon width={28} style={{color: reposted ? REPOST : '#fff'}} />
+          <Text style={styles.count}>{compact(repostCount)}</Text>
+        </Pressable>
+
+        <Pressable
+          style={styles.action}
+          hitSlop={10}
+          accessibilityRole="button"
+          accessibilityLabel="Compartilhar"
+          accessibilityHint=""
+          onPress={onShare}>
+          <ShareIcon width={28} style={{color: '#fff'}} />
         </Pressable>
       </View>
       <View style={[styles.meta, {bottom}]} pointerEvents="none">
@@ -292,7 +358,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 12,
     alignItems: 'center',
-    gap: 22,
+    gap: 14,
   },
   avatar: {
     width: 46,

@@ -18,6 +18,8 @@ import {
 import {sanitizeDisplayName} from '#/lib/strings/display-names'
 import {sanitizeHandle} from '#/lib/strings/handles'
 import {emitSoftReset} from '#/state/events'
+import {useUnreadMessageCount} from '#/state/queries/messages/list-conversations'
+import {useUnreadNotifications} from '#/state/queries/notifications/unread'
 import {useProfilesQuery} from '#/state/queries/profile'
 import {useLiveUsersQuery} from '#/state/queries/streamplace'
 import {type SessionAccount, useSession, useSessionApi} from '#/state/session'
@@ -33,17 +35,32 @@ import {Button} from '#/components/Button'
 import {type DialogControlProps} from '#/components/Dialog'
 import {AquaLogo} from '#/components/icons/AquaLogo'
 import {ArrowBoxLeft_Stroke2_Corner0_Rounded as LeaveIcon} from '#/components/icons/ArrowBoxLeft'
-import {CirclePlus_Stroke2_Corner0_Rounded as CirclePlusIcon} from '#/components/icons/CirclePlus'
+import {
+  Bell_Filled_Corner0_Rounded as BellFilled,
+  Bell_Stroke2_Corner0_Rounded as Bell,
+} from '#/components/icons/Bell'
 import {DotGrid_Stroke2_Corner0_Rounded as EllipsisIcon} from '#/components/icons/DotGrid'
+import {
+  Drop_Filled_Corner0_Rounded as DropFilled,
+  Drop_Stroke2_Corner0_Rounded as Drop,
+} from '#/components/icons/Drop'
 import {Globe_Stroke2_Corner0_Rounded as GlobeIcon} from '#/components/icons/Globe'
+import {
+  HomeOpen_Filled_Corner0_Rounded as HomeFilled,
+  HomeOpen_Stoke2_Corner0_Rounded as Home,
+} from '#/components/icons/HomeOpen'
+import {MagnifyingGlass_Filled_Stroke2_Corner0_Rounded as SearchFilled} from '#/components/icons/MagnifyingGlass'
+import {MagnifyingGlass2_Stroke2_Corner0_Rounded as SearchIcon} from '#/components/icons/MagnifyingGlass2'
+import {
+  Message_Stroke2_Corner0_Rounded as Message,
+  Message_Stroke2_Corner0_Rounded_Filled as MessageFilled,
+} from '#/components/icons/Message'
 import {PlusLarge_Stroke2_Corner0_Rounded as PlusIcon} from '#/components/icons/Plus'
 import {Reads_Filled_Corner2_Rounded as Book} from '#/components/icons/Reads'
 import {
   SettingsGear2_Filled_Corner0_Rounded as SettingsFilled,
   SettingsGear2_Stroke2_Corner0_Rounded as Settings,
 } from '#/components/icons/SettingsGear2'
-import {Ticket_Stroke2_Corner0_Rounded as TicketIcon} from '#/components/icons/Ticket'
-import {Trending3_Stroke2_Corner1_Rounded as ChartsIcon} from '#/components/icons/Trending'
 import {UserCircle_Stroke2_Corner0_Rounded as UserCircle} from '#/components/icons/UserCircle'
 import {
   CENTER_COLUMN_HALF_WIDTH,
@@ -59,9 +76,6 @@ import {PlatformInfo} from '../../../../modules/expo-bluesky-swiss-army'
 import {router} from '../../../routes'
 
 const NAV_ICON_WIDTH = 28
-const newsConventionsIcon = require('../../../../assets/icons/news-conventions.png')
-const portalsIcon = require('../../../../assets/icons/portals.png')
-const shopIcon = require('../../../../assets/icons/shop.png')
 const uiAiIcon = require('../../../../assets/icons/ui-ai.png')
 const visionboardIcon = require('../../../../assets/icons/visionboard.png')
 
@@ -503,46 +517,6 @@ function NavItem({count, hasNew, href, icon, iconFilled, label}: NavItemProps) {
   )
 }
 
-function PlaceholderNavItem({icon, label}: {icon: JSX.Element; label: string}) {
-  const t = useTheme()
-  const {leftNavMinimal} = useLayoutBreakpoints()
-
-  return (
-    <PressableWithHover
-      style={[
-        a.flex_row,
-        a.align_center,
-        a.p_md,
-        a.rounded_sm,
-        a.gap_sm,
-        a.outline_inset_1,
-        a.transition_color,
-      ]}
-      hoverStyle={t.atoms.bg_contrast_25}
-      accessibilityLabel={label}
-      accessibilityHint="">
-      <View
-        style={[
-          a.align_center,
-          a.justify_center,
-          {
-            width: 24,
-            height: 24,
-          },
-          leftNavMinimal && {
-            width: 40,
-            height: 40,
-          },
-        ]}>
-        {icon}
-      </View>
-      {!leftNavMinimal && (
-        <Text style={[a.text_xl, a.font_normal]}>{label}</Text>
-      )}
-    </PressableWithHover>
-  )
-}
-
 /**
  * `embedded`: render inside a column (e.g. IU & AI's collapsible) instead of
  * floating fixed over the page, so it pushes content rather than covering it.
@@ -563,6 +537,9 @@ export function DesktopLeftNav({
   const {width: windowWidth} = useWindowDimensions()
   const {data: liveStreams} = useLiveUsersQuery()
   const hasLiveNow = !!liveStreams?.length
+
+  const unreadMessageCount = useUnreadMessageCount()
+  const notificationCountStr = useUnreadNotifications()
 
   if (!hasSession && !isDesktop) {
     return null
@@ -614,79 +591,93 @@ export function DesktopLeftNav({
       ) : null}
 
       <NavItem
-        href="/ui-ai"
-        icon={
-          <Image
-            accessibilityIgnoresInvertColors
-            source={uiAiIcon}
-            style={{
-              width: NAV_ICON_WIDTH,
-              height: NAV_ICON_WIDTH,
-              tintColor: pal.text.color,
-            }}
-          />
-        }
-        iconFilled={
-          <Image
-            accessibilityIgnoresInvertColors
-            source={uiAiIcon}
-            style={{
-              width: NAV_ICON_WIDTH,
-              height: NAV_ICON_WIDTH,
-              tintColor: pal.text.color,
-            }}
-          />
-        }
-        label="IU & AI"
+        href="/"
+        icon={<Home width={NAV_ICON_WIDTH} style={pal.text} />}
+        iconFilled={<HomeFilled width={NAV_ICON_WIDTH} style={pal.text} />}
+        label="Início"
       />
       <NavItem
-        href="/visionboard"
-        icon={
-          <Image
-            accessibilityIgnoresInvertColors
-            source={visionboardIcon}
-            style={{
-              width: NAV_ICON_WIDTH,
-              height: NAV_ICON_WIDTH,
-              tintColor: pal.text.color,
-            }}
-          />
-        }
-        iconFilled={
-          <Image
-            accessibilityIgnoresInvertColors
-            source={visionboardIcon}
-            style={{
-              width: NAV_ICON_WIDTH,
-              height: NAV_ICON_WIDTH,
-              tintColor: pal.text.color,
-            }}
-          />
-        }
-        label="Visionboard"
+        href="/drops"
+        icon={<Drop width={NAV_ICON_WIDTH} style={pal.text} />}
+        iconFilled={<DropFilled width={NAV_ICON_WIDTH} style={pal.text} />}
+        label="Drops"
       />
       <NavItem
-        href="/views"
-        icon={
-          <ViewIcon
-            introOnMount
-            state={hasLiveNow ? 'live' : 'idle'}
-            fill={pal.text.color}
-            width={NAV_ICON_WIDTH}
-          />
-        }
-        iconFilled={
-          <ViewIcon
-            introOnMount
-            state={hasLiveNow ? 'live' : 'video'}
-            fill={pal.text.color}
-            width={NAV_ICON_WIDTH}
-          />
-        }
-        label="Streams"
+        href="/search"
+        icon={<SearchIcon width={NAV_ICON_WIDTH} style={pal.text} />}
+        iconFilled={<SearchFilled width={NAV_ICON_WIDTH} style={pal.text} />}
+        label="Buscar"
       />
+
       {hasSession && (
         <>
+          <NavItem
+            href="/notifications"
+            icon={<Bell width={NAV_ICON_WIDTH} style={pal.text} />}
+            iconFilled={<BellFilled width={NAV_ICON_WIDTH} style={pal.text} />}
+            label="Notificações"
+            count={notificationCountStr}
+          />
+          <NavItem
+            href="/messages"
+            icon={<Message width={NAV_ICON_WIDTH} style={pal.text} />}
+            iconFilled={
+              <MessageFilled width={NAV_ICON_WIDTH} style={pal.text} />
+            }
+            label="Mailssage"
+            count={
+              unreadMessageCount.numUnread > 0
+                ? String(unreadMessageCount.numUnread)
+                : undefined
+            }
+            hasNew={unreadMessageCount.hasNew}
+          />
+          <NavItem
+            href="/views"
+            icon={
+              <ViewIcon
+                introOnMount
+                state={hasLiveNow ? 'live' : 'idle'}
+                fill={pal.text.color}
+                width={NAV_ICON_WIDTH}
+              />
+            }
+            iconFilled={
+              <ViewIcon
+                introOnMount
+                state={hasLiveNow ? 'live' : 'video'}
+                fill={pal.text.color}
+                width={NAV_ICON_WIDTH}
+              />
+            }
+            label="Streams"
+          />
+          <NavItem
+            href="/visionboard"
+            icon={
+              <Image
+                accessibilityIgnoresInvertColors
+                source={visionboardIcon}
+                style={{
+                  width: NAV_ICON_WIDTH,
+                  height: NAV_ICON_WIDTH,
+                  tintColor: pal.text.color,
+                }}
+              />
+            }
+            iconFilled={
+              <Image
+                accessibilityIgnoresInvertColors
+                source={visionboardIcon}
+                style={{
+                  width: NAV_ICON_WIDTH,
+                  height: NAV_ICON_WIDTH,
+                  tintColor: pal.text.color,
+                }}
+              />
+            }
+            label="Visionboard"
+          />
           <NavItem
             href="/books"
             icon={
@@ -723,11 +714,12 @@ export function DesktopLeftNav({
             }
             label="Notícias"
           />
-          <PlaceholderNavItem
+          <NavItem
+            href="/ui-ai"
             icon={
               <Image
                 accessibilityIgnoresInvertColors
-                source={shopIcon}
+                source={uiAiIcon}
                 style={{
                   width: NAV_ICON_WIDTH,
                   height: NAV_ICON_WIDTH,
@@ -735,23 +727,10 @@ export function DesktopLeftNav({
                 }}
               />
             }
-            label="Shop"
-          />
-          <PlaceholderNavItem
-            icon={
-              <ChartsIcon
-                aria-hidden={true}
-                width={NAV_ICON_WIDTH}
-                style={pal.text}
-              />
-            }
-            label="Charts"
-          />
-          <PlaceholderNavItem
-            icon={
+            iconFilled={
               <Image
                 accessibilityIgnoresInvertColors
-                source={newsConventionsIcon}
+                source={uiAiIcon}
                 style={{
                   width: NAV_ICON_WIDTH,
                   height: NAV_ICON_WIDTH,
@@ -759,51 +738,7 @@ export function DesktopLeftNav({
                 }}
               />
             }
-            label="News & Conventions"
-          />
-          <PlaceholderNavItem
-            icon={
-              <Image
-                accessibilityIgnoresInvertColors
-                source={portalsIcon}
-                style={{
-                  width: NAV_ICON_WIDTH,
-                  height: NAV_ICON_WIDTH,
-                  tintColor: pal.text.color,
-                }}
-              />
-            }
-            label="Portals"
-          />
-          <PlaceholderNavItem
-            icon={
-              <UserCircle
-                aria-hidden={true}
-                width={NAV_ICON_WIDTH}
-                style={pal.text}
-              />
-            }
-            label="Communities"
-          />
-          <PlaceholderNavItem
-            icon={
-              <CirclePlusIcon
-                aria-hidden={true}
-                width={NAV_ICON_WIDTH}
-                style={pal.text}
-              />
-            }
-            label="Fund"
-          />
-          <PlaceholderNavItem
-            icon={
-              <TicketIcon
-                aria-hidden={true}
-                width={NAV_ICON_WIDTH}
-                style={pal.text}
-              />
-            }
-            label="Wallet"
+            label="IU & AI"
           />
           <NavItem
             href="/adult"

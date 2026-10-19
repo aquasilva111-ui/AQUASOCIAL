@@ -59,7 +59,7 @@ function Mini({mini}: {mini: MiniPlayerState}) {
       video.currentTime = startTime.current
       video.play().catch(() => {})
     }
-    loadHls.then(Hls => {
+    loadHls().then(Hls => {
       if (cancelled) return
       if (!Hls.isSupported()) {
         video.src = mini.playlist

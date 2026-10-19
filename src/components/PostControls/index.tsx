@@ -26,6 +26,7 @@ import {
 } from '#/state/shell/progress-guide'
 import * as Toast from '#/view/com/util/Toast'
 import {atoms as a, useBreakpoints} from '#/alf'
+import {AquaActionRow} from '#/components/AquaPostCard/AquaActionRow'
 import {Reply as Bubble} from '#/components/icons/Reply'
 import {useFormatPostStatCount} from '#/components/PostControls/util'
 import * as Skele from '#/components/Skeleton'
@@ -54,6 +55,7 @@ let PostControls = ({
   onShowLess,
   viaRepost,
   variant,
+  chrome = 'classic',
 }: {
   big?: boolean
   post: Shadow<AppBskyFeedDefs.PostView>
@@ -69,6 +71,8 @@ let PostControls = ({
   onShowLess?: (interaction: AppBskyFeedDefs.Interaction) => void
   viaRepost?: {uri: string; cid: string}
   variant?: 'compact' | 'normal' | 'large'
+  /** `aqua` is the recorte card: icon row only, menu lives in the card header. */
+  chrome?: 'classic' | 'aqua'
 }): React.ReactNode => {
   const {_} = useLingui()
   const {openComposer} = useOpenComposer()
@@ -194,6 +198,61 @@ let PostControls = ({
     big,
     gtPhone,
   })
+
+  if (chrome === 'aqua') {
+    return (
+      <AquaActionRow
+        post={post}
+        record={record}
+        richText={richText}
+        big={big}
+        logContext={logContext}
+        threadgateRecord={threadgateRecord}
+        liked={Boolean(post.viewer?.like)}
+        replyDisabled={replyDisabled}
+        likeLabel={
+          post.viewer?.like
+            ? _(
+                msg({
+                  message: `Unlike (${plural(post.likeCount || 0, {
+                    one: '# like',
+                    other: '# likes',
+                  })})`,
+                  comment:
+                    'Accessibility label for the like button when the post has been liked, verb followed by number of likes and noun',
+                }),
+              )
+            : _(
+                msg({
+                  message: `Like (${plural(post.likeCount || 0, {
+                    one: '# like',
+                    other: '# likes',
+                  })})`,
+                  comment:
+                    'Accessibility label for the like button when the post has not been liked, verb form followed by number of likes and noun form',
+                }),
+              )
+        }
+        replyLabel={_(
+          msg({
+            message: `Reply (${plural(post.replyCount || 0, {
+              one: '# reply',
+              other: '# replies',
+            })})`,
+            comment:
+              'Accessibility label for the reply button, verb form followed by number of replies and noun form',
+          }),
+        )}
+        onLike={() => requireAuth(() => onPressToggleLike())}
+        onReply={() => requireAuth(() => onPressReply())}
+        onShare={onShare}
+        onRepost={onRepost}
+        onQuote={onQuote}
+        isReposted={!!post.viewer?.repost}
+        embeddingDisabled={Boolean(post.viewer?.embeddingDisabled)}
+      />
+    )
+  }
 
   return (
     <View

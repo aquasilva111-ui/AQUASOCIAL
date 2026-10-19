@@ -1,30 +1,33 @@
-import {useMemo} from 'react'
+import {useMemo, useState} from 'react'
 import {View} from 'react-native'
 import {Image} from 'expo-image'
-import {
-  type AppBskyFeedDefs,
-  AtUri,
-  RichText as RichTextAPI,
-} from '@atproto/api'
+import {type AppBskyFeedDefs, AtUri} from '@atproto/api'
 
-import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
 import {getPostMedia, type MediaExperience} from '#/lib/media/experiences'
-import {formatViewCount, useViewCount} from '#/lib/media/views'
-import {getPostTextAndFacets} from '#/lib/strings/long-post'
+import {sanitizeDisplayName} from '#/lib/strings/display-names'
+import {sanitizeHandle} from '#/lib/strings/handles'
+import {splitTitle} from '#/lib/view-watch/chapters'
+import {
+  formatDuration,
+  formatRelativePt,
+  formatViewLabel,
+  knownDurationSeconds,
+  knownViewCount,
+} from '#/lib/views/format'
 import {
   POST_TOMBSTONE,
   type Shadow,
   usePostShadow,
 } from '#/state/cache/post-shadow'
 import {type FeedPostSliceItem} from '#/state/queries/post-feed'
-import {IMAGE_BORDER_RADIUS} from '#/view/com/util/images/constants'
 import {PostMeta} from '#/view/com/util/PostMeta'
 import {PreviewableUserAvatar} from '#/view/com/util/UserAvatar'
 import {atoms as a, useTheme} from '#/alf'
+import {AquaEmbedChrome} from '#/components/AquaPostCard'
+import {AQUA_RADIUS} from '#/components/AquaPostCard/palette'
 import {Button, ButtonText} from '#/components/Button'
 import {Link} from '#/components/Link'
 import * as Hider from '#/components/moderation/Hider'
-import {PostControls} from '#/components/PostControls'
 import {Text} from '#/components/Typography'
 
 export function MediaCard({
@@ -48,13 +51,8 @@ function MediaCardInner({
 }) {
   const {post, record, moderation} = item
   const t = useTheme()
-  const {openComposer} = useOpenComposer()
   const media = getPostMedia(post)
-  const viewCount = useViewCount(post.uri)
-  const richText = useMemo(
-    () => new RichTextAPI(getPostTextAndFacets(record)),
-    [record],
-  )
+  const [thumbFailed, setThumbFailed] = useState(false)
   const modui = useMemo(() => {
     const list = moderation.ui('contentList')
     const image = moderation.ui('contentMedia')
@@ -77,9 +75,100 @@ function MediaCardInner({
         : 1
   const rkey = new AtUri(post.uri).rkey
   const href = `/${mode === 'video' ? 'views/watch' : 'visionboard/view'}/${post.author.did}/${rkey}`
+  if (mode === 'video') {
+    const {title} = splitTitle(record.text ?? '')
+    const channel = sanitizeDisplayName(
+      post.author.displayName || sanitizeHandle(post.author.handle),
+    )
+    const duration = formatDuration(knownDurationSeconds(media.view))
+    const views = formatViewLabel(knownViewCount(post))
+    const when = formatRelativePt(post.indexedAt)
+    const meta = [views, when].filter(Boolean).join(' · ')
+    const showThumb = !!thumbnail && !thumbFailed
+    return (
+      <View style={[a.w_full, {minWidth: 0}]} testID="media-card-video">
+        <Hider.Outer modui={modui}>
+          <Hider.Mask>
+            <MediaMask aspectRatio={16 / 9} />
+          </Hider.Mask>
+          <Hider.Content>
+            <Link
+              to={href}
+              label={title || 'Assistir vídeo'}
+              style={[a.w_full, {display: 'flex', flexDirection: 'column'}]}>
+              <View
+                style={[
+                  a.w_full,
+                  a.overflow_hidden,
+                  a.align_center,
+                  a.justify_center,
+                  {
+                    aspectRatio: 16 / 9,
+                    borderRadius: AQUA_RADIUS.media,
+                    borderBottomLeftRadius: 0,
+                    backgroundColor: '#16324a',
+                  },
+                ]}>
+                {showThumb ? (
+                  <Image
+                    accessibilityIgnoresInvertColors
+                    accessibilityHint="Abre o vídeo"
+                    source={{uri: thumbnail}}
+                    style={[a.w_full, a.h_full]}
+                    contentFit="cover"
+                    accessibilityLabel={title || channel}
+                    transition={150}
+                    recyclingKey={post.uri}
+                    onError={() => setThumbFailed(true)}
+                  />
+                ) : (
+                  <Text style={[a.text_xl, a.font_bold, {color: '#fff'}]}>
+                    {(channel || 'V').slice(0, 1).toLocaleUpperCase('pt-BR')}
+                  </Text>
+                )}
+                <AquaEmbedChrome
+                  post={post}
+                  logContext="FeedItem"
+                  duration={duration}
+                />
+              </View>
+              <View style={[a.flex_row, a.gap_sm, a.pt_sm]}>
+                <PreviewableUserAvatar
+                  size={36}
+                  profile={post.author}
+                  moderation={moderation.ui('avatar')}
+                />
+                <View style={[a.flex_1, {minWidth: 0}]}>
+                  {!!title && (
+                    <Text
+                      numberOfLines={2}
+                      style={[a.text_md, a.font_bold, a.leading_snug]}>
+                      {title}
+                    </Text>
+                  )}
+                  <Text
+                    numberOfLines={1}
+                    style={[a.text_xs, t.atoms.text_contrast_medium, a.pt_2xs]}>
+                    {channel}
+                  </Text>
+                  {!!meta && (
+                    <Text
+                      numberOfLines={1}
+                      style={[a.text_xs, t.atoms.text_contrast_medium]}>
+                      {meta}
+                    </Text>
+                  )}
+                </View>
+              </View>
+            </Link>
+          </Hider.Content>
+        </Hider.Outer>
+      </View>
+    )
+  }
   return (
     <View
-      style={[a.overflow_hidden, a.pb_sm, {borderRadius: IMAGE_BORDER_RADIUS}]}
+      style={[a.overflow_hidden, a.pb_sm, {borderRadius: AQUA_RADIUS.card}]}
       testID={`media-card-${mode}`}>
       <Hider.Outer modui={modui}>
         <Hider.Mask>
@@ -88,16 +177,18 @@ function MediaCardInner({
         <Hider.Content>
           <Link
             to={href}
-            label={
-              record.text || (mode === 'video' ? 'Watch video' : 'View image')
-            }
+            label={record.text || 'Ver imagem'}
             style={[a.w_full, {display: 'flex', flexDirection: 'column'}]}>
             <View
               style={[
                 a.w_full,
                 a.overflow_hidden,
                 t.atoms.bg_contrast_25,
-                {aspectRatio, borderRadius: IMAGE_BORDER_RADIUS},
+                {
+                  aspectRatio,
+                  borderRadius: AQUA_RADIUS.media,
+                  borderBottomLeftRadius: 0,
+                },
               ]}>
               <Image
                 accessibilityIgnoresInvertColors
@@ -109,8 +200,9 @@ function MediaCardInner({
                 transition={150}
                 recyclingKey={post.uri}
               />
+              <AquaEmbedChrome post={post} logContext="FeedItem" />
             </View>
-            {!!record.text && mode !== 'video' && (
+            {!!record.text && (
               <Text
                 numberOfLines={3}
                 style={[a.pt_sm, a.text_sm, a.font_semi_bold, a.leading_snug]}>
@@ -131,32 +223,8 @@ function MediaCardInner({
                 timestamp={post.indexedAt}
                 postHref={href}
               />
-              {mode === 'video' && (
-                <Text style={[a.text_xs, t.atoms.text_contrast_medium]}>
-                  {formatViewCount(viewCount)} visualizações
-                </Text>
-              )}
             </View>
           </View>
-          <PostControls
-            style={{paddingTop: 6}}
-            post={post}
-            record={record}
-            richText={richText}
-            logContext="FeedItem"
-            variant="compact"
-            onPressReply={() =>
-              openComposer({
-                replyTo: {
-                  uri: post.uri,
-                  cid: post.cid,
-                  text: record.text,
-                  author: post.author,
-                },
-                onPost: () => {},
-              })
-            }
-          />
         </Hider.Content>
       </Hider.Outer>
     </View>

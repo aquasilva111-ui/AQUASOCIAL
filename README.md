@@ -33,6 +33,11 @@ cd aqua-hub  && npm install && npm run dev     # porta 5192
 
 Mais detalhes: [`docs/CONTRIBUINDO.md`](docs/CONTRIBUINDO.md).
 
+## Deploy
+
+O site web está na **Hostinger**.  
+Veja [`HOSTINGER.md`](HOSTINGER.md) para as configurações de build.
+
 ## Identidade
 
 - Paleta Nazar: azul `#002bef` / `#0D2BDB`, iris `#7EC8F5`
@@ -46,8 +51,9 @@ Mais detalhes: [`docs/CONTRIBUINDO.md`](docs/CONTRIBUINDO.md).
 | Como contribuir | [`docs/CONTRIBUINDO.md`](docs/CONTRIBUINDO.md) |
 | Backend próprio (PDS) | [`docs/BACKEND-COMPLETO.md`](docs/BACKEND-COMPLETO.md) |
 | Colaboração no Hub | [`docs/COLABORACAO-HUB.md`](docs/COLABORACAO-HUB.md) |
-| Deploy na Vercel | [`docs/DEPLOY-VERCEL.md`](docs/DEPLOY-VERCEL.md) |
+| Deploy (Hostinger) | [`HOSTINGER.md`](HOSTINGER.md) |
 | Moderação e regras | [`docs/MODERACAO.md`](docs/MODERACAO.md) |
+| Onboarding | [`docs/ONBOARDING.md`](docs/ONBOARDING.md) |
 
 ## Licença
 

@@ -26,6 +26,7 @@ import {
   storePayloadForAccountSwitch,
 } from '#/lib/hooks/useNotificationHandler'
 import {useWebScrollRestoration} from '#/lib/hooks/useWebScrollRestoration'
+import {lazyNamed} from '#/lib/lazyScreen'
 import {logger as notyLogger} from '#/lib/notifications/util'
 import {buildStateObject} from '#/lib/routes/helpers'
 import {
@@ -113,7 +114,6 @@ import {LaunchHubScreen} from '#/screens/LaunchHub'
 import {LaunchDetailScreen} from '#/screens/LaunchHub/LaunchDetail'
 import {NewLaunchScreen} from '#/screens/LaunchHub/NewLaunch'
 import {LogScreen} from '#/screens/Log'
-import {VideoGoLiveScreen} from '#/screens/Media/GoLive'
 import {
   LegacyImageDetailRedirect,
   LegacyImagesRedirect,
@@ -124,8 +124,6 @@ import {
   LegacyViewChannelRedirect,
 } from '#/screens/Media/LegacyVideosRedirect'
 import {ImageDetailScreen} from '#/screens/Media/MediaDetail'
-import {ImagesScreen, VideosScreen} from '#/screens/Media/MediaHome'
-import {VideoLiveScreen} from '#/screens/Media/VideoLive'
 import {VisionboardBoardsScreen} from '#/screens/Media/VisionboardBoards'
 import {VisionboardBoardViewScreen} from '#/screens/Media/VisionboardBoardView'
 import {MessagesScreen} from '#/screens/Messages/ChatList'
@@ -186,25 +184,6 @@ import {StoryCreatorScreen} from '#/screens/Stories/StoryCreatorScreen'
 import TopicScreen from '#/screens/Topic'
 import {UIAIScreen} from '#/screens/UIAI'
 import {VideoFeed} from '#/screens/VideoFeed'
-import {ViewChannelScreen} from '#/screens/ViewChannel/ChannelScreen'
-import {ViewChannelCreateScreen} from '#/screens/ViewChannel/CreateChannelScreen'
-import {
-  ViewStudioCustomizeScreen,
-  ViewStudioScreen,
-} from '#/screens/ViewChannel/StudioScreen'
-import {ViewChannelsScreen} from '#/screens/ViewLibrary/ChannelsScreen'
-import {ViewHistoryScreen} from '#/screens/ViewLibrary/HistoryScreen'
-import {ViewListScreen} from '#/screens/ViewLibrary/ListDetailScreen'
-import {
-  ViewCollectionsScreen,
-  ViewPlaylistsScreen,
-} from '#/screens/ViewLibrary/ListsScreen'
-import {ViewLiveScreen} from '#/screens/ViewLibrary/LiveScreen'
-import {ViewMyVideosScreen} from '#/screens/ViewLibrary/MyVideosScreen'
-import {ViewPaidScreen} from '#/screens/ViewLibrary/PaidScreen'
-import {ViewSubscriptionsScreen} from '#/screens/ViewLibrary/SubscriptionsScreen'
-import {ViewWatchLaterScreen} from '#/screens/ViewLibrary/WatchLaterScreen'
-import {ViewWatchScreen} from '#/screens/ViewWatch/WatchScreen'
 import {WikiHomeScreen} from '#/screens/Wiki'
 import {WriteComposeScreen} from '#/screens/Write/WriteComposeScreen'
 import {WriteReaderScreen} from '#/screens/Write/WriteReaderScreen'
@@ -219,6 +198,159 @@ import {useAccountSwitcher} from './lib/hooks/useAccountSwitcher'
 import {useNonReactiveCallback} from './lib/hooks/useNonReactiveCallback'
 import {useLoggedOutViewControls} from './state/shell/logged-out'
 import {useCloseAllActiveElements} from './state/util'
+
+const VideosScreen = lazyNamed(
+  () =>
+    import(
+      /* webpackChunkName: "views-home" */
+      '#/screens/Media/MediaHome'
+    ),
+  'VideosScreen',
+)
+const ImagesScreen = lazyNamed(
+  () =>
+    import(
+      /* webpackChunkName: "views-home" */
+      '#/screens/Media/MediaHome'
+    ),
+  'ImagesScreen',
+)
+const VideoLiveScreen = lazyNamed(
+  () =>
+    import(
+      /* webpackChunkName: "views-live" */
+      '#/screens/Media/VideoLive'
+    ),
+  'VideoLiveScreen',
+)
+const VideoGoLiveScreen = lazyNamed(
+  () =>
+    import(
+      /* webpackChunkName: "views-live" */
+      '#/screens/Media/GoLive'
+    ),
+  'VideoGoLiveScreen',
+)
+const ViewWatchScreen = lazyNamed(
+  () =>
+    import(
+      /* webpackChunkName: "views-watch" */
+      '#/screens/ViewWatch/WatchScreen'
+    ),
+  'ViewWatchScreen',
+)
+const ViewChannelScreen = lazyNamed(
+  () =>
+    import(
+      /* webpackChunkName: "views-channel" */
+      '#/screens/ViewChannel/ChannelScreen'
+    ),
+  'ViewChannelScreen',
+)
+const ViewChannelCreateScreen = lazyNamed(
+  () =>
+    import(
+      /* webpackChunkName: "views-channel" */
+      '#/screens/ViewChannel/CreateChannelScreen'
+    ),
+  'ViewChannelCreateScreen',
+)
+const ViewStudioScreen = lazyNamed(
+  () =>
+    import(
+      /* webpackChunkName: "views-channel" */
+      '#/screens/ViewChannel/StudioScreen'
+    ),
+  'ViewStudioScreen',
+)
+const ViewStudioCustomizeScreen = lazyNamed(
+  () =>
+    import(
+      /* webpackChunkName: "views-channel" */
+      '#/screens/ViewChannel/StudioScreen'
+    ),
+  'ViewStudioCustomizeScreen',
+)
+const ViewChannelsScreen = lazyNamed(
+  () =>
+    import(
+      /* webpackChunkName: "views-library" */
+      '#/screens/ViewLibrary/ChannelsScreen'
+    ),
+  'ViewChannelsScreen',
+)
+const ViewHistoryScreen = lazyNamed(
+  () =>
+    import(
+      /* webpackChunkName: "views-library" */
+      '#/screens/ViewLibrary/HistoryScreen'
+    ),
+  'ViewHistoryScreen',
+)
+const ViewListScreen = lazyNamed(
+  () =>
+    import(
+      /* webpackChunkName: "views-library" */
+      '#/screens/ViewLibrary/ListDetailScreen'
+    ),
+  'ViewListScreen',
+)
+const ViewCollectionsScreen = lazyNamed(
+  () =>
+    import(
+      /* webpackChunkName: "views-library" */
+      '#/screens/ViewLibrary/ListsScreen'
+    ),
+  'ViewCollectionsScreen',
+)
+const ViewPlaylistsScreen = lazyNamed(
+  () =>
+    import(
+      /* webpackChunkName: "views-library" */
+      '#/screens/ViewLibrary/ListsScreen'
+    ),
+  'ViewPlaylistsScreen',
+)
+const ViewLiveScreen = lazyNamed(
+  () =>
+    import(
+      /* webpackChunkName: "views-library" */
+      '#/screens/ViewLibrary/LiveScreen'
+    ),
+  'ViewLiveScreen',
+)
+const ViewMyVideosScreen = lazyNamed(
+  () =>
+    import(
+      /* webpackChunkName: "views-library" */
+      '#/screens/ViewLibrary/MyVideosScreen'
+    ),
+  'ViewMyVideosScreen',
+)
+const ViewPaidScreen = lazyNamed(
+  () =>
+    import(
+      /* webpackChunkName: "views-library" */
+      '#/screens/ViewLibrary/PaidScreen'
+    ),
+  'ViewPaidScreen',
+)
+const ViewSubscriptionsScreen = lazyNamed(
+  () =>
+    import(
+      /* webpackChunkName: "views-library" */
+      '#/screens/ViewLibrary/SubscriptionsScreen'
+    ),
+  'ViewSubscriptionsScreen',
+)
+const ViewWatchLaterScreen = lazyNamed(
+  () =>
+    import(
+      /* webpackChunkName: "views-library" */
+      '#/screens/ViewLibrary/WatchLaterScreen'
+    ),
+  'ViewWatchLaterScreen',
+)
 
 const navigationRef = createNavigationContainerRef<AllNavigatorParams>()
 

@@ -1,4 +1,4 @@
-import {useCallback, useRef, useState} from 'react'
+import {type ReactNode, useCallback, useRef, useState} from 'react'
 import {ActivityIndicator, View} from 'react-native'
 import {ImageBackground} from 'expo-image'
 import {type AppBskyEmbedVideo} from '@atproto/api'
@@ -8,6 +8,7 @@ import {useLingui} from '@lingui/react'
 import {ErrorBoundary} from '#/view/com/util/ErrorBoundary'
 import {ConstrainedImage} from '#/view/com/util/images/AutoSizedImage'
 import {atoms as a} from '#/alf'
+import {AQUA_RADIUS} from '#/components/AquaPostCard/palette'
 import {Button} from '#/components/Button'
 import {useThrottledValue} from '#/components/hooks/useThrottledValue'
 import {PlayButtonIcon} from '#/components/video/PlayButtonIcon'
@@ -16,9 +17,12 @@ import * as VideoFallback from './VideoEmbedInner/VideoFallback'
 
 interface Props {
   embed: AppBskyEmbedVideo.View
+  mediaChrome?: ReactNode
+  /** Flush with the post card. Cover-cropped, no side bars. */
+  bleed?: boolean
 }
 
-export function VideoEmbed({embed}: Props) {
+export function VideoEmbed({embed, mediaChrome, bleed}: Props) {
   const [key, setKey] = useState(0)
 
   const renderError = useCallback(
@@ -50,14 +54,35 @@ export function VideoEmbed({embed}: Props) {
   )
 
   return (
-    <View style={[a.pt_xs]}>
+    <View
+      style={[
+        mediaChrome ? {paddingTop: 0} : a.pt_xs,
+        mediaChrome
+          ? {
+              borderTopLeftRadius: bleed ? AQUA_RADIUS.card : AQUA_RADIUS.media,
+              borderTopRightRadius: bleed
+                ? AQUA_RADIUS.card
+                : AQUA_RADIUS.media,
+              borderBottomRightRadius: bleed ? 0 : AQUA_RADIUS.media,
+              borderBottomLeftRadius: 0,
+              overflow: 'hidden',
+              position: 'relative',
+            }
+          : null,
+      ]}>
       <ConstrainedImage
-        aspectRatio={constrained || 1}
+        fullBleed={!!bleed}
+        aspectRatio={
+          bleed ? Math.max(constrained || 1, 9 / 12) : constrained || 1
+        }
         // slightly smaller max height than images
         // images use 16 / 9, for reference
-        minMobileAspectRatio={14 / 9}>
+        minMobileAspectRatio={bleed ? 12 / 9 : 14 / 9}
+        borderRadius={bleed ? 0 : mediaChrome ? AQUA_RADIUS.media : undefined}
+        notch={!!mediaChrome && !bleed}>
         {contents}
       </ConstrainedImage>
+      {mediaChrome}
     </View>
   )
 }

@@ -370,7 +370,6 @@ export function TabBar({
           </Animated.View>
         </ScrollView>
       </BlockDrawerGesture>
-      <View style={[t.atoms.border_contrast_low, styles.outerBottomBorder]} />
     </View>
   )
 }

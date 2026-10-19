@@ -1,7 +1,8 @@
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
-import {ScrollView, TextInput, View} from 'react-native'
+import {View} from 'react-native'
 import {type AppBskyActorDefs, type AppBskyFeedDefs, AtUri} from '@atproto/api'
 import {useIsFocused, useNavigation} from '@react-navigation/native'
+import {useMediaQuery} from 'react-responsive'
 
 import {getPostMedia, getPostTopics} from '#/lib/media/experiences'
 import {recordView} from '#/lib/media/views'
@@ -20,6 +21,12 @@ import {
   parseStartParam,
   splitTitle,
 } from '#/lib/view-watch/chapters'
+import {
+  formatCompactPt,
+  formatSubscriberLabel,
+  formatViewLabel,
+  knownViewCount,
+} from '#/lib/views/format'
 import {isWeb} from '#/platform/detection'
 import {
   POST_TOMBSTONE,
@@ -44,11 +51,18 @@ import {
   useViewPlayback,
 } from '#/state/view-playback'
 import {UserAvatar} from '#/view/com/util/UserAvatar'
+import {ViewsChrome} from '#/screens/Media/ViewsChrome'
 import {SaveMenu, useRecordWatch} from '#/screens/ViewLibrary/SaveMenu'
 import {atoms as a, useBreakpoints, useTheme, web} from '#/alf'
-import {Button, ButtonText} from '#/components/Button'
+import {Button, ButtonIcon, ButtonText} from '#/components/Button'
+import * as Dialog from '#/components/Dialog'
+import {ArrowShareRight_Stroke2_Corner2_Rounded as ShareIcon} from '#/components/icons/ArrowShareRight'
+import {Bookmark as SaveIcon} from '#/components/icons/Bookmark'
+import {DotGrid_Stroke2_Corner0_Rounded as MoreIcon} from '#/components/icons/DotGrid'
+import {Heart2_Stroke2_Corner0_Rounded as HeartIcon} from '#/components/icons/Heart2'
 import * as Layout from '#/components/Layout'
 import {Link} from '#/components/Link'
+import * as Menu from '#/components/Menu'
 import {
   ReportDialog,
   useReportDialogControl,
@@ -70,77 +84,24 @@ export function ViewWatchScreen({
   return (
     <Layout.Screen testID="viewWatchScreen" hideCenterBorders={isWeb}>
       {isWeb ? (
-        <WebTopBar />
-      ) : (
-        <Layout.Header.Outer>
-          <Layout.Header.BackButton />
-          <Layout.Header.Content>
-            <Layout.Header.TitleText>Aqua Views</Layout.Header.TitleText>
-          </Layout.Header.Content>
-          <Layout.Header.Slot />
-        </Layout.Header.Outer>
-      )}
-      {isWeb ? (
-        // Layout.Content caps web pages at the 700px feed column; the watch
-        // page is a full page with its own player + "A seguir" columns.
-        <ScrollView style={[a.w_full, a.flex_1]}>
+        <ViewsChrome defaultCollapsed>
           <Watch uri={uri} startAt={parseStartParam(t)} />
-        </ScrollView>
+        </ViewsChrome>
       ) : (
-        <Layout.Content>
-          <Watch uri={uri} startAt={parseStartParam(t)} />
-        </Layout.Content>
+        <>
+          <Layout.Header.Outer>
+            <Layout.Header.BackButton />
+            <Layout.Header.Content>
+              <Layout.Header.TitleText>Aqua Views</Layout.Header.TitleText>
+            </Layout.Header.Content>
+            <Layout.Header.Slot />
+          </Layout.Header.Outer>
+          <Layout.Content>
+            <Watch uri={uri} startAt={parseStartParam(t)} />
+          </Layout.Content>
+        </>
       )}
     </Layout.Screen>
-  )
-}
-
-function WebTopBar() {
-  const t = useTheme()
-  const navigation = useNavigation<NavigationProp>()
-  const [q, setQ] = useState('')
-  const search = () => {
-    const query = q.trim()
-    if (query) navigation.navigate('Videos', {source: 'search', q: query})
-  }
-  return (
-    <View
-      style={[
-        a.flex_row,
-        a.align_center,
-        a.gap_md,
-        a.px_lg,
-        a.border_b,
-        t.atoms.border_contrast_low,
-        t.atoms.bg,
-        {height: 64},
-      ]}>
-      <Link to="/views" label="Aqua Views">
-        <Text style={[a.text_lg, a.font_bold]}>Aqua Views</Text>
-      </Link>
-      <View style={[a.flex_1, a.align_center]}>
-        <TextInput
-          value={q}
-          onChangeText={setQ}
-          onSubmitEditing={search}
-          returnKeyType="search"
-          placeholder="Pesquisar vídeos"
-          placeholderTextColor={t.atoms.text_contrast_low.color}
-          accessibilityLabel="Pesquisar vídeos"
-          accessibilityHint="Busca vídeos no Aqua Views"
-          style={[
-            a.rounded_full,
-            a.px_lg,
-            a.text_md,
-            a.border,
-            t.atoms.text,
-            t.atoms.bg_contrast_25,
-            t.atoms.border_contrast_low,
-            {height: 42, width: '100%', maxWidth: 560},
-          ]}
-        />
-      </View>
-    </View>
   )
 }
 
@@ -178,6 +139,8 @@ function WatchLoaded({
 }) {
   const t = useTheme()
   const {gtTablet} = useBreakpoints()
+  const wide = useMediaQuery({minWidth: 1100})
+  const phone = useMediaQuery({maxWidth: 599})
   const post = usePostShadow(rawPost)
   const playerRef = useRef<ViewPlayerHandle>(null)
   useRecordWatch(rawPost)
@@ -308,7 +271,15 @@ function WatchLoaded({
       }
     />
   )
-  const info = (
+  const aside = (
+    <UpNextPanel
+      currentUri={rawPost.uri}
+      next={next}
+      recs={recs}
+      onPlayNext={playNext}
+    />
+  )
+  const details = (
     <Info
       post={post}
       title={title || 'Vídeo sem título'}
@@ -318,43 +289,53 @@ function WatchLoaded({
       onSeek={sec => playerRef.current?.seek(sec)}
       channelName={channel.data?.channel?.displayNameOverride}
       profile={profile.data}
+      subscribersKnown={profile.isSuccess}
     />
   )
-  const aside = (
-    <UpNextPanel
-      currentUri={rawPost.uri}
-      next={next}
-      recs={recs}
-      onPlayNext={playNext}
+  const comments = (
+    <Comments
+      video={post}
+      creatorName={
+        channel.data?.channel?.displayNameOverride ||
+        post.author.displayName ||
+        post.author.handle
+      }
     />
+  )
+  const column = (
+    <View style={[a.flex_1, a.gap_md, {minWidth: 0}]}>
+      <View style={phone ? undefined : [a.px_lg, a.pt_md]}>{player}</View>
+      <View style={[a.px_md, a.gap_md, phone && a.px_md]}>
+        {details}
+        {!wide && aside}
+        {comments}
+      </View>
+    </View>
   )
 
-  if (!gtTablet)
-    return (
-      <View style={[a.gap_lg, a.pb_2xl]}>
-        {player}
-        <View style={[a.px_md, a.gap_lg]}>
-          {info}
-          {aside}
-        </View>
-      </View>
-    )
+  if (!wide) return <View style={[a.gap_lg, a.pb_2xl]}>{column}</View>
   return (
-    <View style={[a.gap_xl, a.pb_2xl, a.pt_lg]}>
-      {theater && <View style={[{maxHeight: '80vh' as any}]}>{player}</View>}
+    <View style={[a.gap_xl, a.pb_2xl]}>
+      {theater && (
+        <View style={[a.px_lg, {maxHeight: 'calc(100vh - 180px)' as any}]}>
+          {player}
+        </View>
+      )}
       <View
         style={[
           a.flex_row,
           a.gap_xl,
-          a.px_xl,
+          a.px_lg,
           a.align_start,
-          web({maxWidth: 1600, marginInline: 'auto', width: '100%'}),
+          a.pt_md,
+          web({maxWidth: 1720, marginInline: 'auto', width: '100%'}),
         ]}>
-        <View style={[a.flex_1, a.gap_lg, {minWidth: 0}]}>
+        <View style={[a.flex_1, a.gap_md, {minWidth: 0}]}>
           {!theater && player}
-          {info}
+          {details}
+          {comments}
         </View>
-        <View style={{width: 400}}>{aside}</View>
+        <View style={{width: 400, minWidth: 0}}>{aside}</View>
       </View>
     </View>
   )
@@ -369,6 +350,7 @@ function Info({
   onSeek,
   channelName,
   profile,
+  subscribersKnown,
 }: {
   post: Shadow<AppBskyFeedDefs.PostView>
   title: string
@@ -378,91 +360,98 @@ function Info({
   onSeek: (sec: number) => void
   channelName?: string
   profile?: AppBskyActorDefs.ProfileViewDetailed
+  subscribersKnown: boolean
 }) {
   const t = useTheme()
   const {currentAccount} = useSession()
+  const [open, setOpen] = useState(false)
   const topics = getPostTopics(post)
   const date = new Date(post.indexedAt).toLocaleDateString('pt-BR', {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
   })
+  const views = formatViewLabel(knownViewCount(post))
+  const summary = [views, date, ...topics.map(topic => `#${topic}`)]
+    .filter(Boolean)
+    .join(' · ')
   return (
-    <View style={[a.gap_lg]}>
-      <Text style={[a.text_2xl, a.font_bold, a.leading_snug]}>{title}</Text>
+    <View style={[a.gap_md]}>
+      <Text style={[a.text_xl, a.font_bold, a.leading_snug]}>{title}</Text>
 
-      <View style={[a.flex_row, a.flex_wrap, a.align_center, a.gap_md]}>
+      <View
+        style={[
+          a.flex_row,
+          a.align_center,
+          a.gap_md,
+          web({flexWrap: 'wrap', rowGap: 12}),
+        ]}>
         <ChannelRow
           author={post.author}
           profile={profile}
           channelName={channelName}
+          subscribersKnown={subscribersKnown}
           isSelf={currentAccount?.did === post.author.did}
         />
-        <View style={[a.flex_1]} />
         <Actions post={post} time={time} />
       </View>
 
-      <View
-        style={[
-          a.p_lg,
-          a.rounded_lg,
-          a.gap_md,
-          a.border,
-          t.atoms.border_contrast_low,
-          t.atoms.bg_contrast_25,
-        ]}>
-        <View style={[a.flex_row, a.flex_wrap, a.gap_sm, a.align_center]}>
-          <Text style={[a.text_sm, a.font_bold]}>
-            {post.likeCount ?? 0} curtidas · {date}
-          </Text>
-          {topics.map(topic => (
-            <Link
-              key={topic}
-              to={`/views?source=search&q=${encodeURIComponent(`#${topic}`)}`}
-              label={`Vídeos com #${topic}`}>
-              <Text style={[a.text_sm, a.font_bold, {color: '#002CF0'}]}>
-                #{topic}
+      <Button
+        label={open ? 'Mostrar menos' : 'Mostrar mais da descrição'}
+        onPress={() => setOpen(value => !value)}
+        accessibilityState={{expanded: open}}>
+        {({hovered}) => (
+          <View
+            style={[
+              a.p_md,
+              a.rounded_md,
+              a.gap_xs,
+              a.w_full,
+              t.atoms.bg_contrast_25,
+              hovered && t.atoms.bg_contrast_50,
+            ]}>
+            {!!summary && (
+              <Text style={[a.text_sm, a.font_bold]}>{summary}</Text>
+            )}
+            {!!description && (
+              <Text
+                numberOfLines={open ? undefined : 2}
+                style={[a.text_md, a.leading_snug]}>
+                {description}
               </Text>
-            </Link>
-          ))}
-        </View>
-        {!!description && (
-          <Text style={[a.text_md, a.leading_relaxed]}>{description}</Text>
-        )}
-        {chapters.length > 0 && (
-          <View style={[a.gap_sm]}>
-            <Text style={[a.text_md, a.font_bold]}>Capítulos</Text>
-            <View style={[a.flex_row, a.flex_wrap, a.gap_sm]}>
-              {chapters.map((c, i) => {
-                const active =
-                  time >= c.startSec &&
-                  (i === chapters.length - 1 || time < chapters[i + 1].startSec)
-                return (
-                  <Button
-                    key={c.startSec}
-                    label={`Ir para ${formatTime(c.startSec)}: ${c.title}`}
-                    size="small"
-                    variant="solid"
-                    color={active ? 'primary' : 'secondary'}
-                    disabled={!isWeb}
-                    onPress={() => onSeek(c.startSec)}>
-                    <ButtonText>
-                      {formatTime(c.startSec)} · {c.title}
-                    </ButtonText>
-                  </Button>
-                )
-              })}
-            </View>
+            )}
+            <Text style={[a.text_sm, a.font_bold]}>
+              {open ? 'Mostrar menos' : '…mais'}
+            </Text>
           </View>
         )}
-      </View>
-
-      <Comments
-        video={post}
-        creatorName={
-          channelName || post.author.displayName || post.author.handle
-        }
-      />
+      </Button>
+      {open && chapters.length > 0 && (
+        <View style={[a.gap_sm]}>
+          <Text style={[a.text_md, a.font_bold]}>Capítulos</Text>
+          <View style={[a.flex_row, a.flex_wrap, a.gap_sm]}>
+            {chapters.map((c, i) => {
+              const active =
+                time >= c.startSec &&
+                (i === chapters.length - 1 || time < chapters[i + 1].startSec)
+              return (
+                <Button
+                  key={c.startSec}
+                  label={`Ir para ${formatTime(c.startSec)}: ${c.title}`}
+                  size="small"
+                  variant="solid"
+                  color={active ? 'primary' : 'secondary'}
+                  disabled={!isWeb}
+                  onPress={() => onSeek(c.startSec)}>
+                  <ButtonText>
+                    {formatTime(c.startSec)} · {c.title}
+                  </ButtonText>
+                </Button>
+              )
+            })}
+          </View>
+        </View>
+      )}
     </View>
   )
 }
@@ -471,11 +460,13 @@ function ChannelRow({
   author,
   profile,
   channelName,
+  subscribersKnown,
   isSelf,
 }: {
   author: AppBskyFeedDefs.PostView['author']
   profile?: AppBskyActorDefs.ProfileViewDetailed
   channelName?: string
+  subscribersKnown: boolean
   isSelf: boolean
 }) {
   const t = useTheme()
@@ -486,20 +477,26 @@ function ChannelRow({
     'ProfileHeader',
   )
   const subscribed = !!shadow.viewer?.following
+  const subscribers = subscribersKnown
+    ? formatSubscriberLabel(profile?.followersCount)
+    : undefined
   return (
-    <View style={[a.flex_row, a.align_center, a.gap_md]}>
+    <View
+      style={[a.flex_row, a.align_center, a.gap_md, a.flex_1, {minWidth: 0}]}>
       <Link
         to={channelPath(author.handle)}
         label={`Canal de ${channelName || author.displayName || author.handle}`}
-        style={[a.flex_row, a.align_center, a.gap_sm]}>
-        <UserAvatar type="user" size={44} avatar={author.avatar} />
-        <View>
-          <Text style={[a.text_md, a.font_bold]}>
+        style={[a.flex_row, a.align_center, a.gap_sm, a.flex_1, {minWidth: 0}]}>
+        <UserAvatar type="user" size={40} avatar={author.avatar} />
+        <View style={{minWidth: 0}}>
+          <Text numberOfLines={1} style={[a.text_md, a.font_bold]}>
             {channelName || author.displayName || author.handle}
           </Text>
-          <Text style={[a.text_sm, t.atoms.text_contrast_medium]}>
-            {profile?.followersCount ?? 0} inscritos
-          </Text>
+          {!!subscribers && (
+            <Text style={[a.text_sm, t.atoms.text_contrast_medium]}>
+              {subscribers}
+            </Text>
+          )}
         </View>
       </Link>
       {hasSession && !isSelf && (
@@ -508,7 +505,9 @@ function ChannelRow({
           size="small"
           variant="solid"
           color={subscribed ? 'secondary' : 'primary'}
-          onPress={() => (subscribed ? queueUnfollow() : queueFollow())}>
+          shape="round"
+          onPress={() => (subscribed ? queueUnfollow() : queueFollow())}
+          style={{height: 36}}>
           <ButtonText>{subscribed ? 'Inscrito' : 'Inscrever-se'}</ButtonText>
         </Button>
       )}
@@ -523,6 +522,7 @@ function Actions({
   post: Shadow<AppBskyFeedDefs.PostView>
   time: number
 }) {
+  const t = useTheme()
   const {hasSession} = useSession()
   const [queueLike, queueUnlike] = usePostLikeMutationQueue(
     post,
@@ -532,41 +532,92 @@ function Actions({
   )
   const bookmark = useBookmarkMutation()
   const reportControl = useReportDialogControl()
+  const saveDialog = Dialog.useDialogControl()
+  const [disliked, setDisliked] = useState(false)
   const liked = !!post.viewer?.like
   const saved = !!post.viewer?.bookmarked
   const at = Math.floor(time)
+  const likeLabel =
+    typeof post.likeCount === 'number' && post.likeCount > 0
+      ? formatCompactPt(post.likeCount)
+      : undefined
+  const pill = [
+    a.flex_row,
+    a.align_center,
+    a.justify_center,
+    a.gap_xs,
+    a.rounded_full,
+    a.px_md,
+    t.atoms.bg_contrast_25,
+    {height: 36},
+  ]
   return (
-    <View style={[a.flex_row, a.flex_wrap, a.gap_sm]}>
-      {hasSession && (
+    <View
+      style={[
+        a.flex_row,
+        a.align_center,
+        a.gap_sm,
+        web({flexShrink: 0, maxWidth: '100%'}),
+      ]}>
+      <View
+        style={[
+          a.flex_row,
+          a.align_center,
+          a.rounded_full,
+          a.overflow_hidden,
+          t.atoms.bg_contrast_25,
+          {height: 36},
+        ]}>
         <Button
-          label={liked ? 'Descurtir' : 'Curtir'}
+          label={liked ? 'Descurtir' : 'Gostei'}
           size="small"
-          variant="solid"
+          variant="ghost"
           color={liked ? 'primary' : 'secondary'}
-          onPress={() => (liked ? queueUnlike() : queueLike())}>
-          <ButtonText>
-            {liked ? 'Curtido' : 'Curtir'} · {post.likeCount ?? 0}
-          </ButtonText>
+          onPress={() => {
+            setDisliked(false)
+            if (hasSession) liked ? queueUnlike() : queueLike()
+          }}
+          style={[{height: 36, borderRadius: 0}]}>
+          <ButtonIcon icon={HeartIcon} />
+          {!!likeLabel && <ButtonText>{likeLabel}</ButtonText>}
         </Button>
-      )}
+        <View
+          style={[{width: 1, alignSelf: 'stretch'}, t.atoms.bg_contrast_100]}
+        />
+        <Button
+          label={disliked ? 'Remover não gostei' : 'Não gostei'}
+          size="small"
+          variant="ghost"
+          color={disliked ? 'primary' : 'secondary'}
+          onPress={() => {
+            setDisliked(value => !value)
+            if (liked && hasSession) queueUnlike()
+          }}
+          style={[{height: 36, width: 44, borderRadius: 0}]}>
+          <View style={{transform: [{rotate: '180deg'}]}}>
+            <ButtonIcon icon={HeartIcon} />
+          </View>
+        </Button>
+      </View>
       <Button
         label={
           at > 0 ? `Compartilhar a partir de ${formatTime(at)}` : 'Compartilhar'
         }
         size="small"
+        variant="ghost"
         color="secondary"
         onPress={() =>
           shareUrl(toShareUrl(`${watchPath(post)}${at > 0 ? `?t=${at}` : ''}`))
-        }>
-        <ButtonText>
-          {at > 0 ? `Compartilhar em ${formatTime(at)}` : 'Compartilhar'}
-        </ButtonText>
+        }
+        style={pill}>
+        <ButtonIcon icon={ShareIcon} />
+        <ButtonText>Compartilhar</ButtonText>
       </Button>
-      {hasSession && <SaveMenu post={post} />}
       {hasSession && (
         <Button
           label={saved ? 'Remover dos salvos' : 'Salvar'}
           size="small"
+          variant="ghost"
           color="secondary"
           onPress={() =>
             bookmark.mutate(
@@ -574,26 +625,49 @@ function Actions({
                 ? {action: 'delete', uri: post.uri}
                 : {action: 'create', post},
             )
-          }>
+          }
+          style={pill}>
+          <ButtonIcon icon={SaveIcon} />
           <ButtonText>{saved ? 'Salvo' : 'Salvar'}</ButtonText>
         </Button>
       )}
       {hasSession && (
         <>
-          <Button
-            label="Denunciar vídeo"
-            size="small"
-            variant="ghost"
-            color="secondary"
-            onPress={() => reportControl.open()}>
-            <ButtonText>Denunciar</ButtonText>
-          </Button>
-          <ReportDialog
-            control={reportControl}
-            subject={{...post, $type: 'app.bsky.feed.defs#postView'}}
-          />
+          <Menu.Root>
+            <Menu.Trigger label="Mais ações">
+              {({props}) => (
+                <Button
+                  label="Mais ações"
+                  size="small"
+                  variant="ghost"
+                  color="secondary"
+                  shape="round"
+                  style={[{height: 36, width: 36}]}
+                  {...props}>
+                  <ButtonIcon icon={MoreIcon} />
+                </Button>
+              )}
+            </Menu.Trigger>
+            <Menu.Outer>
+              <Menu.Group>
+                <Menu.Item label="Salvar em…" onPress={() => saveDialog.open()}>
+                  <Menu.ItemText>Salvar em…</Menu.ItemText>
+                </Menu.Item>
+                <Menu.Item
+                  label="Denunciar vídeo"
+                  onPress={() => reportControl.open()}>
+                  <Menu.ItemText>Denunciar</Menu.ItemText>
+                </Menu.Item>
+              </Menu.Group>
+            </Menu.Outer>
+          </Menu.Root>
+          <SaveMenu post={post} control={saveDialog} />
         </>
       )}
+      <ReportDialog
+        control={reportControl}
+        subject={{...post, $type: 'app.bsky.feed.defs#postView'}}
+      />
     </View>
   )
 }

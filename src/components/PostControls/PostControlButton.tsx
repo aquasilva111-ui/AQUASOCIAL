@@ -25,12 +25,15 @@ export function PostControlButton({
   big,
   active,
   activeColor,
+  iconColor,
   ...props
 }: Omit<ButtonProps, 'hitSlop'> & {
   ref?: React.Ref<View>
   active?: boolean
   big?: boolean
   color?: string
+  /** Icon fill when the control is not in its active color. */
+  iconColor?: string
   activeColor?: string
   hitSlop?: Insets
 }) {
@@ -42,10 +45,13 @@ export function PostControlButton({
       big,
       active,
       color: {
-        color: activeColor && active ? activeColor : t.palette.contrast_500,
+        color:
+          activeColor && active
+            ? activeColor
+            : (iconColor ?? t.palette.contrast_500),
       },
     }),
-    [big, active, activeColor, t.palette.contrast_500],
+    [big, active, activeColor, iconColor, t.palette.contrast_500],
   )
 
   const style = useMemo(

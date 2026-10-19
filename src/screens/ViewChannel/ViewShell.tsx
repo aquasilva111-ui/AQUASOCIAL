@@ -1,8 +1,5 @@
-import {View} from 'react-native'
-
 import {isWeb} from '#/platform/detection'
-import {VideosNavSidebar} from '#/screens/Media/VideosNavSidebar'
-import {atoms as a, web} from '#/alf'
+import {ViewsChrome} from '#/screens/Media/ViewsChrome'
 import * as Layout from '#/components/Layout'
 
 /**
@@ -21,15 +18,7 @@ export function ViewShell({
   if (isWeb) {
     return (
       <Layout.Screen testID={testID} hideCenterBorders>
-        <View
-          style={[
-            a.flex_row,
-            a.w_full,
-            web({alignItems: 'flex-start', minHeight: '100vh', width: '100%'}),
-          ]}>
-          <VideosNavSidebar />
-          <View style={[a.flex_1, {minWidth: 0}]}>{children}</View>
-        </View>
+        <ViewsChrome>{children}</ViewsChrome>
       </Layout.Screen>
     )
   }
