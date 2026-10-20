@@ -23,6 +23,10 @@ export type ProviderId =
   | 'soundcloud'
   | 'bandlab'
   | 'website'
+  | 'mastodon'
+  | 'reddit'
+  | 'whatsapp'
+  | 'telegram'
 
 export type ProviderCategory =
   | 'social'
@@ -30,6 +34,7 @@ export type ProviderCategory =
   | 'visual'
   | 'writing'
   | 'music'
+  | 'messaging'
   | 'owned'
 
 /**
@@ -70,7 +75,7 @@ export type Provider = {
   name: string
   category: ProviderCategory
   /** Which adapter implementation handles this provider. */
-  adapter: 'atproto-session' | 'integration-api' | 'same-network'
+  adapter: 'atproto-session' | 'integration-api' | 'same-network' | 'none'
   /** Short monogram used for the provider badge. */
   monogram: string
   color: string
@@ -113,6 +118,11 @@ export type ManagedProfile = {
   permissions: string[]
   /** Set when the profile is known but can't publish from here right now. */
   unavailableReason?: string
+  /**
+   * `assistido`: not a connected account, just "open this network's composer"
+   * (destinations.ts). Absent = a real connection.
+   */
+  mode?: PublishMode
 }
 
 /** A brand or person grouping presences across providers. */
@@ -189,9 +199,20 @@ export type DestinationStatus =
   | 'pending'
   | 'scheduled'
   | 'processing'
+  /** modo assistido: a tela de postar da rede foi aberta, falta a pessoa confirmar */
+  | 'opened'
   | 'published'
   | 'failed'
   | 'skipped'
+
+/**
+ * How a destination goes out. `auto`: an adapter publishes it. `assistido`:
+ * the Aqua prepares the post and opens the network's own composer; the person
+ * taps "publish" there and marks it here. Resolved per network by
+ * `effectiveMode()` (destinations.ts), so a network flips to `auto` as soon as
+ * an API integration exists, with no UI change.
+ */
+export type PublishMode = 'auto' | 'assistido'
 
 export type LaunchDestination = {
   id: string
@@ -212,6 +233,11 @@ export type LaunchDestination = {
   remotePostId?: string
   remoteUrl?: string
   error?: string
+  /** Fixed when the launch starts; older launches have none (= auto). */
+  mode?: PublishMode
+  /** Assisted: when the person opened the composer / marked it published. */
+  openedAt?: string
+  publishedAt?: string
   updatedAt: string
 }
 
@@ -222,6 +248,8 @@ export type LaunchStatus =
   | 'published'
   | 'partial'
   | 'failed'
+  /** auto destinations done; assisted ones wait for the person */
+  | 'awaiting_user'
 
 export type Launch = {
   id: string
