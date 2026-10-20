@@ -1,20 +1,23 @@
+import {useId} from 'react'
 import {View} from 'react-native'
-import Svg, {Circle} from 'react-native-svg'
+import Svg, {Circle, Defs, LinearGradient, Stop} from 'react-native-svg'
 
 import {atoms as a, useTheme} from '#/alf'
 
-const UNSEEN = '#7C3AED'
+/** Unseen ring gradient (violet, magenta, amber), Instagram-style. */
+export const RING_GRADIENT = ['#7C3AED', '#D946EF', '#F59E0B'] as const
 const MAX_SEGMENTS = 12
 const STROKE = 3
 
 /**
- * Ring around an avatar with one arc per story (unseen arcs are coloured,
- * seen ones are dimmed), like Instagram's. Beyond MAX_SEGMENTS stories it
+ * Ring around an avatar with one arc per story (unseen arcs use a
+ * gradient, seen ones are dimmed), like Instagram's. Beyond MAX_SEGMENTS stories it
  * falls back to a single arc so it never turns into noise.
  */
 /** The arcs only (absolutely positioned), so a ring can sit around any avatar. */
 export function RingArcs({size, seen}: {size: number; seen: boolean[]}) {
   const t = useTheme()
+  const gradientId = `ring${useId().replace(/\W/g, '')}`
   const count = seen.length
   if (count === 0) return null
   const segments = count > MAX_SEGMENTS ? [seen.every(Boolean)] : seen
@@ -29,6 +32,19 @@ export function RingArcs({size, seen}: {size: number; seen: boolean[]}) {
       style={a.absolute}
       accessibilityElementsHidden
       pointerEvents="none">
+      <Defs>
+        <LinearGradient
+          id={gradientId}
+          gradientUnits="userSpaceOnUse"
+          x1={0}
+          y1={size}
+          x2={size}
+          y2={0}>
+          <Stop offset="0" stopColor={RING_GRADIENT[0]} />
+          <Stop offset="0.55" stopColor={RING_GRADIENT[1]} />
+          <Stop offset="1" stopColor={RING_GRADIENT[2]} />
+        </LinearGradient>
+      </Defs>
       {segments.map((isSeen, i) => (
         <Circle
           key={i}
@@ -36,7 +52,11 @@ export function RingArcs({size, seen}: {size: number; seen: boolean[]}) {
           cy={size / 2}
           r={r}
           fill="none"
-          stroke={isSeen ? t.atoms.border_contrast_low.borderColor : UNSEEN}
+          stroke={
+            isSeen
+              ? t.atoms.border_contrast_low.borderColor
+              : `url(#${gradientId})`
+          }
           strokeWidth={STROKE}
           strokeLinecap="round"
           strokeDasharray={`${Math.max(1, arc - gap)} ${c}`}

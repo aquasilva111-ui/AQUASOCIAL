@@ -6,6 +6,7 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native'
+import {useSafeAreaInsets} from 'react-native-safe-area-context'
 import {useNavigation} from '@react-navigation/native'
 
 import {openPicker, type PickerImage} from '#/lib/media/picker.shared'
@@ -20,10 +21,17 @@ import {
 } from '#/lib/stories/model'
 import {logger} from '#/logger'
 import {useCreateStoryMutation} from '#/state/queries/stories'
+import {useCurrentAccountProfile} from '#/state/queries/useCurrentAccountProfile'
 import * as Toast from '#/view/com/util/Toast'
-import {atoms as a, useTheme} from '#/alf'
+import {UserAvatar} from '#/view/com/util/UserAvatar'
+import {atoms as a} from '#/alf'
 import {Button, ButtonText} from '#/components/Button'
+import {ChevronLeft_Stroke2_Corner0_Rounded as BackIcon} from '#/components/icons/Chevron'
+import {EmojiSmile_Stroke2_Corner0_Rounded as StickerIcon} from '#/components/icons/Emoji'
+import {Image_Stroke2_Corner0_Rounded as PhotoIcon} from '#/components/icons/Image'
+import {PaperPlane_Stroke2_Corner0_Rounded as SendIcon} from '#/components/icons/PaperPlane'
 import * as Layout from '#/components/Layout'
+import {OnDarkIconButton} from '#/components/stories/OnDarkIconButton'
 import {OverlayView, StoryFrame} from '#/components/stories/StoryFrame'
 import {Text} from '#/components/Typography'
 
@@ -38,8 +46,9 @@ const STEP = 0.25
  * (not baked into the image), so they stay crisp and editable-by-data.
  */
 export function StoryCreatorScreen() {
-  const t = useTheme()
   const navigation = useNavigation<NavigationProp>()
+  const insets = useSafeAreaInsets()
+  const profile = useCurrentAccountProfile()
   const {width: winW, height: winH} = useWindowDimensions()
   const {mutateAsync: publish, isPending} = useCreateStoryMutation()
 
@@ -56,7 +65,7 @@ export function StoryCreatorScreen() {
 
   const canvasW = Math.max(
     180,
-    Math.min(winW - 32, (winH - 330) * (9 / 16), 380),
+    Math.min(winW - 32, (winH - 300) * (9 / 16), 380),
   )
   const selected = overlays.find(o => o.id === selectedId)
 
@@ -154,296 +163,354 @@ export function StoryCreatorScreen() {
     [mode, image, background, overlays],
   )
 
+  const restart = () => {
+    setMode('choose')
+    setImage(undefined)
+    setOverlays([])
+    setSelectedId(undefined)
+    setStickersOpen(false)
+  }
+
   return (
     <Layout.Screen testID="storyCreateScreen">
-      <Layout.Header.Outer>
-        <Layout.Header.BackButton />
-        <Layout.Header.Content>
-          <Layout.Header.TitleText>Novo story</Layout.Header.TitleText>
-        </Layout.Header.Content>
-        <Layout.Header.Slot />
-      </Layout.Header.Outer>
-      <Layout.KeyboardAwareContent>
-        <View style={[a.align_center, a.gap_lg, a.px_lg, a.py_lg]}>
-          {mode === 'choose' ? (
-            <Chooser onPhoto={pickPhoto} onText={() => setMode('text')} />
-          ) : (
-            <>
+      <View style={[a.flex_1, {backgroundColor: '#000'}]}>
+        <View
+          style={[
+            a.flex_row,
+            a.align_center,
+            a.justify_between,
+            a.px_md,
+            a.py_sm,
+          ]}>
+          <OnDarkIconButton
+            label={mode === 'choose' ? 'Voltar' : 'Descartar e recomeçar'}
+            icon={BackIcon}
+            disabled={isPending}
+            onPress={() =>
+              mode === 'choose' ? navigation.goBack() : restart()
+            }
+          />
+          {mode !== 'choose' && !editing && (
+            <View style={[a.flex_row, a.align_center, a.gap_xs]}>
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel="Área do story. Toque para desselecionar"
+                accessibilityLabel="Adicionar texto"
                 accessibilityHint=""
-                onPress={() => setSelectedId(undefined)}>
-                <View style={[a.rounded_lg, a.overflow_hidden]}>
-                  <StoryFrame
-                    story={story}
-                    width={canvasW}
-                    renderOverlay={(o, w, h) => (
-                      <DraggableOverlay
-                        key={o.id}
-                        overlay={o}
-                        width={w}
-                        height={h}
-                        selected={o.id === selectedId}
-                        onSelect={setSelectedId}
-                        onMove={move}
+                hitSlop={8}
+                onPress={() =>
+                  setEditing({text: '', color: '#FFFFFF', pill: false})
+                }
+                style={[
+                  a.align_center,
+                  a.justify_center,
+                  {width: 40, height: 40},
+                ]}>
+                <Text style={[a.text_xl, a.font_bold, {color: '#fff'}]}>
+                  Aa
+                </Text>
+              </Pressable>
+              <OnDarkIconButton
+                label="Adicionar figurinha"
+                icon={StickerIcon}
+                onPress={() => setStickersOpen(v => !v)}
+              />
+              {mode === 'photo' && (
+                <OnDarkIconButton
+                  label="Trocar foto"
+                  icon={PhotoIcon}
+                  onPress={pickPhoto}
+                />
+              )}
+            </View>
+          )}
+        </View>
+
+        <Layout.KeyboardAwareContent>
+          <View style={[a.align_center, a.gap_md, a.px_lg, a.pb_lg]}>
+            {mode === 'choose' ? (
+              <Chooser onPhoto={pickPhoto} onText={() => setMode('text')} />
+            ) : (
+              <>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Área do story. Toque para desselecionar"
+                  accessibilityHint=""
+                  onPress={() => setSelectedId(undefined)}>
+                  <View style={[a.rounded_lg, a.overflow_hidden]}>
+                    <StoryFrame
+                      story={story}
+                      width={canvasW}
+                      renderOverlay={(o, w, h) => (
+                        <DraggableOverlay
+                          key={o.id}
+                          overlay={o}
+                          width={w}
+                          height={h}
+                          selected={o.id === selectedId}
+                          onSelect={setSelectedId}
+                          onMove={move}
+                        />
+                      )}
+                    />
+                  </View>
+                </Pressable>
+
+                {editing ? (
+                  <TextEditor
+                    value={editing}
+                    onChange={setEditing}
+                    onDone={commitText}
+                    onCancel={() => setEditing(undefined)}
+                  />
+                ) : (
+                  <View style={[a.gap_md, a.align_center, {maxWidth: 420}]}>
+                    {mode === 'text' && (
+                      <Swatches
+                        label="Cor de fundo"
+                        colors={STORY_BACKGROUNDS}
+                        value={background}
+                        onPick={setBackground}
                       />
                     )}
-                  />
-                </View>
-              </Pressable>
 
-              {editing ? (
-                <TextEditor
-                  value={editing}
-                  onChange={setEditing}
-                  onDone={commitText}
-                  onCancel={() => setEditing(undefined)}
-                />
-              ) : (
-                <View style={[a.gap_md, a.align_center, {maxWidth: 420}]}>
-                  <View
-                    style={[
-                      a.flex_row,
-                      a.flex_wrap,
-                      a.gap_sm,
-                      a.justify_center,
-                    ]}>
-                    <Button
-                      label="Adicionar texto"
-                      size="small"
-                      color="secondary"
-                      onPress={() =>
-                        setEditing({text: '', color: '#FFFFFF', pill: false})
-                      }>
-                      <ButtonText>Aa Texto</ButtonText>
-                    </Button>
-                    <Button
-                      label="Adicionar figurinha"
-                      size="small"
-                      color={stickersOpen ? 'primary' : 'secondary'}
-                      onPress={() => setStickersOpen(v => !v)}>
-                      <ButtonText>Figurinha</ButtonText>
-                    </Button>
-                    {mode === 'photo' ? (
-                      <Button
-                        label="Trocar foto"
-                        size="small"
-                        color="secondary"
-                        onPress={pickPhoto}>
-                        <ButtonText>Trocar foto</ButtonText>
-                      </Button>
-                    ) : null}
-                  </View>
-
-                  {mode === 'text' && (
-                    <Swatches
-                      label="Cor de fundo"
-                      colors={STORY_BACKGROUNDS}
-                      value={background}
-                      onPick={setBackground}
-                    />
-                  )}
-
-                  {stickersOpen && (
-                    <View
-                      style={[
-                        a.flex_row,
-                        a.flex_wrap,
-                        a.gap_sm,
-                        a.justify_center,
-                      ]}>
-                      {STICKERS.map(emoji => (
-                        <Pressable
-                          key={emoji}
-                          accessibilityRole="button"
-                          accessibilityLabel={`Adicionar ${emoji}`}
-                          accessibilityHint=""
-                          onPress={() =>
-                            addOverlay({
-                              kind: 'sticker',
-                              text: emoji,
-                              x: 0.5,
-                              y: 0.5,
-                              scale: 1,
-                              color: '#FFFFFF',
-                            })
-                          }>
-                          <Text style={[a.text_3xl]}>{emoji}</Text>
-                        </Pressable>
-                      ))}
-                    </View>
-                  )}
-
-                  {selected && (
-                    <View
-                      style={[
-                        a.gap_sm,
-                        a.align_center,
-                        a.p_md,
-                        a.rounded_md,
-                        a.border,
-                        t.atoms.border_contrast_low,
-                      ]}>
-                      <Text style={[a.text_sm, t.atoms.text_contrast_medium]}>
-                        Arraste na imagem para mover
-                      </Text>
+                    {stickersOpen && (
                       <View
                         style={[
                           a.flex_row,
                           a.flex_wrap,
                           a.gap_sm,
                           a.justify_center,
+                          a.p_md,
+                          a.rounded_lg,
+                          {backgroundColor: 'rgba(255,255,255,0.1)'},
                         ]}>
-                        <Button
-                          label="Diminuir"
-                          size="small"
-                          color="secondary"
-                          disabled={selected.scale <= OVERLAY_LIMITS.scaleMin}
-                          onPress={() =>
-                            patch(selected.id, {
-                              scale: Math.max(
-                                OVERLAY_LIMITS.scaleMin,
-                                selected.scale - STEP,
-                              ),
-                            })
-                          }>
-                          <ButtonText>A−</ButtonText>
-                        </Button>
-                        <Button
-                          label="Aumentar"
-                          size="small"
-                          color="secondary"
-                          disabled={selected.scale >= OVERLAY_LIMITS.scaleMax}
-                          onPress={() =>
-                            patch(selected.id, {
-                              scale: Math.min(
-                                OVERLAY_LIMITS.scaleMax,
-                                selected.scale + STEP,
-                              ),
-                            })
-                          }>
-                          <ButtonText>A+</ButtonText>
-                        </Button>
-                        {selected.kind === 'text' && (
-                          <Button
-                            label="Editar texto"
-                            size="small"
-                            color="secondary"
+                        {STICKERS.map(emoji => (
+                          <Pressable
+                            key={emoji}
+                            accessibilityRole="button"
+                            accessibilityLabel={`Adicionar ${emoji}`}
+                            accessibilityHint=""
                             onPress={() =>
-                              setEditing({
-                                id: selected.id,
-                                text: selected.text,
-                                color: selected.color,
-                                pill: !!selected.pill,
+                              addOverlay({
+                                kind: 'sticker',
+                                text: emoji,
+                                x: 0.5,
+                                y: 0.5,
+                                scale: 1,
+                                color: '#FFFFFF',
                               })
                             }>
-                            <ButtonText>Editar</ButtonText>
-                          </Button>
-                        )}
-                        <Button
-                          label="Excluir item"
-                          size="small"
-                          color="negative_subtle"
-                          onPress={remove}>
-                          <ButtonText>Excluir</ButtonText>
-                        </Button>
+                            <Text style={[a.text_3xl]}>{emoji}</Text>
+                          </Pressable>
+                        ))}
                       </View>
-                      {selected.kind === 'text' && (
-                        <Swatches
-                          label="Cor do texto"
-                          colors={TEXT_COLORS}
-                          value={selected.color}
-                          onPick={c => patch(selected.id, {color: c})}
-                        />
-                      )}
-                    </View>
-                  )}
+                    )}
 
-                  <View style={[a.flex_row, a.gap_sm]}>
-                    <Button
-                      label="Recomeçar"
-                      size="large"
-                      color="secondary"
-                      disabled={isPending}
-                      onPress={() => {
-                        setMode('choose')
-                        setImage(undefined)
-                        setOverlays([])
-                        setSelectedId(undefined)
-                      }}>
-                      <ButtonText>Recomeçar</ButtonText>
-                    </Button>
-                    <Button
-                      label="Publicar story"
-                      size="large"
-                      color="primary"
-                      disabled={!!invalid || isPending}
-                      onPress={onPublish}>
-                      <ButtonText>
-                        {isPending ? 'Publicando…' : 'Publicar'}
-                      </ButtonText>
-                    </Button>
+                    {selected && (
+                      <View
+                        style={[
+                          a.gap_sm,
+                          a.align_center,
+                          a.p_md,
+                          a.rounded_md,
+                          {backgroundColor: 'rgba(255,255,255,0.1)'},
+                        ]}>
+                        <Text
+                          style={[a.text_sm, {color: 'rgba(255,255,255,0.7)'}]}>
+                          Arraste na imagem para mover
+                        </Text>
+                        <View
+                          style={[
+                            a.flex_row,
+                            a.flex_wrap,
+                            a.gap_sm,
+                            a.justify_center,
+                          ]}>
+                          <Button
+                            label="Diminuir"
+                            size="small"
+                            color="secondary"
+                            disabled={selected.scale <= OVERLAY_LIMITS.scaleMin}
+                            onPress={() =>
+                              patch(selected.id, {
+                                scale: Math.max(
+                                  OVERLAY_LIMITS.scaleMin,
+                                  selected.scale - STEP,
+                                ),
+                              })
+                            }>
+                            <ButtonText>A−</ButtonText>
+                          </Button>
+                          <Button
+                            label="Aumentar"
+                            size="small"
+                            color="secondary"
+                            disabled={selected.scale >= OVERLAY_LIMITS.scaleMax}
+                            onPress={() =>
+                              patch(selected.id, {
+                                scale: Math.min(
+                                  OVERLAY_LIMITS.scaleMax,
+                                  selected.scale + STEP,
+                                ),
+                              })
+                            }>
+                            <ButtonText>A+</ButtonText>
+                          </Button>
+                          {selected.kind === 'text' && (
+                            <Button
+                              label="Editar texto"
+                              size="small"
+                              color="secondary"
+                              onPress={() =>
+                                setEditing({
+                                  id: selected.id,
+                                  text: selected.text,
+                                  color: selected.color,
+                                  pill: !!selected.pill,
+                                })
+                              }>
+                              <ButtonText>Editar</ButtonText>
+                            </Button>
+                          )}
+                          <Button
+                            label="Excluir item"
+                            size="small"
+                            color="negative_subtle"
+                            onPress={remove}>
+                            <ButtonText>Excluir</ButtonText>
+                          </Button>
+                        </View>
+                        {selected.kind === 'text' && (
+                          <Swatches
+                            label="Cor do texto"
+                            colors={TEXT_COLORS}
+                            value={selected.color}
+                            onPick={c => patch(selected.id, {color: c})}
+                          />
+                        )}
+                      </View>
+                    )}
+
+                    {invalid && (
+                      <Text
+                        style={[
+                          a.text_sm,
+                          a.text_center,
+                          {color: 'rgba(255,255,255,0.7)'},
+                        ]}>
+                        {mode === 'text'
+                          ? 'Adicione um texto ou figurinha para publicar.'
+                          : 'Escolha uma foto para publicar.'}
+                      </Text>
+                    )}
                   </View>
-                  {invalid && (
-                    <Text style={[a.text_sm, t.atoms.text_contrast_medium]}>
-                      {mode === 'text'
-                        ? 'Adicione um texto ou figurinha para publicar.'
-                        : 'Escolha uma foto para publicar.'}
-                    </Text>
-                  )}
-                  <Text
-                    style={[
-                      a.text_xs,
-                      t.atoms.text_contrast_medium,
-                      a.text_center,
-                    ]}>
-                    Some em 24 horas. Para guardar, adicione a um destaque no
-                    seu perfil.
-                  </Text>
-                </View>
-              )}
-            </>
-          )}
-        </View>
-      </Layout.KeyboardAwareContent>
+                )}
+              </>
+            )}
+          </View>
+        </Layout.KeyboardAwareContent>
+
+        {mode !== 'choose' && !editing && (
+          <View
+            style={[
+              a.flex_row,
+              a.align_center,
+              a.justify_between,
+              a.px_lg,
+              a.pt_sm,
+              {paddingBottom: Math.max(insets.bottom, 12)},
+            ]}>
+            <View
+              style={[
+                a.flex_row,
+                a.align_center,
+                a.gap_sm,
+                a.rounded_full,
+                {
+                  height: 44,
+                  paddingLeft: 6,
+                  paddingRight: 16,
+                  backgroundColor: 'rgba(255,255,255,0.16)',
+                },
+              ]}>
+              <UserAvatar size={32} avatar={profile?.avatar} type="user" />
+              <Text style={[a.text_sm, a.font_bold, {color: '#fff'}]}>
+                Seu story
+              </Text>
+            </View>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Publicar story"
+              accessibilityHint=""
+              disabled={!!invalid || isPending}
+              onPress={onPublish}
+              style={[
+                a.align_center,
+                a.justify_center,
+                a.rounded_full,
+                {
+                  width: 48,
+                  height: 48,
+                  backgroundColor: '#fff',
+                  opacity: invalid || isPending ? 0.5 : 1,
+                },
+              ]}>
+              <SendIcon size="lg" fill="#111" />
+            </Pressable>
+          </View>
+        )}
+        {mode !== 'choose' && !editing && (
+          <Text
+            style={[
+              a.text_xs,
+              a.text_center,
+              a.pb_sm,
+              {color: 'rgba(255,255,255,0.55)'},
+            ]}>
+            Some em 24 horas. Para guardar, adicione a um destaque no seu
+            perfil.
+          </Text>
+        )}
+      </View>
     </Layout.Screen>
   )
 }
 
 function Chooser({onPhoto, onText}: {onPhoto: () => void; onText: () => void}) {
-  const t = useTheme()
-  const card = [
-    a.p_xl,
-    a.gap_xs,
+  const option = [
     a.align_center,
-    a.rounded_lg,
-    a.border,
-    t.atoms.border_contrast_low,
-    t.atoms.bg_contrast_25,
-    {width: 220},
+    a.justify_center,
+    a.gap_sm,
+    a.rounded_full,
+    {width: 150, height: 150, backgroundColor: 'rgba(255,255,255,0.12)'},
   ]
   return (
-    <View style={[a.align_center, a.gap_lg, {paddingTop: 24}]}>
-      <Text style={[a.text_2xl, a.font_bold, a.text_center]}>Criar story</Text>
-      <View style={[a.flex_row, a.flex_wrap, a.gap_md, a.justify_center]}>
-        <Button label="Criar story com foto" onPress={onPhoto} style={card}>
-          <Text style={[a.text_3xl]}>🖼️</Text>
-          <Text style={[a.text_lg, a.font_bold]}>Foto</Text>
-          <Text
-            style={[a.text_sm, t.atoms.text_contrast_medium, a.text_center]}>
-            Escolha da galeria e adicione texto e figurinhas
-          </Text>
+    <View style={[a.align_center, a.gap_xl, {paddingTop: 48}]}>
+      <Text style={[a.text_2xl, a.font_bold, a.text_center, {color: '#fff'}]}>
+        Novo story
+      </Text>
+      <View style={[a.flex_row, a.flex_wrap, a.gap_xl, a.justify_center]}>
+        <Button label="Criar story com foto" onPress={onPhoto} style={option}>
+          <PhotoIcon size="3xl" fill="#fff" />
+          <Text style={[a.text_md, a.font_bold, {color: '#fff'}]}>Foto</Text>
         </Button>
-        <Button label="Criar story só com texto" onPress={onText} style={card}>
-          <Text style={[a.text_3xl]}>Aa</Text>
-          <Text style={[a.text_lg, a.font_bold]}>Texto</Text>
-          <Text
-            style={[a.text_sm, t.atoms.text_contrast_medium, a.text_center]}>
-            Fundo colorido com sua mensagem
-          </Text>
+        <Button
+          label="Criar story só com texto"
+          onPress={onText}
+          style={option}>
+          <Text style={[a.font_bold, {color: '#fff', fontSize: 40}]}>Aa</Text>
+          <Text style={[a.text_md, a.font_bold, {color: '#fff'}]}>Texto</Text>
         </Button>
       </View>
+      <Text
+        style={[
+          a.text_sm,
+          a.text_center,
+          {color: 'rgba(255,255,255,0.65)', maxWidth: 320},
+        ]}>
+        Escolha uma foto da galeria ou crie um story com fundo colorido e sua
+        mensagem.
+      </Text>
     </View>
   )
 }
@@ -459,7 +526,6 @@ function Swatches({
   value: string
   onPick: (c: string) => void
 }) {
-  const t = useTheme()
   return (
     <View
       accessibilityRole="radiogroup"
@@ -481,10 +547,7 @@ function Swatches({
               height: 28,
               backgroundColor: c,
               borderWidth: c === value ? 3 : 1,
-              borderColor:
-                c === value
-                  ? t.palette.primary_500
-                  : t.atoms.border_contrast_low.borderColor,
+              borderColor: c === value ? '#fff' : 'rgba(255,255,255,0.35)',
             },
           ]}
         />
@@ -509,7 +572,6 @@ function TextEditor({
   onDone: () => void
   onCancel: () => void
 }) {
-  const t = useTheme()
   return (
     <View style={[a.gap_md, a.align_center, {width: '100%', maxWidth: 420}]}>
       <TextInput
@@ -519,7 +581,7 @@ function TextEditor({
         onChangeText={text => onChange({...value, text})}
         maxLength={OVERLAY_LIMITS.text}
         placeholder="Digite seu texto"
-        placeholderTextColor={t.atoms.text_contrast_low.color}
+        placeholderTextColor="rgba(255,255,255,0.5)"
         accessibilityLabel="Texto do story"
         accessibilityHint=""
         style={[
@@ -528,10 +590,12 @@ function TextEditor({
           a.rounded_md,
           a.border,
           a.text_lg,
-          t.atoms.text,
-          t.atoms.border_contrast_low,
-          t.atoms.bg_contrast_25,
-          {minHeight: 80},
+          {
+            minHeight: 80,
+            color: '#fff',
+            borderColor: 'rgba(255,255,255,0.35)',
+            backgroundColor: 'rgba(255,255,255,0.1)',
+          },
         ]}
       />
       <Swatches
