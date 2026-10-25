@@ -57,7 +57,10 @@ const toContract = (o: StoredOrder): Order => ({
   createdAt: o.createdAt,
   paymentMethod: 'pix',
   status: o.status,
-  pix: o.status === 'awaiting_payment' ? { payload: o.pixPayload, qrCodeBase64: o.pixQrCode, expiresAt: o.pixExpiresAt } : undefined,
+  pix:
+    o.status === 'awaiting_payment' && o.pixPayload && o.pixQrCode && o.pixExpiresAt
+      ? { payload: o.pixPayload, qrCodeBase64: o.pixQrCode, expiresAt: o.pixExpiresAt }
+      : undefined,
   demo: false,
 });
 
@@ -115,21 +118,8 @@ export function createOrdersService(deps: OrdersDeps) {
       const connection = await deps.connections.forShop(shopId);
       if (!connection) throw new OrderError('Esta loja ainda não conectou um provedor de pagamento', 422);
 
+      // Grava o pedido ANTES de cobrar: se a gravação falhar, ninguém recebe um Pix de pedido inexistente.
       const id = `ord_${newId()}`;
-      const createdAt = now().toISOString();
-      let charge;
-      try {
-        charge = await connection.provider.createCharge(connection.credential, {
-          orderId: id,
-          totalCents: cart.totalCents,
-          description: `Pedido AQUA Shops ${id.slice(4, 12)}`,
-          dueDate: dueDate(now()),
-          buyer: { name: input.buyer.name, email: input.buyer.email, cpfCnpj: input.buyer.cpfCnpj, phone: input.buyer.phone ?? '' },
-        });
-      } catch (error) {
-        throw new OrderError(error instanceof Error ? error.message : 'Falha ao gerar o Pix', 502);
-      }
-
       const stored: StoredOrder = {
         id,
         number: id.replace(/\D/g, '').slice(0, 8).padEnd(8, '0'),
@@ -141,14 +131,31 @@ export function createOrdersService(deps: OrdersDeps) {
         mercurCartId: cart.cartId,
         shippingCents,
         paymentProvider: connection.provider.name,
-        paymentId: charge.paymentId,
-        pixPayload: charge.pix.payload,
-        pixQrCode: charge.pix.qrCodeBase64,
-        pixExpiresAt: charge.pix.expiresAt,
-        createdAt,
+        createdAt: now().toISOString(),
       };
       await deps.store.insert(stored);
-      return toContract(stored);
+
+      try {
+        const charge = await connection.provider.createCharge(connection.credential, {
+          orderId: id,
+          totalCents: cart.totalCents,
+          description: `Pedido AQUA Shops ${id.slice(4, 12)}`,
+          dueDate: dueDate(now()),
+          buyer: { name: input.buyer.name, email: input.buyer.email, cpfCnpj: input.buyer.cpfCnpj, phone: input.buyer.phone ?? '' },
+        });
+        const attached = await deps.store.update(id, {
+          paymentId: charge.paymentId,
+          pixPayload: charge.pix.payload,
+          pixQrCode: charge.pix.qrCodeBase64,
+          pixExpiresAt: charge.pix.expiresAt,
+        });
+        return toContract(attached ?? { ...stored, paymentId: charge.paymentId, pixPayload: charge.pix.payload, pixQrCode: charge.pix.qrCodeBase64, pixExpiresAt: charge.pix.expiresAt });
+      } catch (error) {
+        // O erro do provedor (que pode citar CPF, chave ou conta da loja) fica só no log; o cliente recebe um texto genérico.
+        console.error(`Falha ao gerar a cobrança do pedido ${id} (${connection.provider.name}, loja ${shopId}):`, error);
+        await deps.store.transition(id, 'awaiting_payment', 'cancelled').catch(() => false);
+        throw new OrderError('Não foi possível gerar o pagamento. Tente novamente em instantes.', 502);
+      }
     },
 
     async get(id: string): Promise<Order | null> {
@@ -166,6 +173,23 @@ export function createOrdersService(deps: OrdersDeps) {
       if (!orderId.startsWith('ord_')) return 'ignored';
       const order = await deps.store.get(orderId);
       if (!order || order.shopId !== shopId || order.paymentProvider !== provider) return 'ignored';
+
+      // O webhook só avisa que algo mudou. Antes de marcar como pago, pergunta ao provedor da loja o status e o
+      // valor da cobrança. Isto vem ANTES de gastar o id do evento: se o provedor estiver fora do ar o erro
+      // sobe (5xx), o provedor reenvia o webhook e o pedido não fica preso.
+      if (event.kind === 'paid') {
+        if (order.status !== 'awaiting_payment') return 'duplicate';
+        if (!order.paymentId) throw new OrderError('A cobrança deste pedido ainda não foi registrada. Tente de novo.', 409);
+        const connection = await deps.connections.get(shopId, provider);
+        if (!connection) return 'ignored';
+        const charge = await connection.provider.getChargeStatus(connection.credential, order.paymentId);
+        if (charge.status !== 'paid') return 'ignored';
+        if (charge.amountCents !== undefined && charge.amountCents !== order.totalCents) {
+          console.error(`Pedido ${orderId}: o provedor informa ${charge.amountCents} centavos, o pedido é de ${order.totalCents}.`);
+          await deps.store.update(orderId, { failure: 'O valor pago no provedor não confere com o pedido. Confira no painel do provedor.' });
+          return 'ignored';
+        }
+      }
       if (!(await deps.store.recordEvent(`${provider}:${shopId}:${event.eventId}`))) return 'duplicate';
 
       if (event.kind === 'paid') {

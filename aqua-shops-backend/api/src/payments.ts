@@ -6,7 +6,7 @@
 // Fora do escopo por desenho: split, comissão descontada da venda, custódia e estorno. O estorno é
 // feito pelo lojista no provedor dele; a Aqua só reflete o estado (evento `refunded`).
 import { timingSafeEqual } from 'node:crypto';
-import type { AsaasClient } from './asaas.ts';
+import { fromReais, type AsaasClient } from './asaas.ts';
 
 /** Segredos da loja num provedor (chave de API, tokens OAuth...). Só existe decifrado em memória. */
 export type ShopCredential = Record<string, string>;
@@ -60,6 +60,13 @@ export interface Charge {
 
 export type ChargeStatus = 'pending' | 'paid' | 'expired' | 'cancelled' | 'refunded';
 
+/** O que o provedor da loja diz sobre uma cobrança. É a fonte da verdade, não o webhook. */
+export interface ChargeState {
+  status: ChargeStatus;
+  /** Valor da cobrança em centavos, quando o provedor informa. */
+  amountCents?: number;
+}
+
 /** O que a Aqua entende de um webhook, independente do provedor. */
 export interface PaymentEvent {
   /** Id único do evento, para ignorar entregas repetidas. */
@@ -81,8 +88,11 @@ export interface PaymentProvider {
   connect(input: ConnectInput, context: ConnectContext): Promise<ConnectResult>;
   /** Cria a cobrança na conta da loja, com a credencial dela. */
   createCharge(credential: ShopCredential, input: ChargeInput): Promise<Charge>;
-  /** Lê o estado de uma cobrança no provedor da loja (para reconciliar webhooks perdidos). */
-  getChargeStatus(credential: ShopCredential, paymentId: string): Promise<ChargeStatus>;
+  /**
+   * Lê o estado de uma cobrança no provedor da loja. O webhook só avisa que algo mudou: antes de marcar
+   * um pedido como pago, a API confirma aqui o status e o valor.
+   */
+  getChargeStatus(credential: ShopCredential, paymentId: string): Promise<ChargeState>;
   /** Confere se o webhook veio mesmo do provedor DESTA loja (segredo de webhook da loja). */
   verifyWebhook(webhookSecret: string, header: (name: string) => string | undefined, rawBody: string): boolean;
   /** Traduz o corpo do webhook; devolve null para eventos que não nos interessam. */
@@ -152,7 +162,10 @@ export function createAsaasProvider(clientFor: (apiKey: string) => AsaasApi): Pa
 
     async getChargeStatus(credential, paymentId) {
       const payment = await clientFor(keyOf(credential)).getPayment(paymentId);
-      return ASAAS_STATUS[payment.status] ?? 'pending';
+      return {
+        status: ASAAS_STATUS[payment.status] ?? 'pending',
+        ...(typeof payment.value === 'number' ? { amountCents: fromReais(payment.value) } : {}),
+      };
     },
 
     verifyWebhook(webhookSecret, header) {
@@ -181,19 +194,27 @@ export function createAsaasProvider(clientFor: (apiKey: string) => AsaasApi): Pa
 // ---- Provedor de mentira (desenvolvimento e testes) ----------------------------------------
 
 /** Não cobra nada. Gera um Pix falso e confere o webhook pelo segredo da loja no header x-fake-token. */
-export function createFakeProvider(): PaymentProvider & {
+export type FakeProvider = PaymentProvider & {
   /** Cobranças pedidas, com a credencial da loja usada em cada uma. */
   charges: Array<ChargeInput & { credential: ShopCredential }>;
   /** Estado devolvido por getChargeStatus (padrão: pending). */
   statuses: Map<string, ChargeStatus>;
-} {
+  /** Valor devolvido por getChargeStatus (padrão: não informa). */
+  amounts: Map<string, number>;
+  /** Faz getChargeStatus falhar, como se o provedor estivesse fora do ar. */
+  failStatusWith?: Error;
+};
+
+export function createFakeProvider(): FakeProvider {
   const charges: Array<ChargeInput & { credential: ShopCredential }> = [];
   const statuses = new Map<string, ChargeStatus>();
-  return {
+  const amounts = new Map<string, number>();
+  const self: FakeProvider = {
     name: 'fake',
     connectionKinds: ['api_key', 'oauth'],
     charges,
     statuses,
+    amounts,
     authorizationUrl: (redirectUri, state) => `https://fake.example/oauth?redirect_uri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(state)}`,
     async connect(input) {
       const token = input.kind === 'api_key' ? input.apiKey : input.code;
@@ -208,7 +229,9 @@ export function createFakeProvider(): PaymentProvider & {
       };
     },
     async getChargeStatus(_credential, paymentId) {
-      return statuses.get(paymentId) ?? 'pending';
+      if (self.failStatusWith) throw self.failStatusWith;
+      const amountCents = amounts.get(paymentId);
+      return { status: statuses.get(paymentId) ?? 'pending', ...(amountCents === undefined ? {} : { amountCents }) };
     },
     verifyWebhook(webhookSecret, header) {
       return sameSecret(header('x-fake-token') ?? '', webhookSecret);
@@ -218,4 +241,5 @@ export function createFakeProvider(): PaymentProvider & {
       return e?.id && e.orderId && e.kind ? { eventId: e.id, orderId: e.orderId, kind: e.kind } : null;
     },
   };
+  return self;
 }

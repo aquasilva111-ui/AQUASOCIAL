@@ -38,10 +38,11 @@ export interface StoredOrder {
   shippingCents: number;
   /** Provedor da loja que cobrou (asaas, mercadopago...) e o id da cobrança lá. */
   paymentProvider: string;
-  paymentId: string;
-  pixPayload: string;
-  pixQrCode: string;
-  pixExpiresAt: string;
+  /** Ausentes até a cobrança ser criada: o pedido é gravado ANTES de cobrar. */
+  paymentId?: string;
+  pixPayload?: string;
+  pixQrCode?: string;
+  pixExpiresAt?: string;
   mercurOrderGroupId?: string;
   failure?: string;
   createdAt: string;
@@ -51,7 +52,10 @@ export interface OrderStore {
   insert(order: StoredOrder): Promise<void>;
   get(id: string): Promise<StoredOrder | null>;
   /** Atualiza só os campos informados e devolve o pedido novo. */
-  update(id: string, patch: Partial<Pick<StoredOrder, 'status' | 'mercurOrderGroupId' | 'failure'>>): Promise<StoredOrder | null>;
+  update(
+    id: string,
+    patch: Partial<Pick<StoredOrder, 'status' | 'mercurOrderGroupId' | 'failure' | 'paymentId' | 'pixPayload' | 'pixQrCode' | 'pixExpiresAt'>>,
+  ): Promise<StoredOrder | null>;
   /** Troca o status só se o atual for `from`. Devolve true se trocou (evita processar duas vezes). */
   transition(id: string, from: OrderStatus, to: OrderStatus): Promise<boolean>;
   /** Registra o id do evento do webhook. Devolve false se já tinha chegado (entrega repetida). */
@@ -59,6 +63,8 @@ export interface OrderStore {
   /** Conexão da loja com um provedor (credencial e segredo de webhook cifrados). */
   getConnection(shopId: string, provider: string): Promise<ShopPaymentConnection | null>;
   listConnections(shopId: string): Promise<ShopPaymentConnection[]>;
+  /** Todas as conexões, para trocar a chave de cifra. */
+  listAllConnections(): Promise<ShopPaymentConnection[]>;
   /** Cria ou troca a conexão da loja naquele provedor. */
   saveConnection(connection: ShopPaymentConnection): Promise<void>;
 }
@@ -99,6 +105,9 @@ export function createMemoryStore(): OrderStore {
     },
     async listConnections(shopId) {
       return [...connections.values()].filter(c => c.shopId === shopId).map(c => structuredClone(c));
+    },
+    async listAllConnections() {
+      return [...connections.values()].map(c => structuredClone(c));
     },
     async saveConnection(connection) {
       connections.set(key(connection.shopId, connection.provider), structuredClone(connection));
@@ -154,7 +163,7 @@ type OrderRow = {
   status: OrderStatus;
   data: Omit<StoredOrder, 'id' | 'number' | 'status' | 'paymentProvider' | 'paymentId'>;
   payment_provider: string;
-  payment_id: string;
+  payment_id: string | null;
 };
 
 type ConnectionRow = {
@@ -185,7 +194,7 @@ export async function createPgStore(connectionString: string): Promise<OrderStor
     number: row.number,
     status: row.status,
     paymentProvider: row.payment_provider,
-    paymentId: row.payment_id,
+    ...(row.payment_id ? { paymentId: row.payment_id } : {}),
   });
 
   const getOrder = async (id: string): Promise<StoredOrder | null> => {
@@ -202,17 +211,18 @@ export async function createPgStore(connectionString: string): Promise<OrderStor
         status,
         JSON.stringify(data),
         paymentProvider,
-        paymentId,
+        paymentId ?? null,
       ]);
     },
     get: getOrder,
     async update(id, patch) {
-      const current = await getOrder(id);
-      if (!current) return null;
-      const next = { ...current, ...patch };
-      const { id: _i, number: _n, status, paymentProvider: _p, paymentId: _a, ...data } = next;
-      await pool.query('update aqua.orders set status = $2, data = $3, updated_at = now() where id = $1', [id, status, JSON.stringify(data)]);
-      return next;
+      // Atômico: só toca nos campos informados, para não pisar num status que um webhook acabou de mudar.
+      const { status, paymentId, ...rest } = patch;
+      const res = await pool.query(
+        'update aqua.orders set status = coalesce($2, status), data = data || $3::jsonb, payment_id = coalesce($4, payment_id), updated_at = now() where id = $1',
+        [id, status ?? null, JSON.stringify(rest), paymentId ?? null],
+      );
+      return (res.rowCount ?? 0) > 0 ? getOrder(id) : null;
     },
     async transition(id, from, to) {
       const res = await pool.query('update aqua.orders set status = $3, updated_at = now() where id = $1 and status = $2', [id, from, to]);
@@ -228,6 +238,10 @@ export async function createPgStore(connectionString: string): Promise<OrderStor
     },
     async listConnections(shopId) {
       const { rows } = await pool.query<ConnectionRow>('select * from aqua.shop_payment_connections where shop_id = $1 order by created_at', [shopId]);
+      return rows.map(rowToConnection);
+    },
+    async listAllConnections() {
+      const { rows } = await pool.query<ConnectionRow>('select * from aqua.shop_payment_connections order by shop_id, provider');
       return rows.map(rowToConnection);
     },
     async saveConnection(c) {

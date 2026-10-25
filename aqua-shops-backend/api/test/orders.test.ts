@@ -114,17 +114,57 @@ describe('criar pedido', () => {
     expect(provider.charges).toHaveLength(0);
   });
 
-  it('devolve 502 quando o provedor falha e não grava o pedido', async () => {
-    vi.spyOn(provider, 'createCharge').mockRejectedValue(new Error('CPF inválido'));
+  it('grava o pedido ANTES de cobrar: o pedido já existe quando o provedor é chamado', async () => {
+    let seen: Awaited<ReturnType<OrderStore['get']>> = null;
+    const original = provider.createCharge.bind(provider);
+    vi.spyOn(provider, 'createCharge').mockImplementation(async (credential, input) => {
+      seen = await store.get(input.orderId);
+      return original(credential, input);
+    });
+    const order = await make().create(cart);
+    expect(seen).toMatchObject({ id: 'ord_12345678-aaaa', status: 'awaiting_payment', shopId: 'sel_a' });
+    expect(seen).not.toHaveProperty('paymentId'); // ainda sem cobrança
+    const stored = (await store.get('ord_12345678-aaaa'))!;
+    expect(stored.paymentId).toBe('fake_ord_12345678-aaaa'); // gravada depois
+    expect(stored.pixPayload).toContain('FAKE');
+    expect(order.pix?.payload).toBe(stored.pixPayload);
+  });
+
+  it('se não conseguir gravar o pedido, não cobra nada', async () => {
+    vi.spyOn(store, 'insert').mockRejectedValue(new Error('banco fora do ar'));
+    await expect(make().create(cart)).rejects.toThrow('banco fora do ar');
+    expect(provider.charges).toHaveLength(0);
+  });
+
+  it('se a cobrança falhar, cancela o pedido e devolve mensagem genérica (o erro do provedor só vai para o log)', async () => {
+    const log = vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(provider, 'createCharge').mockRejectedValue(new Error('CPF 123.456.789-09 inválido na conta chave-secreta'));
     const err = await make().create(cart).catch(e => e);
     expect(err).toBeInstanceOf(OrderError);
     expect(err.status).toBe(502);
-    expect(await store.get('ord_12345678-aaaa')).toBeNull();
+    expect(err.message).not.toMatch(/CPF|chave-secreta/);
+    expect(log).toHaveBeenCalled();
+    expect((await store.get('ord_12345678-aaaa'))?.status).toBe('cancelled');
+    log.mockRestore();
+  });
+
+  it('se não conseguir registrar a cobrança depois de criada, cancela o pedido', async () => {
+    const log = vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(store, 'update').mockRejectedValue(new Error('banco caiu'));
+    await expect(make().create(cart)).rejects.toMatchObject({ status: 502 });
+    expect((await store.get('ord_12345678-aaaa'))?.status).toBe('cancelled');
+    log.mockRestore();
   });
 });
 
 describe('webhook da loja', () => {
-  const create = () => make().create(cart);
+  const chargeId = 'fake_ord_12345678-aaaa';
+  // O provedor da loja confirma o pagamento (é ele a fonte da verdade, não o webhook).
+  const create = async () => {
+    const order = await make().create(cart);
+    provider.statuses.set(chargeId, 'paid');
+    return order;
+  };
   const evt = (eventId: string, kind: 'paid' | 'expired' | 'cancelled' | 'refunded') => ({ eventId, orderId: 'ord_12345678-aaaa', kind });
 
   it('marca como pago e finaliza o carrinho no Mercur uma única vez', async () => {
@@ -138,6 +178,45 @@ describe('webhook da loja', () => {
     const o = await store.get('ord_12345678-aaaa');
     expect(o?.status).toBe('paid');
     expect(o?.mercurOrderGroupId).toBe('ordgrp_1');
+  });
+
+  it('não marca como pago se o provedor da loja não confirma (webhook com segredo certo não basta)', async () => {
+    await make().create(cart); // cobrança pendente no provedor
+    const svc = make();
+    expect(await svc.handleEvent('fake', 'sel_a', evt('e1', 'paid'))).toBe('ignored');
+    expect((await store.get('ord_12345678-aaaa'))?.status).toBe('awaiting_payment');
+    expect(checkout.complete).not.toHaveBeenCalled();
+    provider.statuses.set(chargeId, 'paid'); // depois o provedor confirma
+    expect(await svc.handleEvent('fake', 'sel_a', evt('e1', 'paid'))).toBe('paid'); // o mesmo evento ainda vale: não foi gasto
+  });
+
+  it('confere o valor com o provedor quando ele informa', async () => {
+    const log = vi.spyOn(console, 'error').mockImplementation(() => {});
+    await create(); // o pedido é de R$ 110,00 (item 10000 + frete 1000)
+    provider.amounts.set(chargeId, 100);
+    const svc = make();
+    expect(await svc.handleEvent('fake', 'sel_a', evt('e1', 'paid'))).toBe('ignored');
+    const o = await store.get('ord_12345678-aaaa');
+    expect(o?.status).toBe('awaiting_payment');
+    expect(o?.failure).toMatch(/valor/i);
+    provider.amounts.set(chargeId, 11000);
+    expect(await svc.handleEvent('fake', 'sel_a', evt('e2', 'paid'))).toBe('paid');
+    log.mockRestore();
+  });
+
+  it('se o provedor estiver fora do ar o erro sobe (para ele reenviar) e o evento não é gasto', async () => {
+    await create();
+    provider.failStatusWith = new Error('provedor fora do ar');
+    const svc = make();
+    await expect(svc.handleEvent('fake', 'sel_a', evt('e1', 'paid'))).rejects.toThrow('fora do ar');
+    expect((await store.get('ord_12345678-aaaa'))?.status).toBe('awaiting_payment');
+    provider.failStatusWith = undefined;
+    expect(await svc.handleEvent('fake', 'sel_a', evt('e1', 'paid'))).toBe('paid');
+  });
+
+  it('pago antes de a cobrança ser registrada: pede para o provedor tentar de novo', async () => {
+    await store.insert({ id: 'ord_sem_cobranca', number: '1', status: 'awaiting_payment', shopId: 'sel_a', buyer, items: [], totalCents: 1, mercurCartId: 'c', shippingCents: 0, paymentProvider: 'fake', createdAt: '2026-10-05T12:00:00Z' });
+    await expect(make().handleEvent('fake', 'sel_a', { eventId: 'e1', orderId: 'ord_sem_cobranca', kind: 'paid' })).rejects.toMatchObject({ status: 409 });
   });
 
   it('a loja só mexe nos próprios pedidos', async () => {

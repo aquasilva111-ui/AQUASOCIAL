@@ -106,13 +106,17 @@ conexão da loja e passa a credencial a cada chamada.
 | `webhook_secret_enc` | segredo de webhook **desta loja**, cifrado |
 
 A cifra é amarrada a `shop_id|provider` (AAD): copiar o texto cifrado de uma loja para outra não
-abre. A chave vem de `CONNECTION_ENCRYPTION_KEY` (32 bytes). Substitui `aqua.seller_wallets`, que
-era o recebedor de split de cada vendedor.
+abre. O texto cifrado carrega o id da chave (`v1.<kid>.<iv>.<tag>.<dados>`). A chave vem de
+`CONNECTION_ENCRYPTION_KEY` (32 bytes); na troca, a antiga fica em `CONNECTION_ENCRYPTION_KEY_OLD`
+só para leitura e `npm run rotate-keys` recifra tudo. Backup e rotação estão no README do backend.
+Substitui `aqua.seller_wallets`, que era o recebedor de split de cada vendedor.
 
 ### Webhooks
 
 `POST /webhooks/<provedor>/<shopId>`. A API busca a conexão da loja, valida com o segredo daquela
-loja e só então processa. Um evento só afeta pedidos da própria loja e do provedor que cobrou. O
+loja e só então processa. **O webhook não prova o pagamento:** antes de marcar um pedido como `paid`,
+a API consulta o provedor da loja (`getChargeStatus`) e exige status pago e, se o provedor informar,
+o mesmo valor do pedido. Um evento só afeta pedidos da própria loja e do provedor que cobrou. O
 id do evento (`provedor:loja:evento`) torna a entrega repetida inofensiva.
 
 ## Fluxo de compra
@@ -123,6 +127,9 @@ id do evento (`provedor:loja:evento`) torna a entrega repetida inofensiva.
 4. O comprador paga cada loja; o dinheiro cai direto na conta do lojista.
 5. O webhook da loja confirma: o pedido daquela loja vira `paid` e o estoque é baixado.
 6. O lojista envia e, se for o caso, estorna no provedor ou pelo conector. A Aqua só reflete.
+
+O pedido é gravado **antes** da cobrança: se a gravação falhar nada é cobrado, e se a cobrança
+falhar o pedido é cancelado.
 
 **Hoje (fase 0)**, `POST /orders` aceita itens de **uma loja** por compra e cobra na conta dela;
 carrinho com várias lojas (uma cobrança em cada) é a fase 3. Se a loja não conectou um provedor,

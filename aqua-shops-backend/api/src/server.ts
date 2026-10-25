@@ -35,7 +35,7 @@ let orders;
 let connections;
 if (env.DATABASE_URL && env.CONNECTION_ENCRYPTION_KEY && env.PUBLIC_API_URL) {
   const store = await createPgStore(env.DATABASE_URL);
-  connections = createConnections({ store, vault: createVault(env.CONNECTION_ENCRYPTION_KEY), providers, publicUrl: env.PUBLIC_API_URL });
+  connections = createConnections({ store, vault: createVault(env.CONNECTION_ENCRYPTION_KEY, env.CONNECTION_ENCRYPTION_KEY_OLD || undefined), providers, publicUrl: env.PUBLIC_API_URL });
   orders = createOrdersService({
     catalog,
     checkout: createMercurCheckout({ baseUrl: mercurUrl, publishableKey: env.MERCUR_PUBLISHABLE_KEY, currency: env.CURRENCY ?? 'brl' }),

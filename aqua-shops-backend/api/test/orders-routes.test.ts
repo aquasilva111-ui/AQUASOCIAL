@@ -9,8 +9,9 @@ import { createMemoryStore } from '../src/store.ts';
 const catalog = {} as Catalog;
 const service = (): { [K in keyof OrdersService]: ReturnType<typeof vi.fn> } => ({ create: vi.fn(), get: vi.fn(), handleEvent: vi.fn().mockResolvedValue('paid') });
 const build = async (svc = service()) => {
+  const store = createMemoryStore();
   const connections = createConnections({
-    store: createMemoryStore(),
+    store,
     vault: createVault('a'.repeat(64)),
     providers: [createFakeProvider()],
     publicUrl: 'https://api.test',
@@ -22,7 +23,7 @@ const build = async (svc = service()) => {
   // Cada loja tem o seu segredo de webhook.
   await connections.connect('loja_1', 'fake', { kind: 'api_key', apiKey: 'k1' });
   await connections.connect('loja_2', 'fake', { kind: 'api_key', apiKey: 'k2' });
-  return { svc, connections, app: createApp(catalog, { orders: svc as unknown as OrdersService, connections }) };
+  return { svc, store, connections, app: createApp(catalog, { orders: svc as unknown as OrdersService, connections }) };
 };
 const post = (app: ReturnType<typeof createApp>, path: string, body: unknown, headers: Record<string, string> = {}) =>
   app.request(path, { method: 'POST', body: typeof body === 'string' ? body : JSON.stringify(body), headers: { 'content-type': 'application/json', ...headers } });
@@ -84,5 +85,19 @@ describe('webhooks por loja', () => {
     expect((await post(app, '/webhooks/outro/loja_1', event)).status).toBe(404);
     expect((await post(app, '/webhooks/fake', event)).status).toBe(404); // a rota antiga, global, não existe mais
     expect((await post(createApp(catalog), '/webhooks/fake/loja_1', event)).status).toBe(503);
+  });
+
+  it('credencial da loja ilegível responde 500 com mensagem própria, não "Erro ao falar com o Mercur"', async () => {
+    const log = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const { store } = await build();
+    // Mesmo banco, chave de cifra diferente: simula a chave perdida.
+    const lost = createConnections({ store, vault: createVault('c'.repeat(64)), providers: [createFakeProvider()], publicUrl: 'https://api.test' });
+    const brokenApp = createApp(catalog, { orders: service() as unknown as OrdersService, connections: lost });
+    const res = await post(brokenApp, '/webhooks/fake/loja_1', event, auth('segredo-loja-1'));
+    expect(res.status).toBe(500);
+    const body = (await res.json()) as { message: string };
+    expect(body.message).toMatch(/ilegível/);
+    expect(body.message).not.toMatch(/Mercur/);
+    log.mockRestore();
   });
 });

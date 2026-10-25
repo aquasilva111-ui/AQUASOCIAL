@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createPgStore, type StoredOrder } from '../src/store.ts';
 
@@ -6,7 +7,8 @@ const url = process.env.TEST_DATABASE_URL;
 
 const order = (id: string): StoredOrder => ({
   id,
-  number: id.replace(/\D/g, '').slice(0, 8).padEnd(8, '0'),
+  // Único por id (a coluna number é unique); os ids de teste compartilham o mesmo prefixo de dígitos.
+  number: String(createHash('sha1').update(id).digest().readUInt32BE(0) % 1e8).padStart(8, '0'),
   status: 'awaiting_payment',
   shopId: 'sel_s',
   buyer: { email: 'a@example.test', name: 'T', cpfCnpj: '12345678909', phone: '0', city: 'C', address: 'R' },
@@ -57,6 +59,28 @@ describe.skipIf(!url)('PgOrderStore (Postgres real)', () => {
     expect(await store.recordEvent(eventId)).toBe(false);
   });
 
+  it('grava o pedido antes da cobrança: vários pedidos sem paymentId convivem e a cobrança é anexada depois', async () => {
+    const a = `${uid}_a`;
+    const b = `${uid}_b`;
+    const { paymentId: _x, pixPayload: _y, pixQrCode: _z, pixExpiresAt: _w, ...bare } = order(a);
+    await store.insert(bare);
+    await store.insert({ ...bare, id: b, number: order(b).number }); // payment_id é unique: dois NULL não podem colidir
+    expect((await store.get(a))?.paymentId).toBeUndefined();
+
+    const updated = await store.update(a, { paymentId: `pay_${a}`, pixPayload: '000201', pixQrCode: 'B64', pixExpiresAt: '2026-10-06' });
+    expect(updated).toMatchObject({ paymentId: `pay_${a}`, pixPayload: '000201', status: 'awaiting_payment' });
+    expect(await store.get(a)).toEqual(order(a));
+  });
+
+  it('update não pisa no status mudado por um webhook no meio do caminho', async () => {
+    const id = `${uid}_c`;
+    await store.insert(order(id));
+    await store.transition(id, 'awaiting_payment', 'paid'); // webhook chega
+    await store.update(id, { pixPayload: 'novo' }); // e só então o update de outros campos
+    expect((await store.get(id))?.status).toBe('paid');
+    expect(await store.update('nao-existe', { failure: 'x' })).toBeNull();
+  });
+
   it('guarda a conexão de cada loja por provedor e atualiza ao reconectar', async () => {
     const conn = (provider: string, credentialEnc: string) => ({ shopId: `loja_${uid}`, provider, accountId: 'acc_1', credentialEnc, webhookSecretEnc: 'seg', createdAt: new Date().toISOString() });
     await store.saveConnection(conn('asaas', 'v1.a'));
@@ -67,5 +91,6 @@ describe.skipIf(!url)('PgOrderStore (Postgres real)', () => {
     expect((await store.listConnections(`loja_${uid}`)).map(c => c.provider)).toEqual(['asaas', 'outro']);
     expect(await store.getConnection('sem-loja', 'asaas')).toBeNull();
     expect(await store.listConnections('sem-loja')).toEqual([]);
+    expect((await store.listAllConnections()).filter(c => c.shopId === `loja_${uid}`)).toHaveLength(2);
   });
 });

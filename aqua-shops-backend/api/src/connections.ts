@@ -2,7 +2,7 @@
 // cifrados (AES-256-GCM) antes de ir para o banco e só existem decifrados em memória, na hora de
 // cobrar ou validar um webhook. A cifra é amarrada a loja+provedor: copiar o texto cifrado de uma
 // loja para outra não abre.
-import { createCipheriv, createDecipheriv, randomBytes } from 'node:crypto';
+import { createCipheriv, createDecipheriv, createHash, randomBytes } from 'node:crypto';
 import type { ConnectInput, PaymentProvider, ShopCredential } from './payments.ts';
 import type { OrderStore } from './store.ts';
 
@@ -20,29 +20,74 @@ export interface ShopPaymentConnection {
 }
 
 export interface CredentialVault {
+  /** Id da chave atual (aparece no texto cifrado, para saber com qual chave abrir). */
+  readonly keyId: string;
   seal(plain: string, context: string): string;
   open(sealed: string, context: string): string;
+  /** true se o texto foi cifrado com outra chave que não a atual (precisa de rotação). */
+  needsRotation(sealed: string): boolean;
 }
 
-/** `key`: 32 bytes em hex (64 caracteres) ou base64. Gere com: openssl rand -hex 32 */
-export function createVault(key: string): CredentialVault {
+/** Falha ao abrir um texto cifrado: chave errada/perdida, contexto trocado ou dado corrompido. */
+export class VaultError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'VaultError';
+  }
+}
+
+const parseKey = (key: string): Buffer => {
   const raw = /^[0-9a-f]{64}$/i.test(key) ? Buffer.from(key, 'hex') : Buffer.from(key, 'base64');
-  if (raw.length !== 32) throw new Error('CONNECTION_ENCRYPTION_KEY deve ter 32 bytes (hex ou base64)');
+  if (raw.length !== 32) throw new Error('A chave de cifra deve ter 32 bytes (hex ou base64)');
+  return raw;
+};
+
+/** Identificador público e estável da chave (não revela a chave): 6 bytes do SHA-256, em base64url. */
+const fingerprint = (raw: Buffer) => createHash('sha256').update(raw).digest().subarray(0, 6).toString('base64url');
+
+/**
+ * Formato: `v1.<kid>.<iv>.<tag>.<dados>` (base64). `key` cifra tudo o que for novo; `oldKey` (opcional)
+ * só serve para LER o que foi cifrado antes de uma troca de chave. Gere chaves com: openssl rand -hex 32
+ */
+export function createVault(key: string, oldKey?: string): CredentialVault {
+  const current = parseKey(key);
+  const keyId = fingerprint(current);
+  const keys = new Map<string, Buffer>([[keyId, current]]);
+  if (oldKey) {
+    const old = parseKey(oldKey);
+    keys.set(fingerprint(old), old);
+  }
+
+  const split = (sealed: string) => {
+    const [version, kid, iv, tag, data, extra] = sealed.split('.');
+    if (version !== 'v1' || !kid || !iv || !tag || !data || extra !== undefined) throw new VaultError('Formato de credencial cifrada desconhecido');
+    return { kid, iv, tag, data };
+  };
+
   return {
+    keyId,
     seal(plain, context) {
       const iv = randomBytes(12);
-      const cipher = createCipheriv('aes-256-gcm', raw, iv);
+      const cipher = createCipheriv('aes-256-gcm', current, iv);
       cipher.setAAD(Buffer.from(context));
       const data = Buffer.concat([cipher.update(plain, 'utf8'), cipher.final()]);
-      return ['v1', iv.toString('base64'), cipher.getAuthTag().toString('base64'), data.toString('base64')].join('.');
+      return ['v1', keyId, iv.toString('base64'), cipher.getAuthTag().toString('base64'), data.toString('base64')].join('.');
     },
     open(sealed, context) {
-      const [version, iv, tag, data] = sealed.split('.');
-      if (version !== 'v1' || !iv || !tag || !data) throw new Error('Credencial cifrada inválida');
-      const decipher = createDecipheriv('aes-256-gcm', raw, Buffer.from(iv, 'base64'));
-      decipher.setAAD(Buffer.from(context));
-      decipher.setAuthTag(Buffer.from(tag, 'base64'));
-      return Buffer.concat([decipher.update(Buffer.from(data, 'base64')), decipher.final()]).toString('utf8');
+      const { kid, iv, tag, data } = split(sealed);
+      const raw = keys.get(kid);
+      if (!raw) throw new VaultError(`Sem a chave de cifra "${kid}" (CONNECTION_ENCRYPTION_KEY ou CONNECTION_ENCRYPTION_KEY_OLD)`);
+      try {
+        const decipher = createDecipheriv('aes-256-gcm', raw, Buffer.from(iv, 'base64'));
+        decipher.setAAD(Buffer.from(context));
+        decipher.setAuthTag(Buffer.from(tag, 'base64'));
+        return Buffer.concat([decipher.update(Buffer.from(data, 'base64')), decipher.final()]).toString('utf8');
+      } catch {
+        throw new VaultError('Credencial cifrada corrompida ou de outra loja');
+      }
+    },
+    needsRotation(sealed) {
+      return split(sealed).kid !== keyId;
     },
   };
 }
@@ -57,7 +102,7 @@ export interface OpenConnection {
 }
 
 export interface ConnectionsDeps {
-  store: Pick<OrderStore, 'getConnection' | 'listConnections' | 'saveConnection'>;
+  store: Pick<OrderStore, 'getConnection' | 'listConnections' | 'listAllConnections' | 'saveConnection'>;
   vault: CredentialVault;
   /** Drivers disponíveis. A loja escolhe um; não existe provedor global. */
   providers: PaymentProvider[];
@@ -70,7 +115,7 @@ export interface ConnectionsDeps {
 export class ConnectionError extends Error {
   constructor(
     message: string,
-    readonly status: 400 | 404 | 502,
+    readonly status: 400 | 404 | 500 | 502,
   ) {
     super(message);
     this.name = 'ConnectionError';
@@ -78,6 +123,9 @@ export class ConnectionError extends Error {
 }
 
 const context = (shopId: string, provider: string) => `${shopId}|${provider}`;
+
+/** Mensagem segura para o cliente; o motivo real vai só para o log. */
+const UNREADABLE = 'Credencial da loja ilegível. Fale com o suporte da Aqua.';
 
 export function createConnections(deps: ConnectionsDeps) {
   const publicUrl = deps.publicUrl.replace(/\/+$/, '');
@@ -89,13 +137,19 @@ export function createConnections(deps: ConnectionsDeps) {
     const provider = driver(row.provider);
     if (!provider) return null;
     const ctx = context(row.shopId, row.provider);
-    return {
-      shopId: row.shopId,
-      provider,
-      accountId: row.accountId,
-      credential: JSON.parse(deps.vault.open(row.credentialEnc, ctx)) as ShopCredential,
-      webhookSecret: deps.vault.open(row.webhookSecretEnc, ctx),
-    };
+    try {
+      return {
+        shopId: row.shopId,
+        provider,
+        accountId: row.accountId,
+        credential: JSON.parse(deps.vault.open(row.credentialEnc, ctx)) as ShopCredential,
+        webhookSecret: deps.vault.open(row.webhookSecretEnc, ctx),
+      };
+    } catch (error) {
+      // Quase sempre é a chave de cifra perdida ou trocada sem CONNECTION_ENCRYPTION_KEY_OLD.
+      console.error(`Não consegui abrir a credencial da loja ${row.shopId} (${row.provider}):`, error instanceof Error ? error.message : error);
+      throw new ConnectionError(UNREADABLE, 500);
+    }
   }
 
   return {
@@ -131,6 +185,30 @@ export function createConnections(deps: ConnectionsDeps) {
     async get(shopId: string, providerName: string): Promise<OpenConnection | null> {
       const row = await deps.store.getConnection(shopId, providerName);
       return row ? open(row) : null;
+    },
+
+    /**
+     * Cifra de novo, com a chave atual, tudo o que ainda está com outra chave. Rode depois de trocar
+     * CONNECTION_ENCRYPTION_KEY (com a antiga em CONNECTION_ENCRYPTION_KEY_OLD). Devolve quantas conexões
+     * foram regravadas. Quem não abre com nenhuma das chaves falha e nada é regravado.
+     */
+    async rotate(): Promise<number> {
+      let rotated = 0;
+      for (const row of await deps.store.listAllConnections()) {
+        const ctx = context(row.shopId, row.provider);
+        try {
+          if (!deps.vault.needsRotation(row.credentialEnc) && !deps.vault.needsRotation(row.webhookSecretEnc)) continue;
+          await deps.store.saveConnection({
+            ...row,
+            credentialEnc: deps.vault.seal(deps.vault.open(row.credentialEnc, ctx), ctx),
+            webhookSecretEnc: deps.vault.seal(deps.vault.open(row.webhookSecretEnc, ctx), ctx),
+          });
+        } catch (error) {
+          throw new ConnectionError(`${UNREADABLE} (${row.shopId}/${row.provider}: ${error instanceof Error ? error.message : error})`, 500);
+        }
+        rotated += 1;
+      }
+      return rotated;
     },
 
     /** A conexão que a loja usa para cobrar: a primeira cujo driver existe. Null se não conectou nada. */

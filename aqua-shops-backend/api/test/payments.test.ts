@@ -45,10 +45,11 @@ describe('conector do Asaas (conta do lojista)', () => {
   it('lê o estado da cobrança no Asaas da loja', async () => {
     const c = client();
     const p = createAsaasProvider(() => c);
-    expect(await p.getChargeStatus({ apiKey: 'k' }, 'pay_1')).toBe('paid');
+    c.getPayment.mockResolvedValueOnce({ id: 'pay_1', status: 'RECEIVED', value: 123.45 });
+    expect(await p.getChargeStatus({ apiKey: 'k' }, 'pay_1')).toEqual({ status: 'paid', amountCents: 12345 }); // valor em centavos
     for (const [asaas, ours] of [['PENDING', 'pending'], ['OVERDUE', 'expired'], ['REFUNDED', 'refunded'], ['ALGO_NOVO', 'pending']] as const) {
       c.getPayment.mockResolvedValueOnce({ id: 'pay_1', status: asaas, value: 0 });
-      expect(await p.getChargeStatus({ apiKey: 'k' }, 'pay_1')).toBe(ours);
+      expect((await p.getChargeStatus({ apiKey: 'k' }, 'pay_1')).status).toBe(ours);
     }
   });
 

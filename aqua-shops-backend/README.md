@@ -55,10 +55,21 @@ estorno feito pela Aqua (o lojista estorna no provedor dele; a API só reflete o
 da Aqua é cobrada do lojista à parte. Modelo completo em `../docs/aqua-shops.md`.
 
 Fluxo: `POST /orders` monta o carrinho no Mercur (itens por oferta e o frete mais barato do
-vendedor), cobra o total exato no provedor da loja com a credencial dela e devolve o QR Code Pix.
-Quando o webhook da loja confirma o pagamento, o mesmo carrinho é finalizado no Mercur (pedido do
-vendedor, estoque reservado). Se o Mercur não conseguir finalizar, o pedido continua `paid` com o
-motivo em `failure`, para o lojista resolver no provedor dele.
+vendedor), **grava o pedido** (`awaiting_payment`, ainda sem cobrança), cobra o total exato no
+provedor da loja com a credencial dela, anexa a cobrança ao pedido e devolve o QR Code Pix. Quando o
+webhook da loja chega, a API **pergunta ao provedor** se a cobrança está paga (e se o valor confere)
+antes de marcar o pedido como `paid`; só então o carrinho é finalizado no Mercur (pedido do vendedor,
+estoque reservado). Se o Mercur não conseguir finalizar, o pedido continua `paid` com o motivo em
+`failure`, para o lojista resolver no provedor dele.
+
+- **Pedido antes da cobrança.** Se a gravação falhar, nada é cobrado. Se a cobrança falhar, o pedido
+  vira `cancelled` e o cliente recebe uma mensagem genérica (o erro do provedor, que pode citar CPF ou
+  conta da loja, só vai para o log).
+- **O webhook não prova o pagamento.** Ter o segredo certo só diz que a chamada veio do provedor da
+  loja. O pedido só vira `paid` se `getChargeStatus` devolver `paid` e, quando o provedor informa o
+  valor, ele bater com o total do pedido (senão o pedido segue `awaiting_payment` com um aviso em
+  `failure`). Se o provedor estiver fora do ar, o webhook responde erro e o provedor reenvia; o id do
+  evento só é gasto depois da confirmação.
 
 - **Um conector por loja** (`src/payments.ts`): a interface `PaymentProvider` é só o "driver" do
   provedor (conectar por OAuth/chave, criar cobrança, ler status, validar e traduzir webhook). Toda
@@ -66,7 +77,8 @@ motivo em `failure`, para o lojista resolver no provedor dele.
   do lojista, sem split; ainda sem validação em sandbox) e `fake` (só desenvolvimento). Não há
   conectores reais completos ainda: é a fase 2.
 - **Conexões** (`src/connections.ts`): a credencial e o segredo de webhook de cada loja ficam
-  cifrados (AES-256-GCM, amarrados a loja+provedor) em `aqua.shop_payment_connections`. Ainda não
+  cifrados (AES-256-GCM, amarrados a loja+provedor) em `aqua.shop_payment_connections`, no formato
+  `v1.<id da chave>.<iv>.<tag>.<dados>`. Veja "Backup e troca da chave" abaixo. Ainda não
   há rota HTTP para o lojista conectar (fase 2); por ora a conexão é criada pelo serviço
   `connections.connect(...)`.
 - **Webhooks por loja**: `POST /webhooks/<provedor>/<shopId>`, validado com o segredo daquela loja
@@ -80,7 +92,9 @@ motivo em `failure`, para o lojista resolver no provedor dele.
 - Variáveis (`ASAAS_BASE_URL` é opcional, sandbox por padrão):
   - `DATABASE_URL`: Postgres dos pedidos e das conexões.
   - `CONNECTION_ENCRYPTION_KEY`: 32 bytes em hex ou base64 (`openssl rand -hex 32`). **Quem perder
-    esta chave perde as credenciais das lojas**; guarde fora do servidor.
+    esta chave perde as credenciais das lojas**; veja "Backup e troca da chave".
+  - `CONNECTION_ENCRYPTION_KEY_OLD`: opcional. Chave anterior, só para LER o que ainda não foi
+    recifrado durante uma troca.
   - `PUBLIC_API_URL`: endereço público da API, para montar o webhook de cada loja.
   - `ENABLE_FAKE_PAYMENTS=true`: registra o driver `fake` (não cobra nada).
   - `PAYMENT_PROVIDER`, `ASAAS_API_KEY`, `ASAAS_WEBHOOK_TOKEN`, `COMMISSION_BPS` e
@@ -88,12 +102,39 @@ motivo em `failure`, para o lojista resolver no provedor dele.
   Sem `DATABASE_URL`, `CONNECTION_ENCRYPTION_KEY` e `PUBLIC_API_URL` a API serve só o catálogo e
   `/orders` responde 503.
 - Pedidos ficam no esquema `aqua` do Postgres (`orders`, `webhook_events`,
-  `shop_payment_connections`). A migração apaga `seller_wallets` (recebedores do split antigo, que
+  `shop_payment_connections`). A migração (testada num banco vazio e nos dois esquemas antigos) apaga `seller_wallets` (recebedores do split antigo, que
   nunca rodou com vendedor real) e renomeia os estados antigos (`pending_payment` vira
   `awaiting_payment`, `expired` vira `cancelled`, `failed` vira `paid`).
 - O Mercur precisa ter frete para o Brasil. `seed-brl.ts` acrescenta `br` às zonas de entrega de
   exemplo; vendedores reais cadastram as suas no painel.
-- Testes: `npm test` (65 passando; os 5 de Postgres real rodam com `TEST_DATABASE_URL`).
+- Testes: `npm test`. Os de Postgres real (`store.pg.test.ts` e `migration.pg.test.ts`) só rodam com
+  `TEST_DATABASE_URL`, por exemplo contra um Postgres descartável (o de migração cria e apaga os
+  próprios bancos; precisa de permissão `createdb`):
+  `docker run -d --rm --name aqua-pg-test -e POSTGRES_USER=aqua -e POSTGRES_PASSWORD=test -e POSTGRES_DB=aqua_test -p 127.0.0.1:55432:5432 postgres:16-alpine`
+  e `TEST_DATABASE_URL=postgres://aqua:test@127.0.0.1:55432/aqua_test npm test`.
+
+### Backup e troca da chave de cifra
+
+As credenciais das lojas só abrem com `CONNECTION_ENCRYPTION_KEY`. Sem a chave elas ficam ilegíveis
+para sempre (a API responde 500 "Credencial da loja ilegível" nos webhooks e pedidos dessa loja, e
+registra no log qual id de chave está faltando). Não existe recuperação: o lojista teria de conectar o
+provedor de novo.
+
+- **Backup:** guarde a chave num cofre de segredos/gerenciador de senhas, **separada** do backup do
+  banco (quem tem os dois abre tudo). Faça backup do Postgres normalmente; as credenciais já estão
+  cifradas nele. Teste a restauração com a chave guardada, não com a do servidor.
+- **O id da chave** (`kid`) aparece no texto cifrado e no log de erro. Ele é derivado da chave e não a
+  revela; serve para descobrir qual chave está faltando.
+- **Trocar a chave** (por vazamento, rotina ou troca de pessoas):
+  1. gere a nova: `openssl rand -hex 32`;
+  2. suba a API com `CONNECTION_ENCRYPTION_KEY=<nova>` e `CONNECTION_ENCRYPTION_KEY_OLD=<antiga>`
+     (a API passa a cifrar com a nova e continua lendo o que está com a antiga);
+  3. recifre tudo: `npm run rotate-keys` (com `DATABASE_URL` e as duas variáveis). Mostra quantas
+     conexões foram regravadas; se alguma não abrir com nenhuma das chaves, falha e não grava nada;
+     rodar de novo é seguro;
+  4. confira com `select distinct split_part(credential_enc, '.', 2) from aqua.shop_payment_connections;`
+     (deve sobrar um id só) e então remova `CONNECTION_ENCRYPTION_KEY_OLD`. Guarde a antiga até o
+     próximo backup do banco já estar recifrado.
 
 ## O que falta
 

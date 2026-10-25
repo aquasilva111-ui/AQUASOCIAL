@@ -3,7 +3,7 @@ import { cors } from 'hono/cors';
 import type { ProductQuery, SortOrder } from '../../../aqua-shops/shared/types/index.ts';
 import type { Catalog } from './catalog.ts';
 import { OrderError, type OrdersService } from './orders.ts';
-import type { Connections } from './connections.ts';
+import { ConnectionError, type Connections } from './connections.ts';
 
 const SORTS: SortOrder[] = ['new', 'price_asc', 'price_desc'];
 
@@ -74,6 +74,8 @@ export function createApp(catalog: Catalog, options: AppOptions = {}) {
 
   app.onError((err, c) => {
     if (err instanceof OrderError) return c.json({ message: err.message }, err.status);
+    // Credencial de loja ilegível (chave de cifra perdida/trocada): erro nosso, com mensagem própria.
+    if (err instanceof ConnectionError) return c.json({ message: err.message }, err.status);
     console.error(err);
     return c.json({ message: 'Erro ao falar com o Mercur' }, 502);
   });
