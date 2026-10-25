@@ -45,6 +45,7 @@ export function Controls({
   fullscreenRef,
   hlsLoading,
   hasSubtitleTrack,
+  hideTimeIndicator,
 }: {
   videoRef: React.RefObject<HTMLVideoElement | null>
   hlsRef: React.RefObject<Hls | undefined | null>
@@ -56,6 +57,8 @@ export function Controls({
   fullscreenRef: React.RefObject<HTMLDivElement | null>
   hlsLoading: boolean
   hasSubtitleTrack: boolean
+  /** The Aqua action bar sits in this corner, with its own duration chip. */
+  hideTimeIndicator?: boolean
 }) {
   const {
     play,
@@ -327,7 +330,7 @@ export function Controls({
         ]}
         onPress={onPressEmptySpace}
       />
-      {!showControls && !focused && duration > 0 && (
+      {!hideTimeIndicator && !showControls && !focused && duration > 0 && (
         <TimeIndicator time={Math.floor(duration - currentTime)} />
       )}
       <View

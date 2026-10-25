@@ -27,6 +27,7 @@ import * as Menu from '#/components/Menu'
 import {BookmarkButton} from '#/components/PostControls/BookmarkButton'
 import {ShareMenuButton} from '#/components/PostControls/ShareMenu'
 import {Text} from '#/components/Typography'
+import {aquaGlass, GLASS_ICON} from './glass'
 import {AQUA} from './palette'
 import {usePostReaction} from './plugins'
 
@@ -39,8 +40,8 @@ export type AquaLogContext =
   | 'ImmersiveVideo'
 
 /**
- * The four notch icons. Repost, quote, and save stay on the react menu so
- * those handlers are still one tap away without a fifth icon in the cut-out.
+ * Like, reply, send, and react, each in a glass capsule. Repost, quote, and
+ * save stay on the react menu.
  */
 export function AquaActionRow({
   post,
@@ -83,16 +84,17 @@ export function AquaActionRow({
   const {_} = useLingui()
   const playHaptic = useHaptics()
   const {emoji, setReaction} = usePostReaction(post.uri)
-  const iconColor = t.name === 'light' ? AQUA.ink : t.atoms.text.color
+  const light = t.name === 'light'
+  const iconColor = light ? AQUA.ink : t.atoms.text.color
 
   return (
     <EventStopper onKeyDown={false}>
-      <View style={[a.flex_row, a.align_center]}>
+      <View style={[a.flex_row, a.align_center, {gap: 6}]}>
         <IconButton testID="likeBtn" label={likeLabel} onPress={onLike}>
           {liked ? (
-            <HeartFilled width={22} height={22} style={{color: AQUA.like}} />
+            <HeartFilled width={21} height={21} style={{color: AQUA.like}} />
           ) : (
-            <HeartOutline width={22} height={22} style={{color: iconColor}} />
+            <HeartOutline width={21} height={21} style={{color: iconColor}} />
           )}
         </IconButton>
         <IconButton
@@ -108,8 +110,8 @@ export function AquaActionRow({
                 }
           }>
           <ReplyIcon
-            width={22}
-            height={22}
+            width={21}
+            height={21}
             style={{color: iconColor, opacity: replyDisabled ? 0.4 : 1}}
           />
         </IconButton>
@@ -124,6 +126,7 @@ export function AquaActionRow({
           onShare={onShare}
           icon={PaperPlane}
           iconColor={iconColor}
+          glass
         />
         <Menu.Root>
           <Menu.Trigger label={_(msg`React to this post`)}>
@@ -139,8 +142,8 @@ export function AquaActionRow({
                   <Text style={{fontSize: 18}}>{emoji}</Text>
                 ) : (
                   <EmojiSmile
-                    width={22}
-                    height={22}
+                    width={21}
+                    height={21}
                     style={{color: iconColor}}
                   />
                 )}
@@ -204,12 +207,24 @@ function IconButton({
 }: Omit<ComponentProps<typeof Button>, 'children'> & {
   children: ReactElement
 }) {
+  const t = useTheme()
+  const light = t.name === 'light'
   return (
     <Button
       {...rest}
       hitSlop={6}
-      style={[a.align_center, a.justify_center, {width: 34, height: 34}]}
-      hoverStyle={a.bg_transparent}>
+      style={[
+        a.align_center,
+        a.justify_center,
+        a.rounded_full,
+        aquaGlass(light),
+        {width: GLASS_ICON, height: GLASS_ICON},
+      ]}
+      hoverStyle={{
+        backgroundColor: light
+          ? 'rgba(255,255,255,0.8)'
+          : 'rgba(15,23,42,0.85)',
+      }}>
       {children}
     </Button>
   )

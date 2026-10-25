@@ -105,7 +105,6 @@ function MediaCardInner({
                   {
                     aspectRatio: 16 / 9,
                     borderRadius: AQUA_RADIUS.media,
-                    borderBottomLeftRadius: 0,
                     backgroundColor: '#16324a',
                   },
                 ]}>
@@ -187,7 +186,6 @@ function MediaCardInner({
                 {
                   aspectRatio,
                   borderRadius: AQUA_RADIUS.media,
-                  borderBottomLeftRadius: 0,
                 },
               ]}>
               <Image

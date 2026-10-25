@@ -53,7 +53,7 @@ import {VerificationCheck} from '#/components/verification/VerificationCheck'
 import * as bsky from '#/types/bsky'
 import {LikeCapsule, LikedByLine} from './LikeCapsule'
 import {AquaMediaChrome} from './MediaChrome'
-import {aquaMediaKind, postOrigin, videoEmbedOf} from './model'
+import {aquaMediaKind, externalPreview, postOrigin, videoEmbedOf} from './model'
 import {OriginBadge} from './OriginBadge'
 import {AQUA, AQUA_RADIUS} from './palette'
 import {useWhySeeingThis} from './plugins'
@@ -190,7 +190,6 @@ export function AquaPostCard({
   const chrome = bleed ? (
     <AquaMediaChrome
       placement="card"
-      notchColor={cardBg}
       actions={controls}
       capsule={capsule}
       sparkle={sparkle}
@@ -205,6 +204,14 @@ export function AquaPostCard({
     {color: ink},
     kind === 'video' && a.font_bold,
   ]
+  const preview = richText.text ? undefined : externalPreview(post.embed)
+  const showAbove =
+    bleed &&
+    (!!richText.text ||
+      !!views ||
+      !!notices ||
+      !!preview?.title ||
+      !!preview?.description)
 
   return (
     <View
@@ -212,6 +219,7 @@ export function AquaPostCard({
         {
           backgroundColor: cardBg,
           borderRadius: AQUA_RADIUS.card,
+          overflow: bleed ? 'hidden' : undefined,
           borderWidth: bleed ? 0 : 1,
           borderColor: light
             ? AQUA.line
@@ -239,6 +247,86 @@ export function AquaPostCard({
             additionalCauses={hiddenReplyAlerts}
           />
         )}
+        {showAbove ? (
+          <View
+            style={{paddingHorizontal: 16, paddingTop: 14, paddingBottom: 10}}>
+            {notices}
+            <LabelsOnMyPost post={post} style={[a.pb_xs]} />
+            <PostAlerts
+              modui={moderation.ui(moderationContext)}
+              size={alertSize}
+              includeMute={includeMute}
+              style={[a.pb_2xs]}
+              additionalCauses={hiddenReplyAlerts}
+            />
+            {richText.text ? (
+              <View>
+                <Text
+                  emoji
+                  selectable={selectable}
+                  testID="postText"
+                  numberOfLines={limit ? lines : undefined}
+                  style={textStyle}>
+                  {kind !== 'video' ? (
+                    <Text
+                      style={[a.font_bold, {fontWeight: '800', color: ink}]}>
+                      {displayName}{' '}
+                    </Text>
+                  ) : null}
+                  <RichText
+                    enableTags
+                    selectable={selectable}
+                    value={richText}
+                    style={textStyle}
+                    authorHandle={post.author.handle}
+                    shouldProxyLinks
+                  />
+                </Text>
+                {limit ? (
+                  <Button
+                    label={_(msg`Show more`)}
+                    onPress={() => setExpanded(true)}
+                    style={[a.self_start, a.mt_2xs]}>
+                    {({hovered}) => (
+                      <Text
+                        style={[
+                          a.text_sm,
+                          {
+                            color: muted,
+                            textDecorationLine: hovered ? 'underline' : 'none',
+                          },
+                        ]}>
+                        {_(msg`…more`)}
+                      </Text>
+                    )}
+                  </Button>
+                ) : null}
+              </View>
+            ) : preview ? (
+              <View style={{gap: 4}}>
+                {preview.title ? (
+                  <Text
+                    emoji
+                    style={[a.font_bold, {fontWeight: '800', color: ink}]}>
+                    {preview.title}
+                  </Text>
+                ) : null}
+                {preview.description ? (
+                  <Text
+                    emoji
+                    numberOfLines={2}
+                    style={[a.text_sm, a.leading_snug, {color: muted}]}>
+                    {preview.description}
+                  </Text>
+                ) : null}
+              </View>
+            ) : null}
+            {views ? (
+              <Text style={[a.text_sm, {color: muted}]}>{views}</Text>
+            ) : null}
+            <LikedByLine postUri={post.uri} likeCount={post.likeCount ?? 0} />
+          </View>
+        ) : null}
         {bleed && post.embed ? (
           <Embed
             embed={post.embed}
@@ -270,114 +358,99 @@ export function AquaPostCard({
             viewContext={viewContext}
           />
         ) : null}
-        <View
-          style={
-            bleed
-              ? {paddingHorizontal: 16, paddingTop: 12, paddingBottom: 16}
-              : undefined
-          }>
-          {bleed ? (
-            <>
-              {notices}
-              <LabelsOnMyPost post={post} style={[a.pb_xs]} />
-              <PostAlerts
-                modui={moderation.ui(moderationContext)}
-                size={alertSize}
-                includeMute={includeMute}
-                style={[a.pb_2xs]}
-                additionalCauses={hiddenReplyAlerts}
-              />
-            </>
-          ) : null}
-          {kind !== 'none' && richText.text ? (
-            <View style={bleed ? undefined : [a.mt_sm]}>
-              <Text
-                emoji
-                selectable={selectable}
-                testID="postText"
-                numberOfLines={limit ? lines : undefined}
-                style={textStyle}>
-                {kind !== 'video' ? (
-                  <Text style={[a.font_bold, {fontWeight: '800', color: ink}]}>
-                    {displayName}{' '}
-                  </Text>
-                ) : null}
-                <RichText
-                  enableTags
-                  selectable={selectable}
-                  value={richText}
-                  style={textStyle}
-                  authorHandle={post.author.handle}
-                  shouldProxyLinks
-                />
-              </Text>
-              {limit ? (
-                <Button
-                  label={_(msg`Show more`)}
-                  onPress={() => setExpanded(true)}
-                  style={[a.self_start, a.mt_2xs]}>
-                  {({hovered}) => (
-                    <Text
-                      style={[
-                        a.text_sm,
-                        {
-                          color: muted,
-                          textDecorationLine: hovered ? 'underline' : 'none',
-                        },
-                      ]}>
-                      {_(msg`…more`)}
-                    </Text>
-                  )}
-                </Button>
-              ) : null}
-            </View>
-          ) : null}
-          {kind === 'none' && limit ? (
-            <Button
-              label={_(msg`Show more`)}
-              onPress={() => setExpanded(true)}
-              style={a.self_start}>
-              {({hovered}) => (
+        {bleed ? null : (
+          <View>
+            {kind !== 'none' && richText.text ? (
+              <View style={bleed ? undefined : [a.mt_sm]}>
                 <Text
-                  style={[
-                    a.text_sm,
-                    {
-                      color: muted,
-                      textDecorationLine: hovered ? 'underline' : 'none',
-                    },
-                  ]}>
-                  {_(msg`…more`)}
+                  emoji
+                  selectable={selectable}
+                  testID="postText"
+                  numberOfLines={limit ? lines : undefined}
+                  style={textStyle}>
+                  {kind !== 'video' ? (
+                    <Text
+                      style={[a.font_bold, {fontWeight: '800', color: ink}]}>
+                      {displayName}{' '}
+                    </Text>
+                  ) : null}
+                  <RichText
+                    enableTags
+                    selectable={selectable}
+                    value={richText}
+                    style={textStyle}
+                    authorHandle={post.author.handle}
+                    shouldProxyLinks
+                  />
                 </Text>
-              )}
-            </Button>
-          ) : null}
-          {views ? (
-            <Text style={[a.text_sm, {color: muted}]}>{views}</Text>
-          ) : null}
-          <LikedByLine postUri={post.uri} likeCount={post.likeCount ?? 0} />
-          {kind === 'none' ? (
-            <View
-              style={[
-                a.flex_row,
-                a.align_center,
-                a.mt_sm,
-                a.pl_2xs,
-                a.pr_sm,
-                {
-                  minHeight: 50,
-                  borderRadius: 25,
-                  backgroundColor: light
-                    ? AQUA.surface
-                    : t.atoms.bg_contrast_25.backgroundColor,
-                },
-              ]}>
-              {controls}
-              {sparkle}
-              <View style={a.flex_1} />
-              {capsule}
-            </View>
-          ) : null}
-        </View>
+                {limit ? (
+                  <Button
+                    label={_(msg`Show more`)}
+                    onPress={() => setExpanded(true)}
+                    style={[a.self_start, a.mt_2xs]}>
+                    {({hovered}) => (
+                      <Text
+                        style={[
+                          a.text_sm,
+                          {
+                            color: muted,
+                            textDecorationLine: hovered ? 'underline' : 'none',
+                          },
+                        ]}>
+                        {_(msg`…more`)}
+                      </Text>
+                    )}
+                  </Button>
+                ) : null}
+              </View>
+            ) : null}
+            {kind === 'none' && limit ? (
+              <Button
+                label={_(msg`Show more`)}
+                onPress={() => setExpanded(true)}
+                style={a.self_start}>
+                {({hovered}) => (
+                  <Text
+                    style={[
+                      a.text_sm,
+                      {
+                        color: muted,
+                        textDecorationLine: hovered ? 'underline' : 'none',
+                      },
+                    ]}>
+                    {_(msg`…more`)}
+                  </Text>
+                )}
+              </Button>
+            ) : null}
+            {views ? (
+              <Text style={[a.text_sm, {color: muted}]}>{views}</Text>
+            ) : null}
+            <LikedByLine postUri={post.uri} likeCount={post.likeCount ?? 0} />
+            {kind === 'none' ? (
+              <View
+                style={[
+                  a.flex_row,
+                  a.align_center,
+                  a.mt_sm,
+                  {
+                    gap: 6,
+                    minHeight: 50,
+                    padding: 6,
+                    borderRadius: 25,
+                    backgroundColor: light
+                      ? AQUA.surface
+                      : t.atoms.bg_contrast_25.backgroundColor,
+                  },
+                ]}>
+                {controls}
+                {sparkle}
+                <View style={a.flex_1} />
+                {capsule}
+              </View>
+            ) : null}
+          </View>
+        )}
       </ContentHider>
       {trailing}
       <WhySheet control={whyControl} data={why} />
@@ -458,7 +531,9 @@ function AquaPostHeader({
               right: 0,
               zIndex: 4,
               paddingTop: 16,
-              paddingHorizontal: 16,
+              paddingLeft: 16,
+              // Room for the star capsule pinned to the top-right of the photo.
+              paddingRight: 58,
               paddingBottom: 34,
             }
           : [a.mb_md, a.z_20],

@@ -20,7 +20,7 @@ export type CommonProps = {
   viewContext?: PostEmbedViewContext
   isWithinQuote?: boolean
   allowNestedQuotes?: boolean
-  /** White-notch chrome drawn over photos, video, and article covers. */
+  /** Glass action bar drawn over photos, video, and article covers. */
   mediaChrome?: ReactNode
   /**
    * Media sits flush with the post card. The card's own radius clips the

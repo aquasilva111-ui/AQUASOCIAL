@@ -3,9 +3,10 @@ import {msg} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 
 import {UserAvatar} from '#/view/com/util/UserAvatar'
-import {atoms as a, useTheme, web} from '#/alf'
+import {atoms as a, useTheme} from '#/alf'
 import {useFormatPostStatCount} from '#/components/PostControls/util'
 import {Text} from '#/components/Typography'
+import {aquaGlass} from './glass'
 import {AQUA} from './palette'
 import {usePostLikerPreviews} from './plugins'
 
@@ -38,24 +39,13 @@ export function LikeCapsule({
         a.align_center,
         a.rounded_full,
         a.gap_xs,
+        aquaGlass(light),
         {
           paddingTop: 4,
           paddingBottom: 4,
           paddingLeft: faces.length ? 4 : 10,
           paddingRight: 12,
-          backgroundColor: light
-            ? 'rgba(255,255,255,0.55)'
-            : 'rgba(15,23,42,0.72)',
-          borderWidth: 1,
-          borderColor: light
-            ? 'rgba(255,255,255,0.7)'
-            : 'rgba(255,255,255,0.16)',
         },
-        web({
-          backdropFilter: 'blur(18px) saturate(1.6)',
-          boxShadow:
-            '0 8px 24px rgba(0,43,239,0.08), inset 0 1px 0 rgba(255,255,255,0.9)',
-        }),
       ]}>
       {faces.length > 0 && (
         <View style={[a.flex_row, a.align_center]}>
