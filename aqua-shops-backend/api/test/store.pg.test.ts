@@ -7,10 +7,10 @@ const url = process.env.TEST_DATABASE_URL;
 const order = (id: string): StoredOrder => ({
   id,
   number: id.replace(/\D/g, '').slice(0, 8).padEnd(8, '0'),
-  status: 'pending_payment',
+  status: 'awaiting_payment',
+  shopId: 'sel_s',
   buyer: { email: 'a@example.test', name: 'T', cpfCnpj: '12345678909', phone: '0', city: 'C', address: 'R' },
   items: [{ listingId: 'p~s', title: 'X', quantity: 1, unitCents: 1000, sellerId: 's', offerId: 'o', variantId: 'v' }],
-  split: { totalCents: 1000, commissionCents: 200, sellers: [{ sellerId: 's', grossCents: 1000, commissionCents: 200, payoutCents: 800 }] },
   totalCents: 1000,
   mercurCartId: 'cart_1',
   shippingCents: 0,
@@ -40,7 +40,7 @@ describe.skipIf(!url)('PgOrderStore (Postgres real)', () => {
   });
 
   it('só troca o status quando o atual confere (corrida entre webhooks)', async () => {
-    const results = await Promise.all([store.transition(uid, 'pending_payment', 'paid'), store.transition(uid, 'pending_payment', 'paid')]);
+    const results = await Promise.all([store.transition(uid, 'awaiting_payment', 'paid'), store.transition(uid, 'awaiting_payment', 'paid')]);
     expect(results.filter(Boolean)).toHaveLength(1);
     expect((await store.get(uid))?.status).toBe('paid');
   });
@@ -57,12 +57,15 @@ describe.skipIf(!url)('PgOrderStore (Postgres real)', () => {
     expect(await store.recordEvent(eventId)).toBe(false);
   });
 
-  it('guarda e busca carteiras de vendedores', async () => {
-    await store.setWallet('asaas', `sel_${uid}`, 'w1');
-    await store.setWallet('asaas', `sel_${uid}`, 'w2'); // atualiza
-    await store.setWallet('woovi', `sel_${uid}`, 'subconta'); // outro provedor, outra carteira
-    expect(await store.walletsFor('asaas', [`sel_${uid}`, 'sem-carteira'])).toEqual(new Map([[`sel_${uid}`, 'w2']]));
-    expect(await store.walletsFor('woovi', [`sel_${uid}`])).toEqual(new Map([[`sel_${uid}`, 'subconta']]));
-    expect(await store.walletsFor('asaas', [])).toEqual(new Map());
+  it('guarda a conexão de cada loja por provedor e atualiza ao reconectar', async () => {
+    const conn = (provider: string, credentialEnc: string) => ({ shopId: `loja_${uid}`, provider, accountId: 'acc_1', credentialEnc, webhookSecretEnc: 'seg', createdAt: new Date().toISOString() });
+    await store.saveConnection(conn('asaas', 'v1.a'));
+    await store.saveConnection(conn('asaas', 'v1.b')); // reconectar troca
+    await store.saveConnection({ ...conn('outro', 'v1.c'), accountId: undefined });
+    expect((await store.getConnection(`loja_${uid}`, 'asaas'))?.credentialEnc).toBe('v1.b');
+    expect((await store.getConnection(`loja_${uid}`, 'outro'))?.accountId).toBeUndefined();
+    expect((await store.listConnections(`loja_${uid}`)).map(c => c.provider)).toEqual(['asaas', 'outro']);
+    expect(await store.getConnection('sem-loja', 'asaas')).toBeNull();
+    expect(await store.listConnections('sem-loja')).toEqual([]);
   });
 });

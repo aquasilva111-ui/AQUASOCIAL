@@ -2,7 +2,7 @@
 // tabelas do Mercur). Uma versão em memória serve para os testes.
 import pg from 'pg';
 import type { OrderStatus } from '../../../aqua-shops/shared/types/index.ts';
-import type { SplitResult } from './split.ts';
+import type { ShopPaymentConnection } from './connections.ts';
 
 export interface OrderItem {
   listingId: string;
@@ -27,15 +27,16 @@ export interface StoredOrder {
   id: string;
   number: string;
   status: OrderStatus;
+  /** Loja dona do pedido (um pedido por loja). Só o webhook desta loja pode mexer nele. */
+  shopId: string;
   buyer: Buyer;
   items: OrderItem[];
-  split: SplitResult;
   totalCents: number;
   /** Carrinho criado no Mercur antes da cobrança; é finalizado quando o Pix for pago. */
   mercurCartId: string;
   /** Frete total incluído no valor cobrado, em centavos. */
   shippingCents: number;
-  /** Provedor que cobrou (asaas, woovi...) e o id da cobrança lá. */
+  /** Provedor da loja que cobrou (asaas, mercadopago...) e o id da cobrança lá. */
   paymentProvider: string;
   paymentId: string;
   pixPayload: string;
@@ -55,16 +56,18 @@ export interface OrderStore {
   transition(id: string, from: OrderStatus, to: OrderStatus): Promise<boolean>;
   /** Registra o id do evento do webhook. Devolve false se já tinha chegado (entrega repetida). */
   recordEvent(eventId: string): Promise<boolean>;
-  /** Id do vendedor como recebedor no provedor (carteira Asaas, subconta Woovi...). */
-  walletsFor(provider: string, sellerIds: string[]): Promise<Map<string, string>>;
-  setWallet(provider: string, sellerId: string, walletId: string): Promise<void>;
+  /** Conexão da loja com um provedor (credencial e segredo de webhook cifrados). */
+  getConnection(shopId: string, provider: string): Promise<ShopPaymentConnection | null>;
+  listConnections(shopId: string): Promise<ShopPaymentConnection[]>;
+  /** Cria ou troca a conexão da loja naquele provedor. */
+  saveConnection(connection: ShopPaymentConnection): Promise<void>;
 }
 
 export function createMemoryStore(): OrderStore {
   const orders = new Map<string, StoredOrder>();
   const events = new Set<string>();
-  const wallets = new Map<string, string>(); // chave: provedor|vendedor
-  const key = (provider: string, sellerId: string) => `${provider}|${sellerId}`;
+  const connections = new Map<string, ShopPaymentConnection>(); // chave: loja|provedor
+  const key = (shopId: string, provider: string) => `${shopId}|${provider}`;
   return {
     async insert(o) {
       orders.set(o.id, structuredClone(o));
@@ -90,11 +93,15 @@ export function createMemoryStore(): OrderStore {
       events.add(eventId);
       return true;
     },
-    async walletsFor(provider, ids) {
-      return new Map(ids.filter(id => wallets.has(key(provider, id))).map(id => [id, wallets.get(key(provider, id))!]));
+    async getConnection(shopId, provider) {
+      const c = connections.get(key(shopId, provider));
+      return c ? structuredClone(c) : null;
     },
-    async setWallet(provider, sellerId, walletId) {
-      wallets.set(key(provider, sellerId), walletId);
+    async listConnections(shopId) {
+      return [...connections.values()].filter(c => c.shopId === shopId).map(c => structuredClone(c));
+    },
+    async saveConnection(connection) {
+      connections.set(key(connection.shopId, connection.provider), structuredClone(connection));
     },
   };
 }
@@ -122,21 +129,23 @@ create table if not exists aqua.webhook_events (
   event_id text primary key,
   received_at timestamptz not null default now()
 );
-create table if not exists aqua.seller_wallets (
-  provider text not null default 'asaas',
-  seller_id text not null,
-  wallet_id text not null,
+-- Modelo antigo (split): um recebedor por vendedor. Substituído pela conexão de cada loja com o
+-- PRÓPRIO provedor. Nunca rodou com vendedor real.
+drop table if exists aqua.seller_wallets;
+create table if not exists aqua.shop_payment_connections (
+  shop_id text not null,
+  provider text not null,
+  account_id text,
+  credential_enc text not null,
+  webhook_secret_enc text not null,
   created_at timestamptz not null default now(),
-  primary key (provider, seller_id)
+  updated_at timestamptz not null default now(),
+  primary key (shop_id, provider)
 );
--- Bancos antigos tinham a chave só no vendedor.
-do $$ begin
-  if not exists (select 1 from information_schema.columns where table_schema = 'aqua' and table_name = 'seller_wallets' and column_name = 'provider') then
-    alter table aqua.seller_wallets add column provider text not null default 'asaas';
-    alter table aqua.seller_wallets drop constraint seller_wallets_pkey;
-    alter table aqua.seller_wallets add primary key (provider, seller_id);
-  end if;
-end $$;
+-- Estados antigos do pedido: vencido vira cancelado; pago-mas-sem-entrega continua pago (com o motivo em data.failure).
+update aqua.orders set status = 'awaiting_payment' where status = 'pending_payment';
+update aqua.orders set status = 'cancelled' where status = 'expired';
+update aqua.orders set status = 'paid' where status = 'failed';
 `;
 
 type OrderRow = {
@@ -147,6 +156,24 @@ type OrderRow = {
   payment_provider: string;
   payment_id: string;
 };
+
+type ConnectionRow = {
+  shop_id: string;
+  provider: string;
+  account_id: string | null;
+  credential_enc: string;
+  webhook_secret_enc: string;
+  created_at: Date;
+};
+
+const rowToConnection = (r: ConnectionRow): ShopPaymentConnection => ({
+  shopId: r.shop_id,
+  provider: r.provider,
+  ...(r.account_id ? { accountId: r.account_id } : {}),
+  credentialEnc: r.credential_enc,
+  webhookSecretEnc: r.webhook_secret_enc,
+  createdAt: r.created_at.toISOString(),
+});
 
 export async function createPgStore(connectionString: string): Promise<OrderStore & { close(): Promise<void> }> {
   const pool = new pg.Pool({ connectionString, max: 5 });
@@ -195,13 +222,22 @@ export async function createPgStore(connectionString: string): Promise<OrderStor
       const res = await pool.query('insert into aqua.webhook_events (event_id) values ($1) on conflict do nothing', [eventId]);
       return (res.rowCount ?? 0) > 0;
     },
-    async walletsFor(provider, ids) {
-      if (!ids.length) return new Map();
-      const { rows } = await pool.query<{ seller_id: string; wallet_id: string }>('select seller_id, wallet_id from aqua.seller_wallets where provider = $1 and seller_id = any($2)', [provider, ids]);
-      return new Map(rows.map(r => [r.seller_id, r.wallet_id]));
+    async getConnection(shopId, provider) {
+      const { rows } = await pool.query<ConnectionRow>('select * from aqua.shop_payment_connections where shop_id = $1 and provider = $2', [shopId, provider]);
+      return rows[0] ? rowToConnection(rows[0]) : null;
     },
-    async setWallet(provider, sellerId, walletId) {
-      await pool.query('insert into aqua.seller_wallets (provider, seller_id, wallet_id) values ($1,$2,$3) on conflict (provider, seller_id) do update set wallet_id = excluded.wallet_id', [provider, sellerId, walletId]);
+    async listConnections(shopId) {
+      const { rows } = await pool.query<ConnectionRow>('select * from aqua.shop_payment_connections where shop_id = $1 order by created_at', [shopId]);
+      return rows.map(rowToConnection);
+    },
+    async saveConnection(c) {
+      await pool.query(
+        `insert into aqua.shop_payment_connections (shop_id, provider, account_id, credential_enc, webhook_secret_enc)
+         values ($1,$2,$3,$4,$5)
+         on conflict (shop_id, provider) do update
+           set account_id = excluded.account_id, credential_enc = excluded.credential_enc, webhook_secret_enc = excluded.webhook_secret_enc, updated_at = now()`,
+        [c.shopId, c.provider, c.accountId ?? null, c.credentialEnc, c.webhookSecretEnc],
+      );
     },
     close: () => pool.end(),
   };

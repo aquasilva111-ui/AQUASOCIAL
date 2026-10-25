@@ -3,6 +3,7 @@ import { createApp } from './app.ts';
 import { createAsaasClient } from './asaas.ts';
 import { createCatalog } from './catalog.ts';
 import { createMercurCheckout } from './checkout.ts';
+import { createConnections, createVault } from './connections.ts';
 import { createMercurClient } from './mercur.ts';
 import { createOrdersService } from './orders.ts';
 import { createAsaasProvider, createFakeProvider, type PaymentProvider } from './payments.ts';
@@ -22,35 +23,34 @@ const mercur = createMercurClient({
 });
 const catalog = createCatalog(mercur);
 
-// Pedidos só ligam com um provedor de pagamento e o banco configurados. Sem isso a API serve só o catálogo.
-// PAYMENT_PROVIDER: asaas (padrão) ou fake (desenvolvimento: não cobra nada).
-let orders;
-const providers: PaymentProvider[] = [];
-const providerName = env.PAYMENT_PROVIDER ?? 'asaas';
-if (providerName === 'asaas' && env.ASAAS_API_KEY && env.ASAAS_WEBHOOK_TOKEN) {
-  providers.push(createAsaasProvider(createAsaasClient({ baseUrl: env.ASAAS_BASE_URL ?? 'https://api-sandbox.asaas.com/v3', apiKey: env.ASAAS_API_KEY }), env.ASAAS_WEBHOOK_TOKEN));
-} else if (providerName === 'fake') {
-  providers.push(createFakeProvider(env.FAKE_WEBHOOK_TOKEN));
-}
+// Cada loja conecta o PRÓPRIO provedor de pagamento; não existe provedor global nem conta da plataforma.
+// Aqui só registramos os drivers disponíveis. Pedidos ligam com banco, chave de cifra das credenciais
+// e a URL pública da API (para montar o webhook de cada loja).
+const asaasUrl = env.ASAAS_BASE_URL ?? 'https://api-sandbox.asaas.com/v3';
+const providers: PaymentProvider[] = [createAsaasProvider(apiKey => createAsaasClient({ baseUrl: asaasUrl, apiKey }))];
+// Desenvolvimento: provedor que não cobra nada.
+if (env.ENABLE_FAKE_PAYMENTS === 'true') providers.push(createFakeProvider());
 
-if (providers.length && env.DATABASE_URL) {
+let orders;
+let connections;
+if (env.DATABASE_URL && env.CONNECTION_ENCRYPTION_KEY && env.PUBLIC_API_URL) {
   const store = await createPgStore(env.DATABASE_URL);
+  connections = createConnections({ store, vault: createVault(env.CONNECTION_ENCRYPTION_KEY), providers, publicUrl: env.PUBLIC_API_URL });
   orders = createOrdersService({
     catalog,
     checkout: createMercurCheckout({ baseUrl: mercurUrl, publishableKey: env.MERCUR_PUBLISHABLE_KEY, currency: env.CURRENCY ?? 'brl' }),
     store,
-    payments: providers,
-    split: { commissionBps: Number(env.COMMISSION_BPS ?? 1000), minCommissionCents: Number(env.MIN_COMMISSION_CENTS ?? 200) },
+    connections,
   });
-  console.log(`Pedidos ligados (provedor: ${providers[0]!.name})`);
+  console.log(`Pedidos ligados (drivers: ${providers.map(p => p.name).join(', ')})`);
 } else {
-  console.log('Pedidos desligados: configure o provedor de pagamento (ASAAS_API_KEY e ASAAS_WEBHOOK_TOKEN, ou PAYMENT_PROVIDER=fake) e DATABASE_URL.');
+  console.log('Pedidos desligados: configure DATABASE_URL, CONNECTION_ENCRYPTION_KEY e PUBLIC_API_URL.');
 }
 
 const app = createApp(catalog, {
   corsOrigins: (env.CORS_ORIGINS ?? '').split(',').map(s => s.trim()).filter(Boolean),
   orders,
-  providers,
+  connections,
 });
 
 const port = Number(env.PORT ?? 9100);

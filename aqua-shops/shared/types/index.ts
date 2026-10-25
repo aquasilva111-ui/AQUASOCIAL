@@ -65,7 +65,7 @@ export type AddBtnStatus = 'add' | 'loading' | 'added';
 export interface CheckoutUserDetails {
   email: string;
   name: string;
-  /** CPF ou CNPJ, só dígitos. O Asaas exige para cobrar no Pix. */
+  /** CPF ou CNPJ, só dígitos. Os provedores exigem para cobrar no Pix. */
   cpfCnpj: string;
   phone: string;
   city: string;
@@ -78,7 +78,11 @@ export interface CheckoutInput {
   paymentMethod: 'pix';
 }
 
-export type OrderStatus = 'pending_payment' | 'paid' | 'expired' | 'cancelled' | 'failed';
+/**
+ * Um pedido por loja. Segue o mesmo vocabulário de `src/lib/shops/model.ts` (app). `refunded` só é
+ * refletido do provedor da loja: quem estorna é o lojista, nunca a Aqua.
+ */
+export type OrderStatus = 'awaiting_payment' | 'paid' | 'shipped' | 'delivered' | 'cancelled' | 'refunded';
 
 export interface PixCharge {
   /** Código "copia e cola". */

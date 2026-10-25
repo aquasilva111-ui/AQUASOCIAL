@@ -5,6 +5,7 @@ dele. Plano em `../docs/aqua-shops.md`.
 
 ```
 vitrine (aqua-shops, :5194) ─► API Aqua Shops (api/, :9100) ─► Mercur (mercur/, :9000) ─► Postgres + Redis
+                                      └─► provedor de pagamento DE CADA LOJA (webhook por loja)
 ```
 
 Para colocar num servidor (VPS com Docker), veja **[DEPLOY.md](DEPLOY.md)**.
@@ -46,38 +47,61 @@ Primeira vez, em `mercur/packages/api`: `npx medusa db:migrate`, `npm run seed` 
   URL do banco no compose leva `?sslmode=disable` (rede interna). O artefato do Mercur precisa dos
   mesmos `overrides` de versão da raiz e sem `devDependencies` (ver `mercur/Dockerfile`).
 
-## Pedidos e Pix (Asaas)
+## Pedidos e pagamento (conector por loja)
 
-Fluxo: `POST /orders` monta o carrinho no Mercur (itens por oferta e o frete mais barato de cada
-vendedor), cobra o total exato no Asaas com split por vendedor e devolve o QR Code. Quando o
-webhook `PAYMENT_RECEIVED`/`CONFIRMED` chega, o mesmo carrinho é finalizado no Mercur: sai um
-grupo de pedidos com um pedido por vendedor (aparecem no painel de cada um) e o estoque é
-reservado. Se o Mercur não conseguir finalizar depois do pagamento, o Asaas devolve o dinheiro.
+A Aqua **não toca no dinheiro**: cada loja conecta o PRÓPRIO provedor de pagamento e o comprador
+paga direto a ele. Sem conta-mãe, sem split, sem comissão descontada da venda, sem custódia e sem
+estorno feito pela Aqua (o lojista estorna no provedor dele; a API só reflete o estado). Qualquer taxa
+da Aqua é cobrada do lojista à parte. Modelo completo em `../docs/aqua-shops.md`.
 
-- **Provedores de pagamento são plugáveis** (`src/payments.ts`): a API só conhece a interface
-  `PaymentProvider` (criar cobrança com split, estornar, validar e traduzir webhook). Hoje existem
-  `asaas` e `fake` (desenvolvimento, não cobra nada); Woovi, Mercado Pago ou cripto entram como
-  novos adaptadores, sem mexer em pedidos nem no Mercur. Escolha com `PAYMENT_PROVIDER`.
-- Variáveis em `api/.env.example`: `PAYMENT_PROVIDER`, `ASAAS_API_KEY`, `ASAAS_BASE_URL` (sandbox
-  por padrão), `ASAAS_WEBHOOK_TOKEN`, `DATABASE_URL`, `COMMISSION_BPS`, `MIN_COMMISSION_CENTS`.
-  Sem provedor configurado a API serve só o catálogo e `/orders` responde 503.
-- Cada provedor recebe seus webhooks em `POST /webhooks/<nome>`. No Asaas, cadastre
-  `https://SUA_API/webhooks/asaas` com o mesmo `authToken` do `ASAAS_WEBHOOK_TOKEN`. A entrega é
-  "pelo menos uma vez"; a API ignora repetições (o id do evento é guardado com o nome do provedor).
-- Pedidos ficam no esquema `aqua` do Postgres (`orders`, `webhook_events`, `seller_wallets`).
-  `seller_wallets` guarda o recebedor de cada vendedor por provedor (carteira Asaas, subconta
-  Woovi...). Vendedor sem recebedor no provedor ativo não vende: a compra é recusada.
+Fluxo: `POST /orders` monta o carrinho no Mercur (itens por oferta e o frete mais barato do
+vendedor), cobra o total exato no provedor da loja com a credencial dela e devolve o QR Code Pix.
+Quando o webhook da loja confirma o pagamento, o mesmo carrinho é finalizado no Mercur (pedido do
+vendedor, estoque reservado). Se o Mercur não conseguir finalizar, o pedido continua `paid` com o
+motivo em `failure`, para o lojista resolver no provedor dele.
+
+- **Um conector por loja** (`src/payments.ts`): a interface `PaymentProvider` é só o "driver" do
+  provedor (conectar por OAuth/chave, criar cobrança, ler status, validar e traduzir webhook). Toda
+  chamada recebe a credencial da loja; não existe provedor global. Drivers hoje: `asaas` (conta Asaas
+  do lojista, sem split; ainda sem validação em sandbox) e `fake` (só desenvolvimento). Não há
+  conectores reais completos ainda: é a fase 2.
+- **Conexões** (`src/connections.ts`): a credencial e o segredo de webhook de cada loja ficam
+  cifrados (AES-256-GCM, amarrados a loja+provedor) em `aqua.shop_payment_connections`. Ainda não
+  há rota HTTP para o lojista conectar (fase 2); por ora a conexão é criada pelo serviço
+  `connections.connect(...)`.
+- **Webhooks por loja**: `POST /webhooks/<provedor>/<shopId>`, validado com o segredo daquela loja
+  e idempotente pelo id do evento (`provedor:loja:evento`). O webhook de uma loja só mexe nos pedidos
+  dela. A rota antiga `POST /webhooks/<provedor>` foi removida. Eventos: pago, vencido/cancelado e
+  estornado (`refunded`, só refletido).
+- **Estados do pedido**: `awaiting_payment`, `paid`, `shipped`, `delivered`, `cancelled`, `refunded`.
+- **Uma loja por compra, por enquanto.** `POST /orders` recusa (422) carrinho com itens de mais de uma
+  loja; uma cobrança por loja é a fase 3. Loja sem provedor conectado também é recusada (422). O id da
+  loja é o id do vendedor no Mercur até o DID do perfil ser ligado.
+- Variáveis (`ASAAS_BASE_URL` é opcional, sandbox por padrão):
+  - `DATABASE_URL`: Postgres dos pedidos e das conexões.
+  - `CONNECTION_ENCRYPTION_KEY`: 32 bytes em hex ou base64 (`openssl rand -hex 32`). **Quem perder
+    esta chave perde as credenciais das lojas**; guarde fora do servidor.
+  - `PUBLIC_API_URL`: endereço público da API, para montar o webhook de cada loja.
+  - `ENABLE_FAKE_PAYMENTS=true`: registra o driver `fake` (não cobra nada).
+  - `PAYMENT_PROVIDER`, `ASAAS_API_KEY`, `ASAAS_WEBHOOK_TOKEN`, `COMMISSION_BPS` e
+    `MIN_COMMISSION_CENTS` **não existem mais**: credencial e segredo de webhook são por loja.
+  Sem `DATABASE_URL`, `CONNECTION_ENCRYPTION_KEY` e `PUBLIC_API_URL` a API serve só o catálogo e
+  `/orders` responde 503.
+- Pedidos ficam no esquema `aqua` do Postgres (`orders`, `webhook_events`,
+  `shop_payment_connections`). A migração apaga `seller_wallets` (recebedores do split antigo, que
+  nunca rodou com vendedor real) e renomeia os estados antigos (`pending_payment` vira
+  `awaiting_payment`, `expired` vira `cancelled`, `failed` vira `paid`).
 - O Mercur precisa ter frete para o Brasil. `seed-brl.ts` acrescenta `br` às zonas de entrega de
   exemplo; vendedores reais cadastram as suas no painel.
-- Testado com um Asaas de mentira local e o Mercur real. **Falta rodar contra o sandbox do
-  Asaas** (precisa da chave) e confirmar os campos exatos da API deles.
+- Testes: `npm test` (65 passando; os 5 de Postgres real rodam com `TEST_DATABASE_URL`).
 
 ## O que falta
 
-- Rodar contra o sandbox do Asaas; script para criar as subcontas dos vendedores (a conta-mãe
-  precisa ser CNPJ para criar subcontas).
+- Fase 2: rota para o lojista conectar o provedor (OAuth ou chave), cadastro automático do webhook
+  na conta dele e teste contra o sandbox (Asaas e/ou Mercado Pago).
+- Fase 3: carrinho com várias lojas (uma cobrança por loja), painel do lojista (envio, entrega).
+- Decisão pendente: manter ou não Mercur/Medusa (ver `../docs/aqua-shops.md`).
 - Escolha de variante (tamanho): hoje o pedido compra a oferta mais barata do anúncio.
 - Mostrar o frete antes de gerar o Pix (hoje ele aparece junto do QR Code).
 - CPF do comprador fica no banco: política de privacidade (LGPD) antes de abrir ao público.
-- Pagamento sem CNPJ (cripto), ver `docs/aqua-shops.md`.
 - Catálogo em memória (cache de 30 s). Quando virar gargalo, índice de busca próprio.
