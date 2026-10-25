@@ -145,7 +145,6 @@ export function VideoPostCard({
                 backgroundColor: black,
                 aspectRatio: 9 / 16,
                 borderRadius: AQUA_RADIUS.media,
-                borderBottomLeftRadius: 0,
               },
             ]}>
             <Image
@@ -192,7 +191,6 @@ export function VideoPostCard({
                 backgroundColor: black,
                 aspectRatio: 9 / 16,
                 borderRadius: AQUA_RADIUS.media,
-                borderBottomLeftRadius: 0,
               },
             ]}>
             <Image
@@ -222,7 +220,6 @@ export function VideoPostCardPlaceholder() {
             backgroundColor: black,
             aspectRatio: 9 / 16,
             borderRadius: AQUA_RADIUS.media,
-            borderBottomLeftRadius: 0,
           },
         ]}>
         <MediaInsetBorder />
@@ -431,7 +428,6 @@ export function CompactVideoPostCard({
                 backgroundColor: black,
                 aspectRatio: 9 / 16,
                 borderRadius: AQUA_RADIUS.media,
-                borderBottomLeftRadius: 0,
               },
             ]}>
             <Image

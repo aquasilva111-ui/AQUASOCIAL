@@ -1,7 +1,6 @@
 /**
- * Aqua post-card palette from the recorte mockups.
- * iris / blue / primary are the product colors; the notch itself is the card
- * surface so the cut-out reads as paper, not as a second button bar.
+ * Aqua post-card palette.
+ * iris / blue / primary are the product colors.
  */
 export const AQUA = {
   iris: '#7EC8F5',
@@ -17,22 +16,29 @@ export const AQUA = {
 } as const
 
 /**
- * Single source for the post-card rounding. Designer values:
- * media (photo / video / cover) 36, card 40, white-notch curve 34.
+ * Single source for the post-card rounding.
+ * Media (photo / video / cover) 36, card 40.
  */
 export const AQUA_RADIUS = {
   media: 36,
   card: 40,
-  notch: 34,
 } as const
 
-export const NOTCH_RADIUS = AQUA_RADIUS.notch
-
-/** Clip for photo, video, and cover when the white notch is attached. */
-export function aquaMediaFrame() {
+/**
+ * Clip for a photo, video, or link cover.
+ * Full-bleed media is square: the card clips the outer corners, and the
+ * picture runs to every edge so no white frame shows around it.
+ * Standalone tiles keep the media radius on every corner.
+ */
+export function aquaChromeRadii(bleed: boolean) {
+  if (bleed) {
+    return {
+      borderRadius: 0,
+      overflow: 'hidden' as const,
+    }
+  }
   return {
     borderRadius: AQUA_RADIUS.media,
-    borderBottomLeftRadius: 0,
     overflow: 'hidden' as const,
   }
 }

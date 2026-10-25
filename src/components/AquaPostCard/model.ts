@@ -47,7 +47,7 @@ function externalIsMedia(embed: AppBskyEmbedExternal.View) {
   return uri.includes('tenor') || uri.includes('giphy') || uri.includes('.gif')
 }
 
-/** Which embeds get the white notch. Quotes and bare links stay below the text. */
+/** Which embeds carry the glass action bar. Quotes and bare links stay with the text. */
 export function aquaMediaKind(
   embed: AppBskyFeedDefs.PostView['embed'],
 ): AquaMediaKind {
@@ -63,6 +63,21 @@ export function aquaMediaKind(
     return aquaMediaKind(embed.media)
   }
   return 'none'
+}
+
+/** Title and description of a link cover, when the post itself has no caption. */
+export function externalPreview(embed: AppBskyFeedDefs.PostView['embed']) {
+  const view = AppBskyEmbedExternal.isView(embed)
+    ? embed
+    : AppBskyEmbedRecordWithMedia.isView(embed) &&
+        AppBskyEmbedExternal.isView(embed.media)
+      ? embed.media
+      : undefined
+  if (!view) return undefined
+  const title = view.external.title?.trim()
+  const description = view.external.description?.trim()
+  if (!title && !description) return undefined
+  return {title, description}
 }
 
 export function videoEmbedOf(embed: AppBskyFeedDefs.PostView['embed']) {

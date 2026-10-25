@@ -2,9 +2,10 @@ import {msg} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 
 import {EventStopper} from '#/view/com/util/EventStopper'
-import {atoms as a, useTheme, web} from '#/alf'
+import {atoms as a, useTheme} from '#/alf'
 import {Button} from '#/components/Button'
 import {Sparkle_Stroke2_Corner0_Rounded as Sparkle} from '#/components/icons/Sparkle'
+import {aquaGlass} from './glass'
 import {AQUA} from './palette'
 
 export function SparkleButton({onPress}: {onPress: () => void}) {
@@ -21,18 +22,8 @@ export function SparkleButton({onPress}: {onPress: () => void}) {
           a.align_center,
           a.justify_center,
           a.rounded_full,
-          {
-            width: 34,
-            height: 34,
-            backgroundColor: light
-              ? 'rgba(255,255,255,0.55)'
-              : 'rgba(15,23,42,0.72)',
-            borderWidth: 1,
-            borderColor: light
-              ? 'rgba(255,255,255,0.7)'
-              : 'rgba(255,255,255,0.16)',
-          },
-          web({backdropFilter: 'blur(18px) saturate(1.6)'}),
+          aquaGlass(light),
+          {width: 34, height: 34},
         ]}
         hoverStyle={{
           backgroundColor: light

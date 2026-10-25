@@ -16,7 +16,7 @@ import {isFirefox} from '#/lib/browser'
 import {ErrorBoundary} from '#/view/com/util/ErrorBoundary'
 import {IMAGE_BORDER_RADIUS} from '#/view/com/util/images/constants'
 import {atoms as a} from '#/alf'
-import {AQUA_RADIUS} from '#/components/AquaPostCard/palette'
+import {aquaChromeRadii} from '#/components/AquaPostCard/palette'
 import {useIsWithinMessage} from '#/components/dms/MessageContext'
 import {useFullscreen} from '#/components/hooks/useFullscreen'
 import {MediaInsetBorder} from '#/components/MediaInsetBorder'
@@ -108,6 +108,7 @@ export function VideoEmbed({
             onScreen={onScreen}
             lastKnownTime={lastKnownTime}
             objectFit={bleed ? 'cover' : 'contain'}
+            hideTimeIndicator={!!mediaChrome}
           />
         </OnlyNearScreen>
       </ErrorBoundary>
@@ -127,22 +128,9 @@ export function VideoEmbed({
               aspectRatio: frameRatio,
               maxWidth: bleed ? undefined : MAX_HEIGHT * ratio,
               width: '100%',
-              borderTopLeftRadius: bleed
-                ? AQUA_RADIUS.card
-                : mediaChrome
-                  ? AQUA_RADIUS.media
-                  : IMAGE_BORDER_RADIUS,
-              borderTopRightRadius: bleed
-                ? AQUA_RADIUS.card
-                : mediaChrome
-                  ? AQUA_RADIUS.media
-                  : IMAGE_BORDER_RADIUS,
-              borderBottomRightRadius: bleed
-                ? 0
-                : mediaChrome
-                  ? AQUA_RADIUS.media
-                  : IMAGE_BORDER_RADIUS,
-              borderBottomLeftRadius: mediaChrome ? 0 : IMAGE_BORDER_RADIUS,
+              ...(mediaChrome
+                ? aquaChromeRadii(!!bleed)
+                : {borderRadius: IMAGE_BORDER_RADIUS}),
               position: 'relative',
             },
           ]}>

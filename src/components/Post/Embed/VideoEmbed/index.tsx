@@ -8,7 +8,7 @@ import {useLingui} from '@lingui/react'
 import {ErrorBoundary} from '#/view/com/util/ErrorBoundary'
 import {ConstrainedImage} from '#/view/com/util/images/AutoSizedImage'
 import {atoms as a} from '#/alf'
-import {AQUA_RADIUS} from '#/components/AquaPostCard/palette'
+import {AQUA_RADIUS, aquaChromeRadii} from '#/components/AquaPostCard/palette'
 import {Button} from '#/components/Button'
 import {useThrottledValue} from '#/components/hooks/useThrottledValue'
 import {PlayButtonIcon} from '#/components/video/PlayButtonIcon'
@@ -59,13 +59,7 @@ export function VideoEmbed({embed, mediaChrome, bleed}: Props) {
         mediaChrome ? {paddingTop: 0} : a.pt_xs,
         mediaChrome
           ? {
-              borderTopLeftRadius: bleed ? AQUA_RADIUS.card : AQUA_RADIUS.media,
-              borderTopRightRadius: bleed
-                ? AQUA_RADIUS.card
-                : AQUA_RADIUS.media,
-              borderBottomRightRadius: bleed ? 0 : AQUA_RADIUS.media,
-              borderBottomLeftRadius: 0,
-              overflow: 'hidden',
+              ...aquaChromeRadii(!!bleed),
               position: 'relative',
             }
           : null,
@@ -78,8 +72,7 @@ export function VideoEmbed({embed, mediaChrome, bleed}: Props) {
         // slightly smaller max height than images
         // images use 16 / 9, for reference
         minMobileAspectRatio={bleed ? 12 / 9 : 14 / 9}
-        borderRadius={bleed ? 0 : mediaChrome ? AQUA_RADIUS.media : undefined}
-        notch={!!mediaChrome && !bleed}>
+        borderRadius={bleed ? 0 : mediaChrome ? AQUA_RADIUS.media : undefined}>
         {contents}
       </ConstrainedImage>
       {mediaChrome}

@@ -25,15 +25,12 @@ export function ConstrainedImage({
   children,
   minMobileAspectRatio,
   borderRadius = IMAGE_BORDER_RADIUS,
-  notch,
 }: {
   aspectRatio: number
   fullBleed?: boolean
   minMobileAspectRatio?: number
   children: React.ReactNode
   borderRadius?: number
-  /** Square the bottom-left corner so the white notch can sit in the cut. */
-  notch?: boolean
 }) {
   const t = useTheme()
   /**
@@ -56,10 +53,7 @@ export function ConstrainedImage({
               a.h_full,
               a.overflow_hidden,
               t.atoms.bg_contrast_25,
-              {
-                borderRadius,
-                borderBottomLeftRadius: notch ? 0 : borderRadius,
-              },
+              {borderRadius},
               fullBleed ? a.w_full : {aspectRatio},
             ]}>
             {children}
@@ -78,7 +72,6 @@ export function AutoSizedImage({
   onLongPress,
   onPressIn,
   borderRadius = IMAGE_BORDER_RADIUS,
-  notch,
   fullBleed,
 }: {
   image: AppBskyEmbedImages.ViewImage
@@ -93,7 +86,6 @@ export function AutoSizedImage({
   onLongPress?: () => void
   onPressIn?: () => void
   borderRadius?: number
-  notch?: boolean
 }) {
   const t = useTheme()
   const {_} = useLingui()
@@ -144,7 +136,7 @@ export function AutoSizedImage({
           }
         }}
       />
-      {notch || fullBleed ? null : <MediaInsetBorder style={{borderRadius}} />}
+      {fullBleed ? null : <MediaInsetBorder style={{borderRadius}} />}
 
       {(hasAlt || isCropped) && !hideBadge ? (
         <View
@@ -231,7 +223,6 @@ export function AutoSizedImage({
           {
             aspectRatio: max ?? 1,
             borderRadius,
-            borderBottomLeftRadius: notch ? 0 : borderRadius,
           },
         ]}>
         {contents}
@@ -242,8 +233,7 @@ export function AutoSizedImage({
       <ConstrainedImage
         fullBleed={fullBleed || crop === 'square'}
         aspectRatio={constrained ?? 1}
-        borderRadius={borderRadius}
-        notch={notch}>
+        borderRadius={borderRadius}>
         <Pressable
           onPress={() => onPress?.(containerRef, fetchedDimsRef.current)}
           onLongPress={onLongPress}
