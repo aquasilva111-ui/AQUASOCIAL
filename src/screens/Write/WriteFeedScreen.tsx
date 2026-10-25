@@ -160,7 +160,7 @@ export function WriteFeedScreen() {
             </Text>
           </View>
         ) : (
-          <View style={[a.px_lg, a.gap_md, {paddingBottom: 120}]}>
+          <View style={[a.px_lg, {paddingBottom: 120}]}>
             {posts.map(post => (
               <WritePostCard
                 key={post.id}

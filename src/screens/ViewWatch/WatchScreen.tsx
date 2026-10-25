@@ -54,6 +54,7 @@ import {UserAvatar} from '#/view/com/util/UserAvatar'
 import {ViewsChrome} from '#/screens/Media/ViewsChrome'
 import {SaveMenu, useRecordWatch} from '#/screens/ViewLibrary/SaveMenu'
 import {atoms as a, useBreakpoints, useTheme, web} from '#/alf'
+import {AquaEmbedChrome} from '#/components/AquaPostCard'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
 import * as Dialog from '#/components/Dialog'
 import {ArrowShareRight_Stroke2_Corner2_Rounded as ShareIcon} from '#/components/icons/ArrowShareRight'
@@ -259,6 +260,9 @@ function WatchLoaded({
       }
       autoplay={autoplay}
       onPlayNext={next ? playNext : undefined}
+      mediaChrome={
+        <AquaEmbedChrome post={rawPost} logContext="Post" duration="" />
+      }
       onMiniPlayer={
         isWeb
           ? () => {
@@ -279,17 +283,22 @@ function WatchLoaded({
       onPlayNext={playNext}
     />
   )
+  const head = (
+    <WatchHead
+      post={post}
+      title={title || 'Vídeo sem título'}
+      channelName={channel.data?.channel?.displayNameOverride}
+      profile={profile.data}
+      subscribersKnown={profile.isSuccess}
+    />
+  )
   const details = (
     <Info
       post={post}
-      title={title || 'Vídeo sem título'}
       description={description}
       chapters={chapters}
       time={time}
       onSeek={sec => playerRef.current?.seek(sec)}
-      channelName={channel.data?.channel?.displayNameOverride}
-      profile={profile.data}
-      subscribersKnown={profile.isSuccess}
     />
   )
   const comments = (
@@ -304,7 +313,10 @@ function WatchLoaded({
   )
   const column = (
     <View style={[a.flex_1, a.gap_md, {minWidth: 0}]}>
-      <View style={phone ? undefined : [a.px_lg, a.pt_md]}>{player}</View>
+      <View style={[phone ? [a.px_md, a.pt_sm] : [a.px_lg, a.pt_md], a.gap_md]}>
+        {head}
+        {player}
+      </View>
       <View style={[a.px_md, a.gap_md, phone && a.px_md]}>
         {details}
         {!wide && aside}
@@ -331,6 +343,7 @@ function WatchLoaded({
           web({maxWidth: 1720, marginInline: 'auto', width: '100%'}),
         ]}>
         <View style={[a.flex_1, a.gap_md, {minWidth: 0}]}>
+          {head}
           {!theater && player}
           {details}
           {comments}
@@ -341,29 +354,48 @@ function WatchLoaded({
   )
 }
 
-function Info({
+function WatchHead({
   post,
   title,
-  description,
-  chapters,
-  time,
-  onSeek,
   channelName,
   profile,
   subscribersKnown,
 }: {
   post: Shadow<AppBskyFeedDefs.PostView>
   title: string
-  description: string
-  chapters: Chapter[]
-  time: number
-  onSeek: (sec: number) => void
   channelName?: string
   profile?: AppBskyActorDefs.ProfileViewDetailed
   subscribersKnown: boolean
 }) {
-  const t = useTheme()
   const {currentAccount} = useSession()
+  return (
+    <View style={[a.gap_sm]}>
+      <ChannelRow
+        author={post.author}
+        profile={profile}
+        channelName={channelName}
+        subscribersKnown={subscribersKnown}
+        isSelf={currentAccount?.did === post.author.did}
+      />
+      <Text style={[a.text_xl, a.font_bold, a.leading_snug]}>{title}</Text>
+    </View>
+  )
+}
+
+function Info({
+  post,
+  description,
+  chapters,
+  time,
+  onSeek,
+}: {
+  post: Shadow<AppBskyFeedDefs.PostView>
+  description: string
+  chapters: Chapter[]
+  time: number
+  onSeek: (sec: number) => void
+}) {
+  const t = useTheme()
   const [open, setOpen] = useState(false)
   const topics = getPostTopics(post)
   const date = new Date(post.indexedAt).toLocaleDateString('pt-BR', {
@@ -377,8 +409,6 @@ function Info({
     .join(' · ')
   return (
     <View style={[a.gap_md]}>
-      <Text style={[a.text_xl, a.font_bold, a.leading_snug]}>{title}</Text>
-
       <View
         style={[
           a.flex_row,
@@ -386,13 +416,6 @@ function Info({
           a.gap_md,
           web({flexWrap: 'wrap', rowGap: 12}),
         ]}>
-        <ChannelRow
-          author={post.author}
-          profile={profile}
-          channelName={channelName}
-          subscribersKnown={subscribersKnown}
-          isSelf={currentAccount?.did === post.author.did}
-        />
         <Actions post={post} time={time} />
       </View>
 

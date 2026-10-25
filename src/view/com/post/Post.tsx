@@ -160,7 +160,6 @@ function PostInner({
             <PostRepliedTo parentAuthor={replyAuthorDid} />
           ) : null
         }
-        style={styles.card}
       />
     </Link>
   )
@@ -174,9 +173,6 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     // @ts-ignore web only -prf
     cursor: 'pointer',
-  },
-  card: {
-    marginBottom: 8,
   },
   replyLine: {
     position: 'absolute',

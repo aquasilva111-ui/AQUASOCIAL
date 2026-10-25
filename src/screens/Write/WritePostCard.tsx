@@ -1,5 +1,4 @@
 import {Pressable, View} from 'react-native'
-import {LinearGradient} from 'expo-linear-gradient'
 import {msg} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 import {useNavigation} from '@react-navigation/native'
@@ -10,7 +9,7 @@ import {shareUrl} from '#/lib/sharing'
 import {AUTHORS} from '#/lib/write/seed'
 import {writeRepository} from '#/lib/write/store'
 import {type BookPost, type WritePost} from '#/lib/write/types'
-import {atoms as a, useTheme, web} from '#/alf'
+import {atoms as a, useTheme} from '#/alf'
 import {
   AquaMediaChrome,
   AquaPlainActionRow,
@@ -19,7 +18,11 @@ import {
   SparkleButton,
   WhySheet,
 } from '#/components/AquaPostCard'
-import {AQUA, AQUA_RADIUS} from '#/components/AquaPostCard/palette'
+import {
+  AQUA,
+  AQUA_DIVIDER,
+  AQUA_RADIUS,
+} from '#/components/AquaPostCard/palette'
 import {
   type PostLikerPreview,
   useWhySeeingThis,
@@ -30,8 +33,9 @@ import {Text} from '#/components/Typography'
 import {Avatar, bookSubtitle, formatAge, ProgressBar, TypeBadge} from './ui'
 
 /**
- * Write feed card, matching AquaPostCard: caption above the picture, media
- * edge to edge, glass capsules on the photo. Opinions use the text-only pill.
+ * Write feed card, matching the frameless AquaPostCard: author row, caption,
+ * then a rounded cover with the glass capsules on top. No white frame, one
+ * hairline between posts. Opinions use the text-only action bar.
  * Ranking, royalties, and the local repository stay outside this view.
  */
 export function WritePostCard({
@@ -53,12 +57,9 @@ export function WritePostCard({
   const whyControl = Dialog.useDialogControl()
   const why = useWhySeeingThis(post.id)
   const light = t.name === 'light'
-  const cardBg = light ? AQUA.white : (t.atoms.bg.backgroundColor ?? AQUA.white)
   const ink = light ? AQUA.ink : t.atoms.text.color
   const muted = light ? AQUA.muted : t.atoms.text_contrast_medium.color
-  const borderColor = light
-    ? AQUA.line
-    : t.atoms.border_contrast_low.borderColor
+  const divider = light ? AQUA_DIVIDER : t.atoms.border_contrast_low.borderColor
   const media = post.type !== 'opinion'
   const readId = post.type === 'book' ? post.chapter.id : post.id
 
@@ -99,26 +100,15 @@ export function WritePostCard({
   return (
     <View
       testID={`writePost-${post.id}`}
-      style={[
-        {
-          backgroundColor: cardBg,
-          borderRadius: AQUA_RADIUS.card,
-          borderWidth: media ? 0 : 1,
-          borderColor,
-          padding: media ? 0 : 14,
-          overflow: media ? 'hidden' : undefined,
-        },
-        web({boxShadow: '0 10px 30px rgba(15,23,42,0.06)'}),
-      ]}>
+      style={{
+        paddingTop: 4,
+        paddingBottom: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: divider,
+      }}>
+      <AuthorRow post={post} />
       {media ? (
-        <View
-          style={{
-            paddingHorizontal: 16,
-            paddingTop: 14,
-            paddingBottom: 10,
-            gap: 8,
-          }}>
-          <TypeBadge type={post.type} />
+        <View style={{gap: 8, marginTop: 2, marginBottom: 12}}>
           {post.type === 'book' ? (
             <BookCaption
               post={post}
@@ -154,7 +144,12 @@ export function WritePostCard({
         </View>
       ) : null}
       {media ? (
-        <View style={{position: 'relative'}}>
+        <View
+          style={{
+            position: 'relative',
+            borderRadius: AQUA_RADIUS.media,
+            overflow: 'hidden',
+          }}>
           <Link
             to={`/books/read/${readId}`}
             label={openLabel(post)}
@@ -178,18 +173,14 @@ export function WritePostCard({
             <Cover post={post} />
           </Link>
           <AquaMediaChrome
-            placement="card"
             actions={actions}
             capsule={capsule}
             sparkle={sparkle}
-            header={<AuthorRow post={post} overlay />}
           />
         </View>
-      ) : (
-        <AuthorRow post={post} overlay={false} />
-      )}
+      ) : null}
       {post.type === 'opinion' ? (
-        <View style={[a.gap_xs, a.mt_sm]}>
+        <View style={[a.gap_xs]}>
           <Text style={[a.text_md, {color: ink, lineHeight: 22}]}>
             {post.text}
           </Text>
@@ -357,56 +348,19 @@ function Cover({post}: {post: Exclude<WritePost, {type: 'opinion'}>}) {
   )
 }
 
-function AuthorRow({post, overlay}: {post: WritePost; overlay: boolean}) {
+function AuthorRow({post}: {post: WritePost}) {
   const t = useTheme()
   const light = t.name === 'light'
-  const ink = overlay ? AQUA.white : light ? AQUA.ink : t.atoms.text.color
-  const muted = overlay
-    ? 'rgba(255,255,255,0.92)'
-    : light
-      ? AQUA.muted
-      : t.atoms.text_contrast_medium.color
-  const legible = overlay
-    ? {
-        textShadowColor: 'rgba(0,0,0,0.45)',
-        textShadowOffset: {width: 0, height: 1},
-        textShadowRadius: 3,
-      }
-    : undefined
+  const ink = light ? AQUA.ink : t.atoms.text.color
+  const muted = light ? AQUA.muted : t.atoms.text_contrast_medium.color
   return (
-    <View
-      pointerEvents="box-none"
-      style={[
-        a.flex_row,
-        a.align_center,
-        a.gap_sm,
-        overlay
-          ? {
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              zIndex: 4,
-              paddingTop: 16,
-              paddingLeft: 16,
-              paddingRight: 58,
-              paddingBottom: 34,
-            }
-          : [a.mb_md, a.z_20],
-      ]}>
-      {overlay ? (
-        <LinearGradient
-          pointerEvents="none"
-          colors={['rgba(10,16,40,0.45)', 'rgba(10,16,40,0)']}
-          style={[a.absolute, {top: 0, left: 0, right: 0, bottom: 0}]}
-        />
-      ) : null}
+    <View style={[a.flex_row, a.align_center, a.gap_sm, a.mb_md]}>
       <View style={{padding: 2, borderRadius: 999, backgroundColor: AQUA.iris}}>
         <View
           style={{
             borderRadius: 999,
             borderWidth: 2,
-            borderColor: overlay || light ? AQUA.white : cardInk(t),
+            borderColor: light ? AQUA.white : cardInk(t),
           }}>
           <Avatar author={post.author} size={42} />
         </View>
@@ -419,21 +373,14 @@ function AuthorRow({post, overlay}: {post: WritePost; overlay: boolean}) {
               a.font_bold,
               a.leading_tight,
               {fontSize: 15, fontWeight: '800', color: ink, flexShrink: 1},
-              legible,
             ]}>
             {post.author.displayName}
           </Text>
-          {overlay ? null : <TypeBadge type={post.type} />}
+          <TypeBadge type={post.type} />
         </View>
         <Text
           numberOfLines={1}
-          style={[
-            a.text_sm,
-            a.leading_tight,
-            a.mt_2xs,
-            {color: muted},
-            legible,
-          ]}>
+          style={[a.text_sm, a.leading_tight, a.mt_2xs, {color: muted}]}>
           @{post.author.handle} · {formatAge(post.createdAt)}
         </Text>
       </View>

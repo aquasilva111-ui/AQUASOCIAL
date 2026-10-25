@@ -289,6 +289,7 @@ const ThreadItemAnchorInner = memo(function ThreadItemAnchorInner({
         <FeedFeedbackProvider value={feedFeedback}>
           <AquaPostCard
             big
+            divider={false}
             post={post}
             moderation={moderation}
             record={record}

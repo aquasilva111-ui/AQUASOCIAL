@@ -17,26 +17,22 @@ export const AQUA = {
 
 /**
  * Single source for the post-card rounding.
- * Media (photo / video / cover) 36, card 40.
+ * Media (photo / video / cover) 22. The post itself has no frame, so `card`
+ * only rounds the standalone tiles that still sit in a surface.
  */
 export const AQUA_RADIUS = {
-  media: 36,
+  media: 22,
   card: 40,
 } as const
 
+/** Hairline that separates one frameless post from the next. */
+export const AQUA_DIVIDER = '#EEF0F4'
+
 /**
- * Clip for a photo, video, or link cover.
- * Full-bleed media is square: the card clips the outer corners, and the
- * picture runs to every edge so no white frame shows around it.
- * Standalone tiles keep the media radius on every corner.
+ * Clip for a photo, video, or link cover: the media radius on every corner.
+ * The post has no frame, so the media rounds itself.
  */
-export function aquaChromeRadii(bleed: boolean) {
-  if (bleed) {
-    return {
-      borderRadius: 0,
-      overflow: 'hidden' as const,
-    }
-  }
+export function aquaChromeRadii() {
   return {
     borderRadius: AQUA_RADIUS.media,
     overflow: 'hidden' as const,

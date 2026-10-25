@@ -75,15 +75,11 @@ export function ImageEmbed({
     const clip = rest.mediaChrome
       ? {
           marginTop: 0,
-          ...aquaChromeRadii(!!rest.bleed),
+          ...aquaChromeRadii(),
           position: 'relative' as const,
         }
       : null
-    const mediaRadius = rest.bleed
-      ? 0
-      : rest.mediaChrome
-        ? AQUA_RADIUS.media
-        : undefined
+    const mediaRadius = rest.mediaChrome ? AQUA_RADIUS.media : undefined
 
     if (images.length === 1) {
       const image = images[0]

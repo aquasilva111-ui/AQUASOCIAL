@@ -59,7 +59,7 @@ export function VideoEmbed({embed, mediaChrome, bleed}: Props) {
         mediaChrome ? {paddingTop: 0} : a.pt_xs,
         mediaChrome
           ? {
-              ...aquaChromeRadii(!!bleed),
+              ...aquaChromeRadii(),
               position: 'relative',
             }
           : null,
@@ -72,7 +72,7 @@ export function VideoEmbed({embed, mediaChrome, bleed}: Props) {
         // slightly smaller max height than images
         // images use 16 / 9, for reference
         minMobileAspectRatio={bleed ? 12 / 9 : 14 / 9}
-        borderRadius={bleed ? 0 : mediaChrome ? AQUA_RADIUS.media : undefined}>
+        borderRadius={mediaChrome ? AQUA_RADIUS.media : undefined}>
         {contents}
       </ConstrainedImage>
       {mediaChrome}
