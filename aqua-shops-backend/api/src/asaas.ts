@@ -1,5 +1,6 @@
-// Cliente mínimo do Asaas (Pix com split). Só o que a Aqua Shops usa.
-// Documentação: https://docs.asaas.com. Valores no Asaas são em reais (número);
+// Cliente mínimo do Asaas (Pix) para a conta do PRÓPRIO lojista: cada instância recebe a chave de API
+// de uma loja. Sem split e sem estorno (quem estorna é o lojista, no painel dele). Só o que a Aqua
+// Shops usa. Documentação: https://docs.asaas.com. Valores no Asaas são em reais (número);
 // aqui entram e saem em centavos e a conversão fica neste arquivo.
 
 export class AsaasError extends Error {
@@ -27,7 +28,6 @@ export interface PixChargeInput {
   /** Nosso id do pedido, para achar a cobrança no webhook. */
   externalReference: string;
   description: string;
-  splits: Array<{ walletId: string; fixedValueCents: number }>;
 }
 
 export interface AsaasPayment {
@@ -103,7 +103,6 @@ export function createAsaasClient(config: AsaasConfig) {
         dueDate: input.dueDate,
         externalReference: input.externalReference,
         description: input.description,
-        split: input.splits.map(s => ({ walletId: s.walletId, fixedValue: toReais(s.fixedValueCents) })),
       });
     },
 
@@ -113,10 +112,6 @@ export function createAsaasClient(config: AsaasConfig) {
 
     getPayment(paymentId: string): Promise<AsaasPayment> {
       return call<AsaasPayment>('GET', `/payments/${encodeURIComponent(paymentId)}`);
-    },
-
-    refundPayment(paymentId: string): Promise<AsaasPayment> {
-      return call<AsaasPayment>('POST', `/payments/${encodeURIComponent(paymentId)}/refund`, {});
     },
   };
 }
