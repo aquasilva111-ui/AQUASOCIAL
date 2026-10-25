@@ -38,6 +38,7 @@ let ShareMenuButton = ({
   hitSlop,
   icon,
   iconColor,
+  glass,
 }: {
   testID: string
   post: Shadow<AppBskyFeedDefs.PostView>
@@ -50,6 +51,8 @@ let ShareMenuButton = ({
   hitSlop?: Insets
   icon?: React.ComponentType<SVGIconProps>
   iconColor?: string
+  /** Draw the trigger as a glass capsule. */
+  glass?: boolean
 }): React.ReactNode => {
   const {_} = useLingui()
   const gate = useGate()
@@ -99,7 +102,8 @@ let ShareMenuButton = ({
                 label={props.accessibilityLabel}
                 {...props}
                 onLongPress={native(onNativeLongPress)}
-                hitSlop={hitSlop}>
+                hitSlop={hitSlop}
+                glass={glass}>
                 <PostControlButtonIcon
                   icon={ShareIcon}
                   style={iconColor ? {color: iconColor} : undefined}

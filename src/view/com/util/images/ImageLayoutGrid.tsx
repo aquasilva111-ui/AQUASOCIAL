@@ -21,14 +21,11 @@ interface ImageLayoutGridProps {
   style?: StyleProp<ViewStyle>
   viewContext?: PostEmbedViewContext
   borderRadius?: number
-  /** Square the grid's bottom-left corner for the white notch. */
-  notch?: boolean
 }
 
 export function ImageLayoutGrid({
   style,
   borderRadius = IMAGE_BORDER_RADIUS,
-  notch,
   ...props
 }: ImageLayoutGridProps) {
   const {gtMobile} = useBreakpoints()
@@ -41,19 +38,11 @@ export function ImageLayoutGrid({
 
   return (
     <View style={style}>
-      <View
-        style={[
-          gap,
-          a.overflow_hidden,
-          {
-            borderRadius,
-            borderBottomLeftRadius: notch ? 0 : borderRadius,
-          },
-        ]}>
+      <View style={[gap, a.overflow_hidden, {borderRadius}]}>
         <ImageLayoutGridInner
           {...props}
           gap={gap}
-          borderRadius={notch ? 0 : borderRadius}
+          borderRadius={borderRadius}
         />
       </View>
     </View>

@@ -28,6 +28,7 @@ import * as Menu from '#/components/Menu'
 import {BookmarkButton} from '#/components/PostControls/BookmarkButton'
 import {ShareMenuButton} from '#/components/PostControls/ShareMenu'
 import {Text} from '#/components/Typography'
+import {aquaGlass, GLASS_ICON} from './glass'
 import {AQUA} from './palette'
 import {usePostReaction} from './plugins'
 
@@ -40,8 +41,8 @@ export type AquaLogContext =
   | 'ImmersiveVideo'
 
 /**
- * The four notch icons. Repost, quote, and save stay on the react menu so
- * those handlers are still one tap away without a fifth icon in the cut-out.
+ * Like, reply, send, and react, each in a glass capsule. Repost, quote, and
+ * save stay on the react menu.
  */
 export function AquaActionRow({
   post,
@@ -83,16 +84,18 @@ export function AquaActionRow({
   const t = useTheme()
   const {_} = useLingui()
   const playHaptic = useHaptics()
-  const iconColor = t.name === 'light' ? AQUA.ink : t.atoms.text.color
+  const {emoji, setReaction} = usePostReaction(post.uri)
+  const light = t.name === 'light'
+  const iconColor = light ? AQUA.ink : t.atoms.text.color
 
   return (
     <EventStopper onKeyDown={false}>
-      <View style={[a.flex_row, a.align_center]}>
+      <View style={[a.flex_row, a.align_center, {gap: 6}]}>
         <IconButton testID="likeBtn" label={likeLabel} onPress={onLike}>
           {liked ? (
-            <HeartFilled width={22} height={22} style={{color: AQUA.like}} />
+            <HeartFilled width={21} height={21} style={{color: AQUA.like}} />
           ) : (
-            <HeartOutline width={22} height={22} style={{color: iconColor}} />
+            <HeartOutline width={21} height={21} style={{color: iconColor}} />
           )}
         </IconButton>
         <IconButton
@@ -108,8 +111,8 @@ export function AquaActionRow({
                 }
           }>
           <ReplyIcon
-            width={22}
-            height={22}
+            width={21}
+            height={21}
             style={{color: iconColor, opacity: replyDisabled ? 0.4 : 1}}
           />
         </IconButton>
@@ -124,47 +127,83 @@ export function AquaActionRow({
           onShare={onShare}
           icon={PaperPlane}
           iconColor={iconColor}
+          glass
         />
-        <ReactionMenu postUri={post.uri} iconColor={iconColor}>
-          <Menu.Item
-            testID="repostBtn"
-            label={isReposted ? _(msg`Undo repost`) : _(msg`Repost`)}
-            onPress={onRepost}>
-            <Menu.ItemText>
-              {isReposted ? _(msg`Undo repost`) : _(msg`Repost`)}
-            </Menu.ItemText>
-            <Menu.ItemIcon icon={Repost} />
-          </Menu.Item>
-          <Menu.Item
-            testID="repostDropdownQuoteBtn"
-            disabled={embeddingDisabled}
-            label={
-              embeddingDisabled
-                ? _(msg`Quote posts disabled`)
-                : _(msg`Quote post`)
-            }
-            onPress={onQuote}>
-            <Menu.ItemText>
-              {embeddingDisabled
-                ? _(msg`Quote posts disabled`)
-                : _(msg`Quote post`)}
-            </Menu.ItemText>
-            <Menu.ItemIcon icon={Quote} />
-          </Menu.Item>
-          <View style={[a.flex_row, a.align_center, a.px_xs]}>
-            <BookmarkButton post={post} big={big} logContext={logContext} />
-            <Text style={[a.text_md, t.atoms.text]}>
-              {post.viewer?.bookmarked ? _(msg`Saved`) : _(msg`Save`)}
-            </Text>
-          </View>
-        </ReactionMenu>
+        <Menu.Root>
+          <Menu.Trigger label={_(msg`React to this post`)}>
+            {({props}) => (
+              <IconButton
+                label={
+                  emoji
+                    ? _(msg`Reacted with ${emoji}`)
+                    : _(msg`React to this post`)
+                }
+                {...props}>
+                {emoji ? (
+                  <Text style={{fontSize: 18}}>{emoji}</Text>
+                ) : (
+                  <EmojiSmile
+                    width={21}
+                    height={21}
+                    style={{color: iconColor}}
+                  />
+                )}
+              </IconButton>
+            )}
+          </Menu.Trigger>
+          <Menu.Outer>
+            <View style={[a.flex_row, a.gap_sm, a.px_sm, a.py_xs]}>
+              {REACTIONS.map(reaction => (
+                <Button
+                  key={reaction}
+                  label={_(msg`React with ${reaction}`)}
+                  onPress={() =>
+                    setReaction(emoji === reaction ? undefined : reaction)
+                  }>
+                  <Text style={{fontSize: 22}}>{reaction}</Text>
+                </Button>
+              ))}
+            </View>
+            <Menu.Item
+              testID="repostBtn"
+              label={isReposted ? _(msg`Undo repost`) : _(msg`Repost`)}
+              onPress={onRepost}>
+              <Menu.ItemText>
+                {isReposted ? _(msg`Undo repost`) : _(msg`Repost`)}
+              </Menu.ItemText>
+              <Menu.ItemIcon icon={Repost} />
+            </Menu.Item>
+            <Menu.Item
+              testID="repostDropdownQuoteBtn"
+              disabled={embeddingDisabled}
+              label={
+                embeddingDisabled
+                  ? _(msg`Quote posts disabled`)
+                  : _(msg`Quote post`)
+              }
+              onPress={onQuote}>
+              <Menu.ItemText>
+                {embeddingDisabled
+                  ? _(msg`Quote posts disabled`)
+                  : _(msg`Quote post`)}
+              </Menu.ItemText>
+              <Menu.ItemIcon icon={Quote} />
+            </Menu.Item>
+            <View style={[a.flex_row, a.align_center, a.px_xs]}>
+              <BookmarkButton post={post} big={big} logContext={logContext} />
+              <Text style={[a.text_md, t.atoms.text]}>
+                {post.viewer?.bookmarked ? _(msg`Saved`) : _(msg`Save`)}
+              </Text>
+            </View>
+          </Menu.Outer>
+        </Menu.Root>
       </View>
     </EventStopper>
   )
 }
 
 /**
- * The same four notch icons for a post that is not an `app.bsky` record.
+ * The same glass capsules for a post that is not an `app.bsky` record.
  * Repost and save stay on the react menu, as they do on the network card.
  */
 export function AquaPlainActionRow({
@@ -199,19 +238,19 @@ export function AquaPlainActionRow({
   const iconColor = t.name === 'light' ? AQUA.ink : t.atoms.text.color
   return (
     <EventStopper onKeyDown={false}>
-      <View style={[a.flex_row, a.align_center]}>
+      <View style={[a.flex_row, a.align_center, {gap: 6}]}>
         <IconButton testID="likeBtn" label={likeLabel} onPress={onLike}>
           {liked ? (
-            <HeartFilled width={22} height={22} style={{color: AQUA.like}} />
+            <HeartFilled width={21} height={21} style={{color: AQUA.like}} />
           ) : (
-            <HeartOutline width={22} height={22} style={{color: iconColor}} />
+            <HeartOutline width={21} height={21} style={{color: iconColor}} />
           )}
         </IconButton>
         <IconButton testID="replyBtn" label={replyLabel} onPress={onReply}>
-          <ReplyIcon width={22} height={22} style={{color: iconColor}} />
+          <ReplyIcon width={21} height={21} style={{color: iconColor}} />
         </IconButton>
         <IconButton testID="sendBtn" label={sendLabel} onPress={onSend}>
-          <PaperPlane width={22} height={22} style={{color: iconColor}} />
+          <PaperPlane width={21} height={21} style={{color: iconColor}} />
         </IconButton>
         <ReactionMenu postUri={postUri} iconColor={iconColor}>
           <Menu.Item
@@ -261,7 +300,7 @@ function ReactionMenu({
             {emoji ? (
               <Text style={{fontSize: 18}}>{emoji}</Text>
             ) : (
-              <EmojiSmile width={22} height={22} style={{color: iconColor}} />
+              <EmojiSmile width={21} height={21} style={{color: iconColor}} />
             )}
           </IconButton>
         )}
@@ -291,12 +330,24 @@ function IconButton({
 }: Omit<ComponentProps<typeof Button>, 'children'> & {
   children: ReactElement
 }) {
+  const t = useTheme()
+  const light = t.name === 'light'
   return (
     <Button
       {...rest}
       hitSlop={6}
-      style={[a.align_center, a.justify_center, {width: 34, height: 34}]}
-      hoverStyle={a.bg_transparent}>
+      style={[
+        a.align_center,
+        a.justify_center,
+        a.rounded_full,
+        aquaGlass(light),
+        {width: GLASS_ICON, height: GLASS_ICON},
+      ]}
+      hoverStyle={{
+        backgroundColor: light
+          ? 'rgba(255,255,255,0.8)'
+          : 'rgba(15,23,42,0.85)',
+      }}>
       {children}
     </Button>
   )

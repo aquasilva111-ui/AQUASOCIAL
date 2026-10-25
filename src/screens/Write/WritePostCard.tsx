@@ -30,8 +30,8 @@ import {Text} from '#/components/Typography'
 import {Avatar, bookSubtitle, formatAge, ProgressBar, TypeBadge} from './ui'
 
 /**
- * Write feed card. Media posts use the frameless Aqua card (cover edge to
- * edge, author over the photo, white notch). Opinions use the text-only bar.
+ * Write feed card, matching AquaPostCard: caption above the picture, media
+ * edge to edge, glass capsules on the photo. Opinions use the text-only pill.
  * Ranking, royalties, and the local repository stay outside this view.
  */
 export function WritePostCard({
@@ -106,10 +106,53 @@ export function WritePostCard({
           borderWidth: media ? 0 : 1,
           borderColor,
           padding: media ? 0 : 14,
-          overflow: 'hidden',
+          overflow: media ? 'hidden' : undefined,
         },
         web({boxShadow: '0 10px 30px rgba(15,23,42,0.06)'}),
       ]}>
+      {media ? (
+        <View
+          style={{
+            paddingHorizontal: 16,
+            paddingTop: 14,
+            paddingBottom: 10,
+            gap: 8,
+          }}>
+          <TypeBadge type={post.type} />
+          {post.type === 'book' ? (
+            <BookCaption
+              post={post}
+              ink={ink}
+              muted={muted}
+              inLibrary={inLibrary}
+            />
+          ) : null}
+          {post.type === 'article' ? (
+            <View style={[a.gap_xs]}>
+              <CaptionLead
+                name={post.author.displayName}
+                text={post.title}
+                ink={ink}
+              />
+              <Text style={[a.text_sm, {color: muted, lineHeight: 20}]}>
+                {post.subtitle}
+              </Text>
+              <View style={[a.flex_row, a.gap_sm, a.flex_wrap, a.mt_xs]}>
+                <Pill label={`${post.readMinutes} min read`} />
+                {post.tags.map(tag => (
+                  <Pill
+                    key={tag}
+                    label={tag === 'tecnologia' ? 'Tecnologia' : tag}
+                  />
+                ))}
+              </View>
+            </View>
+          ) : null}
+          {post.type === 'recipe' ? (
+            <RecipeCaption post={post} ink={ink} />
+          ) : null}
+        </View>
+      ) : null}
       {media ? (
         <View style={{position: 'relative'}}>
           <Link
@@ -136,7 +179,6 @@ export function WritePostCard({
           </Link>
           <AquaMediaChrome
             placement="card"
-            notchColor={cardBg}
             actions={actions}
             capsule={capsule}
             sparkle={sparkle}
@@ -146,65 +188,23 @@ export function WritePostCard({
       ) : (
         <AuthorRow post={post} overlay={false} />
       )}
-      <View
-        style={
-          media
-            ? {paddingHorizontal: 16, paddingTop: 12, paddingBottom: 16, gap: 8}
-            : [a.gap_xs, a.mt_sm]
-        }>
-        {media ? <TypeBadge type={post.type} /> : null}
-        {post.type === 'book' ? (
-          <BookCaption
-            post={post}
-            ink={ink}
-            muted={muted}
-            inLibrary={inLibrary}
-          />
-        ) : null}
-        {post.type === 'article' ? (
-          <View style={[a.gap_xs]}>
-            <CaptionLead
-              name={post.author.displayName}
-              text={post.title}
-              ink={ink}
-            />
+      {post.type === 'opinion' ? (
+        <View style={[a.gap_xs, a.mt_sm]}>
+          <Text style={[a.text_md, {color: ink, lineHeight: 22}]}>
+            {post.text}
+          </Text>
+          {post.quote ? (
             <Text style={[a.text_sm, {color: muted, lineHeight: 20}]}>
-              {post.subtitle}
+              “{post.quote.text}”
             </Text>
-            <View style={[a.flex_row, a.gap_sm, a.flex_wrap, a.mt_xs]}>
-              <Pill label={`${post.readMinutes} min read`} />
-              {post.tags.map(tag => (
-                <Pill
-                  key={tag}
-                  label={tag === 'tecnologia' ? 'Tecnologia' : tag}
-                />
-              ))}
-            </View>
-          </View>
-        ) : null}
-        {post.type === 'recipe' ? (
-          <RecipeCaption post={post} ink={ink} />
-        ) : null}
-        {post.type === 'opinion' ? (
-          <View style={[a.gap_xs]}>
-            <Text style={[a.text_md, {color: ink, lineHeight: 22}]}>
-              {post.text}
-            </Text>
-            {post.quote ? (
-              <Text style={[a.text_sm, {color: muted, lineHeight: 20}]}>
-                “{post.quote.text}”
-              </Text>
-            ) : null}
-          </View>
-        ) : null}
-        {media ? null : (
+          ) : null}
           <AquaTextActionBar
             actions={actions}
             sparkle={sparkle}
             capsule={capsule}
           />
-        )}
-      </View>
+        </View>
+      ) : null}
       <WhySheet control={whyControl} data={why} />
     </View>
   )
@@ -341,7 +341,7 @@ function Cover({post}: {post: Exclude<WritePost, {type: 'opinion'}>}) {
         backgroundColor: tone.bg,
         justifyContent: 'flex-end',
       }}>
-      <View style={{paddingHorizontal: 20, paddingBottom: 84, maxWidth: '78%'}}>
+      <View style={{paddingHorizontal: 20, paddingBottom: 64, maxWidth: '70%'}}>
         <Text
           style={[
             a.font_bold,
@@ -388,10 +388,11 @@ function AuthorRow({post, overlay}: {post: WritePost; overlay: boolean}) {
               right: 0,
               zIndex: 4,
               paddingTop: 16,
-              paddingHorizontal: 16,
+              paddingLeft: 16,
+              paddingRight: 58,
               paddingBottom: 34,
             }
-          : [a.mb_xs, a.z_20],
+          : [a.mb_md, a.z_20],
       ]}>
       {overlay ? (
         <LinearGradient

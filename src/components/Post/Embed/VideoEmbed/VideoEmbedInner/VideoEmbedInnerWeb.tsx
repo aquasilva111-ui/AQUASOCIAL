@@ -17,6 +17,7 @@ export function VideoEmbedInnerWeb({
   onScreen,
   lastKnownTime,
   objectFit = 'contain',
+  hideTimeIndicator,
 }: {
   embed: AppBskyEmbedVideo.View
   active: boolean
@@ -24,6 +25,8 @@ export function VideoEmbedInnerWeb({
   onScreen: boolean
   lastKnownTime: React.MutableRefObject<number | undefined>
   objectFit?: 'contain' | 'cover'
+  /** Aqua chrome already shows the duration, and owns the bottom-left. */
+  hideTimeIndicator?: boolean
 }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -105,6 +108,7 @@ export function VideoEmbedInnerWeb({
           onScreen={onScreen}
           fullscreenRef={containerRef}
           hasSubtitleTrack={hasSubtitleTrack}
+          hideTimeIndicator={hideTimeIndicator}
         />
       </div>
     </View>

@@ -9,7 +9,6 @@ import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
 import {getPostTextAndFacets} from '#/lib/strings/long-post'
 import {formatDuration, knownDurationSeconds} from '#/lib/views/format'
 import {POST_TOMBSTONE, usePostShadow} from '#/state/cache/post-shadow'
-import {useTheme} from '#/alf'
 import * as Dialog from '#/components/Dialog'
 import {PostControls} from '#/components/PostControls'
 import * as bsky from '#/types/bsky'
@@ -17,13 +16,12 @@ import {type AquaLogContext} from './AquaActionRow'
 import {LikeCapsule} from './LikeCapsule'
 import {AquaMediaChrome} from './MediaChrome'
 import {videoEmbedOf} from './model'
-import {AQUA} from './palette'
 import {useWhySeeingThis} from './plugins'
 import {SparkleButton} from './SparkleButton'
 import {WhySheet} from './WhySheet'
 
 /**
- * Notch chrome for tiles that are not the full post card (video grid,
+ * Glass chrome for tiles that are not the full post card (video grid,
  * Views cards, image covers). Same actions, capsule, and sparkle sheet.
  */
 export function AquaEmbedChrome({
@@ -35,7 +33,6 @@ export function AquaEmbedChrome({
   logContext: AquaLogContext
   duration?: string
 }) {
-  const t = useTheme()
   const shadowed = usePostShadow(post)
   const whyControl = Dialog.useDialogControl()
   const why = useWhySeeingThis(post.uri)
@@ -55,15 +52,9 @@ export function AquaEmbedChrome({
 
   if (shadowed === POST_TOMBSTONE || !record) return null
 
-  const light = t.name === 'light'
-  const notchColor = light
-    ? AQUA.white
-    : (t.atoms.bg.backgroundColor ?? AQUA.white)
-
   return (
     <>
       <AquaMediaChrome
-        notchColor={notchColor}
         duration={chip}
         actions={
           <PostControls
