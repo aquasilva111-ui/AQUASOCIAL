@@ -521,7 +521,14 @@ function NavItem({count, hasNew, href, icon, iconFilled, label}: NavItemProps) {
  * `embedded`: render inside a column (e.g. IU & AI's collapsible) instead of
  * floating fixed over the page, so it pushes content rather than covering it.
  */
-export function DesktopLeftNav({embedded = false}: {embedded?: boolean} = {}) {
+export function DesktopLeftNav({
+  embedded = false,
+  overlay = false,
+}: {
+  embedded?: boolean
+  /** Write slides the menu over the page instead of docking it. */
+  overlay?: boolean
+} = {}) {
   const {hasSession} = useSession()
   const pal = usePalette('default')
   const {_} = useLingui()
@@ -547,25 +554,33 @@ export function DesktopLeftNav({embedded = false}: {embedded?: boolean} = {}) {
         leftNavMinimal && styles.leftNavMinimal,
         embedded
           ? null
-          : leftNavMinimal
+          : overlay
             ? {
-                transform: [
-                  {
-                    translateX:
-                      -CENTER_COLUMN_HALF_WIDTH +
-                      (centerColumnOffset ? CENTER_COLUMN_OFFSET : 0),
-                  },
-                  {translateX: '-100%'},
-                  ...a.scrollbar_offset.transform,
-                ],
+                left: 0,
+                zIndex: 20,
+                backgroundColor: pal.view.backgroundColor,
+                paddingTop: 72,
+                boxShadow: '8px 0 30px rgba(0, 0, 0, 0.12)',
               }
-            : // Plenty of guaranteed room in this (already-wide) breakpoint,
-              // so anchor near the true left edge instead of the feed-relative
-              // offset — avoids a growing dead margin on wide screens.
-              {
-                left: getNavEdgeInset(windowWidth, LEFT_NAV_WIDTH),
-                transform: a.scrollbar_offset.transform,
-              },
+            : leftNavMinimal
+              ? {
+                  transform: [
+                    {
+                      translateX:
+                        -CENTER_COLUMN_HALF_WIDTH +
+                        (centerColumnOffset ? CENTER_COLUMN_OFFSET : 0),
+                    },
+                    {translateX: '-100%'},
+                    ...a.scrollbar_offset.transform,
+                  ],
+                }
+              : // Plenty of guaranteed room in this (already-wide) breakpoint,
+                // so anchor near the true left edge instead of the feed-relative
+                // offset — avoids a growing dead margin on wide screens.
+                {
+                  left: getNavEdgeInset(windowWidth, LEFT_NAV_WIDTH),
+                  transform: a.scrollbar_offset.transform,
+                },
       ]}>
       {hasSession ? (
         <ProfileCard />
@@ -664,7 +679,7 @@ export function DesktopLeftNav({embedded = false}: {embedded?: boolean} = {}) {
             label="Visionboard"
           />
           <NavItem
-            href="/reads"
+            href="/books"
             icon={
               <Book
                 aria-hidden={true}
@@ -679,7 +694,7 @@ export function DesktopLeftNav({embedded = false}: {embedded?: boolean} = {}) {
                 style={pal.text}
               />
             }
-            label="Reads"
+            label="Write"
           />
           <NavItem
             href="/noticias"

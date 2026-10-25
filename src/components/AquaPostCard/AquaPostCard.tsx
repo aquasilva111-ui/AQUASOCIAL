@@ -50,7 +50,7 @@ import {useSimpleVerificationState} from '#/components/verification'
 import {VerificationCheck} from '#/components/verification/VerificationCheck'
 import * as bsky from '#/types/bsky'
 import {LikeCapsule} from './LikeCapsule'
-import {AquaMediaChrome} from './MediaChrome'
+import {AquaMediaChrome, AquaTextActionBar} from './MediaChrome'
 import {aquaMediaKind, externalPreview, postOrigin, videoEmbedOf} from './model'
 import {OriginBadge} from './OriginBadge'
 import {AQUA, AQUA_DIVIDER} from './palette'
@@ -338,26 +338,11 @@ export function AquaPostCard({
                 viewContext={viewContext}
               />
             ) : null}
-            <View
-              style={[
-                a.flex_row,
-                a.align_center,
-                a.mt_sm,
-                {
-                  gap: 6,
-                  minHeight: 50,
-                  padding: 6,
-                  borderRadius: 25,
-                  backgroundColor: light
-                    ? AQUA.surface
-                    : t.atoms.bg_contrast_25.backgroundColor,
-                },
-              ]}>
-              {controls}
-              {sparkle}
-              <View style={a.flex_1} />
-              {capsule}
-            </View>
+            <AquaTextActionBar
+              actions={controls}
+              sparkle={sparkle}
+              capsule={capsule}
+            />
           </>
         )}
       </ContentHider>

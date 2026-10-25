@@ -115,7 +115,7 @@ function TabBar({tab}: {tab: HubTabId}) {
 const RAIL_ITEMS = [
   {to: '/', label: 'Início', icon: HomeIcon},
   {to: '/search', label: 'Buscar', icon: SearchIcon},
-  {to: '/books', label: 'Livros', icon: BookIcon},
+  {to: '/books', label: 'Write', icon: BookIcon},
   {to: '/notifications', label: 'Avisos', icon: BellIcon},
   {to: '/profile', label: 'Perfil', icon: ProfileIcon},
 ]

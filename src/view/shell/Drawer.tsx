@@ -330,9 +330,9 @@ let DrawerContent = ({}: React.PropsWithoutRef<{}>): React.ReactNode => {
           <>
             <MenuItem
               icon={<Book width={iconWidth} style={t.atoms.text} />}
-              label="Reads"
+              label="Write"
               onPress={() => {
-                navigation.navigate('Reads')
+                navigation.navigate('Books')
                 setDrawerOpen(false)
               }}
             />
