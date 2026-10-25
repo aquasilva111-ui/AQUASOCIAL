@@ -66,6 +66,7 @@ export function AquaPostCard({
   moderation,
   record,
   richText,
+  captionRichText,
   onPressReply,
   logContext,
   feedContext,
@@ -89,6 +90,7 @@ export function AquaPostCard({
   notices,
   trailing,
   headerTrailing,
+  renderMedia,
   divider = true,
   style,
 }: {
@@ -96,6 +98,8 @@ export function AquaPostCard({
   moderation: ModerationDecision
   record: AppBskyFeedPost.Record
   richText: RichTextAPI
+  /** Shown as the caption instead of the full text (a video's title). */
+  captionRichText?: RichTextAPI
   onPressReply: () => void
   logContext: 'FeedItem' | 'PostThreadItem' | 'Post' | 'ImmersiveVideo'
   feedContext?: string
@@ -119,6 +123,11 @@ export function AquaPostCard({
   notices?: ReactNode
   trailing?: ReactNode
   headerTrailing?: ReactNode
+  /**
+   * Replaces the embed with the caller's own media (a thumbnail that opens
+   * the watch page). Receives the glass chrome to lay over it.
+   */
+  renderMedia?: (chrome: ReactNode) => ReactNode
   /** Hairline under the post. Threads draw their own reply lines instead. */
   divider?: boolean
   style?: StyleProp<ViewStyle>
@@ -139,9 +148,10 @@ export function AquaPostCard({
     moderation.ui('displayName'),
   )
   const lines = kind === 'video' ? VIDEO_CAPTION_LINES : FEED_CAPTION_LINES
+  const shown = captionRichText ?? richText
   const long =
-    richText.text.length > (kind === 'video' ? 90 : 180) ||
-    countLines(richText.text) > lines
+    shown.text.length > (kind === 'video' ? 90 : 180) ||
+    countLines(shown.text) > lines
   const limit = truncate && !expanded && long
   const duration = formatDuration(
     knownDurationSeconds(videoEmbedOf(post.embed)),
@@ -201,8 +211,8 @@ export function AquaPostCard({
     {color: ink},
     kind === 'video' && a.font_bold,
   ]
-  const preview = richText.text ? undefined : externalPreview(post.embed)
-  const caption = richText.text ? (
+  const preview = shown.text ? undefined : externalPreview(post.embed)
+  const caption = shown.text ? (
     <View>
       <Text
         emoji
@@ -218,7 +228,7 @@ export function AquaPostCard({
         <RichText
           enableTags
           selectable={selectable}
-          value={richText}
+          value={shown}
           style={textStyle}
           authorHandle={post.author.handle}
           shouldProxyLinks
@@ -303,15 +313,19 @@ export function AquaPostCard({
                 ) : null}
               </View>
             ) : null}
-            <Embed
-              embed={post.embed}
-              moderation={moderation}
-              onOpen={onOpenEmbed}
-              viewContext={viewContext}
-              mediaChrome={chrome}
-              bleed
-              style={{marginTop: 0}}
-            />
+            {renderMedia ? (
+              renderMedia(chrome)
+            ) : (
+              <Embed
+                embed={post.embed}
+                moderation={moderation}
+                onOpen={onOpenEmbed}
+                viewContext={viewContext}
+                mediaChrome={chrome}
+                bleed
+                style={{marginTop: 0}}
+              />
+            )}
           </>
         ) : (
           <>

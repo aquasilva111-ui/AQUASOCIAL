@@ -1,3 +1,4 @@
+import {type ReactNode} from 'react'
 import {type AppBskyEmbedVideo} from '@atproto/api'
 
 import {type Chapter} from '#/lib/view-watch/chapters'
@@ -32,4 +33,6 @@ export type ViewPlayerProps = {
   onPlayNext?: () => void
   /** Keeps playing in the miniplayer and leaves the page. */
   onMiniPlayer?: () => void
+  /** Glass actions drawn over the video (like, reply, send, react, star). */
+  mediaChrome?: ReactNode
 }

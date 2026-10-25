@@ -11,7 +11,7 @@ import {type ViewPlayerHandle, type ViewPlayerProps} from './ViewPlayer.types'
  * Speed, quality and chapter seeking are web-only in this first phase.
  */
 export const ViewPlayer = forwardRef<ViewPlayerHandle, ViewPlayerProps>(
-  function ViewPlayer({embed, watermarkUri}, ref) {
+  function ViewPlayer({embed, watermarkUri, mediaChrome}, ref) {
     useImperativeHandle(ref, () => ({
       seek: () => {},
       getTime: () => 0,
@@ -21,7 +21,7 @@ export const ViewPlayer = forwardRef<ViewPlayerHandle, ViewPlayerProps>(
     }))
     return (
       <View style={[a.relative, a.w_full]}>
-        <VideoEmbed embed={embed} />
+        <VideoEmbed embed={embed} mediaChrome={mediaChrome} />
         {watermarkUri && (
           <View
             pointerEvents="none"

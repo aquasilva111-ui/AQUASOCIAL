@@ -11,10 +11,15 @@ import {
 } from 'react'
 
 import {chapterAt, formatTime, usableDuration} from '#/lib/view-watch/chapters'
+import {AQUA_RADIUS} from '#/components/AquaPostCard/palette'
 import {type HlsInstance, loadHls} from './hls.web'
 import {type ViewPlayerHandle, type ViewPlayerProps} from './ViewPlayer.types'
 
 const COUNTDOWN_SEC = 8
+/** Controls fade out after this long without a pointer or key event. */
+const CONTROLS_IDLE_MS = 3000
+/** Room kept under the progress bar for the glass action capsules. */
+const CAPSULE_ROOM = 58
 
 const SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2]
 const WHITE = '#FFFFFF'
@@ -50,6 +55,10 @@ export const ViewPlayer = forwardRef<ViewPlayerHandle, ViewPlayerProps>(
     // Read once when the source loads; changing it later must not reload.
     const autoStartRef = useRef(props.autoStart)
     const [countdown, setCountdown] = useState<number | null>(null)
+    const [awake, setAwake] = useState(true)
+    const idleTimer = useRef<ReturnType<typeof setTimeout> | undefined>(
+      undefined,
+    )
 
     useImperativeHandle(ref, () => ({
       seek(sec) {
@@ -186,6 +195,22 @@ export const ViewPlayer = forwardRef<ViewPlayerHandle, ViewPlayerProps>(
       else v.pause()
     }, [])
 
+    // Any pointer or key event brings the controls back; 3 s of quiet while
+    // the video plays hides them again.
+    const wake = useCallback(() => {
+      setAwake(true)
+      clearTimeout(idleTimer.current)
+      idleTimer.current = setTimeout(() => setAwake(false), CONTROLS_IDLE_MS)
+    }, [])
+    useEffect(() => () => clearTimeout(idleTimer.current), [])
+    useEffect(() => {
+      if (playing) wake()
+      else {
+        clearTimeout(idleTimer.current)
+        setAwake(true)
+      }
+    }, [playing, wake])
+
     const seekBy = useCallback((delta: number) => {
       const v = videoRef.current
       if (v)
@@ -228,6 +253,7 @@ export const ViewPlayer = forwardRef<ViewPlayerHandle, ViewPlayerProps>(
     }
 
     const onKeyDown = (e: React.KeyboardEvent) => {
+      wake()
       if ((e.target as HTMLElement).tagName === 'BUTTON' && e.key === ' ')
         return
       const handled: Record<string, () => void> = {
@@ -273,6 +299,9 @@ export const ViewPlayer = forwardRef<ViewPlayerHandle, ViewPlayerProps>(
       level === -1
         ? `Auto${autoHeight ? ` (${autoHeight}p)` : ''}`
         : `${levels.find(l => l.index === level)?.height ?? ''}p`
+    const controlsVisible =
+      awake || !playing || ended || menu !== null || !!error
+    const capsuleRoom = props.mediaChrome ? CAPSULE_ROOM : 0
     const pipSupported =
       typeof document !== 'undefined' && !!document.pictureInPictureEnabled
 
@@ -281,6 +310,9 @@ export const ViewPlayer = forwardRef<ViewPlayerHandle, ViewPlayerProps>(
         ref={boxRef}
         tabIndex={0}
         onKeyDown={onKeyDown}
+        onPointerMove={wake}
+        onPointerDown={wake}
+        onFocus={wake}
         aria-label="Player de vídeo"
         role="region"
         style={{
@@ -294,9 +326,10 @@ export const ViewPlayer = forwardRef<ViewPlayerHandle, ViewPlayerProps>(
           marginLeft: fullscreen ? undefined : 'auto',
           marginRight: fullscreen ? undefined : 'auto',
           background: '#000',
-          borderRadius: fullscreen || theater ? 0 : 20,
+          borderRadius: fullscreen || theater ? 0 : AQUA_RADIUS.media,
           overflow: 'hidden',
           outline: 'none',
+          cursor: controlsVisible ? undefined : 'none',
         }}>
         <video
           ref={videoRef}
@@ -359,7 +392,7 @@ export const ViewPlayer = forwardRef<ViewPlayerHandle, ViewPlayerProps>(
             style={{
               position: 'absolute',
               right: 16,
-              bottom: 76,
+              bottom: 76 + capsuleRoom,
               width: '7%',
               minWidth: 32,
               maxWidth: 72,
@@ -383,6 +416,7 @@ export const ViewPlayer = forwardRef<ViewPlayerHandle, ViewPlayerProps>(
               color: WHITE,
               fontSize: 15,
               background: 'rgba(0,0,0,0.7)',
+              zIndex: 5,
             }}>
             {error}
           </div>
@@ -394,6 +428,7 @@ export const ViewPlayer = forwardRef<ViewPlayerHandle, ViewPlayerProps>(
               position: 'absolute',
               inset: 0,
               background: 'rgba(0,0,0,0.78)',
+              zIndex: 5,
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
@@ -490,18 +525,31 @@ export const ViewPlayer = forwardRef<ViewPlayerHandle, ViewPlayerProps>(
           </button>
         )}
 
+        {props.mediaChrome}
+
         <div
           style={{
             position: 'absolute',
             left: 0,
             right: 0,
-            bottom: 0,
-            padding: '12px 16px',
-            background: 'linear-gradient(transparent, rgba(0,0,0,0.75))',
+            bottom: capsuleRoom,
+            padding: '8px 16px 4px',
+            zIndex: 3,
             display: 'flex',
             flexDirection: 'column',
-            gap: 8,
+            gap: 4,
           }}>
+          <div
+            aria-hidden="true"
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'linear-gradient(transparent, rgba(0,0,0,0.75))',
+              opacity: controlsVisible ? 1 : 0,
+              transition: 'opacity 250ms ease',
+              pointerEvents: 'none',
+            }}
+          />
           <div
             role="slider"
             aria-label="Progresso"
@@ -511,6 +559,7 @@ export const ViewPlayer = forwardRef<ViewPlayerHandle, ViewPlayerProps>(
             aria-valuetext={`${formatTime(time)} de ${formatTime(duration)}`}
             onClick={onScrub}
             style={{
+              position: 'relative',
               display: 'flex',
               gap: 3,
               height: 14,
@@ -523,7 +572,8 @@ export const ViewPlayer = forwardRef<ViewPlayerHandle, ViewPlayerProps>(
                 style={{
                   flexGrow: s.grow,
                   flexBasis: 0,
-                  height: 5,
+                  height: controlsVisible ? 5 : 3,
+                  transition: 'height 250ms ease',
                   borderRadius: 3,
                   background: 'rgba(255,255,255,0.35)',
                   overflow: 'hidden',
@@ -540,11 +590,16 @@ export const ViewPlayer = forwardRef<ViewPlayerHandle, ViewPlayerProps>(
           </div>
 
           <div
+            inert={!controlsVisible || undefined}
             style={{
+              position: 'relative',
               display: 'flex',
               alignItems: 'center',
-              gap: 14,
+              gap: 10,
               color: WHITE,
+              opacity: controlsVisible ? 1 : 0,
+              pointerEvents: controlsVisible ? 'auto' : 'none',
+              transition: 'opacity 250ms ease',
             }}>
             <IconButton
               label={playing ? 'Pausar' : 'Reproduzir'}
@@ -612,7 +667,7 @@ export const ViewPlayer = forwardRef<ViewPlayerHandle, ViewPlayerProps>(
                 fontSize: 13,
                 fontWeight: 600,
                 fontVariantNumeric: 'tabular-nums',
-                minWidth: 110,
+                minWidth: 88,
                 flexShrink: 0,
               }}>
               {formatTime(time)} / {formatTime(duration)}
