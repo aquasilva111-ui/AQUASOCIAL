@@ -10,11 +10,9 @@ import {
 } from '@atproto/api'
 import {useQueryClient} from '@tanstack/react-query'
 
-import {MAX_POST_LINES} from '#/lib/constants'
 import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
 import {usePalette} from '#/lib/hooks/usePalette'
 import {makeProfileLink} from '#/lib/routes/links'
-import {countLines} from '#/lib/strings/helpers'
 import {getPostTextAndFacets} from '#/lib/strings/long-post'
 import {colors} from '#/lib/styles'
 import {
@@ -25,17 +23,8 @@ import {
 import {useModerationOpts} from '#/state/preferences/moderation-opts'
 import {unstableCacheProfileView} from '#/state/queries/profile'
 import {Link} from '#/view/com/util/Link'
-import {PostMeta} from '#/view/com/util/PostMeta'
-import {PreviewableUserAvatar} from '#/view/com/util/UserAvatar'
-import {atoms as a} from '#/alf'
-import {ContentHider} from '#/components/moderation/ContentHider'
-import {LabelsOnMyPost} from '#/components/moderation/LabelsOnMe'
-import {PostAlerts} from '#/components/moderation/PostAlerts'
-import {Embed, PostEmbedViewContext} from '#/components/Post/Embed'
+import {AquaPostCard} from '#/components/AquaPostCard'
 import {PostRepliedTo} from '#/components/Post/PostRepliedTo'
-import {ShowMoreTextButton} from '#/components/Post/ShowMoreTextButton'
-import {PostControls} from '#/components/PostControls'
-import {RichText} from '#/components/RichText'
 import {SubtleHover} from '#/components/SubtleHover'
 import * as bsky from '#/types/bsky'
 
@@ -111,9 +100,6 @@ function PostInner({
   const queryClient = useQueryClient()
   const pal = usePalette('default')
   const {openComposer} = useOpenComposer()
-  const [limitLines, setLimitLines] = useState(
-    () => countLines(richText?.text) >= MAX_POST_LINES,
-  )
   const itemUrip = new AtUri(post.uri)
   const itemHref = makeProfileLink(post.author, 'post', itemUrip.rkey)
   let replyAuthorDid = ''
@@ -135,10 +121,6 @@ function PostInner({
       },
     })
   }, [openComposer, post, record, moderation])
-
-  const onPressShowMore = useCallback(() => {
-    setLimitLines(false)
-  }, [setLimitLines])
 
   const onBeforePress = useCallback(() => {
     unstableCacheProfileView(queryClient, post.author)
@@ -164,70 +146,21 @@ function PostInner({
       }}>
       <SubtleHover hover={hover} />
       {showReplyLine && <View style={styles.replyLine} />}
-      <View style={styles.layout}>
-        <View style={styles.layoutAvi}>
-          <PreviewableUserAvatar
-            size={42}
-            profile={post.author}
-            moderation={moderation.ui('avatar')}
-            type={post.author.associated?.labeler ? 'labeler' : 'user'}
-          />
-        </View>
-        <View style={styles.layoutContent}>
-          <PostMeta
-            author={post.author}
-            moderation={moderation}
-            timestamp={post.indexedAt}
-            postHref={itemHref}
-          />
-          {replyAuthorDid !== '' && (
+      <AquaPostCard
+        post={post}
+        moderation={moderation}
+        record={record}
+        richText={richText}
+        onPressReply={onPressReply}
+        logContext="Post"
+        postHref={itemHref}
+        moderationContext="contentView"
+        notices={
+          replyAuthorDid !== '' ? (
             <PostRepliedTo parentAuthor={replyAuthorDid} />
-          )}
-          <LabelsOnMyPost post={post} />
-          <ContentHider
-            modui={moderation.ui('contentView')}
-            style={styles.contentHider}
-            childContainerStyle={styles.contentHiderChild}>
-            <PostAlerts
-              modui={moderation.ui('contentView')}
-              style={[a.pb_xs]}
-            />
-            {richText.text ? (
-              <View>
-                <RichText
-                  enableTags
-                  testID="postText"
-                  value={richText}
-                  numberOfLines={limitLines ? MAX_POST_LINES : undefined}
-                  style={[a.flex_1, a.text_md]}
-                  authorHandle={post.author.handle}
-                  shouldProxyLinks={true}
-                />
-                {limitLines && (
-                  <ShowMoreTextButton
-                    style={[a.text_md]}
-                    onPress={onPressShowMore}
-                  />
-                )}
-              </View>
-            ) : undefined}
-            {post.embed ? (
-              <Embed
-                embed={post.embed}
-                moderation={moderation}
-                viewContext={PostEmbedViewContext.Feed}
-              />
-            ) : null}
-          </ContentHider>
-          <PostControls
-            post={post}
-            record={record}
-            richText={richText}
-            onPressReply={onPressReply}
-            logContext="Post"
-          />
-        </View>
-      </View>
+          ) : null
+        }
+      />
     </Link>
   )
 }
@@ -241,19 +174,6 @@ const styles = StyleSheet.create({
     // @ts-ignore web only -prf
     cursor: 'pointer',
   },
-  layout: {
-    flexDirection: 'row',
-    gap: 10,
-  },
-  layoutAvi: {
-    paddingLeft: 8,
-  },
-  layoutContent: {
-    flex: 1,
-  },
-  alert: {
-    marginBottom: 6,
-  },
   replyLine: {
     position: 'absolute',
     left: 36,
@@ -261,11 +181,5 @@ const styles = StyleSheet.create({
     bottom: 0,
     borderLeftWidth: 2,
     borderLeftColor: colors.gray2,
-  },
-  contentHider: {
-    marginBottom: 2,
-  },
-  contentHiderChild: {
-    marginTop: 6,
   },
 })

@@ -13,6 +13,7 @@ import {toNiceDomain} from '#/lib/strings/url-helpers'
 import {isNative} from '#/platform/detection'
 import {useExternalEmbedsPrefs} from '#/state/preferences'
 import {atoms as a, useTheme} from '#/alf'
+import {AQUA_RADIUS, aquaChromeRadii} from '#/components/AquaPostCard/palette'
 import {Divider} from '#/components/Divider'
 import {Earth_Stroke2_Corner0_Rounded as Globe} from '#/components/icons/Globe'
 import {Link} from '#/components/Link'
@@ -26,11 +27,17 @@ export const ExternalEmbed = ({
   onOpen,
   style,
   hideAlt,
+  imageOverlay,
+  bleed,
 }: {
   link: AppBskyEmbedExternal.ViewExternal
   onOpen?: () => void
   style?: StyleProp<ViewStyle>
   hideAlt?: boolean
+  /** Glass chrome, drawn on the cover image only. */
+  imageOverlay?: React.ReactNode
+  /** Cover is flush with the post card; the card clips the outer radius. */
+  bleed?: boolean
 }) => {
   const {_} = useLingui()
   const t = useTheme()
@@ -46,6 +53,12 @@ export const ExternalEmbed = ({
     }
   }, [link.uri, externalEmbedPrefs])
   const hasMedia = Boolean(imageUri || embedPlayerParams)
+  const coverFrame = imageOverlay
+    ? {
+        position: 'relative' as const,
+        ...aquaChromeRadii(),
+      }
+    : undefined
 
   const onPress = useCallback(() => {
     playHaptic('Light')
@@ -62,14 +75,16 @@ export const ExternalEmbed = ({
   if (embedPlayerParams?.source === 'tenor') {
     const parsedAlt = parseAltFromGIFDescription(link.description)
     return (
-      <View style={style}>
+      <View style={[style, coverFrame]}>
         <GifEmbed
           params={embedPlayerParams}
           thumb={link.thumb}
           altText={parsedAlt.alt}
           isPreferredAltText={parsedAlt.isPreferred}
           hideAlt={hideAlt}
+          style={imageOverlay ? aquaChromeRadii() : undefined}
         />
+        {imageOverlay}
       </View>
     )
   }
@@ -86,93 +101,109 @@ export const ExternalEmbed = ({
           style={[
             a.transition_color,
             a.flex_col,
-            a.rounded_md,
+            bleed || imageOverlay
+              ? {borderRadius: AQUA_RADIUS.media}
+              : a.rounded_md,
             a.overflow_hidden,
             a.w_full,
             a.border,
+            bleed ? {borderWidth: 0} : null,
             style,
             hovered
               ? t.atoms.border_contrast_high
               : t.atoms.border_contrast_low,
           ]}>
           {imageUri && !embedPlayerParams ? (
-            <Image
-              style={[a.aspect_card]}
-              source={{uri: imageUri}}
-              accessibilityIgnoresInvertColors
-            />
+            <View style={coverFrame}>
+              <Image
+                style={[a.w_full, a.aspect_card]}
+                contentFit="cover"
+                source={{uri: imageUri}}
+                accessibilityIgnoresInvertColors
+              />
+              {imageOverlay}
+            </View>
           ) : undefined}
 
           {embedPlayerParams?.isGif ? (
-            <ExternalGif link={link} params={embedPlayerParams} />
+            <View style={coverFrame}>
+              <ExternalGif link={link} params={embedPlayerParams} />
+              {imageOverlay}
+            </View>
           ) : embedPlayerParams ? (
-            <ExternalPlayer link={link} params={embedPlayerParams} />
+            <View style={coverFrame}>
+              <ExternalPlayer link={link} params={embedPlayerParams} />
+              {imageOverlay}
+            </View>
           ) : undefined}
 
-          <View
-            style={[
-              a.flex_1,
-              a.pt_sm,
-              {gap: 3},
-              hasMedia && a.border_t,
-              hovered
-                ? t.atoms.border_contrast_high
-                : t.atoms.border_contrast_low,
-            ]}>
-            <View style={[{gap: 3}, a.pb_xs, a.px_md]}>
-              {!embedPlayerParams?.isGif && !embedPlayerParams?.dimensions && (
-                <Text
-                  emoji
-                  numberOfLines={3}
-                  style={[a.text_md, a.font_semi_bold, a.leading_snug]}>
-                  {link.title || link.uri}
-                </Text>
-              )}
-              {link.description ? (
-                <Text
-                  emoji
-                  numberOfLines={link.thumb ? 2 : 4}
-                  style={[a.text_sm, a.leading_snug]}>
-                  {link.description}
-                </Text>
-              ) : undefined}
-            </View>
-            <View style={[a.px_md]}>
-              <Divider />
-              <View
-                style={[
-                  a.flex_row,
-                  a.align_center,
-                  a.gap_2xs,
-                  a.pb_sm,
-                  {
-                    paddingTop: 6, // off menu
-                  },
-                ]}>
-                <Globe
-                  size="xs"
+          {bleed ? null : (
+            <View
+              style={[
+                a.flex_1,
+                a.pt_sm,
+                {gap: 3},
+                hasMedia && a.border_t,
+                hovered
+                  ? t.atoms.border_contrast_high
+                  : t.atoms.border_contrast_low,
+              ]}>
+              <View style={[{gap: 3}, a.pb_xs, a.px_md]}>
+                {!embedPlayerParams?.isGif &&
+                  !embedPlayerParams?.dimensions && (
+                    <Text
+                      emoji
+                      numberOfLines={3}
+                      style={[a.text_md, a.font_semi_bold, a.leading_snug]}>
+                      {link.title || link.uri}
+                    </Text>
+                  )}
+                {link.description ? (
+                  <Text
+                    emoji
+                    numberOfLines={link.thumb ? 2 : 4}
+                    style={[a.text_sm, a.leading_snug]}>
+                    {link.description}
+                  </Text>
+                ) : undefined}
+              </View>
+              <View style={[a.px_md]}>
+                <Divider />
+                <View
                   style={[
-                    a.transition_color,
-                    hovered
-                      ? t.atoms.text_contrast_medium
-                      : t.atoms.text_contrast_low,
-                  ]}
-                />
-                <Text
-                  numberOfLines={1}
-                  style={[
-                    a.transition_color,
-                    a.text_xs,
-                    a.leading_snug,
-                    hovered
-                      ? t.atoms.text_contrast_high
-                      : t.atoms.text_contrast_medium,
+                    a.flex_row,
+                    a.align_center,
+                    a.gap_2xs,
+                    a.pb_sm,
+                    {
+                      paddingTop: 6, // off menu
+                    },
                   ]}>
-                  {toNiceDomain(link.uri)}
-                </Text>
+                  <Globe
+                    size="xs"
+                    style={[
+                      a.transition_color,
+                      hovered
+                        ? t.atoms.text_contrast_medium
+                        : t.atoms.text_contrast_low,
+                    ]}
+                  />
+                  <Text
+                    numberOfLines={1}
+                    style={[
+                      a.transition_color,
+                      a.text_xs,
+                      a.leading_snug,
+                      hovered
+                        ? t.atoms.text_contrast_high
+                        : t.atoms.text_contrast_medium,
+                    ]}>
+                    {toNiceDomain(link.uri)}
+                  </Text>
+                </View>
               </View>
             </View>
-          </View>
+          )}
         </View>
       )}
     </Link>

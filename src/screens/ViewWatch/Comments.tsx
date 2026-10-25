@@ -35,6 +35,7 @@ import {
   ReportDialog,
   useReportDialogControl,
 } from '#/components/moderation/ReportDialog'
+import {Embed} from '#/components/Post/Embed'
 import {RichText} from '#/components/RichText'
 import {Text} from '#/components/Typography'
 
@@ -346,9 +347,9 @@ function CommentItem({
           />
         )}
         {!!shadow.embed && !blurred && (
-          <Text style={[a.text_xs, t.atoms.text_contrast_medium]}>
-            Este comentário tem mídia — veja na conversa do post.
-          </Text>
+          <View style={{maxWidth: 280}}>
+            <Embed embed={shadow.embed} moderation={comment.moderation} />
+          </View>
         )}
         {hasSession && (
           <View style={[a.flex_row, a.flex_wrap, a.gap_xs]}>

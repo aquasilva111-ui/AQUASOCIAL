@@ -1,3 +1,4 @@
+import {type ReactNode} from 'react'
 import {type StyleProp, type ViewStyle} from 'react-native'
 import {type AppBskyFeedDefs, type ModerationDecision} from '@atproto/api'
 
@@ -19,6 +20,13 @@ export type CommonProps = {
   viewContext?: PostEmbedViewContext
   isWithinQuote?: boolean
   allowNestedQuotes?: boolean
+  /** Glass action bar drawn over photos, video, and article covers. */
+  mediaChrome?: ReactNode
+  /**
+   * Media sits flush with the post card. The card's own radius clips the
+   * outer corners, so the embed itself is square and cover-cropped.
+   */
+  bleed?: boolean
 }
 
 export type EmbedProps = CommonProps & {

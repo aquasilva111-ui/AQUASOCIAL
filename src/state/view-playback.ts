@@ -15,6 +15,8 @@ export type ViewVideoRef = {
   title: string
   author: string
   thumbnail?: string
+  /** Seconds, only when the embed actually carries a duration. */
+  duration?: number
 }
 
 export type MiniPlayerState = ViewVideoRef & {

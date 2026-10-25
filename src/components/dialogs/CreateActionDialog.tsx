@@ -7,7 +7,7 @@ import {type NavigationProp} from '#/lib/routes/types'
 import {useDocsApi} from '#/state/docs/store'
 import {atoms as a, useTheme} from '#/alf'
 import * as Dialog from '#/components/Dialog'
-import {Book_Stroke2_Corner0_Rounded as BookIcon} from '#/components/icons/Book'
+import {Book_Stroke2_Corner2_Rounded as BookIcon} from '#/components/icons/Book'
 import {Camera_Stroke2_Corner0_Rounded as CameraIcon} from '#/components/icons/Camera'
 import {Drop_Stroke2_Corner0_Rounded as DropIcon} from '#/components/icons/Drop'
 import {EditBig_Stroke2_Corner0_Rounded as EditIcon} from '#/components/icons/EditBig'
@@ -39,6 +39,7 @@ function CreateOptionItem({
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={title}
+      accessibilityHint=""
       onPress={onPress}
       // @ts-expect-error web hover support
       onMouseEnter={() => setHovered(true)}
@@ -95,8 +96,7 @@ function CreateOptionItem({
             </View>
           )}
         </View>
-        <Text
-          style={[a.text_sm, t.atoms.text_contrast_medium, a.leading_snug]}>
+        <Text style={[a.text_sm, t.atoms.text_contrast_medium, a.leading_snug]}>
           {description}
         </Text>
       </View>

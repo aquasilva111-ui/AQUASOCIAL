@@ -35,12 +35,7 @@ export function HomeFeedTabs({
     <View
       testID={testID}
       accessibilityRole="tablist"
-      style={[
-        a.w_full,
-        a.flex_row,
-        a.align_center,
-        t.atoms.bg,
-      ]}>
+      style={[a.w_full, a.flex_row, a.align_center, t.atoms.bg]}>
       <View style={{width: SIDE_SLOT}} />
       <View style={[a.flex_1, a.flex_row, a.justify_center, a.gap_2xl]}>
         {items.map((item, index) => {

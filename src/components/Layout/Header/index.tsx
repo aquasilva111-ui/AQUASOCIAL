@@ -33,7 +33,7 @@ import {Text} from '#/components/Typography'
 
 export function Outer({
   children,
-  noBottomBorder,
+  noBottomBorder: _noBottomBorder,
   headerRef,
   sticky = true,
 }: {

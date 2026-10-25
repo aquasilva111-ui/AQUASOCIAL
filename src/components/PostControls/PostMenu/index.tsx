@@ -29,6 +29,7 @@ let PostMenuButton = ({
   threadgateRecord,
   onShowLess,
   hitSlop,
+  iconColor,
 }: {
   testID: string
   post: Shadow<AppBskyFeedDefs.PostView>
@@ -41,6 +42,7 @@ let PostMenuButton = ({
   threadgateRecord?: AppBskyFeedThreadgate.Record
   onShowLess?: (interaction: AppBskyFeedDefs.Interaction) => void
   hitSlop?: Insets
+  iconColor?: string
 }): React.ReactNode => {
   const {_} = useLingui()
 
@@ -69,6 +71,7 @@ let PostMenuButton = ({
                 big={big}
                 label={props.accessibilityLabel}
                 {...props}
+                iconColor={iconColor}
                 hitSlop={hitSlop}>
                 <PostControlButtonIcon icon={DotsHorizontal} />
               </PostControlButton>

@@ -1,7 +1,6 @@
 import {useMemo} from 'react'
 import {View} from 'react-native'
 import {Image} from 'expo-image'
-import {LinearGradient} from 'expo-linear-gradient'
 import {
   type AppBskyActorDefs,
   AppBskyEmbedVideo,
@@ -13,16 +12,15 @@ import {msg} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 
 import {sanitizeHandle} from '#/lib/strings/handles'
-import {formatCount} from '#/view/com/util/numeric/format'
 import {UserAvatar} from '#/view/com/util/UserAvatar'
 import {type VideoFeedSourceContext} from '#/screens/VideoFeed/types'
 import {atoms as a, useTheme} from '#/alf'
 import {BLUE_HUE} from '#/alf/util/colorGeneration'
 import {select} from '#/alf/util/themeSelector'
+import {AquaEmbedChrome} from '#/components/AquaPostCard'
+import {AQUA_RADIUS} from '#/components/AquaPostCard/palette'
 import {useInteractionState} from '#/components/hooks/useInteractionState'
 import {EyeSlash_Stroke2_Corner0_Rounded as Eye} from '#/components/icons/EyeSlash'
-import {Heart2_Stroke2_Corner0_Rounded as Heart} from '#/components/icons/Heart2'
-import {Repost_Stroke2_Corner2_Rounded as Repost} from '#/components/icons/Repost'
 import {Link} from '#/components/Link'
 import {MediaInsetBorder} from '#/components/MediaInsetBorder'
 import * as Hider from '#/components/moderation/Hider'
@@ -52,7 +50,7 @@ export function VideoPostCard({
   onInteract?: () => void
 }) {
   const t = useTheme()
-  const {_, i18n} = useLingui()
+  const {_} = useLingui()
   const embed = post.embed
   const {
     state: pressed,
@@ -85,8 +83,6 @@ export function VideoPostCard({
   )
     ? post.record?.text
     : ''
-  const likeCount = post?.likeCount ?? 0
-  const repostCount = post?.repostCount ?? 0
   const {thumbnail} = embed
   const black = getBlackColor(t)
 
@@ -144,11 +140,11 @@ export function VideoPostCard({
           <View
             style={[
               a.justify_center,
-              a.rounded_md,
               a.overflow_hidden,
               {
                 backgroundColor: black,
                 aspectRatio: 9 / 16,
+                borderRadius: AQUA_RADIUS.media,
               },
             ]}>
             <Image
@@ -190,11 +186,11 @@ export function VideoPostCard({
           <View
             style={[
               a.justify_center,
-              a.rounded_md,
               a.overflow_hidden,
               {
                 backgroundColor: black,
                 aspectRatio: 9 / 16,
+                borderRadius: AQUA_RADIUS.media,
               },
             ]}>
             <Image
@@ -202,49 +198,7 @@ export function VideoPostCard({
               style={[a.w_full, a.h_full, {opacity: pressed ? 0.8 : 1}]}
               accessibilityIgnoresInvertColors
             />
-            <MediaInsetBorder />
-
-            <View style={[a.absolute, a.inset_0]}>
-              <View
-                style={[
-                  a.absolute,
-                  a.inset_0,
-                  a.pt_2xl,
-                  {
-                    top: 'auto',
-                  },
-                ]}>
-                <LinearGradient
-                  colors={[black, 'rgba(0, 0, 0, 0)']}
-                  locations={[0.02, 1]}
-                  start={{x: 0, y: 1}}
-                  end={{x: 0, y: 0}}
-                  style={[a.absolute, a.inset_0, {opacity: 0.9}]}
-                />
-
-                <View
-                  style={[a.relative, a.z_10, a.p_md, a.flex_row, a.gap_md]}>
-                  {likeCount > 0 && (
-                    <View style={[a.flex_row, a.align_center, a.gap_xs]}>
-                      <Heart size="sm" fill="white" />
-                      <Text
-                        style={[a.text_sm, a.font_semi_bold, {color: 'white'}]}>
-                        {formatCount(i18n, likeCount)}
-                      </Text>
-                    </View>
-                  )}
-                  {repostCount > 0 && (
-                    <View style={[a.flex_row, a.align_center, a.gap_xs]}>
-                      <Repost size="sm" fill="white" />
-                      <Text
-                        style={[a.text_sm, a.font_semi_bold, {color: 'white'}]}>
-                        {formatCount(i18n, repostCount)}
-                      </Text>
-                    </View>
-                  )}
-                </View>
-              </View>
-            </View>
+            <AquaEmbedChrome post={post} logContext="FeedItem" />
           </View>
           {textAndAuthor}
         </Hider.Content>
@@ -261,11 +215,11 @@ export function VideoPostCardPlaceholder() {
     <View style={[a.flex_1]}>
       <View
         style={[
-          a.rounded_md,
           a.overflow_hidden,
           {
             backgroundColor: black,
             aspectRatio: 9 / 16,
+            borderRadius: AQUA_RADIUS.media,
           },
         ]}>
         <MediaInsetBorder />
@@ -367,7 +321,7 @@ export function CompactVideoPostCard({
   onInteract?: () => void
 }) {
   const t = useTheme()
-  const {_, i18n} = useLingui()
+  const {_} = useLingui()
   const embed = post.embed
   const {
     state: pressed,
@@ -391,8 +345,6 @@ export function CompactVideoPostCard({
    */
   if (!AppBskyEmbedVideo.isView(embed)) return null
 
-  const likeCount = post?.likeCount ?? 0
-  const showLikeCount = false
   const {thumbnail} = embed
   const black = getBlackColor(t)
 
@@ -469,13 +421,13 @@ export function CompactVideoPostCard({
           <View
             style={[
               a.justify_center,
-              a.rounded_lg,
               a.overflow_hidden,
               a.border,
               t.atoms.border_contrast_low,
               {
                 backgroundColor: black,
                 aspectRatio: 9 / 16,
+                borderRadius: AQUA_RADIUS.media,
               },
             ]}>
             <Image
@@ -483,58 +435,7 @@ export function CompactVideoPostCard({
               style={[a.w_full, a.h_full, {opacity: pressed ? 0.8 : 1}]}
               accessibilityIgnoresInvertColors
             />
-            <MediaInsetBorder />
-
-            <View style={[a.absolute, a.inset_0, t.atoms.shadow_sm]}>
-              <View style={[a.absolute, a.inset_0, a.p_sm, {bottom: 'auto'}]}>
-                <View
-                  style={[a.relative, a.rounded_full, {width: 24, height: 24}]}>
-                  <UserAvatar
-                    type="user"
-                    size={24}
-                    avatar={post.author.avatar}
-                  />
-                  <MediaInsetBorder />
-                </View>
-              </View>
-
-              {showLikeCount && (
-                <View
-                  style={[
-                    a.absolute,
-                    a.inset_0,
-                    a.pt_2xl,
-                    {
-                      top: 'auto',
-                    },
-                  ]}>
-                  <LinearGradient
-                    colors={[black, 'rgba(0, 0, 0, 0)']}
-                    locations={[0.02, 1]}
-                    start={{x: 0, y: 1}}
-                    end={{x: 0, y: 0}}
-                    style={[a.absolute, a.inset_0, {opacity: 0.9}]}
-                  />
-
-                  <View
-                    style={[a.relative, a.z_10, a.p_sm, a.flex_row, a.gap_md]}>
-                    {likeCount > 0 && (
-                      <View style={[a.flex_row, a.align_center, a.gap_xs]}>
-                        <Heart size="sm" fill="white" />
-                        <Text
-                          style={[
-                            a.text_sm,
-                            a.font_semi_bold,
-                            {color: 'white'},
-                          ]}>
-                          {formatCount(i18n, likeCount)}
-                        </Text>
-                      </View>
-                    )}
-                  </View>
-                </View>
-              )}
-            </View>
+            <AquaEmbedChrome post={post} logContext="FeedItem" />
           </View>
         </Hider.Content>
       </Hider.Outer>

@@ -24,11 +24,13 @@ export function ConstrainedImage({
   fullBleed,
   children,
   minMobileAspectRatio,
+  borderRadius = IMAGE_BORDER_RADIUS,
 }: {
   aspectRatio: number
   fullBleed?: boolean
   minMobileAspectRatio?: number
   children: React.ReactNode
+  borderRadius?: number
 }) {
   const t = useTheme()
   /**
@@ -51,7 +53,7 @@ export function ConstrainedImage({
               a.h_full,
               a.overflow_hidden,
               t.atoms.bg_contrast_25,
-              {borderRadius: IMAGE_BORDER_RADIUS},
+              {borderRadius},
               fullBleed ? a.w_full : {aspectRatio},
             ]}>
             {children}
@@ -69,9 +71,13 @@ export function AutoSizedImage({
   onPress,
   onLongPress,
   onPressIn,
+  borderRadius = IMAGE_BORDER_RADIUS,
+  fullBleed,
 }: {
   image: AppBskyEmbedImages.ViewImage
   crop?: 'none' | 'square' | 'constrained'
+  /** Fill the frame. Portrait shots crop instead of leaving side bars. */
+  fullBleed?: boolean
   hideBadge?: boolean
   onPress?: (
     containerRef: AnimatedRef<any>,
@@ -79,6 +85,7 @@ export function AutoSizedImage({
   ) => void
   onLongPress?: () => void
   onPressIn?: () => void
+  borderRadius?: number
 }) {
   const t = useTheme()
   const {_} = useLingui()
@@ -129,7 +136,7 @@ export function AutoSizedImage({
           }
         }}
       />
-      <MediaInsetBorder style={{borderRadius: IMAGE_BORDER_RADIUS}} />
+      {fullBleed ? null : <MediaInsetBorder style={{borderRadius}} />}
 
       {(hasAlt || isCropped) && !hideBadge ? (
         <View
@@ -213,7 +220,10 @@ export function AutoSizedImage({
           a.w_full,
           a.overflow_hidden,
           t.atoms.bg_contrast_25,
-          {aspectRatio: max ?? 1, borderRadius: IMAGE_BORDER_RADIUS},
+          {
+            aspectRatio: max ?? 1,
+            borderRadius,
+          },
         ]}>
         {contents}
       </Pressable>
@@ -221,8 +231,9 @@ export function AutoSizedImage({
   } else {
     return (
       <ConstrainedImage
-        fullBleed={crop === 'square'}
-        aspectRatio={constrained ?? 1}>
+        fullBleed={fullBleed || crop === 'square'}
+        aspectRatio={constrained ?? 1}
+        borderRadius={borderRadius}>
         <Pressable
           onPress={() => onPress?.(containerRef, fetchedDimsRef.current)}
           onLongPress={onLongPress}

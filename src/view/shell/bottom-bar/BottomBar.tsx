@@ -13,7 +13,6 @@ import {BOTTOM_BAR_AVI} from '#/lib/demo'
 import {useHaptics} from '#/lib/haptics'
 import {useDedupe} from '#/lib/hooks/useDedupe'
 import {useNavigationTabState} from '#/lib/hooks/useNavigationTabState'
-import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
 import {usePalette} from '#/lib/hooks/usePalette'
 import {clamp} from '#/lib/numbers'
 import {getTabState, TabState} from '#/lib/routes/helpers'
@@ -82,7 +81,6 @@ export function BottomBar({navigation}: BottomTabBarProps) {
   const accountSwitchControl = useDialogControl()
   const createActionControl = useDialogControl()
   const playHaptic = useHaptics()
-  const {openComposer} = useOpenComposer()
   const hasHomeBadge = useHomeBadge()
   const gate = useGate()
   const t = useTheme()

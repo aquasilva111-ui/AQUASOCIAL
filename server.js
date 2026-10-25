@@ -26,11 +26,20 @@ const MIME = {
   '.txt': 'text/plain; charset=utf-8',
 }
 
+/** "/views/static/js/a.js" → "/static/js/a.js"; other paths unchanged. */
+function staticPath(pathname) {
+  const i = pathname.indexOf('/static/')
+  return i > 0 ? pathname.slice(i) : pathname
+}
+
 const server = http.createServer((req, res) => {
   try {
     const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`)
     let pathname = decodeURIComponent(url.pathname)
     if (pathname === '/') pathname = '/index.html'
+    // Build assets asked for under a nested route (/views/static/js/…) live
+    // at /static/…; never answer them with the SPA's index.html.
+    pathname = staticPath(pathname)
 
     const filePath = path.normalize(path.join(ROOT, pathname))
     if (!filePath.startsWith(ROOT)) {
@@ -42,9 +51,11 @@ const server = http.createServer((req, res) => {
     fs.stat(filePath, (err, stat) => {
       let finalPath = filePath
       if (err || stat.isDirectory()) {
-        // SPA fallback: extensionless paths get index.html, missing assets 404
-        if (path.extname(pathname)) {
-          res.writeHead(404)
+        // SPA fallback: extensionless routes get index.html. A missing
+        // /static/ asset, including one resolved under a deep route, is a
+        // plain 404 so the browser does not execute the SPA document.
+        if (pathname.includes('/static/') || path.extname(pathname)) {
+          res.writeHead(404, {'Content-Type': 'text/plain; charset=utf-8'})
           res.end('Not found')
           return
         }
@@ -67,6 +78,10 @@ const server = http.createServer((req, res) => {
   }
 })
 
-server.listen(PORT, () => {
-  console.log(`AQUASOCIAL web server listening on port ${PORT}`)
-})
+if (require.main === module) {
+  server.listen(PORT, () => {
+    console.log(`AQUASOCIAL web server listening on port ${PORT}`)
+  })
+}
+
+module.exports = {server, staticPath}

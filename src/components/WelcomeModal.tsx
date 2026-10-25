@@ -1,6 +1,5 @@
 import {useEffect, useState} from 'react'
 import {Pressable, View} from 'react-native'
-import {ImageBackground} from 'expo-image'
 import {msg, Trans} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 import {FocusGuards, FocusScope} from 'radix-ui/internal'
@@ -13,7 +12,23 @@ import {Button, ButtonText} from '#/components/Button'
 import {TimesLarge_Stroke2_Corner0_Rounded as XIcon} from '#/components/icons/Times'
 import {Text} from '#/components/Typography'
 
-const welcomeModalBg = require('../../assets/images/welcome-modal-bg.jpg')
+/**
+ * Frosted white card. `aqua-design-core` exposes `AQUA.white` (`#FFFFFF`) but
+ * no glass or Nazar iris token, so the wash uses the brand iris `#7EC8F5`.
+ */
+const welcomeCardGlass = {
+  backgroundColor: 'rgba(255, 255, 255, 0.72)',
+  borderWidth: 1,
+  borderStyle: 'solid' as const,
+  borderColor: 'rgba(255, 255, 255, 0.6)',
+  ...web({
+    backdropFilter: 'blur(24px) saturate(1.4)',
+    WebkitBackdropFilter: 'blur(24px) saturate(1.4)',
+    boxShadow: '0 16px 48px rgba(15, 23, 42, 0.14)',
+    backgroundImage:
+      'radial-gradient(280px 240px at 100% 0%, rgba(126, 200, 245, 0.26), rgba(126, 200, 245, 0) 72%)',
+  }),
+}
 
 interface WelcomeModalProps {
   control: {
@@ -73,7 +88,6 @@ export function WelcomeModal({control}: WelcomeModalProps) {
         a.justify_center,
         a.align_center,
         {zIndex: 9999, backgroundColor: 'rgba(0,0,0,0.2)'},
-        web({backdropFilter: 'blur(15px)'}),
         isExiting ? a.fade_out : a.fade_in,
       ]}>
       <FocusScope.FocusScope asChild loop trapped>
@@ -84,16 +98,13 @@ export function WelcomeModal({control}: WelcomeModalProps) {
               maxHeight: 600,
               width: '90%',
               height: '90%',
-              backgroundColor: '#C0DCF0',
             },
+            welcomeCardGlass,
             a.rounded_lg,
             a.overflow_hidden,
             a.zoom_in,
           ])}>
-          <ImageBackground
-            source={welcomeModalBg}
-            style={[a.flex_1, a.justify_center]}
-            contentFit="cover">
+          <View style={[a.flex_1, a.justify_center]}>
             <View style={[a.gap_2xl, a.align_center, a.p_4xl]}>
               <View
                 style={[
@@ -132,7 +143,7 @@ export function WelcomeModal({control}: WelcomeModalProps) {
                     {color: '#354358'},
                     web({
                       backgroundImage:
-                        'linear-gradient(180deg, #313F54 0%, #667B99 83.65%, rgba(102, 123, 153, 0.50) 100%)',
+                        'linear-gradient(180deg, #313F54 0%, #4C607C 72%, #5A7090 100%)',
                       backgroundClip: 'text',
                       WebkitBackgroundClip: 'text',
                       WebkitTextFillColor: 'transparent',
@@ -239,7 +250,7 @@ export function WelcomeModal({control}: WelcomeModalProps) {
                 />
               )}
             </Button>
-          </ImageBackground>
+          </View>
         </View>
       </FocusScope.FocusScope>
     </View>

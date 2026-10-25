@@ -34,17 +34,27 @@ export function useRecordWatch(post: AppBskyFeedDefs.PostView) {
 }
 
 /** "Salvar em…": watch later, playlists and collections. */
-export function SaveMenu({post}: {post: AppBskyFeedDefs.PostView}) {
-  const control = Dialog.useDialogControl()
+export function SaveMenu({
+  post,
+  control: external,
+}: {
+  post: AppBskyFeedDefs.PostView
+  /** When set, the caller opens the dialog and the default button is hidden. */
+  control?: ReturnType<typeof Dialog.useDialogControl>
+}) {
+  const own = Dialog.useDialogControl()
+  const control = external ?? own
   return (
     <>
-      <Button
-        label="Salvar em…"
-        size="small"
-        color="secondary"
-        onPress={() => control.open()}>
-        <ButtonText>Salvar em…</ButtonText>
-      </Button>
+      {!external && (
+        <Button
+          label="Salvar em…"
+          size="small"
+          color="secondary"
+          onPress={() => control.open()}>
+          <ButtonText>Salvar em…</ButtonText>
+        </Button>
+      )}
       <Dialog.Outer control={control}>
         <Dialog.Handle />
         <SaveDialog post={post} />
