@@ -295,6 +295,7 @@ const ThreadItemTreePostInner = memo(function ThreadItemTreePostInner({
                   logContext="PostThreadItem"
                   threadgateRecord={threadgateRecord}
                   postHref={postHref}
+                  divider={false}
                   trailing={<DebugFieldDisplay subject={post} />}
                 />
               </View>

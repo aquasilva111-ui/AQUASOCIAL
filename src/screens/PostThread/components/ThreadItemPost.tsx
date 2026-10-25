@@ -220,6 +220,7 @@ const ThreadItemPostInner = memo(function ThreadItemPostInner({
             logContext="PostThreadItem"
             threadgateRecord={threadgateRecord}
             postHref={postHref}
+            divider={false}
             trailing={<DebugFieldDisplay subject={post} />}
           />
           {(item.ui.showChildReplyLine || item.ui.precedesChildReadMore) && (

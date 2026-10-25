@@ -129,7 +129,7 @@ export function VideoEmbed({
               maxWidth: bleed ? undefined : MAX_HEIGHT * ratio,
               width: '100%',
               ...(mediaChrome
-                ? aquaChromeRadii(!!bleed)
+                ? aquaChromeRadii()
                 : {borderRadius: IMAGE_BORDER_RADIUS}),
               position: 'relative',
             },

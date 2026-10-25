@@ -56,7 +56,7 @@ export const ExternalEmbed = ({
   const coverFrame = imageOverlay
     ? {
         position: 'relative' as const,
-        ...aquaChromeRadii(!!bleed),
+        ...aquaChromeRadii(),
       }
     : undefined
 
@@ -82,7 +82,7 @@ export const ExternalEmbed = ({
           altText={parsedAlt.alt}
           isPreferredAltText={parsedAlt.isPreferred}
           hideAlt={hideAlt}
-          style={imageOverlay ? aquaChromeRadii(!!bleed) : undefined}
+          style={imageOverlay ? aquaChromeRadii() : undefined}
         />
         {imageOverlay}
       </View>
@@ -101,11 +101,9 @@ export const ExternalEmbed = ({
           style={[
             a.transition_color,
             a.flex_col,
-            bleed
-              ? {borderRadius: 0, borderWidth: 0}
-              : imageOverlay
-                ? {borderRadius: AQUA_RADIUS.media}
-                : a.rounded_md,
+            bleed || imageOverlay
+              ? {borderRadius: AQUA_RADIUS.media}
+              : a.rounded_md,
             a.overflow_hidden,
             a.w_full,
             a.border,

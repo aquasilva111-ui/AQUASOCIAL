@@ -375,7 +375,6 @@ const styles = StyleSheet.create({
   },
   card: {
     marginHorizontal: 4,
-    marginBottom: 8,
   },
   embed: {
     marginBottom: 6,
