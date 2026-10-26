@@ -41,10 +41,10 @@ export function LikeCapsule({
         a.gap_xs,
         aquaGlass(light),
         {
-          paddingTop: 4,
-          paddingBottom: 4,
-          paddingLeft: faces.length ? 4 : 10,
-          paddingRight: 12,
+          paddingTop: 3,
+          paddingBottom: 3,
+          paddingLeft: faces.length ? 3 : 9,
+          paddingRight: 10,
         },
       ]}>
       {faces.length > 0 && (
@@ -60,7 +60,7 @@ export function LikeCapsule({
                   borderColor: AQUA.white,
                 },
               ]}>
-              <UserAvatar type="user" size={22} avatar={liker.avatar} />
+              <UserAvatar type="user" size={18} avatar={liker.avatar} />
             </View>
           ))}
         </View>
@@ -71,7 +71,7 @@ export function LikeCapsule({
           a.font_bold,
           a.leading_tight,
           {
-            fontSize: 12.5,
+            fontSize: 12,
             color: light ? AQUA.ink : AQUA.white,
           },
         ]}>

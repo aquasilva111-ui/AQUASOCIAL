@@ -67,6 +67,30 @@
     transform: translateY(0) scale(1);
   }
 }
+/* Scroll-depth variant: pinned above the dock; JS drives opacity/transform. */
+.new-posts-pill-depth {
+  position: fixed;
+  left: 50%;
+  z-index: 21;
+  opacity: 0;
+  pointer-events: none;
+  animation: none;
+  will-change: transform, opacity;
+}
+.new-posts-pill-depth.is-full {
+  animation: new-posts-pill-pop 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes new-posts-pill-pop {
+  0% {
+    filter: brightness(1);
+  }
+  40% {
+    filter: brightness(1.25);
+  }
+  100% {
+    filter: brightness(1);
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   .new-posts-pill {
     animation: none;

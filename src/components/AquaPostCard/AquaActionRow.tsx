@@ -89,12 +89,12 @@ export function AquaActionRow({
 
   return (
     <EventStopper onKeyDown={false}>
-      <View style={[a.flex_row, a.align_center, {gap: 6}]}>
+      <View style={[a.flex_row, a.align_center, {gap: 4}]}>
         <IconButton testID="likeBtn" label={likeLabel} onPress={onLike}>
           {liked ? (
-            <HeartFilled width={21} height={21} style={{color: AQUA.like}} />
+            <HeartFilled width={18} height={18} style={{color: AQUA.like}} />
           ) : (
-            <HeartOutline width={21} height={21} style={{color: iconColor}} />
+            <HeartOutline width={18} height={18} style={{color: iconColor}} />
           )}
         </IconButton>
         <IconButton
@@ -110,8 +110,8 @@ export function AquaActionRow({
                 }
           }>
           <ReplyIcon
-            width={21}
-            height={21}
+            width={18}
+            height={18}
             style={{color: iconColor, opacity: replyDisabled ? 0.4 : 1}}
           />
         </IconButton>
@@ -139,11 +139,11 @@ export function AquaActionRow({
                 }
                 {...props}>
                 {emoji ? (
-                  <Text style={{fontSize: 18}}>{emoji}</Text>
+                  <Text style={{fontSize: 16}}>{emoji}</Text>
                 ) : (
                   <EmojiSmile
-                    width={21}
-                    height={21}
+                    width={18}
+                    height={18}
                     style={{color: iconColor}}
                   />
                 )}

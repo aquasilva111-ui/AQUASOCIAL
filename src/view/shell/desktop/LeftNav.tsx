@@ -29,6 +29,7 @@ import {UserAvatar} from '#/view/com/util/UserAvatar'
 import {HubButtons} from '#/view/shell/desktop/HubButtons'
 import {NavSignupCard} from '#/view/shell/NavSignupCard'
 import {atoms as a, tokens, useLayoutBreakpoints, useTheme, web} from '#/alf'
+import {AquaEyeLogo} from '#/components/AquaEyeLogo'
 import {Button} from '#/components/Button'
 import {type DialogControlProps} from '#/components/Dialog'
 import {AquaLogo} from '#/components/icons/AquaLogo'
@@ -52,6 +53,7 @@ import {
   getNavEdgeInset,
   LEFT_NAV_WIDTH,
 } from '#/components/Layout'
+import {Link} from '#/components/Link'
 import {ViewIcon} from '#/components/media/ViewIcon'
 import * as Menu from '#/components/Menu'
 import * as Prompt from '#/components/Prompt'
@@ -63,7 +65,12 @@ const NAV_ICON_WIDTH = 28
 const uiAiIcon = require('../../../../assets/icons/ui-ai.png')
 const visionboardIcon = require('../../../../assets/icons/visionboard.png')
 
-function ProfileCard() {
+/**
+ * The account switcher. In the left nav it is just the avatar (name and handle
+ * appear on hover). With `capsule` it is the expanded pill used in the right
+ * column, under the footer links: avatar, name, handle and the menu.
+ */
+export function ProfileCard({capsule = false}: {capsule?: boolean} = {}) {
   const {currentAccount, accounts} = useSession()
   const {logoutEveryAccount} = useSessionApi()
   const {isLoading, data} = useProfilesQuery({
@@ -75,7 +82,7 @@ function ProfileCard() {
   const {_} = useLingui()
   const t = useTheme()
 
-  const size = 48
+  const size = capsule ? 40 : 48
 
   const profile = profiles?.find(p => p.did === currentAccount!.did)
   const otherAccounts = accounts
@@ -88,12 +95,18 @@ function ProfileCard() {
   const {isActive: live} = useActorStatus(profile)
 
   return (
-    <View style={[a.my_md, !leftNavMinimal && [a.w_full, a.align_start]]}>
+    <View
+      style={
+        capsule
+          ? a.w_full
+          : [a.my_md, !leftNavMinimal && [a.w_full, a.align_start]]
+      }>
       {!isLoading && profile ? (
         <Menu.Root>
           <Menu.Trigger label={_(msg`Switch accounts`)}>
             {({props, state, control}) => {
-              const active = state.hovered || state.focused || control.isOpen
+              const active =
+                capsule || state.hovered || state.focused || control.isOpen
               return (
                 <Button
                   label={props.accessibilityLabel}
@@ -107,7 +120,9 @@ function ProfileCard() {
                     a.align_center,
                     a.flex_row,
                     {gap: 6},
-                    !leftNavMinimal && [a.pl_lg, a.pr_md],
+                    capsule
+                      ? {height: 56, paddingLeft: 8, paddingRight: 16}
+                      : !leftNavMinimal && [a.pl_lg, a.pr_md],
                   ]}>
                   <View
                     style={[
@@ -118,12 +133,13 @@ function ProfileCard() {
                       ],
                       a.relative,
                       a.z_10,
-                      active && {
-                        transform: [
-                          {scale: !leftNavMinimal ? 2 / 3 : 0.8},
-                          {translateX: !leftNavMinimal ? -22 : 0},
-                        ],
-                      },
+                      active &&
+                        !capsule && {
+                          transform: [
+                            {scale: !leftNavMinimal ? 2 / 3 : 0.8},
+                            {translateX: !leftNavMinimal ? -22 : 0},
+                          ],
+                        },
                     ]}>
                     <UserAvatar
                       avatar={profile.avatar}
@@ -132,7 +148,7 @@ function ProfileCard() {
                       live={live}
                     />
                   </View>
-                  {!leftNavMinimal && (
+                  {(capsule || !leftNavMinimal) && (
                     <>
                       <View
                         style={[
@@ -140,7 +156,7 @@ function ProfileCard() {
                           a.transition_opacity,
                           !active && a.transition_delay_50ms,
                           {
-                            marginLeft: tokens.space.xl * -1,
+                            marginLeft: capsule ? 0 : tokens.space.xl * -1,
                             opacity: active ? 1 : 0,
                           },
                         ]}>
@@ -501,11 +517,47 @@ function NavItem({count, hasNew, href, icon, iconFilled, label}: NavItemProps) {
   )
 }
 
+/** Aqua's eye, in the slot the profile avatar used to take. Goes home. */
+function EyeSlot() {
+  const {_} = useLingui()
+  const {leftNavMinimal} = useLayoutBreakpoints()
+  return (
+    <View
+      style={[
+        a.my_md,
+        !leftNavMinimal && [a.w_full, a.align_start, a.pl_lg],
+        {height: 48},
+      ]}>
+      <Link
+        to="/"
+        action="navigate"
+        label={_(msg`Aqua - Home`)}
+        variant="ghost"
+        color="secondary"
+        style={[a.bg_transparent, {width: 48, height: 48, padding: 0}]}>
+        {({hovered, pressed}) => (
+          <AquaEyeLogo size={48} active={hovered || pressed} />
+        )}
+      </Link>
+    </View>
+  )
+}
+
 /**
  * `embedded`: render inside a column (e.g. IU & AI's collapsible) instead of
  * floating fixed over the page, so it pushes content rather than covering it.
  */
-export function DesktopLeftNav({embedded = false}: {embedded?: boolean} = {}) {
+export function DesktopLeftNav({
+  embedded = false,
+  profileInRightNav = false,
+}: {
+  embedded?: boolean
+  /**
+   * The profile capsule lives in the right column (under the footer links),
+   * so this slot shows the Aqua eye instead of the avatar.
+   */
+  profileInRightNav?: boolean
+} = {}) {
   const {hasSession} = useSession()
   const pal = usePalette('default')
   const {_} = useLingui()
@@ -549,7 +601,11 @@ export function DesktopLeftNav({embedded = false}: {embedded?: boolean} = {}) {
               },
       ]}>
       {hasSession ? (
-        <ProfileCard />
+        profileInRightNav ? (
+          <EyeSlot />
+        ) : (
+          <ProfileCard />
+        )
       ) : !leftNavMinimal ? (
         <View style={[a.pt_xl]}>
           <NavSignupCard />

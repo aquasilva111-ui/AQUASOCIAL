@@ -21,11 +21,12 @@ export const HEADER_SLOT_SIZE = 33
 export const CENTER_COLUMN_OFFSET = -105
 
 /**
- * Width of the center (feed) column on desktop. The left/right nav
+ * Width of the center (feed) column on desktop (560, a bit under X's 600
+ * so posts stay compact). The left/right nav
  * columns anchor themselves off half this value, so keep them in sync
  * with CENTER_COLUMN_HALF_WIDTH rather than hardcoding 300/-300 again.
  */
-export const CENTER_COLUMN_WIDTH = 700
+export const CENTER_COLUMN_WIDTH = 560
 export const CENTER_COLUMN_HALF_WIDTH = CENTER_COLUMN_WIDTH / 2
 
 /**
