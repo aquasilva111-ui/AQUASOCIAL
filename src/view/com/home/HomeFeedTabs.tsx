@@ -1,8 +1,20 @@
 import {Pressable, View} from 'react-native'
+import {msg} from '@lingui/macro'
+import {useLingui} from '@lingui/react'
 
-import {atoms as a, useTheme, web} from '#/alf'
+import {isWeb} from '#/platform/detection'
+import {
+  atoms as a,
+  useBreakpoints,
+  useLayoutBreakpoints,
+  useTheme,
+  web,
+} from '#/alf'
 import {Button, ButtonIcon} from '#/components/Button'
+import {FeedViewSwitcher} from '#/components/feeds/FeedViewSwitcher'
+import {Hashtag_Stroke2_Corner0_Rounded as FeedsIcon} from '#/components/icons/Hashtag'
 import {PlusLarge_Stroke2_Corner0_Rounded as PlusIcon} from '#/components/icons/Plus'
+import {Link} from '#/components/Link'
 import {Text} from '#/components/Typography'
 
 /** AQUA blue, from the logo (lighter in dark mode for contrast). */
@@ -30,6 +42,12 @@ export function HomeFeedTabs({
   onPressAdd: () => void
 }) {
   const t = useTheme()
+  const {_} = useLingui()
+  const {gtMobile} = useBreakpoints()
+  const {rightNavVisible} = useLayoutBreakpoints()
+  // Wide web: the grid and # buttons sit here, next to +, instead of in a row
+  // of their own above the tabs.
+  const withActions = isWeb && gtMobile && rightNavVisible
 
   return (
     <View
@@ -72,7 +90,38 @@ export function HomeFeedTabs({
           )
         })}
       </View>
-      <View style={[a.align_center, {width: SIDE_SLOT}]}>
+      {withActions && <View style={{width: SIDE_SLOT}} />}
+      <View
+        style={
+          withActions
+            ? [
+                a.flex_row,
+                a.align_center,
+                a.gap_xs,
+                a.justify_end,
+                {width: SIDE_SLOT},
+                // The cluster is wider than the slot; let it grow leftwards
+                // so the tabs stay centered (the spacer above balances it).
+                web({position: 'absolute', right: 0, width: 'auto'}),
+              ]
+            : [a.align_center, {width: SIDE_SLOT}]
+        }>
+        {withActions && (
+          <>
+            <FeedViewSwitcher placement="icon" />
+            <Link
+              to="/feeds"
+              hitSlop={10}
+              label={_(msg`View your feeds and explore more`)}
+              size="small"
+              variant="ghost"
+              color="secondary"
+              shape="square"
+              style={[a.justify_center]}>
+              <ButtonIcon icon={FeedsIcon} size="lg" />
+            </Link>
+          </>
+        )}
         <Button
           label="Feeds"
           size="small"

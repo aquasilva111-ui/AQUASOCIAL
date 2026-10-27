@@ -8,6 +8,7 @@ import {FEEDBACK_FORM_URL, HELP_DESK_URL} from '#/lib/constants'
 import {useKawaiiMode} from '#/state/preferences/kawaii'
 import {useSession} from '#/state/session'
 import {DesktopFeeds} from '#/view/shell/desktop/Feeds'
+import {ProfileCard} from '#/view/shell/desktop/LeftNav'
 import {DesktopSearch} from '#/view/shell/desktop/Search'
 import {SidebarTrendingTopics} from '#/view/shell/desktop/SidebarTrendingTopics'
 import {
@@ -29,6 +30,14 @@ import {InlineLinkText} from '#/components/Link'
 import {ProgressGuideList} from '#/components/ProgressGuide/List'
 import {StoriesTray} from '#/components/stories/StoriesTray'
 import {Text} from '#/components/Typography'
+
+/** Routes that render without the right column (and so without the profile capsule). */
+export const RIGHT_NAV_HIDDEN_ROUTES = [
+  'VideoWatch',
+  'ImageDetail',
+  'VisionboardBoards',
+  'VisionboardBoardView',
+]
 
 function useWebQueryParams() {
   const navigation = useNavigation()
@@ -61,13 +70,7 @@ export function DesktopRightNav({routeName}: {routeName: string}) {
     useLayoutBreakpoints()
   const {width: windowWidth} = useWindowDimensions()
 
-  if (
-    !rightNavVisible ||
-    routeName === 'VideoWatch' ||
-    routeName === 'ImageDetail' ||
-    routeName === 'VisionboardBoards' ||
-    routeName === 'VisionboardBoardView'
-  ) {
+  if (!rightNavVisible || RIGHT_NAV_HIDDEN_ROUTES.includes(routeName)) {
     return null
   }
 
@@ -161,6 +164,8 @@ export function DesktopRightNav({routeName}: {routeName: string}) {
           {_(msg`Help`)}
         </InlineLinkText>
       </Text>
+
+      {hasSession && <ProfileCard capsule />}
 
       {kawaii && (
         <Text style={[t.atoms.text_contrast_medium, {marginTop: 12}]}>

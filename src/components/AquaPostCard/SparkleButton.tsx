@@ -23,14 +23,14 @@ export function SparkleButton({onPress}: {onPress: () => void}) {
           a.justify_center,
           a.rounded_full,
           aquaGlass(light),
-          {width: 34, height: 34},
+          {width: 32, height: 32},
         ]}
         hoverStyle={{
           backgroundColor: light
             ? 'rgba(255,255,255,0.8)'
             : 'rgba(15,23,42,0.85)',
         }}>
-        <Sparkle width={15} height={15} style={{color: AQUA.primary}} />
+        <Sparkle width={14} height={14} style={{color: AQUA.primary}} />
       </Button>
     </EventStopper>
   )

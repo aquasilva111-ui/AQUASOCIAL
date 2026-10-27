@@ -21,7 +21,7 @@ import {getRootNavigation, getTabState, TabState} from '#/lib/routes/helpers'
 import {type AllNavigatorParams} from '#/lib/routes/types'
 import {logEvent} from '#/lib/statsig/statsig'
 import {s} from '#/lib/styles'
-import {isNative} from '#/platform/detection'
+import {isNative, isWeb} from '#/platform/detection'
 import {listenSoftReset} from '#/state/events'
 import {FeedFeedbackProvider, useFeedFeedback} from '#/state/feed-feedback'
 import {useSetHomeBadge} from '#/state/home-badge'
@@ -35,8 +35,9 @@ import {truncateAndInvalidate} from '#/state/queries/util'
 import {useSession} from '#/state/session'
 import {useMinimalShellMode, useSetMinimalShellMode} from '#/state/shell'
 import {useFeedExperience} from '#/state/shell/feed-experience'
-import {atoms as a} from '#/alf'
+import {atoms as a, useBreakpoints} from '#/alf'
 import {NewPostsPill} from '#/components/feeds/NewPostsPill'
+import {ScrollDepthPill} from '#/components/feeds/ScrollDepthPill'
 import {useHeaderOffset} from '#/components/hooks/useHeaderOffset'
 import {PostFeed} from '../posts/PostFeed'
 import {FAB} from '../util/fab/FAB'
@@ -77,6 +78,8 @@ export function FeedPage({
   const navigation = useNavigation<NavigationProp<AllNavigatorParams>>()
   const queryClient = useQueryClient()
   const {openComposer} = useOpenComposer()
+  const {gtMobile} = useBreakpoints()
+  const depthPill = isWeb && gtMobile
   const [isScrolledDown, setIsScrolledDown] = useState(false)
   const setMinimalShellMode = useSetMinimalShellMode()
   const {headerMode} = useMinimalShellMode()
@@ -236,7 +239,18 @@ export function FeedPage({
           />
         </FeedFeedbackProvider>
       </MainScrollProvider>
-      {(hasNew && newPosters.length > 0) || (showUpPill && isScrolledDown) ? (
+      {depthPill ? (
+        // Wide web: one pill above the dock that grows with scroll depth.
+        isPageFocused && (
+          <ScrollDepthPill
+            authors={hasNew ? newPosters : []}
+            onPress={onPressLoadLatest}
+            label={_(msg`Load new posts`)}
+            text={hasNew ? undefined : _(msg`See new posts`)}
+          />
+        )
+      ) : (hasNew && newPosters.length > 0) ||
+        (showUpPill && isScrolledDown) ? (
         <View
           pointerEvents="box-none"
           style={[

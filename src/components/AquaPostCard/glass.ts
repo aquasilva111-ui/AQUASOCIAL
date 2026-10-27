@@ -2,8 +2,8 @@ import {type StyleProp, type ViewStyle} from 'react-native'
 
 import {web} from '#/alf'
 
-/** Circular control from the glass action bar (38px, fully round). */
-export const GLASS_ICON = 38
+/** Circular control from the glass action bar (32px, fully round). */
+export const GLASS_ICON = 32
 
 /**
  * Glass capsule shared by the action buttons, the like count, and the

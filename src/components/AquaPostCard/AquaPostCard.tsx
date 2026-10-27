@@ -208,6 +208,8 @@ export function AquaPostCard({
   const textStyle = [
     textSize === 'lg' ? a.text_lg : a.text_md,
     a.leading_snug,
+    // Compact feed text (14/19); the large thread variant is left alone.
+    textSize === 'lg' ? null : {fontSize: 14, lineHeight: 19},
     {color: ink},
     kind === 'video' && a.font_bold,
   ]
@@ -276,8 +278,8 @@ export function AquaPostCard({
     <View
       style={[
         {
-          paddingTop: 4,
-          paddingBottom: 16,
+          paddingTop: 2,
+          paddingBottom: 10,
           borderBottomWidth: divider ? 1 : 0,
           borderBottomColor: light
             ? AQUA_DIVIDER
@@ -344,10 +346,10 @@ export function AquaPostCard({
                 a.align_center,
                 a.mt_sm,
                 {
-                  gap: 6,
-                  minHeight: 50,
-                  padding: 6,
-                  borderRadius: 25,
+                  gap: 4,
+                  minHeight: 40,
+                  padding: 4,
+                  borderRadius: 20,
                   backgroundColor: light
                     ? AQUA.surface
                     : t.atoms.bg_contrast_25.backgroundColor,
@@ -412,7 +414,7 @@ function AquaPostHeader({
   const origin = postOrigin(author)
 
   return (
-    <View style={[a.flex_row, a.align_center, a.gap_sm, a.mb_md, a.z_20]}>
+    <View style={[a.flex_row, a.align_center, a.gap_sm, a.mb_sm, a.z_20]}>
       <View
         style={{
           padding: 2,
@@ -426,7 +428,7 @@ function AquaPostHeader({
             borderColor: light ? AQUA.white : cardSafe(t),
           }}>
           <PreviewableUserAvatar
-            size={42}
+            size={32}
             profile={author}
             moderation={moderation.ui('avatar')}
             type={author.associated?.labeler ? 'labeler' : 'user'}
@@ -435,8 +437,13 @@ function AquaPostHeader({
           />
         </View>
       </View>
-      <View style={[a.flex_1]}>
-        <View style={[a.flex_row, a.align_center]}>
+      <View style={[a.flex_1, a.flex_row, a.align_center, {minWidth: 0}]}>
+        <View
+          style={[
+            a.flex_row,
+            a.align_center,
+            {flexShrink: 0, maxWidth: '55%'},
+          ]}>
           <ProfileHoverCard did={author.did}>
             <WebOnlyInlineLinkText
               emoji
@@ -451,7 +458,7 @@ function AquaPostHeader({
               style={[
                 a.font_bold,
                 a.leading_tight,
-                {fontSize: 15, fontWeight: '800', color: ink, maxWidth: '100%'},
+                {fontSize: 14, fontWeight: '800', color: ink, maxWidth: '100%'},
               ]}>
               {forceLTR(displayName)}
             </WebOnlyInlineLinkText>
@@ -466,7 +473,13 @@ function AquaPostHeader({
           ) : null}
           <OriginBadge origin={origin} />
         </View>
-        <View style={[a.flex_row, a.align_center, a.mt_2xs]}>
+        <View
+          style={[
+            a.flex_row,
+            a.align_center,
+            a.ml_xs,
+            {flexShrink: 1, minWidth: 0},
+          ]}>
           <ProfileHoverCard did={author.did}>
             <WebOnlyInlineLinkText
               numberOfLines={1}
@@ -478,7 +491,11 @@ function AquaPostHeader({
                 precacheProfile(queryClient, author)
                 onOpenAuthor?.()
               }}
-              style={[a.text_sm, a.leading_tight, {color: muted}]}>
+              style={[
+                a.text_sm,
+                a.leading_tight,
+                {color: muted, flexShrink: 1, fontSize: 13},
+              ]}>
               {sanitizeHandle(author.handle, '@')}
             </WebOnlyInlineLinkText>
           </ProfileHoverCard>

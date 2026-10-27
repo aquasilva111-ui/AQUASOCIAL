@@ -43,7 +43,7 @@ import {atoms as a, useLayoutBreakpoints} from '#/alf'
 import {PolicyUpdateOverlay} from '#/components/PolicyUpdateOverlay'
 import {BottomBarWeb} from './bottom-bar/BottomBarWeb'
 import {DesktopLeftNav} from './desktop/LeftNav'
-import {DesktopRightNav} from './desktop/RightNav'
+import {DesktopRightNav, RIGHT_NAV_HIDDEN_ROUTES} from './desktop/RightNav'
 
 /** Pages that bring their own header and navigation instead of the side navs. */
 const FULL_PAGE_ROUTES = [
@@ -145,7 +145,7 @@ function NativeStackNavigator({
   const {showLoggedOut} = useLoggedOutView()
   const {setShowLoggedOut} = useLoggedOutViewControls()
   const {isMobile} = useWebMediaQueries()
-  const {leftNavMinimal} = useLayoutBreakpoints()
+  const {leftNavMinimal, rightNavVisible} = useLayoutBreakpoints()
   if (!hasSession && (!PWI_ENABLED || activeRouteRequiresAuth || isNative)) {
     return <LoggedOut />
   }
@@ -184,6 +184,12 @@ function NativeStackNavigator({
   // tablet/desktop for Feeds, Lists, Saved, and Settings.
   const showBottomBar = hasSession || leftNavMinimal
   const showLeftNav = !isMobile
+  // The profile capsule moved to the right column; keep it in the left nav
+  // where that column is absent (narrow windows, full-screen viewers).
+  const profileInRightNav =
+    !isMobile &&
+    rightNavVisible &&
+    !RIGHT_NAV_HIDDEN_ROUTES.includes(activeRoute.name)
   // Full-page experiences with their own header/navigation.
   const hasOwnChrome = FULL_PAGE_ROUTES.includes(activeRoute.name)
 
@@ -200,7 +206,9 @@ function NativeStackNavigator({
       </View>
       {isWeb && (
         <>
-          {showLeftNav && !hasOwnChrome && <DesktopLeftNav />}
+          {showLeftNav && !hasOwnChrome && (
+            <DesktopLeftNav profileInRightNav={profileInRightNav} />
+          )}
           {showBottomBar && !ROUTES_WITHOUT_DOCK.includes(activeRoute.name) && (
             <BottomBarWeb />
           )}

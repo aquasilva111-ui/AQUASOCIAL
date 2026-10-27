@@ -8,7 +8,13 @@ import {useKawaiiMode} from '#/state/preferences/kawaii'
 import {useSession} from '#/state/session'
 import {useShellLayout} from '#/state/shell/shell-layout'
 import {HomeHeaderLayoutMobile} from '#/view/com/home/HomeHeaderLayoutMobile'
-import {atoms as a, useBreakpoints, useGutters, useTheme} from '#/alf'
+import {
+  atoms as a,
+  useBreakpoints,
+  useGutters,
+  useLayoutBreakpoints,
+  useTheme,
+} from '#/alf'
 import {AquaEyeLogo} from '#/components/AquaEyeLogo'
 import {ButtonIcon} from '#/components/Button'
 import {FeedViewSwitcher} from '#/components/feeds/FeedViewSwitcher'
@@ -43,10 +49,14 @@ function HomeHeaderLayoutDesktopAndTablet({
   const {_} = useLingui()
   const kawaii = useKawaiiMode()
   const gutters = useGutters([0, 'base'])
+  // Wide windows: the eye moved to the left nav (where the profile was) and
+  // the grid and # buttons moved into the tab bar (see HomeFeedTabs), so this
+  // row is gone.
+  const {rightNavVisible} = useLayoutBreakpoints()
 
   return (
     <>
-      {hasSession && (
+      {hasSession && !rightNavVisible && (
         // Above the sticky tab row, so the mode switcher menu can open over it.
         <Layout.Center style={[a.z_20]}>
           <View
