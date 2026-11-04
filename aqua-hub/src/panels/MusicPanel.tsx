@@ -4,10 +4,11 @@ import type { MusicSession, Note, Song, Track } from 'aqua-runtime/src/adapters/
 import { renderSong } from 'aqua-runtime/src/render/music'
 
 import { download, runtime } from '../hub'
-import { playOnce, usePlayer } from './audio-play'
+import { playOnce } from './audio-play'
 import { UndoRedo, useSession } from './hooks'
 import { IconButton } from './Icon'
 import MelodyLab from './MelodyLab'
+import { useTonePlayer } from '../music/tone-player'
 
 const LOW = 36 // C2
 const HIGH = 96 // C7 (exclusive)
@@ -41,7 +42,7 @@ export default function MusicPanel({ itemId }: { itemId: string }) {
   const track = song?.tracks.find((t) => t.id === trackId) ?? song?.tracks[0]
   const beats = song ? song.bars * song.beatsPerBar : 0
 
-  const player = usePlayer(() => (song ? renderSong(song) : null), song)
+  const player = useTonePlayer(song)
   const secPerBeat = song ? 60 / song.bpm : 0.5
   const xOf = (beat: number) => KEYS + beat * bw
   const yOf = (pitch: number) => RULER + (HIGH - 1 - pitch) * ROW
@@ -112,7 +113,7 @@ export default function MusicPanel({ itemId }: { itemId: string }) {
         }
       })
     })
-    const px = xOf(player.pos / secPerBeat)
+    const px = xOf(player.position / secPerBeat)
     g.fillStyle = '#ff5a36'
     g.fillRect(px, 0, 2, H)
   })
@@ -134,8 +135,9 @@ export default function MusicPanel({ itemId }: { itemId: string }) {
   const down = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const { x, y } = local(e)
     if (y < RULER) {
-      player.seek(Math.max(0, snapBeat((x - KEYS) / bw)) * secPerBeat)
-      if (player.playing) void player.play(Math.max(0, snapBeat((x - KEYS) / bw)) * secPerBeat)
+      const t = Math.max(0, snapBeat((x - KEYS) / bw)) * secPerBeat
+      player.seek(t)
+      if (player.playing) void player.play(t)
       return
     }
     if (x < KEYS || !track) {
@@ -193,9 +195,9 @@ export default function MusicPanel({ itemId }: { itemId: string }) {
   const selected = track && sel !== null ? track.notes[sel] : undefined
   const setTrack = (id: string, f: Partial<Track>) => session.update((d) => void Object.assign(d.tracks.find((t) => t.id === id)!, f))
 
-  const beatNo = Math.floor(player.pos / secPerBeat)
+  const beatNo = Math.floor(player.position / secPerBeat)
   const lcd = `${Math.floor(beatNo / song.beatsPerBar) + 1}.${(beatNo % song.beatsPerBar) + 1}`
-  const go = () => (player.playing ? player.stop() : void player.play(player.pos))
+  const go = () => (player.playing ? player.stop() : void player.play(player.position))
 
   return (
     <div
@@ -211,9 +213,16 @@ export default function MusicPanel({ itemId }: { itemId: string }) {
       <div className="transport">
         <IconButton icon="toStart" label="Voltar ao início" onClick={() => (player.stop(), player.seek(0))} />
         <IconButton variant="play" icon={player.playing ? 'stop' : 'play'} label="Tocar / parar (espaço)" active={player.playing} onClick={go} />
-        <div className="lcd">{lcd}<small>{player.pos.toFixed(1)} s</small></div>
+        <div className="lcd">{lcd}<small>{player.position.toFixed(1)} s</small></div>
         <label className="pill">BPM <input type="number" min={40} max={240} value={song.bpm} onChange={(e) => session.update((d) => void (d.bpm = Math.max(40, Math.min(240, +e.target.value || 120))))} /></label>
         <label className="pill">Compassos <input type="number" min={1} max={64} value={song.bars} onChange={(e) => session.update((d) => void (d.bars = Math.max(1, Math.min(64, +e.target.value || 8))))} /></label>
+                <label className="pill">
+          Loop
+          <input type="checkbox" checked={!!player.loop?.enabled} onChange={(e) => {
+            const enabled = e.target.checked
+            player.setLoopRegion(enabled ? { start: 0, end: song.bars * song.beatsPerBar, enabled: true } : null)
+          }} />
+        </label>
         <label className="pill">Grade
           <select value={snap} onChange={(e) => setSnap(+e.target.value)}>
             <option value={1}>1/4</option><option value={0.5}>1/8</option><option value={0.25}>1/16</option><option value={0.125}>1/32</option>
