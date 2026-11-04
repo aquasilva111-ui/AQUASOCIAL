@@ -1,4 +1,5 @@
 import git from 'isomorphic-git'
+import { formatSemanticMessage, SemanticCommit, suggestSemanticMessage } from './semantic'
 
 /**
  * Git-backed history for a project (isomorphic-git, MIT). One repository per project,
@@ -43,6 +44,27 @@ export class ProjectGit {
       message: message || 'Salvo',
       author: { ...AUTHOR, timestamp: Math.floor(at.getTime() / 1000) }
     })
+  }
+
+  /**
+   * Commit semântico: usa SemanticCommit (ou gera um automaticamente).
+   * Ideal para o Git pessoal do AQUA.
+   */
+  async commitSemantic(
+    itemId: string,
+    bytes: Uint8Array,
+    semantic: SemanticCommit | { itemType: string; hint?: string; previousSize?: number },
+    at = new Date()
+  ): Promise<string | null> {
+    let sc: SemanticCommit
+    if ('type' in semantic) {
+      sc = semantic as SemanticCommit
+    } else {
+      const prev = semantic.previousSize ?? 0
+      sc = suggestSemanticMessage(semantic.itemType, prev, bytes.length, semantic.hint)
+    }
+    const message = formatSemanticMessage(sc)
+    return this.commitItem(itemId, bytes, message, at)
   }
 
   /** Commits that touched the item, newest first, on the current branch. */
