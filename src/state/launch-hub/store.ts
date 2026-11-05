@@ -1,5 +1,6 @@
 import {useCallback, useMemo, useSyncExternalStore} from 'react'
 
+import {applyAssistMark, type AssistAction} from '#/lib/launch-hub/assist'
 import {recoverStaleLaunch} from '#/lib/launch-hub/runner'
 import {
   type IdentityGroup,
@@ -13,6 +14,7 @@ type Values = {
   launchHubLaunches: Launch[]
   launchHubIdentityGroups: IdentityGroup[]
   launchHubProfileTypes: Record<string, ProfileType>
+  launchHubAssistPrefs: {mastodonInstance?: string}
 }
 type Key = keyof Values
 
@@ -106,7 +108,42 @@ export function useLaunchApi() {
     [did],
   )
 
-  return {saveLaunch, updateLaunch, removeLaunch}
+  /**
+   * Modo assistido: records what the person did with one destination
+   * (abriu a rede, publicou, deu erro, pulou). Persisted with the launch.
+   */
+  const markAssisted = useCallback(
+    (
+      launchId: string,
+      destinationId: string,
+      action: AssistAction,
+      extra: {error?: string; remoteUrl?: string} = {},
+    ) => {
+      updateLaunch(launchId, launch =>
+        applyAssistMark(launch, destinationId, action, extra),
+      )
+    },
+    [updateLaunch],
+  )
+
+  return {saveLaunch, updateLaunch, removeLaunch, markAssisted}
+}
+
+export function useAssistPrefs() {
+  const {currentAccount} = useSession()
+  const did = currentAccount?.did
+  const prefs = useStored(did, 'launchHubAssistPrefs')
+  const setPrefs = useCallback(
+    (changes: Values['launchHubAssistPrefs']) => {
+      if (!did) return
+      write(did, 'launchHubAssistPrefs', {
+        ...read(did, 'launchHubAssistPrefs'),
+        ...changes,
+      })
+    },
+    [did],
+  )
+  return {prefs: prefs ?? {}, setPrefs}
 }
 
 export function useIdentityGroups() {

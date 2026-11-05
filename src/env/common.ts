@@ -79,6 +79,14 @@ export const BLUESKY_PROXY_DID: Did =
   process.env.EXPO_PUBLIC_BLUESKY_PROXY_DID || 'did:web:api.bsky.app'
 
 /**
+ * Public web address of the Aqua app (https://…), used for links back to a
+ * post. Empty = bsky.app (same network, so the link works there too).
+ */
+export const AQUA_WEB_URL: string = (
+  process.env.EXPO_PUBLIC_AQUA_WEB_URL || 'https://bsky.app'
+).replace(/\/+$/, '')
+
+/**
  * The DID of the chat service to proxy to
  */
 export const CHAT_PROXY_DID: Did =

@@ -80,6 +80,8 @@ export type Account = {
   launchHubLaunches?: Launch[]
   launchHubIdentityGroups?: IdentityGroup[]
   launchHubProfileTypes?: Record<string, ProfileType>
+  /** Launch Hub modo assistido: e.g. the person's Mastodon server */
+  launchHubAssistPrefs?: {mastodonInstance?: string}
 
   /**
    * AQUA DOCS metadata, kept on this device until the AQUA docs sync API
