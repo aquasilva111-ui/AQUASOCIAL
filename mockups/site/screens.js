@@ -265,6 +265,117 @@ SCREENS.noticias = {
   },
 };
 
+const WS_TOOLS = [
+  ['doc', 'Docs', 'linear-gradient(135deg,#6d28d9,#3b82f6)', 'Blocos · colaboração em tempo real'],
+  ['palette', 'Design', 'linear-gradient(135deg,#f04c24,#ffb347)', 'Camadas · canvas · exportação'],
+  ['sheet', 'Sheets', 'linear-gradient(135deg,#059669,#34d399)', 'Células · fórmulas · gráficos'],
+  ['music', 'Music', 'linear-gradient(135deg,#002bef,#009eff)', 'Sequenciamento · mixagem'],
+  ['video', 'Video', 'linear-gradient(135deg,#e11d48,#fb7185)', 'Timeline · cortes · render'],
+  ['mic', 'Audio', 'linear-gradient(135deg,#7c2d12,#fb923c)', 'Multitrack · waveforms'],
+  ['trend', 'Charts', 'linear-gradient(135deg,#0f766e,#2dd4bf)', 'Visualizações declarativas'],
+];
+const WS_CTX = ['Cap. 3 em edição · 128 blocos', '14 camadas · 3 artboards', '6 abas · 42 fórmulas', '8 faixas · 42 BPM', 'Timeline · 6 clips · 1 render', '3 stems · 1 mix', '2 datasets · 1 gráfico'];
+
+function wsPaper() {
+  return `<div style="width:300px;height:380px;background:#fff;border-radius:3px;box-shadow:0 24px 60px rgba(0,0,0,.35);border:1px solid #e5e7eb;display:flex;flex-direction:column;overflow:hidden">
+    <div style="flex:none;height:34px;background:#f9fafb;border-bottom:1px solid #e5e7eb"></div>
+    <div style="padding:14px;display:flex;flex-direction:column;gap:9px">
+      <span style="height:9px;border-radius:99px;background:#e5e7eb"></span>
+      <span style="height:9px;border-radius:99px;background:#e5e7eb;width:86%"></span>
+      <span style="height:9px;border-radius:99px;background:#e5e7eb;width:64%"></span>
+      <span style="height:9px;border-radius:99px;background:#e5e7eb;width:72%"></span>
+      <span style="height:9px;border-radius:99px;background:#e5e7eb;width:45%"></span>
+    </div></div>`;
+}
+function wsShapes() {
+  return `<div style="position:relative;width:340px;height:210px;background:#fff;box-shadow:0 24px 60px rgba(0,0,0,.35);transform:rotate(-2deg);overflow:hidden">
+    <i style="position:absolute;left:0;top:0;width:54%;height:100%;background:linear-gradient(135deg,#002bef,#009eff)"></i>
+    <i style="position:absolute;left:54%;top:0;width:46%;height:58%;background:linear-gradient(135deg,#f04c24,#ffb347)"></i>
+    <i style="position:absolute;left:54%;top:58%;width:46%;height:42%;background:linear-gradient(135deg,#22c55e,#0ea5e9)"></i>
+  </div>`;
+}
+function wsWave() {
+  const bars = [];
+  for (let i = 0; i < 42; i++) bars.push(`<i style="width:7px;height:${46 + ((i * 37) % 74)}px;background:rgba(255,255,255,.9);border-radius:4px"></i>`);
+  return `<div style="display:flex;align-items:center;gap:3px;height:130px">${bars.join('')}</div>`;
+}
+function wsSeq() {
+  const clips = [[0, 22, '#1185fe'], [22, 18, '#f04c24'], [40, 14, '#22c55e'], [54, 8, '#a855f7']];
+  return `<div style="position:relative;width:460px;height:120px;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.25);border-radius:12px">${clips.map(c => `<span style="position:absolute;left:${c[0]}px;top:26px;width:${c[1]}px;height:68px;background:${c[2]};border-radius:8px"></span>`).join('')}<span style="position:absolute;left:0;right:0;top:112px;height:2px;background:rgba(255,255,255,.4)"></span></div>`;
+}
+function wsAudio() {
+  const rows = [[0, 46], [14, 70], [30, 38]];
+  return `<div style="display:flex;flex-direction:column;gap:12px;width:420px">${rows.map(r => `<div style="display:flex;align-items:center;gap:8px"><span style="width:64px;height:10px;border-radius:5px;background:rgba(255,255,255,.7)"></span>${Array.from({length: 36}, () => `<i style="flex:1;height:10px;background:rgba(255,255,255,.55);border-radius:5px"></i>`).join('')}</div>`).join('')}</div>`;
+}
+function wsChart() {
+  const vals = [40, 65, 45, 80, 55, 90, 70, 60];
+  return `<div style="display:flex;align-items:flex-end;gap:10px;height:140px">${vals.map(v => `<span style="flex:1;height:${v}%;background:linear-gradient(180deg,#009eff,#002bef);border-radius:6px 6px 0 0"></span>`).join('')}</div>`;
+}
+function wsCanvas(t) {
+  if (t === 0) return `<div style="position:absolute;inset:0;display:grid;place-items:center;background:linear-gradient(160deg,#f8fafc,#dbe3ee)">${wsPaper()}</div>`;
+  const bg = G[t % G.length];
+  const inner = t === 1 ? wsShapes() : t === 3 ? wsWave() : t === 4 ? wsSeq() : t === 5 ? wsAudio() : t === 6 ? wsChart() : `<div style="width:120px;height:80px;border-radius:20px;background:rgba(255,255,255,.25)"></div>`;
+  return `<div style="position:absolute;inset:0;background:${bg}"><div style="position:absolute;inset:0;display:grid;place-items:center">${inner}</div></div>`;
+}
+
+SCREENS.workspace = {
+  title: 'Creative Hub', top: 'sub', back: 'home', nav: null, rail: false,
+  render(d) {
+    const t = state.tab.workspace || 0;
+    const tool = WS_TOOLS[t];
+    if (!d) {
+      return `<div style="padding:14px 16px 44px">
+        <div class="card" style="padding:16px;display:flex;gap:12px;align-items:center">
+          <span class="gi" style="background:linear-gradient(135deg,#002bef,#009eff)">${ico('grid')}</span>
+          <div style="flex:1;min-width:0"><b style="font-size:16px">Creative Hub</b><div class="mut" style="font-size:13px;margin-top:1px">Roteiro — série de bastidores</div></div>
+          <span class="tag" style="background:rgba(34,197,94,.16);color:#22c55e">${ico('check')} Colaboração ativa</span>
+        </div>
+        <div class="gl">Ferramentas do Creador</div>
+        ${WS_TOOLS.map((x, i) => `<button class="row-item" data-act="tab" data-i="${i}">${gi(x[0], x[2])}<div class="t"><b>${x[1]}</b><span>${x[3]}</span></div></button>`).join('')}
+        <div class="gl">Projetos</div>
+        ${rows([{t: 'Roteiro — série de bastidores', s: 'Docs · editado há 2 h', icon: 'doc', grad: G[0]}, {t: 'Capa do EP “Maré Lenta”', s: 'Design · editado ontem', icon: 'palette', grad: G[1]}, {t: 'Orçamento do mês', s: 'Sheets · editado seg', icon: 'sheet', grad: G[2]}])}
+      </div>`;
+    }
+    const collab = ['marina', 'theo', 'lia'];
+    return `<div class="ws">
+      <div class="ws-bar">
+        <div class="ws-t">
+          <span class="wm" style="justify-content:center">${logo(22)}AQUA</span>
+          <b>Creador</b>
+          <span class="mut">Roteiro — série de bastidores</span>
+          <span class="tag">${tool[1]}</span>
+        </div>
+        <div class="ws-tools">${WS_TOOLS.map((x, i) => `<button class="${i === t ? 'on' : ''}" data-act="tab" data-i="${i}">${gi(x[0], x[2])}<span>${x[1]}</span></button>`).join('')}</div>
+        <div class="ws-acts">
+          <button class="btn ghost sm" data-act="noop">Desfazer</button>
+          <button class="btn ghost sm" data-act="noop">Refazer</button>
+          <div class="avs">${collab.map(k => av(P[k], 30)).join('')}<span class="av" style="--s:30px;background:linear-gradient(135deg,${ME.c[0]},${ME.c[1]})">A</span></div>
+          <button class="btn sm" data-act="open" data-v="create">Publicar</button>
+        </div>
+      </div>
+      <div class="ws-body">
+        <div class="ws-stage">${wsCanvas(t)}</div>
+        <div class="ws-insp">
+          <h4>Colaboração</h4>
+          <div class="ws-insp-sec">
+            <div style="display:flex;gap:14px;align-items:center">${collab.map(k => `<div style="text-align:center"><div>${av(P[k], 34)}</div><div style="font-size:11px;color:var(--muted);margin-top:4px">${P[k].n.split(' ')[0]}</div></div>`).join('')}</div>
+            <div class="mut" style="font-size:12.5px;margin-top:10px">Yjs · sincronização em tempo real · Ctrl+S salva automaticamente</div>
+          </div>
+          <div class="ws-insp-sec">
+            <h4>Biblioteca</h4>
+            ${[['img', 'Ref — luz de fim de tarde', 0], ['snd', 'Maré Lenta · Estúdio Maré', 4], ['vid', 'Timelapse do quadro', 6]].map(a => `<div class="ws-librow"><span class="ph" style="background:${art(a[2])};width:40px;height:40px;border-radius:10px"></span><div style="flex:1;min-width:0"><b style="font-size:13.5px;display:block">${a[1]}</b><span class="mut" style="font-size:12px">Asset · ${a[0]}</span></div><button class="btn ghost sm" data-act="noop">Usar</button></div>`).join('')}
+          </div>
+          <div class="ws-insp-sec">
+            <h4>Contexto</h4>
+            <div style="font-size:13.5px;line-height:1.5">${WS_CTX[t]}</div>
+            <div class="mut" style="font-size:12.5px;margin-top:8px">Snapshot salvo · v${(t + 3) * 7}1</div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  },
+};
+
 SCREENS.hub = {
   title: 'Creative Hub', top: 'sub', back: 'home', nav: null, rail: false,
   render() {

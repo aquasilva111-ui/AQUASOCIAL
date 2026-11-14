@@ -2,6 +2,7 @@ import {integrationBackend} from '#/lib/launch-hub/backend'
 import {getProvider} from '#/lib/launch-hub/providers'
 import {type ProviderId} from '#/lib/launch-hub/types'
 import {atprotoAdapter} from './atproto'
+import {mastodonAdapter} from './mastodon'
 import {type ProviderAdapter} from './types'
 
 export type {
@@ -46,7 +47,9 @@ export function getAdapter(id: ProviderId): ProviderAdapter {
         ? atprotoAdapter
         : provider.adapter === 'same-network' && provider.sameNetworkAs
           ? getAdapter(provider.sameNetworkAs)
-          : createIntegrationAdapter(id)
+          : provider.adapter === 'mastodon-oauth'
+            ? mastodonAdapter
+            : createIntegrationAdapter(id)
     cache.set(id, adapter)
   }
   return adapter

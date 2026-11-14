@@ -2,6 +2,7 @@ import {View} from 'react-native'
 
 import {useAccountSwitcher} from '#/lib/hooks/useAccountSwitcher'
 import {getAdapter} from '#/lib/launch-hub/adapters'
+import {integrationBackend} from '#/lib/launch-hub/backend'
 import {getProvider, providersByCategory} from '#/lib/launch-hub/providers'
 import {
   type ManagedProfile,
@@ -102,7 +103,8 @@ function ProviderCard({
             <ButtonIcon icon={PlusIcon} />
             <ButtonText>Adicionar conta</ButtonText>
           </Button>
-        ) : provider.adapter === 'integration-api' ? (
+        ) : provider.adapter === 'integration-api' ||
+          provider.adapter === 'mastodon-oauth' ? (
           <Button
             label={`Conectar ${provider.name}`}
             size="small"
@@ -218,6 +220,16 @@ function ProfileRow({profile}: {profile: ManagedProfile}) {
           ))}
         </Menu.Outer>
       </Menu.Root>
+      {profile.provider === 'mastodon' && (
+        <Button
+          label="Desconectar"
+          size="tiny"
+          color="secondary"
+          variant="ghost"
+          onPress={() => integrationBackend.disconnect(profile.connectedAccountId)}>
+          <ButtonText>Desconectar</ButtonText>
+        </Button>
+      )}
     </View>
   )
 }

@@ -29,6 +29,12 @@ export const LAUNCH_TYPES: LaunchTypeDefinition[] = [
     required: ['title'],
   },
   {
+    type: 'carousel',
+    label: 'Carrossel',
+    fields: [],
+    required: [],
+  },
+  {
     type: 'music_release',
     label: 'Lançamento musical',
     fields: [

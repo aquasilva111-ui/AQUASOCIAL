@@ -16,7 +16,11 @@ import {
   type ValidationIssue,
 } from '#/lib/launch-hub/types'
 import {compressIfNeeded} from '#/lib/media/manip'
-import {LONG_TEXT_FIELD, splitLongPost} from '#/lib/strings/long-post'
+import {
+  LONG_TEXT_FIELD,
+  PROTOCOL_POST_GRAPHEME_LIMIT,
+  splitLongPost,
+} from '#/lib/strings/long-post'
 import {
   type AdapterContext,
   type ProviderAdapter,
@@ -66,14 +70,39 @@ function isRecordNotFound(e: unknown) {
 export const atprotoAdapter: ProviderAdapter = {
   isConfigured: () => true,
 
-  getCapabilities: () => CAPABILITIES,
-
-  renderPreview: ({content, destination}) => ({
-    text: composePostText(content, destination),
-    media: content.media.filter(m => m.kind === 'image'),
+  getCapabilities: (profile) => ({
+    supports: [...CAPABILITIES.supports],
+    limits: {
+      maxTextGraphemes:
+        profile?.provider === 'bluesky'
+          ? PROTOCOL_POST_GRAPHEME_LIMIT
+          : MAX_GRAPHEME_LENGTH,
+      maxImages: CAPABILITIES.limits.maxImages,
+    },
   }),
 
-  validateContent({type, content, destination}: ValidationInput) {
+  renderPreview: ({content, destination, profile}) => {
+    const text = composePostText(content, destination)
+    const images = content.media.filter(m => m.kind === 'image')
+    const rt = new RichText({text})
+    const limit =
+      profile?.provider === 'bluesky'
+        ? PROTOCOL_POST_GRAPHEME_LIMIT
+        : MAX_GRAPHEME_LENGTH
+    const thread = profile?.provider === 'bluesky' && rt.graphemeLength > limit
+    const threadText = thread ? splitLongPost(rt).text : undefined
+    return {
+      text,
+      media: images,
+      textLength: rt.graphemeLength,
+      limit,
+      thread,
+      threadText,
+      alt: images[0]?.alt,
+    }
+  },
+
+  validateContent({type, content, destination, profile}: ValidationInput) {
     const issues: ValidationIssue[] = []
     const text = composePostText(content, destination)
     const images = content.media.filter(m => m.kind === 'image')
@@ -83,10 +112,14 @@ export const atprotoAdapter: ProviderAdapter = {
       issues.push({level: 'blocked', message: 'Adicione um texto ou imagem.'})
     }
     const length = new RichText({text}).graphemeLength
-    if (length > MAX_GRAPHEME_LENGTH) {
+    const limit =
+      profile?.provider === 'bluesky'
+        ? PROTOCOL_POST_GRAPHEME_LIMIT
+        : MAX_GRAPHEME_LENGTH
+    if (length > limit) {
       issues.push({
         level: 'blocked',
-        message: `O texto tem ${length} caracteres; o limite é ${MAX_GRAPHEME_LENGTH}.`,
+        message: `O texto tem ${length} caracteres; o limite é ${limit}.`,
       })
     }
     if (images.length > MAX_IMAGES) {
