@@ -70,7 +70,7 @@ function isRecordNotFound(e: unknown) {
 export const atprotoAdapter: ProviderAdapter = {
   isConfigured: () => true,
 
-  getCapabilities: (profile) => ({
+  getCapabilities: profile => ({
     supports: [...CAPABILITIES.supports],
     limits: {
       maxTextGraphemes:

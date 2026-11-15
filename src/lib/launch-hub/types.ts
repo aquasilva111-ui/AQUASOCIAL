@@ -71,7 +71,11 @@ export type Provider = {
   name: string
   category: ProviderCategory
   /** Which adapter implementation handles this provider. */
-  adapter: 'atproto-session' | 'integration-api' | 'same-network' | 'mastodon-oauth'
+  adapter:
+    | 'atproto-session'
+    | 'integration-api'
+    | 'same-network'
+    | 'mastodon-oauth'
   /** Short monogram used for the provider badge. */
   monogram: string
   color: string

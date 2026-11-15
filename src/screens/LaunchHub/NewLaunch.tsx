@@ -490,8 +490,8 @@ function ContentStep({
         </View>
         {COMPOSER_TABS.some(tab => tab.type === type && tab.disabled) && (
           <NoticeText>
-            A aba Artigo fica em breve: a escrita assistida do Aqua Write ainda não
-            está disponível no Launch Hub.
+            A aba Artigo fica em breve: a escrita assistida do Aqua Write ainda
+            não está disponível no Launch Hub.
           </NoticeText>
         )}
       </View>
@@ -622,8 +622,8 @@ function ContentStep({
           <ButtonText>Adaptar por rede com IA</ButtonText>
         </Button>
         <NoticeText>
-          A adaptação ajusta o texto para o limite de cada rede e divide o post em
-          fio quando necessário. Nada é publicado sem o seu clique.
+          A adaptação ajusta o texto para o limite de cada rede e divide o post
+          em fio quando necessário. Nada é publicado sem o seu clique.
         </NoticeText>
       </View>
     </View>
@@ -700,7 +700,12 @@ function DestinationsStep({
                 ) : (
                   <View
                     key={provider.id}
-                    style={[a.flex_row, a.align_center, a.gap_sm, {opacity: 0.6}]}>
+                    style={[
+                      a.flex_row,
+                      a.align_center,
+                      a.gap_sm,
+                      {opacity: 0.6},
+                    ]}>
                     <ProviderBadge provider={provider.id} size={28} />
                     <Text style={[a.flex_1, a.text_sm]}>{provider.name}</Text>
                     <PillText tone="warning">Em breve</PillText>
@@ -802,11 +807,7 @@ function ProviderCapsule({
     ),
   )
 
-  return (
-    <View>
-      {items}
-    </View>
-  )
+  return <View>{items}</View>
 }
 
 function ValidationStep({

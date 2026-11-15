@@ -226,7 +226,9 @@ function ProfileRow({profile}: {profile: ManagedProfile}) {
           size="tiny"
           color="secondary"
           variant="ghost"
-          onPress={() => integrationBackend.disconnect(profile.connectedAccountId)}>
+          onPress={() =>
+            integrationBackend.disconnect(profile.connectedAccountId)
+          }>
           <ButtonText>Desconectar</ButtonText>
         </Button>
       )}

@@ -50,7 +50,11 @@ async function mastodonUploadMedia(
   alt: string,
 ): Promise<string> {
   const body = new FormData()
-  body.append('image', {uri: assetUri, name: 'aqua-upload', type: mime} as never, mime)
+  body.append(
+    'image',
+    {uri: assetUri, name: 'aqua-upload', type: mime} as never,
+    mime,
+  )
   body.append('description', alt)
   const res = await mastodonApi(instance, token, '/api/v2/media', {
     method: 'POST',
@@ -58,10 +62,12 @@ async function mastodonUploadMedia(
   })
   const data = (await res.json()) as {id?: string}
   if (!res.ok || !data.id) {
-    throw new Error(`Falha ao enviar mídia para o Mastodon: ${await res
-      .text()
-      .then(t => t)
-      .catch(() => res.statusText)}`)
+    throw new Error(
+      `Falha ao enviar mídia para o Mastodon: ${await res
+        .text()
+        .then(t => t)
+        .catch(() => res.statusText)}`,
+    )
   }
   return String(data.id)
 }
@@ -90,9 +96,10 @@ export const mastodonAdapter: ProviderAdapter = {
     }
   },
 
-  validateContent: (
-    {content, destination}: ValidationInput,
-  ): ValidationIssue[] => {
+  validateContent: ({
+    content,
+    destination,
+  }: ValidationInput): ValidationIssue[] => {
     const issues: ValidationIssue[] = []
     const text = composePostText(content, destination)
     const images = content.media.filter(m => m.kind === 'image')
@@ -120,10 +127,7 @@ export const mastodonAdapter: ProviderAdapter = {
     return issues
   },
 
-  async publish(
-    {destination, launch}: PublishJob,
-    {mastodon}: AdapterContext,
-  ) {
+  async publish({destination, launch}: PublishJob, {mastodon}: AdapterContext) {
     const token = mastodon?.accessToken ?? ''
     const instance = mastodon?.instance ?? ''
     if (!token || !instance) {
@@ -145,7 +149,13 @@ export const mastodonAdapter: ProviderAdapter = {
       const uri = resolveAssetUri(asset)
       if (!uri) throw new Error('Imagem indisponível neste dispositivo.')
       mediaIds.push(
-        await mastodonUploadMedia(instance, token, uri, asset.mime, asset.alt ?? ''),
+        await mastodonUploadMedia(
+          instance,
+          token,
+          uri,
+          asset.mime,
+          asset.alt ?? '',
+        ),
       )
     }
     if (mediaIds.length) {
@@ -159,7 +169,12 @@ export const mastodonAdapter: ProviderAdapter = {
     })
     const data = (await res.json()) as {id?: string; url?: string}
     if (!res.ok) {
-      throw new Error(await res.text().then(t => t).catch(() => res.statusText))
+      throw new Error(
+        await res
+          .text()
+          .then(t => t)
+          .catch(() => res.statusText),
+      )
     }
     return {remotePostId: data.id, remoteUrl: data.url}
   },
@@ -172,7 +187,12 @@ export const mastodonAdapter: ProviderAdapter = {
       method: 'DELETE',
     })
     if (!res.ok) {
-      throw new Error(await res.text().then(t => t).catch(() => res.statusText))
+      throw new Error(
+        await res
+          .text()
+          .then(t => t)
+          .catch(() => res.statusText),
+      )
     }
   },
 }
