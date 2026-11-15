@@ -32,7 +32,7 @@ export interface ToolSession {
 export interface ToolAdapter {
   kind: ItemKind
   mime: string
-  create(name: string): ToolSession
+  create(name: string, opts?: Record<string, unknown>): ToolSession
   open(bytes: Uint8Array): ToolSession
 }
 

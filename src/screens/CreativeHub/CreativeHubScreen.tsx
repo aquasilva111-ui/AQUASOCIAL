@@ -22,6 +22,7 @@ import {
   type NativeStackScreenProps,
   type NavigationProp,
 } from '#/lib/routes/types'
+import {isWeb} from '#/platform/detection'
 import {useDocs, useDocsApi} from '#/state/docs/store'
 import {atoms as a, useTheme} from '#/alf'
 import {Button, ButtonText} from '#/components/Button'
@@ -224,6 +225,15 @@ function HomeTab() {
         <Text style={[a.text_md, {color: '#fff', opacity: 0.92}]}>
           Posts, stories, capas e docs. Depois é só publicar no Aqua.
         </Text>
+        {isWeb && (
+          <Button
+            label="Abrir AQUA Create"
+            size="large"
+            color="secondary"
+            onPress={() => window.location.assign('/create/')}>
+            <ButtonText>Abrir AQUA Create</ButtonText>
+          </Button>
+        )}
         <View style={[a.flex_row]}>
           <Button
             label="Novo documento"

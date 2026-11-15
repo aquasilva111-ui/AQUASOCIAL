@@ -37,13 +37,15 @@ export const AQUA_FONTS = {
   families: ['Inter', 'Poppins', 'Montserrat', 'Playfair Display', 'Lora', 'Bebas Neue', 'Pacifico', 'Open Sans', 'Roboto']
 } as const
 
-export type DesignFormatId = 'post' | 'story' | 'video' | 'presentation' | 'banner' | 'book_cover'
+export type DesignFormatId = 'post' | 'story' | 'video' | 'presentation' | 'banner' | 'book_cover' | 'banner_profile' | 'a4'
 
 export const AQUA_FORMATS: Record<DesignFormatId, { label: string; width: number; height: number }> = {
-  post: { label: 'Post', width: 1080, height: 1080 },
-  story: { label: 'Story', width: 1080, height: 1920 },
-  video: { label: 'Vídeo', width: 1920, height: 1080 },
-  presentation: { label: 'Apresentação', width: 1920, height: 1080 },
+  post: { label: 'Post Social Quadrado', width: 1080, height: 1080 },
+  story: { label: 'Story / Reels', width: 1080, height: 1920 },
+  banner_profile: { label: 'Banner / Capa de Perfil', width: 1200, height: 630 },
+  presentation: { label: 'Apresentação Slide', width: 1920, height: 1080 },
+  a4: { label: 'Documento / Papel A4', width: 1240, height: 1754 },
+  video: { label: 'Vídeo Full HD', width: 1920, height: 1080 },
   banner: { label: 'Banner de canal', width: 2560, height: 1440 },
   book_cover: { label: 'Capa de livro', width: 1600, height: 2400 }
 }

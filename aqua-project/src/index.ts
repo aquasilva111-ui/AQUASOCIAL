@@ -4,3 +4,5 @@ export * from './repo'
 export * from './publish'
 export * from './git'
 export * from './idb'
+
+export * from './backup'

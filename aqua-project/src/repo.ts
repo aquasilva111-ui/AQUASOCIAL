@@ -19,6 +19,22 @@ export function renameItem(project: Project, itemId: string, name: string, now =
   return mapItem(project, itemId, (i) => ({ ...i, name: name.trim() || i.name, updatedAt: now }), now)
 }
 
+export function updateItemCategory(project: Project, itemId: string, category: string, now = new Date().toISOString()): Project {
+  return mapItem(project, itemId, (i) => ({ ...i, category: category.trim() || undefined, updatedAt: now }), now)
+}
+
+export function updateItemTags(project: Project, itemId: string, tags: string[], now = new Date().toISOString()): Project {
+  return mapItem(project, itemId, (i) => ({ ...i, tags, updatedAt: now }), now)
+}
+
+export function updateProjectCategory(project: Project, category: string, now = new Date().toISOString()): Project {
+  return { ...project, category: category.trim() || undefined, updatedAt: now }
+}
+
+export function updateProjectTags(project: Project, tags: string[], now = new Date().toISOString()): Project {
+  return { ...project, tags, updatedAt: now }
+}
+
 /** Puts an item at `toIndex` in the list (clamped); the order is how the project lists its items. */
 export function moveItem(project: Project, itemId: string, toIndex: number, now = new Date().toISOString()): Project {
   const from = project.items.findIndex((i) => i.id === itemId)

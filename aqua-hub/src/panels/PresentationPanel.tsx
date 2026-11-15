@@ -24,7 +24,7 @@ export default function PresentationPanel({ itemId }: { itemId: string }) {
       <button
         onClick={async () => {
           const s = await sess()
-          const html = s.toRevealHtml({ revealBase: '/reveal' })
+          const html = s.toRevealHtml({ revealBase: new URL(import.meta.env.BASE_URL + 'reveal', window.location.origin).href })
           window.open(URL.createObjectURL(new Blob([html], { type: 'text/html' })), '_blank')
         }}
       >
