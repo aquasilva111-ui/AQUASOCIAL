@@ -41,10 +41,8 @@ function CreateOptionItem({
       accessibilityLabel={title}
       accessibilityHint=""
       onPress={onPress}
-      // @ts-expect-error web hover support
-      onMouseEnter={() => setHovered(true)}
-      // @ts-expect-error web hover support
-      onMouseLeave={() => setHovered(false)}
+      onHoverIn={() => setHovered(true)}
+      onHoverOut={() => setHovered(false)}
       style={[
         a.flex_row,
         a.align_center,
@@ -53,7 +51,7 @@ function CreateOptionItem({
         a.rounded_md,
         a.border,
         t.atoms.border_contrast_low,
-        hovered ? t.atoms.bg_contrast_25 : t.atoms.bg_contrast_10,
+        hovered && t.atoms.bg_contrast_25,
         {
           transition: 'all 150ms ease',
         },
