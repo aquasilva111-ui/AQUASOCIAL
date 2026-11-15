@@ -5,7 +5,7 @@ import {useNavigation} from '@react-navigation/native'
 import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
 import {type NavigationProp} from '#/lib/routes/types'
 import {useDocsApi} from '#/state/docs/store'
-import {atoms as a, useTheme} from '#/alf'
+import {atoms as a, useTheme, web} from '#/alf'
 import * as Dialog from '#/components/Dialog'
 import {Book_Stroke2_Corner2_Rounded as BookIcon} from '#/components/icons/Book'
 import {Camera_Stroke2_Corner0_Rounded as CameraIcon} from '#/components/icons/Camera'
@@ -52,9 +52,7 @@ function CreateOptionItem({
         a.border,
         t.atoms.border_contrast_low,
         hovered && t.atoms.bg_contrast_25,
-        {
-          transition: 'all 150ms ease',
-        },
+        web({transition: 'all 150ms ease'}),
       ]}>
       <View
         style={[
