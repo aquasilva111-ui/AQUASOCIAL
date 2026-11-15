@@ -7,6 +7,10 @@ import {
   moveItem,
   renameItem,
   saveItem,
+  updateItemCategory,
+  updateItemTags,
+  updateProjectCategory,
+  updateProjectTags,
   type AssetRef,
   type AssetStore,
   type ItemKind,
@@ -62,11 +66,22 @@ export class CreativeRuntime {
     return [...this.adapters.keys()]
   }
 
-  async create(kind: ItemKind, name: string): Promise<ProjectItem> {
+  async create(
+    kind: ItemKind,
+    name: string,
+    opts?: Record<string, unknown> & { format?: string; category?: string; tags?: string[] }
+  ): Promise<ProjectItem> {
     const adapter = this.adapterFor(kind)
     const added = addItem(this.project, kind, name)
-    this.setProject(added.project)
-    const session = adapter.create(name)
+    let currentProject = added.project
+    if (opts?.category) {
+      currentProject = updateItemCategory(currentProject, added.item.id, opts.category)
+    }
+    if (opts?.tags && Array.isArray(opts.tags) && opts.tags.length > 0) {
+      currentProject = updateItemTags(currentProject, added.item.id, opts.tags)
+    }
+    this.setProject(currentProject)
+    const session = adapter.create(name, opts)
     this.attach(added.item.id, adapter, session)
     await this.save(added.item.id, 'Criado')
     return this.project.items.find((i) => i.id === added.item.id)!
@@ -143,9 +158,31 @@ export class CreativeRuntime {
     this.setProject(renameItem(this.project, itemId, name))
   }
 
+  setItemCategory(itemId: string, category: string): void {
+    this.setProject(updateItemCategory(this.project, itemId, category))
+  }
+
+  setItemTags(itemId: string, tags: string[]): void {
+    this.setProject(updateItemTags(this.project, itemId, tags))
+  }
+
+  setProjectCategory(category: string): void {
+    this.setProject(updateProjectCategory(this.project, category))
+  }
+
+  setProjectTags(tags: string[]): void {
+    this.setProject(updateProjectTags(this.project, tags))
+  }
+
   /** Reorders the project's item list (drag and drop in the sidebar). */
   move(itemId: string, toIndex: number): void {
     this.setProject(moveItem(this.project, itemId, toIndex))
+  }
+
+  async replaceProject(project: Project): Promise<void> {
+    await this.flush()
+    for (const id of this.open.keys()) this.close(id)
+    this.setProject(project)
   }
 
   async remove(itemId: string): Promise<void> {
