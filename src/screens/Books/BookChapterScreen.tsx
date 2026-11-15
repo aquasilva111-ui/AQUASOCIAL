@@ -36,6 +36,8 @@ import {
   useBookAuthor,
 } from './shared'
 
+const AQUA_BLUE = '#002BEF'
+
 type Mode = 'thread' | 'page'
 
 export function BookChapterScreen({
@@ -127,16 +129,51 @@ function Reader({
       : undefined
   const profile = author.profile.data
 
+  const totalChapters = (chaptersQ.data ?? []).filter(
+    c => c.chapter.status === 'published',
+  ).length
+  const progress = totalChapters
+    ? Math.round((chapter.number / totalChapters) * 100)
+    : 0
+
   return (
     <View style={[a.p_lg, a.gap_lg]}>
       <View style={[a.gap_xs]}>
         <Link to={`/books/${authorPath}/${stored.rkey}`} label={book.title}>
           <Text style={[a.text_xs, a.font_bold, t.atoms.text_contrast_medium]}>
-            {book.title.toUpperCase()} · {readingMinutes(chapter.body)} MIN
+            ← {book.title}
           </Text>
         </Link>
-        <Text style={[a.text_2xl, a.font_bold]}>
-          {chapter.number}. {chapter.title}
+        <View style={[a.flex_row, a.align_center, a.justify_between]}>
+          <Text style={[a.text_2xl, a.font_bold]}>
+            {chapter.number}. {chapter.title}
+          </Text>
+          <Text style={[a.text_xs, a.font_bold, t.atoms.text_contrast_medium]}>
+            Ch. {chapter.number} / {totalChapters || chapter.number}
+          </Text>
+        </View>
+        <View
+          style={[
+            a.h_full,
+            a.rounded_full,
+            t.atoms.bg_contrast_50,
+            {height: 6, overflow: 'hidden'},
+          ]}>
+          <View
+            style={[
+              a.h_full,
+              {
+                height: 6,
+                width: `${Math.min(100, progress)}%`,
+                backgroundColor: AQUA_BLUE,
+              },
+            ]}
+          />
+        </View>
+        <Text style={[a.text_xs, t.atoms.text_contrast_medium]}>
+          Capítulo {chapter.number} · “{chapter.title}” · {parts.length}{' '}
+          {parts.length === 1 ? 'parte' : 'partes'} · ~
+          {readingMinutes(chapter.body)} min · por @{profile?.handle}
         </Text>
         {chapter.status === 'draft' && (
           <Text style={[a.text_sm, {color: t.palette.negative_500}]}>
@@ -222,6 +259,10 @@ function Reader({
           <Text style={[a.text_sm]}>{chapter.authorNote}</Text>
         </View>
       )}
+      <Text style={[a.text_xs, t.atoms.text_contrast_medium]}>
+        Origem: obra original de @{profile?.handle} (atribuição registrada para
+        royalties).
+      </Text>
 
       <View style={[a.flex_row, a.gap_sm, a.flex_wrap]}>
         {commentsLink ? (
@@ -260,7 +301,7 @@ function Reader({
         {prev && rkeyFor(prev.number) ? (
           <PillLink
             to={chapterPath(authorPath, stored.rkey, rkeyFor(prev.number)!)}
-            label="Anterior"
+            label={`← Cap. ${prev.number}`}
             primary={false}
           />
         ) : (
@@ -269,7 +310,7 @@ function Reader({
         {next && rkeyFor(next.number) && (
           <PillLink
             to={chapterPath(authorPath, stored.rkey, rkeyFor(next.number)!)}
-            label="Próximo capítulo"
+            label={`Cap. ${next.number} →`}
           />
         )}
       </View>

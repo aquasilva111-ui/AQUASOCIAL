@@ -686,6 +686,8 @@ export function useChapterPostQuery(threadUri: string | undefined) {
         uri: p.uri,
         cid: p.cid,
         likeCount: p.likeCount ?? 0,
+        replyCount: p.replyCount ?? 0,
+        repostCount: p.repostCount ?? 0,
         likeUri: p.viewer?.like,
       }
     },

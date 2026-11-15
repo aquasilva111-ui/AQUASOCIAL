@@ -1,4 +1,4 @@
-import {View} from 'react-native'
+import {Pressable, View} from 'react-native'
 
 import {bookPath, MATURITY_LABELS, STATUS_LABELS} from '#/lib/books/model'
 import {
@@ -11,17 +11,56 @@ import {
 import {useSession} from '#/state/session'
 import {atoms as a, useTheme} from '#/alf'
 import {BookCover} from '#/components/books/BookCover'
+import * as Toast from '#/components/Toast'
 import {Text} from '#/components/Typography'
 import {BooksShell, Notice, PillLink, RetryNotice} from './shared'
 
+const WRITE_TYPES = [
+  {id: 'book', label: '📖 Livro', to: '/books/studio/book/new'},
+  {id: 'article', label: '📰 Artigo'},
+  {id: 'opinion', label: '💬 Opinião'},
+  {id: 'recipe', label: '🍳 Receita'},
+] as const
+
 export function BooksStudioScreen() {
+  const t = useTheme()
   const {currentAccount} = useSession()
   const q = useAuthorBooksQuery(currentAccount?.did)
   return (
     <BooksShell title="Estúdio de Livros" testID="booksStudioScreen">
       <View style={[a.p_lg, a.gap_lg]}>
-        <View style={[a.flex_row, a.gap_sm]}>
-          <PillLink to="/books/studio/book/new" label="Novo livro" />
+        <View style={[a.gap_xs]}>
+          <Text style={[a.text_sm, a.font_bold, t.atoms.text_contrast_medium]}>
+            O que você está escrevendo?
+          </Text>
+          <View style={[a.flex_row, a.gap_sm, a.flex_wrap]}>
+            {WRITE_TYPES.map(wt =>
+              wt.id === 'book' ? (
+                <PillLink key={wt.id} to={wt.to} label={wt.label} />
+              ) : (
+                <Pressable
+                  key={wt.id}
+                  accessibilityRole="button"
+                  accessibilityLabel={wt.label}
+                  accessibilityHint="Em breve"
+                  onPress={() =>
+                    Toast.show(`${wt.label} em breve no AQUA Reads`, {
+                      type: 'info',
+                    })
+                  }
+                  style={[
+                    a.rounded_full,
+                    a.px_lg,
+                    a.py_sm,
+                    t.atoms.bg_contrast_50,
+                  ]}>
+                  <Text style={[a.font_bold, t.atoms.text_contrast_medium]}>
+                    {wt.label}
+                  </Text>
+                </Pressable>
+              ),
+            )}
+          </View>
         </View>
         {q.isLoading ? (
           <Text>Carregando…</Text>
