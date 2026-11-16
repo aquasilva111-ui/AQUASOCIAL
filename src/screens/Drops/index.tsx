@@ -21,7 +21,7 @@ import {useHaptics} from '#/lib/haptics'
 import {type NavigationProp} from '#/lib/routes/types'
 import {POST_TOMBSTONE, usePostShadow} from '#/state/cache/post-shadow'
 import {DOCK_HEIGHT, DOCK_INSET} from '#/view/shell/bottom-bar/BottomBarStyles'
-import {ArrowShareRight_Stroke2_Corner0_Rounded as ShareIcon} from '#/components/icons/ArrowShareRight'
+import {ArrowShareRight_Stroke2_Corner2_Rounded as ShareIcon} from '#/components/icons/ArrowShareRight'
 import {Bubble_Stroke2_Corner2_Rounded as CommentIcon} from '#/components/icons/Bubble'
 import {
   Heart2_Filled_Stroke2_Corner0_Rounded as HeartFilled,

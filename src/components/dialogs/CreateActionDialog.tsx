@@ -5,7 +5,7 @@ import {useNavigation} from '@react-navigation/native'
 import {useOpenComposer} from '#/lib/hooks/useOpenComposer'
 import {type NavigationProp} from '#/lib/routes/types'
 import {useDocsApi} from '#/state/docs/store'
-import {atoms as a, useTheme} from '#/alf'
+import {atoms as a, useTheme, web} from '#/alf'
 import * as Dialog from '#/components/Dialog'
 import {Book_Stroke2_Corner2_Rounded as BookIcon} from '#/components/icons/Book'
 import {Camera_Stroke2_Corner0_Rounded as CameraIcon} from '#/components/icons/Camera'
@@ -41,10 +41,8 @@ function CreateOptionItem({
       accessibilityLabel={title}
       accessibilityHint=""
       onPress={onPress}
-      // @ts-expect-error web hover support
-      onMouseEnter={() => setHovered(true)}
-      // @ts-expect-error web hover support
-      onMouseLeave={() => setHovered(false)}
+      onHoverIn={() => setHovered(true)}
+      onHoverOut={() => setHovered(false)}
       style={[
         a.flex_row,
         a.align_center,
@@ -53,10 +51,8 @@ function CreateOptionItem({
         a.rounded_md,
         a.border,
         t.atoms.border_contrast_low,
-        hovered ? t.atoms.bg_contrast_25 : t.atoms.bg_contrast_10,
-        {
-          transition: 'all 150ms ease',
-        },
+        hovered && t.atoms.bg_contrast_25,
+        web({transition: 'all 150ms ease'}),
       ]}>
       <View
         style={[
