@@ -35,10 +35,6 @@ import {AquaLogo} from '#/components/icons/AquaLogo'
 import {ArrowBoxLeft_Stroke2_Corner0_Rounded as LeaveIcon} from '#/components/icons/ArrowBoxLeft'
 import {DotGrid_Stroke2_Corner0_Rounded as EllipsisIcon} from '#/components/icons/DotGrid'
 import {Globe_Stroke2_Corner0_Rounded as GlobeIcon} from '#/components/icons/Globe'
-import {
-  HomeOpen_Filled_Corner0_Rounded as HomeFilled,
-  HomeOpen_Stoke2_Corner0_Rounded as Home,
-} from '#/components/icons/HomeOpen'
 import {PlusLarge_Stroke2_Corner0_Rounded as PlusIcon} from '#/components/icons/Plus'
 import {Reads_Filled_Corner2_Rounded as Book} from '#/components/icons/Reads'
 import {
@@ -555,13 +551,6 @@ export function DesktopLeftNav({embedded = false}: {embedded?: boolean} = {}) {
           <NavSignupCard />
         </View>
       ) : null}
-
-      <NavItem
-        href="/"
-        icon={<Home width={NAV_ICON_WIDTH} style={pal.text} />}
-        iconFilled={<HomeFilled width={NAV_ICON_WIDTH} style={pal.text} />}
-        label="Início"
-      />
 
       {hasSession && (
         <>

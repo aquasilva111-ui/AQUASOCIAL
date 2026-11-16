@@ -277,8 +277,8 @@ function Inner() {
                   <Admonition type="tip" style={[a.mt_sm]}>
                     <Trans>
                       Use your account email address, or another real email
-                      address you control, in case KWS or Aqua needs to
-                      contact you.
+                      address you control, in case KWS or Aqua needs to contact
+                      you.
                     </Trans>
                   </Admonition>
                 )}

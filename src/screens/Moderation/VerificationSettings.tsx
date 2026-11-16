@@ -39,8 +39,7 @@ export function Screen() {
           <SettingsList.Item>
             <Admonition type="tip" style={[a.flex_1]}>
               <Trans>
-                Verifications on Aqua work differently than on other
-                platforms.{' '}
+                Verifications on Aqua work differently than on other platforms.{' '}
                 <InlineLinkText
                   overridePresentation
                   to={urls.website.blog.initialVerificationAnnouncement}

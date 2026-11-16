@@ -106,7 +106,8 @@ export function ProfileBooksSection({
           </View>
         )
       }
-      return <BookRow stored={item.book} />
+      if ('book' in item) return <BookRow stored={item.book} />
+      return null
     },
     [tab, height, headerHeight],
   )
