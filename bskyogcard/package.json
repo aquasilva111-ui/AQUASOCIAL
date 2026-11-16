@@ -27,5 +27,8 @@
     "@types/node": "^20.14.3",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.5"
+  },
+  "resolutions": {
+    "proxy-addr": "2.0.8"
   }
 }

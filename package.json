@@ -302,7 +302,14 @@
     "**/expo-constants": "18.0.8",
     "**/expo-device": "7.1.4",
     "**/zod": "3.23.8",
-    "**/multiformats": "9.9.0"
+    "**/multiformats": "9.9.0",
+    "handlebars": "4.7.10",
+    "proxy-addr": "2.0.8",
+    "protobufjs": "7.6.6",
+    "fast-xml-parser": "5.12.1",
+    "react-server-dom-webpack": "19.0.9",
+    "form-data": "4.0.6",
+    "elliptic": "6.6.1"
   },
   "jest": {
     "preset": "jest-expo/ios",
@@ -396,5 +403,14 @@
     "emptyHostname": false,
     "validatePackageNames": true,
     "validateIntegrity": true
+  },
+  "overrides": {
+    "handlebars": "4.7.10",
+    "proxy-addr": "2.0.8",
+    "protobufjs": "7.6.6",
+    "fast-xml-parser": "5.12.1",
+    "react-server-dom-webpack": "19.0.9",
+    "form-data": "4.0.6",
+    "elliptic": "6.6.1"
   }
 }
