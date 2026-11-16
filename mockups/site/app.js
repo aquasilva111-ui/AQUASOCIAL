@@ -44,7 +44,6 @@ const MAP = [
     'Criar',
     [
       ['hub', 'Creative Hub'],
-      ['workspace', 'Shell Compartilhado'],
       ['_', 'Docs', 'ext', '../../aqua-docs/index.html'],
       ['_', 'Design', 'ext', '../../aqua-studio/index.html'],
       ['_', 'Sheets', 'ext', '../../aqua-sheets/index.html'],
