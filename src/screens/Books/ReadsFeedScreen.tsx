@@ -114,11 +114,13 @@ function PartCard({
 
   const onLike = useCallback(() => {
     if (!post.data) {
-      Toast.show('Este capítulo ainda não tem thread para curtir', 'error')
+      Toast.show('Este capítulo ainda não tem thread para curtir', {
+        type: 'error',
+      })
       return
     }
     toggleLike.mutate(post.data, {
-      onError: () => Toast.show('Não foi possível curtir', 'error'),
+      onError: () => Toast.show('Não foi possível curtir', {type: 'error'}),
     })
   }, [post.data, toggleLike])
 
@@ -128,7 +130,9 @@ function PartCard({
       {
         onSuccess: () => Toast.show('Thread republicada no feed'),
         onError: () =>
-          Toast.show('Não foi possível republicar. Tente novamente.', 'error'),
+          Toast.show('Não foi possível republicar. Tente novamente.', {
+            type: 'error',
+          }),
       },
     )
   }, [repost, handle, item, index, text])
@@ -150,7 +154,7 @@ function PartCard({
       Toast.show('Publicado no seu story')
     } catch (e) {
       logger.error('Failed to publish part as story', {message: String(e)})
-      Toast.show('Não foi possível publicar no story', 'error')
+      Toast.show('Não foi possível publicar no story', {type: 'error'})
     } finally {
       setStoryBusy(false)
     }

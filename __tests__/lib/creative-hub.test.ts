@@ -49,8 +49,14 @@ describe('creative hub', () => {
     expect(new Set(TEMPLATES.map(t => t.id)).size).toBe(TEMPLATES.length)
   })
 
-  it('only docs are available until the design editor exists', () => {
-    expect(FORMATS.filter(f => f.available).map(f => f.id)).toEqual(['doc'])
+  it('lists the supported formats and displays their size and ratio', () => {
+    expect(FORMATS.filter(f => f.available).map(f => f.id)).toEqual([
+      'post',
+      'story',
+      'video',
+      'book_cover',
+      'doc',
+    ])
     expect(formatSize(formatById('post'))).toBe('1080 × 1350')
     expect(formatSize(formatById('doc'))).toBe('Documento')
     expect(formatRatio(formatById('post'))).toBe('4:5')

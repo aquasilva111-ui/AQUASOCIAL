@@ -181,9 +181,7 @@ function Footer() {
       <InlineLinkText
         label={_(msg`See jobs at Aqua`)}
         to="https://bsky.social/about/join">
-        <Trans comment="Link to a page with job openings at Aqua">
-          Jobs
-        </Trans>
+        <Trans comment="Link to a page with job openings at Aqua">Jobs</Trans>
       </InlineLinkText>
 
       <View style={a.flex_1} />
