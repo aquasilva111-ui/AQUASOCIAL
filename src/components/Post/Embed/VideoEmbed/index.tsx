@@ -65,13 +65,17 @@ export function VideoEmbed({embed, mediaChrome, bleed}: Props) {
           : null,
       ]}>
       <ConstrainedImage
-        fullBleed={!!bleed}
+        fullBleed={!!mediaChrome || !!bleed}
         aspectRatio={
-          bleed ? Math.max(constrained || 1, 9 / 12) : constrained || 1
+          mediaChrome
+            ? Math.max(aspectRatio ?? 1, 0.25)
+            : bleed
+              ? Math.max(constrained || 1, 9 / 12)
+              : constrained || 1
         }
         // slightly smaller max height than images
         // images use 16 / 9, for reference
-        minMobileAspectRatio={bleed ? 12 / 9 : 14 / 9}
+        minMobileAspectRatio={mediaChrome ? 4 : bleed ? 12 / 9 : 14 / 9}
         borderRadius={mediaChrome ? AQUA_RADIUS.media : undefined}>
         {contents}
       </ConstrainedImage>
