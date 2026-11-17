@@ -99,8 +99,7 @@ function Inner({
               <RNText>
                 <VerifierCheck width={14} />
               </RNText>{' '}
-              can verify others. These trusted verifiers are selected by
-              Aqua.
+              can verify others. These trusted verifiers are selected by Aqua.
             </Trans>
           </Text>
         </View>

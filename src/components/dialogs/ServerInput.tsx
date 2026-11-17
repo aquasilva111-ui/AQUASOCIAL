@@ -163,9 +163,9 @@ function DialogInner({
           <View role="tabpanel">
             <Admonition type="tip">
               <Trans>
-                Aqua is an open network where you can choose your own
-                provider. If you're new here, we recommend sticking with the
-                default Aqua Social option.
+                Aqua is an open network where you can choose your own provider.
+                If you're new here, we recommend sticking with the default Aqua
+                Social option.
               </Trans>
             </Admonition>
           </View>
