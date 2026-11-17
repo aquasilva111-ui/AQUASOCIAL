@@ -553,9 +553,7 @@ export function DesktopLeftNav({embedded = false}: {embedded?: boolean} = {}) {
         <>
           <NavItem
             href="/views"
-            icon={
-              <ViewsButterfly width={NAV_ICON_WIDTH} style={pal.text} />
-            }
+            icon={<ViewsButterfly width={NAV_ICON_WIDTH} style={pal.text} />}
             iconFilled={
               <ViewsButterfly width={NAV_ICON_WIDTH} style={pal.text} />
             }
