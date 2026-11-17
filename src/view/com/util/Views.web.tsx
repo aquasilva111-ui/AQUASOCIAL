@@ -28,7 +28,6 @@ import {useWebMediaQueries} from '#/lib/hooks/useWebMediaQueries'
 import {addStyle} from '#/lib/styles'
 import {useLayoutBreakpoints} from '#/alf'
 import {useDialogContext} from '#/components/Dialog'
-import {CENTER_COLUMN_OFFSET} from '#/components/Layout'
 
 interface AddedProps {
   desktopFixedHeight?: boolean | number
@@ -49,13 +48,15 @@ export const CenteredView = React.forwardRef(function CenteredView(
 ) {
   const pal = usePalette('default')
   const {isMobile} = useWebMediaQueries()
-  const {centerColumnOffset} = useLayoutBreakpoints()
+  const {centerContentOffset} = useLayoutBreakpoints()
   const {isWithinDialog} = useDialogContext()
   if (!isMobile) {
     style = addStyle(style, styles.container)
   }
-  if (centerColumnOffset && !isWithinDialog) {
-    style = addStyle(style, styles.containerOffset)
+  if (centerContentOffset && !isWithinDialog) {
+    style = addStyle(style, {
+      transform: [{translateX: centerContentOffset}],
+    })
   }
   if (topBorder) {
     style = addStyle(style, {
@@ -79,7 +80,7 @@ export const FlatList_INTERNAL = React.forwardRef(function FlatListImpl<ItemT>(
   ref: React.Ref<FlatList<ItemT>>,
 ) {
   const {isMobile} = useWebMediaQueries()
-  const {centerColumnOffset} = useLayoutBreakpoints()
+  const {centerContentOffset} = useLayoutBreakpoints()
   const {isWithinDialog} = useDialogContext()
   if (!isMobile) {
     contentContainerStyle = addStyle(
@@ -87,8 +88,10 @@ export const FlatList_INTERNAL = React.forwardRef(function FlatListImpl<ItemT>(
       styles.containerScroll,
     )
   }
-  if (centerColumnOffset && !isWithinDialog) {
-    style = addStyle(style, styles.containerOffset)
+  if (centerContentOffset && !isWithinDialog) {
+    style = addStyle(style, {
+      transform: [{translateX: centerContentOffset}],
+    })
   }
   if (contentOffset && contentOffset?.y !== 0) {
     // NOTE
@@ -146,18 +149,17 @@ export const ScrollView = React.forwardRef(function ScrollViewImpl(
   ref: React.Ref<Animated.ScrollView>,
 ) {
   const {isMobile} = useWebMediaQueries()
-  const {centerColumnOffset} = useLayoutBreakpoints()
+  const {centerContentOffset} = useLayoutBreakpoints()
   if (!isMobile) {
     contentContainerStyle = addStyle(
       contentContainerStyle,
       styles.containerScroll,
     )
   }
-  if (centerColumnOffset) {
-    contentContainerStyle = addStyle(
-      contentContainerStyle,
-      styles.containerOffset,
-    )
+  if (centerContentOffset) {
+    contentContainerStyle = addStyle(contentContainerStyle, {
+      transform: [{translateX: centerContentOffset}],
+    })
   }
   return (
     <Animated.ScrollView
@@ -178,9 +180,6 @@ const styles = StyleSheet.create({
     maxWidth: 600,
     marginLeft: 'auto',
     marginRight: 'auto',
-  },
-  containerOffset: {
-    transform: [{translateX: CENTER_COLUMN_OFFSET}],
   },
   containerScroll: {
     width: '100%',
