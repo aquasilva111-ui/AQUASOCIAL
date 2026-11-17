@@ -1,3 +1,4 @@
+// @ts-ignore
 import * as Plot from '@observablehq/plot'
 import { parseHTML } from 'linkedom'
 import * as vega from 'vega'

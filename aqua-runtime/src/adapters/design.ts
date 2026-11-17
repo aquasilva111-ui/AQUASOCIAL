@@ -1,4 +1,5 @@
 import { addTitle, createAquaDocument } from 'aqua-design-core/src/brand/document'
+import type { DesignFormatId } from 'aqua-design-core/src/brand/tokens'
 import { createPresentation, toPptx, toRevealHtml, type Presentation } from 'aqua-design-core/src/presentation'
 import { deserializeDocument, serializeDocument } from 'aqua-design-core/src/serialize'
 import type { SceneGraph } from 'aqua-design-core/src/scene-graph/index'
@@ -19,9 +20,10 @@ export function designAdapter(kind: 'design' | 'presentation', opts: DesignAdapt
   return {
     kind: kind as ItemKind,
     mime: 'application/vnd.aqua.design+json',
-    create(name) {
+    create(name, createOpts) {
       if (kind === 'presentation') return session(createPresentation(name).graph, opts)
-      const doc = createAquaDocument('post')
+      const format = (createOpts?.format as DesignFormatId) ?? 'post'
+      const doc = createAquaDocument(format)
       addTitle(doc, name)
       return session(doc.graph, opts)
     },

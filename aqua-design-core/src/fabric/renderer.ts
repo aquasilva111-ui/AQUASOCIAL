@@ -1,4 +1,4 @@
-import { Canvas, Rect, StaticCanvas, type FabricObject } from 'fabric'
+import { Canvas, FabricImage, Rect, StaticCanvas, type FabricObject } from 'fabric'
 
 import { AQUA_CANVAS, applyAquaFabricTheme } from '../brand/fabric-theme'
 import type { SceneGraph } from '../scene-graph'
@@ -81,6 +81,19 @@ export class FabricRenderer {
     const k = Math.min((this.canvas.getWidth() - margin * 2) / f.width, (this.canvas.getHeight() - margin * 2) / f.height)
     this.canvas.setViewportTransform([k, 0, 0, k, margin - f.x * k, margin - f.y * k])
     this.canvas.requestRenderAll()
+  }
+
+  async addImage(url: string, opts?: { left?: number; top?: number; width?: number; height?: number }): Promise<FabricImage> {
+    const img = await FabricImage.fromURL(url)
+    if (opts?.width) img.scaleToWidth(opts.width)
+    if (opts?.left !== undefined) img.set({ left: opts.left })
+    if (opts?.top !== undefined) img.set({ top: opts.top })
+    this.canvas.add(img)
+    if (this.canvas instanceof Canvas) {
+      this.canvas.setActiveObject(img)
+    }
+    this.canvas.requestRenderAll()
+    return img
   }
 
   toDataURL(multiplier = 1): string {

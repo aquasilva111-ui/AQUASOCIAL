@@ -1,4 +1,4 @@
-import { Ellipse, FabricObject, FixedLayout, Gradient, Group, LayoutManager, Line, Rect, Shadow, Textbox, type FabricObjectProps } from 'fabric'
+import { Ellipse, FabricObject, FixedLayout, Gradient, Group, LayoutManager, Line, Polygon, Rect, Shadow, Textbox, type FabricObjectProps } from 'fabric'
 
 import type { Color, Effect, Fill, SceneGraph, SceneNode, Stroke } from '../scene-graph'
 
@@ -77,6 +77,48 @@ export function nodeToFabric(graph: SceneGraph, node: SceneNode): FabricObject |
     case 'LINE':
       obj = new Line([0, 0, node.width, 0], { ...common, fill: null })
       break
+    case 'STAR': {
+      const points = []
+      const spikes = 5
+      const outerR = Math.min(node.width, node.height) / 2
+      const innerR = outerR * 0.45
+      const cx = node.width / 2
+      const cy = node.height / 2
+      let rot = (Math.PI / 2) * 3
+      const step = Math.PI / spikes
+      for (let i = 0; i < spikes; i++) {
+        points.push({ x: cx + Math.cos(rot) * outerR, y: cy + Math.sin(rot) * outerR })
+        rot += step
+        points.push({ x: cx + Math.cos(rot) * innerR, y: cy + Math.sin(rot) * innerR })
+        rot += step
+      }
+      obj = new Polygon(points, { ...common, width: node.width, height: node.height })
+      break
+    }
+    case 'POLYGON': {
+      if (node.name?.toLowerCase().includes('seta') || (node as unknown as { shapeKind?: string }).shapeKind === 'ARROW') {
+        const w = node.width
+        const h = node.height
+        const points = [
+          { x: 0, y: h * 0.32 },
+          { x: w * 0.62, y: h * 0.32 },
+          { x: w * 0.62, y: 0 },
+          { x: w, y: h * 0.5 },
+          { x: w * 0.62, y: h },
+          { x: w * 0.62, y: h * 0.68 },
+          { x: 0, y: h * 0.68 }
+        ]
+        obj = new Polygon(points, { ...common, width: node.width, height: node.height })
+        break
+      }
+      const points = [
+        { x: node.width / 2, y: 0 },
+        { x: node.width, y: node.height },
+        { x: 0, y: node.height }
+      ]
+      obj = new Polygon(points, { ...common, width: node.width, height: node.height })
+      break
+    }
     case 'TEXT':
       obj = new Textbox(node.text, {
         ...common,

@@ -2,6 +2,7 @@ import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 
 export default defineConfig({
+  base: '/create/',
   plugins: [react()],
   server: { port: 5192, fs: { allow: ['..'] } },
   // One copy of Yjs for the runtime's Y.Doc and BlockNote: with two, BlockNote's edits never reach the document.
