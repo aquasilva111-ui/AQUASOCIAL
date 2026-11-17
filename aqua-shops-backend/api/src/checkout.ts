@@ -44,7 +44,7 @@ export interface MercurCheckoutConfig {
   baseUrl: string;
   publishableKey: string;
   currency: string;
-  /** Provedor de pagamento do Mercur. O dinheiro passa pelo Asaas, fora do Mercur. */
+  /** Provedor de pagamento do Mercur. O dinheiro é cobrado no provedor da loja, fora do Mercur. */
   paymentProviderId?: string;
   fetchImpl?: typeof fetch;
 }

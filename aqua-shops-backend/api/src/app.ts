@@ -3,7 +3,7 @@ import { cors } from 'hono/cors';
 import type { ProductQuery, SortOrder } from '../../../aqua-shops/shared/types/index.ts';
 import type { Catalog } from './catalog.ts';
 import { OrderError, type OrdersService } from './orders.ts';
-import type { PaymentProvider } from './payments.ts';
+import { ConnectionError, type Connections } from './connections.ts';
 
 const SORTS: SortOrder[] = ['new', 'price_asc', 'price_desc'];
 
@@ -11,12 +11,12 @@ export interface AppOptions {
   corsOrigins?: string[];
   /** Sem isso (pagamento não configurado) os pedidos respondem 503. */
   orders?: OrdersService;
-  /** Provedores de pagamento; cada um recebe seus webhooks em /webhooks/<nome>. */
-  providers?: PaymentProvider[];
+  /** Conexões das lojas com os provedores; cada loja recebe os webhooks em /webhooks/<provedor>/<shopId>. */
+  connections?: Connections;
 }
 
 export function createApp(catalog: Catalog, options: AppOptions = {}) {
-  const { corsOrigins = [], orders, providers = [] } = options;
+  const { corsOrigins = [], orders, connections } = options;
   const app = new Hono();
   if (corsOrigins.length) app.use('*', cors({ origin: corsOrigins }));
 
@@ -55,23 +55,27 @@ export function createApp(catalog: Catalog, options: AppOptions = {}) {
     return order ? c.json(order) : c.json({ message: 'Pedido não encontrado' }, 404);
   });
 
-  app.post('/webhooks/:provider', async c => {
-    const provider = providers.find(p => p.name === c.req.param('provider'));
-    if (!orders || !provider) return c.json({ message: 'Webhook não configurado' }, 503);
+  // Um webhook por loja e provedor, validado com o segredo daquela loja.
+  app.post('/webhooks/:provider/:shopId', async c => {
+    if (!orders || !connections) return c.json({ message: 'Webhook não configurado' }, 503);
+    const connection = await connections.get(c.req.param('shopId'), c.req.param('provider'));
+    if (!connection) return c.json({ message: 'Webhook não configurado' }, 404);
     const raw = await c.req.text();
-    if (!provider.verifyWebhook(name => c.req.header(name), raw)) return c.json({ message: 'Não autorizado' }, 401);
+    if (!connection.provider.verifyWebhook(connection.webhookSecret, name => c.req.header(name), raw)) return c.json({ message: 'Não autorizado' }, 401);
     let body: unknown;
     try {
       body = JSON.parse(raw);
     } catch {
       return c.json({ message: 'Corpo inválido' }, 400);
     }
-    const event = provider.parseWebhook(body);
-    return c.json({ result: event ? await orders.handleEvent(provider.name, event) : 'ignored' });
+    const event = connection.provider.parseWebhook(body);
+    return c.json({ result: event ? await orders.handleEvent(connection.provider.name, connection.shopId, event) : 'ignored' });
   });
 
   app.onError((err, c) => {
     if (err instanceof OrderError) return c.json({ message: err.message }, err.status);
+    // Credencial de loja ilegível (chave de cifra perdida/trocada): erro nosso, com mensagem própria.
+    if (err instanceof ConnectionError) return c.json({ message: err.message }, err.status);
     console.error(err);
     return c.json({ message: 'Erro ao falar com o Mercur' }, 502);
   });

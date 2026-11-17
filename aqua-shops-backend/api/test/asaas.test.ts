@@ -22,7 +22,7 @@ describe('conversão de valores', () => {
 });
 
 describe('cliente Asaas', () => {
-  it('cria a cobrança Pix com split em reais e autenticação por header', async () => {
+  it('cria a cobrança Pix em reais, sem split, com a chave da loja no header', async () => {
     const { client, calls } = fake([{ body: { id: 'pay_1', status: 'PENDING', value: 100 } }]);
     await client.createPixCharge({
       customerId: 'cus_1',
@@ -30,7 +30,6 @@ describe('cliente Asaas', () => {
       dueDate: '2026-10-06',
       externalReference: 'ord_1',
       description: 'Pedido 1',
-      splits: [{ walletId: 'w_a', fixedValueCents: 9000 }],
     });
     const { url, init } = calls[0]!;
     expect(url).toBe('https://sandbox.example/v3/payments');
@@ -42,7 +41,6 @@ describe('cliente Asaas', () => {
       dueDate: '2026-10-06',
       externalReference: 'ord_1',
       description: 'Pedido 1',
-      split: [{ walletId: 'w_a', fixedValue: 90 }],
     });
   });
 

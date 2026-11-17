@@ -13,10 +13,10 @@ async function copy() {
 
 // Consulta o pedido até o Pix ser pago (a confirmação chega por webhook na API).
 async function refresh() {
-  if (order.value?.status !== 'pending_payment') return;
+  if (order.value?.status !== 'awaiting_payment') return;
   try {
     const next = await $fetch('/api/order', { query: { id: order.value.id } });
-    if (next.status !== 'pending_payment') {
+    if (next.status !== 'awaiting_payment') {
       order.value = next;
       if (next.status === 'paid') clearCart();
     }
