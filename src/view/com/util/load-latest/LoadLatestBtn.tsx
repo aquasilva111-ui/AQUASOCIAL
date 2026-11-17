@@ -18,12 +18,7 @@ import {
 import {atoms as a, useLayoutBreakpoints, useTheme} from '#/alf'
 import {useInteractionState} from '#/components/hooks/useInteractionState'
 import {ArrowTop_Stroke2_Corner0_Rounded as ArrowIcon} from '#/components/icons/Arrow'
-import {
-  CENTER_COLUMN_OFFSET,
-  CENTER_COLUMN_WIDTH,
-  getNavEdgeInset,
-  LEFT_NAV_WIDTH,
-} from '#/components/Layout'
+import {CENTER_COLUMN_WIDTH, SIDEBAR_RAIL_WIDTH} from '#/components/Layout'
 import {SubtleHover} from '#/components/SubtleHover'
 
 export function LoadLatestBtn({
@@ -38,7 +33,7 @@ export function LoadLatestBtn({
   const {hasSession} = useSession()
   const {isDesktop, isMobile, isTabletOrMobile, isTabletOrDesktop} =
     useWebMediaQueries()
-  const {centerColumnOffset, leftNavMinimal} = useLayoutBreakpoints()
+  const {centerContentOffset, leftNavMinimal} = useLayoutBreakpoints()
   const {width: windowWidth} = useWindowDimensions()
   const fabMinimalShellTransform = useMinimalShellFabTransform()
   const insets = useSafeAreaInsets()
@@ -68,7 +63,7 @@ export function LoadLatestBtn({
         // (see createNativeStackNavigatorWithAuth).
         dockVisible: hasSession || leftNavMinimal,
         canGoOutOfLine: isDesktop && isTallViewport && !leftNavMinimal,
-        centerColumnOffset,
+        centerContentOffset,
       })
     : {left: 18, bottom: clamp(insets.bottom, 15, 60) + 15}
 
@@ -127,24 +122,23 @@ function getWideScreenPosition({
   windowWidth,
   dockVisible,
   canGoOutOfLine,
-  centerColumnOffset,
+  centerContentOffset,
 }: {
   windowWidth: number
   dockVisible: boolean
   canGoOutOfLine: boolean
-  centerColumnOffset: boolean
+  centerContentOffset: number
 }) {
   const dockWidth = Math.min(windowWidth - DOCK_INSET * 2, DOCK_MAX_WIDTH)
   const dockLeft = (windowWidth - dockWidth) / 2
   const outOfLineLeft = dockLeft - BUTTON_SIZE - GAP
-  const leftNavRight =
-    getNavEdgeInset(windowWidth, LEFT_NAV_WIDTH) + LEFT_NAV_WIDTH
+  // The desktop rail rests at the collapsed width; hover overlays and
+  // must not move this button.
+  const leftNavRight = SIDEBAR_RAIL_WIDTH
   if (canGoOutOfLine && outOfLineLeft >= leftNavRight + GAP) {
     return {left: outOfLineLeft, bottom: 30}
   }
-  const feedLeft =
-    (windowWidth - CENTER_COLUMN_WIDTH) / 2 +
-    (centerColumnOffset ? CENTER_COLUMN_OFFSET : 0)
+  const feedLeft = (windowWidth - CENTER_COLUMN_WIDTH) / 2 + centerContentOffset
   return {
     left: feedLeft + 18,
     bottom: dockVisible ? DOCK_INSET + DOCK_HEIGHT + GAP : 30,

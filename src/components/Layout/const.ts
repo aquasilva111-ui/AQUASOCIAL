@@ -41,7 +41,26 @@ export const NAV_EDGE_INSET = 48
  */
 export const LEFT_NAV_WIDTH = 260
 
+/**
+ * Icon-only left nav used below the desktop breakpoint.
+ */
+export const LEFT_NAV_MINIMAL_WIDTH = 86
+
+/** Desktop hover rail. Collapsed width, then the glass panel. */
+export const SIDEBAR_RAIL_WIDTH = 72
+export const SIDEBAR_OPEN_WIDTH = 240
+
 export function getNavEdgeInset(windowWidth: number, navWidth: number) {
   const slack = (windowWidth - CENTER_COLUMN_WIDTH) / 2 - navWidth
   return Math.max(0, Math.min(NAV_EDGE_INSET, slack))
+}
+
+/**
+ * Shift of the center column on wide desktop so the feed starts against the
+ * 72px rail. The open panel overlays that column; this value does not change
+ * on hover.
+ */
+export function getCollapsedNavContentOffset(windowWidth: number) {
+  const naturalLeft = (windowWidth - CENTER_COLUMN_WIDTH) / 2
+  return Math.round(SIDEBAR_RAIL_WIDTH - naturalLeft)
 }

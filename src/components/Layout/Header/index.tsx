@@ -23,7 +23,6 @@ import {ArrowLeft_Stroke2_Corner0_Rounded as ArrowLeft} from '#/components/icons
 import {Menu_Stroke2_Corner0_Rounded as Menu} from '#/components/icons/Menu'
 import {
   BUTTON_VISUAL_ALIGNMENT_OFFSET,
-  CENTER_COLUMN_OFFSET,
   CENTER_COLUMN_WIDTH,
   HEADER_SLOT_SIZE,
   SCROLLBAR_OFFSET,
@@ -46,7 +45,7 @@ export function Outer({
   const gutters = useGutters([0, 'base'])
   const {gtMobile} = useBreakpoints()
   const {isWithinOffsetView} = useContext(ScrollbarOffsetContext)
-  const {centerColumnOffset} = useLayoutBreakpoints()
+  const {centerContentOffset} = useLayoutBreakpoints()
 
   return (
     <View
@@ -65,7 +64,7 @@ export function Outer({
         gtMobile && [a.mx_auto, {maxWidth: CENTER_COLUMN_WIDTH}],
         !isWithinOffsetView && {
           transform: [
-            {translateX: centerColumnOffset ? CENTER_COLUMN_OFFSET : 0},
+            {translateX: centerContentOffset},
             {translateX: web(SCROLLBAR_OFFSET) ?? 0},
           ],
         },
