@@ -264,7 +264,7 @@ export function BottomBar({navigation}: BottomTabBarProps) {
               hasNew={numUnreadMessages.hasNew}
               accessible={true}
               accessibilityRole="tab"
-              accessibilityLabel="Mailssage"
+              accessibilityLabel="Mailsage"
               accessibilityHint={
                 numUnreadMessages.count > 0
                   ? _(

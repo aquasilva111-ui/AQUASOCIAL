@@ -28,6 +28,7 @@ import {useWebMediaQueries} from '#/lib/hooks/useWebMediaQueries'
 import {addStyle} from '#/lib/styles'
 import {useLayoutBreakpoints} from '#/alf'
 import {useDialogContext} from '#/components/Dialog'
+import {CENTER_COLUMN_WIDTH} from '#/components/Layout/const'
 
 interface AddedProps {
   desktopFixedHeight?: boolean | number
@@ -177,13 +178,13 @@ const styles = StyleSheet.create({
   },
   container: {
     width: '100%',
-    maxWidth: 600,
+    maxWidth: CENTER_COLUMN_WIDTH,
     marginLeft: 'auto',
     marginRight: 'auto',
   },
   containerScroll: {
     width: '100%',
-    maxWidth: 600,
+    maxWidth: CENTER_COLUMN_WIDTH,
     marginLeft: 'auto',
     marginRight: 'auto',
   },
