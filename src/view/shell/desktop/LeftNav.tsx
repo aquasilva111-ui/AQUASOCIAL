@@ -19,7 +19,6 @@ import {sanitizeDisplayName} from '#/lib/strings/display-names'
 import {sanitizeHandle} from '#/lib/strings/handles'
 import {emitSoftReset} from '#/state/events'
 import {useProfilesQuery} from '#/state/queries/profile'
-import {useLiveUsersQuery} from '#/state/queries/streamplace'
 import {type SessionAccount, useSession, useSessionApi} from '#/state/session'
 import {useLoggedOutViewControls} from '#/state/shell/logged-out'
 import {useCloseAllActiveElements} from '#/state/util'
@@ -42,13 +41,13 @@ import {
   SettingsGear2_Stroke2_Corner0_Rounded as Settings,
 } from '#/components/icons/SettingsGear2'
 import {UserCircle_Stroke2_Corner0_Rounded as UserCircle} from '#/components/icons/UserCircle'
+import {ViewsButterfly_Filled as ViewsButterfly} from '#/components/icons/ViewsButterfly'
 import {
   CENTER_COLUMN_HALF_WIDTH,
   CENTER_COLUMN_OFFSET,
   getNavEdgeInset,
   LEFT_NAV_WIDTH,
 } from '#/components/Layout'
-import {ViewIcon} from '#/components/media/ViewIcon'
 import * as Menu from '#/components/Menu'
 import * as Prompt from '#/components/Prompt'
 import {Text} from '#/components/Typography'
@@ -508,8 +507,6 @@ export function DesktopLeftNav({embedded = false}: {embedded?: boolean} = {}) {
   const {isDesktop} = useWebMediaQueries()
   const {leftNavMinimal, centerColumnOffset} = useLayoutBreakpoints()
   const {width: windowWidth} = useWindowDimensions()
-  const {data: liveStreams} = useLiveUsersQuery()
-  const hasLiveNow = !!liveStreams?.length
 
   if (!hasSession && !isDesktop) {
     return null
@@ -556,23 +553,11 @@ export function DesktopLeftNav({embedded = false}: {embedded?: boolean} = {}) {
         <>
           <NavItem
             href="/views"
-            icon={
-              <ViewIcon
-                introOnMount
-                state={hasLiveNow ? 'live' : 'idle'}
-                fill={pal.text.color}
-                width={NAV_ICON_WIDTH}
-              />
-            }
+            icon={<ViewsButterfly width={NAV_ICON_WIDTH} style={pal.text} />}
             iconFilled={
-              <ViewIcon
-                introOnMount
-                state={hasLiveNow ? 'live' : 'video'}
-                fill={pal.text.color}
-                width={NAV_ICON_WIDTH}
-              />
+              <ViewsButterfly width={NAV_ICON_WIDTH} style={pal.text} />
             }
-            label="Streams"
+            label="Views"
           />
           <NavItem
             href="/visionboard"
