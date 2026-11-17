@@ -7,7 +7,7 @@ Use these settings for the React website:
 - Package manager: npm
 - Build command: `npm run build`
 - Output directory: `web-build`
-- Node: 20.x (20.19 or newer)
+- Node: 22.x
 
 `npm run build` compiles the checked-in Lingui translation catalogs, exports the
 website with Webpack, and runs the existing web post-build script. Do not run

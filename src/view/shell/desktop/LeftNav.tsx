@@ -18,8 +18,6 @@ import {
 import {sanitizeDisplayName} from '#/lib/strings/display-names'
 import {sanitizeHandle} from '#/lib/strings/handles'
 import {emitSoftReset} from '#/state/events'
-import {useUnreadMessageCount} from '#/state/queries/messages/list-conversations'
-import {useUnreadNotifications} from '#/state/queries/notifications/unread'
 import {useProfilesQuery} from '#/state/queries/profile'
 import {useLiveUsersQuery} from '#/state/queries/streamplace'
 import {type SessionAccount, useSession, useSessionApi} from '#/state/session'
@@ -35,26 +33,8 @@ import {Button} from '#/components/Button'
 import {type DialogControlProps} from '#/components/Dialog'
 import {AquaLogo} from '#/components/icons/AquaLogo'
 import {ArrowBoxLeft_Stroke2_Corner0_Rounded as LeaveIcon} from '#/components/icons/ArrowBoxLeft'
-import {
-  Bell_Filled_Corner0_Rounded as BellFilled,
-  Bell_Stroke2_Corner0_Rounded as Bell,
-} from '#/components/icons/Bell'
 import {DotGrid_Stroke2_Corner0_Rounded as EllipsisIcon} from '#/components/icons/DotGrid'
-import {
-  Drop_Filled_Corner0_Rounded as DropFilled,
-  Drop_Stroke2_Corner0_Rounded as Drop,
-} from '#/components/icons/Drop'
 import {Globe_Stroke2_Corner0_Rounded as GlobeIcon} from '#/components/icons/Globe'
-import {
-  HomeOpen_Filled_Corner0_Rounded as HomeFilled,
-  HomeOpen_Stoke2_Corner0_Rounded as Home,
-} from '#/components/icons/HomeOpen'
-import {MagnifyingGlass_Filled_Stroke2_Corner0_Rounded as SearchFilled} from '#/components/icons/MagnifyingGlass'
-import {MagnifyingGlass2_Stroke2_Corner0_Rounded as SearchIcon} from '#/components/icons/MagnifyingGlass2'
-import {
-  Message_Stroke2_Corner0_Rounded as Message,
-  Message_Stroke2_Corner0_Rounded_Filled as MessageFilled,
-} from '#/components/icons/Message'
 import {PlusLarge_Stroke2_Corner0_Rounded as PlusIcon} from '#/components/icons/Plus'
 import {Reads_Filled_Corner2_Rounded as Book} from '#/components/icons/Reads'
 import {
@@ -538,9 +518,6 @@ export function DesktopLeftNav({
   const {data: liveStreams} = useLiveUsersQuery()
   const hasLiveNow = !!liveStreams?.length
 
-  const unreadMessageCount = useUnreadMessageCount()
-  const notificationCountStr = useUnreadNotifications()
-
   if (!hasSession && !isDesktop) {
     return null
   }
@@ -590,48 +567,8 @@ export function DesktopLeftNav({
         </View>
       ) : null}
 
-      <NavItem
-        href="/"
-        icon={<Home width={NAV_ICON_WIDTH} style={pal.text} />}
-        iconFilled={<HomeFilled width={NAV_ICON_WIDTH} style={pal.text} />}
-        label="Início"
-      />
-      <NavItem
-        href="/drops"
-        icon={<Drop width={NAV_ICON_WIDTH} style={pal.text} />}
-        iconFilled={<DropFilled width={NAV_ICON_WIDTH} style={pal.text} />}
-        label="Drops"
-      />
-      <NavItem
-        href="/search"
-        icon={<SearchIcon width={NAV_ICON_WIDTH} style={pal.text} />}
-        iconFilled={<SearchFilled width={NAV_ICON_WIDTH} style={pal.text} />}
-        label="Buscar"
-      />
-
       {hasSession && (
         <>
-          <NavItem
-            href="/notifications"
-            icon={<Bell width={NAV_ICON_WIDTH} style={pal.text} />}
-            iconFilled={<BellFilled width={NAV_ICON_WIDTH} style={pal.text} />}
-            label="Notificações"
-            count={notificationCountStr}
-          />
-          <NavItem
-            href="/messages"
-            icon={<Message width={NAV_ICON_WIDTH} style={pal.text} />}
-            iconFilled={
-              <MessageFilled width={NAV_ICON_WIDTH} style={pal.text} />
-            }
-            label="Mailssage"
-            count={
-              unreadMessageCount.numUnread > 0
-                ? String(unreadMessageCount.numUnread)
-                : undefined
-            }
-            hasNew={unreadMessageCount.hasNew}
-          />
           <NavItem
             href="/views"
             icon={
