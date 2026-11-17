@@ -111,6 +111,7 @@ module.exports = {
     '*.html',
     'bskyweb',
     '/drops',
+    'mockups',
     '/aqua-studio',
     '/aqua-design-core',
     '/aqua-project',

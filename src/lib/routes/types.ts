@@ -117,6 +117,8 @@ export type CommonNavigatorParams = {
   BooksCollection: undefined
   BookEdit: {book: string}
   ChapterEdit: {book: string; chapter: string}
+  WriteCompose: undefined
+  WriteRead: {id: string}
   BookDetail: {handle: string; book: string}
   BookChapter: {handle: string; book: string; chapter: string}
   LaunchHub: undefined

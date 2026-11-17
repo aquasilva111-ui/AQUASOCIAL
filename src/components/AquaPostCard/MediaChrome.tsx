@@ -3,6 +3,7 @@ import {View} from 'react-native'
 
 import {atoms as a, useTheme} from '#/alf'
 import {Text} from '#/components/Typography'
+import {AQUA} from './palette'
 
 /**
  * Glass controls floating on a photo, video, or link cover.
@@ -51,6 +52,42 @@ export function AquaMediaChrome({
           </>
         ) : null}
       </View>
+    </View>
+  )
+}
+
+/** Text-only posts keep the same icons in a pill under the caption. */
+export function AquaTextActionBar({
+  actions,
+  sparkle,
+  capsule,
+}: {
+  actions: ReactNode
+  sparkle?: ReactNode
+  capsule?: ReactNode
+}) {
+  const t = useTheme()
+  const light = t.name === 'light'
+  return (
+    <View
+      style={[
+        a.flex_row,
+        a.align_center,
+        a.mt_sm,
+        {
+          gap: 6,
+          minHeight: 50,
+          padding: 6,
+          borderRadius: 25,
+          backgroundColor: light
+            ? AQUA.surface
+            : t.atoms.bg_contrast_25.backgroundColor,
+        },
+      ]}>
+      {actions}
+      {sparkle}
+      <View style={a.flex_1} />
+      {capsule}
     </View>
   )
 }

@@ -185,6 +185,8 @@ import TopicScreen from '#/screens/Topic'
 import {UIAIScreen} from '#/screens/UIAI'
 import {VideoFeed} from '#/screens/VideoFeed'
 import {WikiHomeScreen} from '#/screens/Wiki'
+import {WriteComposeScreen} from '#/screens/Write/WriteComposeScreen'
+import {WriteReaderScreen} from '#/screens/Write/WriteReaderScreen'
 import {type Theme, useTheme} from '#/alf'
 import {
   EmailDialogScreenID,
@@ -896,7 +898,17 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
       <Stack.Screen
         name="Books"
         component={BooksHomeScreen}
-        options={{title: 'Reads · Biblioteca'}}
+        options={{title: 'Write'}}
+      />
+      <Stack.Screen
+        name="WriteCompose"
+        component={WriteComposeScreen}
+        options={{title: 'New in Write'}}
+      />
+      <Stack.Screen
+        name="WriteRead"
+        component={WriteReaderScreen}
+        options={{title: 'Write'}}
       />
       <Stack.Screen
         name="BooksCollection"

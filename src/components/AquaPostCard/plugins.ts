@@ -35,6 +35,8 @@ export type WhySeeingThisProvider = (
 export type PostLikerPreview = {
   did: string
   avatar?: string
+  /** Disc color when the liker has no avatar image. */
+  color?: string
   handle?: string
   displayName?: string
 }
