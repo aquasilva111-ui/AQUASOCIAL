@@ -54,7 +54,6 @@ import {UserCircle_Stroke2_Corner0_Rounded as UserCircle} from '#/components/ico
 import {ViewsButterfly_Filled as ViewsButterfly} from '#/components/icons/ViewsButterfly'
 import {
   CENTER_COLUMN_HALF_WIDTH,
-  CENTER_COLUMN_OFFSET,
   getNavEdgeInset,
   LEFT_NAV_MINIMAL_WIDTH,
   LEFT_NAV_WIDTH,
@@ -649,7 +648,8 @@ export function DesktopLeftNav({embedded = false}: {embedded?: boolean} = {}) {
   const {_} = useLingui()
   const {reduceMotionEnabled} = useA11y()
   const {isDesktop} = useWebMediaQueries()
-  const {leftNavMinimal, centerColumnOffset} = useLayoutBreakpoints()
+  const {leftNavMinimal, centerContentOffset, desktopRail} =
+    useLayoutBreakpoints()
   const {width: windowWidth} = useWindowDimensions()
   const [open, setOpen] = useState(false)
   const [coarsePointer, setCoarsePointer] = useState(false)
@@ -659,8 +659,8 @@ export function DesktopLeftNav({embedded = false}: {embedded?: boolean} = {}) {
 
   // Wide web desktop only. The tablet rail stays icon-only, native never
   // mounts this overlay, and the embedded IU & AI column keeps its own toggle.
-  const hoverCapable = !embedded && !leftNavMinimal
-  const collapsed = leftNavMinimal || (hoverCapable && !open)
+  const hoverCapable = !embedded && desktopRail
+  const collapsed = hoverCapable ? !open : leftNavMinimal
   const night = t.scheme === 'dark'
 
   const clearRailTimers = useCallback(() => {
@@ -733,7 +733,10 @@ export function DesktopLeftNav({embedded = false}: {embedded?: boolean} = {}) {
     return () => document.removeEventListener('pointerdown', onDown)
   }, [hoverCapable, open, coarsePointer])
 
-  if (!hasSession && !isDesktop) {
+  // Logged-out tablet keeps the dock and no side nav. From the rail
+  // breakpoint up, the signup rail is the desktop chrome. The embedded
+  // IU & AI column keeps the older 1300px desktop check.
+  if (!hasSession && (embedded ? !isDesktop : !desktopRail)) {
     return null
   }
 
@@ -783,9 +786,7 @@ export function DesktopLeftNav({embedded = false}: {embedded?: boolean} = {}) {
             ? {
                 transform: [
                   {
-                    translateX:
-                      -CENTER_COLUMN_HALF_WIDTH +
-                      (centerColumnOffset ? CENTER_COLUMN_OFFSET : 0),
+                    translateX: -CENTER_COLUMN_HALF_WIDTH + centerContentOffset,
                   },
                   {translateX: '-100%'},
                   ...a.scrollbar_offset.transform,

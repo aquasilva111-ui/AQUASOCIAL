@@ -40,6 +40,7 @@ import {Onboarding} from '#/screens/Onboarding'
 import {SignupQueued} from '#/screens/SignupQueued'
 import {Takendown} from '#/screens/Takendown'
 import {atoms as a, useLayoutBreakpoints} from '#/alf'
+import {getShellChrome} from '#/components/Layout/const'
 import {PolicyUpdateOverlay} from '#/components/PolicyUpdateOverlay'
 import {BottomBarWeb} from './bottom-bar/BottomBarWeb'
 import {DesktopLeftNav} from './desktop/LeftNav'
@@ -145,7 +146,7 @@ function NativeStackNavigator({
   const {showLoggedOut} = useLoggedOutView()
   const {setShowLoggedOut} = useLoggedOutViewControls()
   const {isMobile} = useWebMediaQueries()
-  const {leftNavMinimal} = useLayoutBreakpoints()
+  const {leftNavMinimal, desktopRail} = useLayoutBreakpoints()
   if (!hasSession && (!PWI_ENABLED || activeRouteRequiresAuth || isNative)) {
     return <LoggedOut />
   }
@@ -180,12 +181,18 @@ function NativeStackNavigator({
     }
   }
 
-  // Bottom dock is always visible (mobile + desktop). Left nav stays on
-  // tablet/desktop for Feeds, Lists, Saved, and Settings.
-  const showBottomBar = hasSession || leftNavMinimal
-  const showLeftNav = !isMobile
   // Full-page experiences with their own header/navigation.
   const hasOwnChrome = FULL_PAGE_ROUTES.includes(activeRoute.name)
+  // Hover rail and bottom dock never show together. The dock stays on
+  // mobile/tablet, where the rail is not mounted.
+  const {showBottomBar} = getShellChrome({
+    hasSession,
+    hasOwnChrome,
+    isMobile,
+    desktopRail,
+    leftNavMinimal,
+  })
+  const showLeftNav = !isMobile
 
   return (
     <NavigationContent>
