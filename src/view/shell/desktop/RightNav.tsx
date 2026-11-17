@@ -1,5 +1,5 @@
 import {useEffect, useState} from 'react'
-import {useWindowDimensions, View} from 'react-native'
+import {View} from 'react-native'
 import {msg, Trans} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 import {useNavigation} from '@react-navigation/core'
@@ -22,9 +22,8 @@ import {AppLanguageDropdown} from '#/components/AppLanguageDropdown'
 import {Divider} from '#/components/Divider'
 import {
   CENTER_COLUMN_HALF_WIDTH,
-  CENTER_COLUMN_OFFSET,
-  CENTER_COLUMN_WIDTH,
-  getNavEdgeInset,
+  FEED_RIGHT_NAV_GAP,
+  RIGHT_NAV_WIDTH,
 } from '#/components/Layout'
 import {InlineLinkText} from '#/components/Link'
 import {ProgressGuideList} from '#/components/ProgressGuide/List'
@@ -53,14 +52,13 @@ export function DesktopRightNav({routeName}: {routeName: string}) {
   const {_} = useLingui()
   const {hasSession, currentAccount} = useSession()
   const kawaii = useKawaiiMode()
-  const gutters = useGutters(['base', 0, 'base', 'wide'])
+  const gutters = useGutters(['base', 'base', 'base', 0])
   const isSearchScreen = routeName === 'Search'
   const webqueryParams = useWebQueryParams()
   const searchQuery = webqueryParams?.q
   const showTrending = !isSearchScreen || (isSearchScreen && !!searchQuery)
-  const {rightNavVisible, centerColumnOffset, leftNavMinimal} =
+  const {rightNavVisible, centerContentOffset, leftNavMinimal} =
     useLayoutBreakpoints()
-  const {width: windowWidth} = useWindowDimensions()
 
   if (
     !rightNavVisible ||
@@ -72,47 +70,28 @@ export function DesktopRightNav({routeName}: {routeName: string}) {
     return null
   }
 
-  const width = centerColumnOffset ? 250 : 300
-  const navWidth = width + gutters.paddingLeft + 2
-  // Just above the 1300px breakpoint the space beside the centered feed is
-  // narrower than the nav, so shrink it rather than overlap the feed.
-  const wideNavWidth = Math.min(
-    navWidth,
-    (windowWidth - CENTER_COLUMN_WIDTH) / 2,
-  )
-
   return (
     <View
       style={[
         gutters,
         a.gap_lg,
-        a.pr_2xs,
-        web(
-          centerColumnOffset
-            ? {
-                position: 'fixed',
-                left: '50%',
-                transform: [
-                  {translateX: CENTER_COLUMN_HALF_WIDTH + CENTER_COLUMN_OFFSET},
-                  ...a.scrollbar_offset.transform,
-                ],
-                width: navWidth,
-                maxHeight: '100vh',
-              }
-            : // Plenty of guaranteed room in this (already-wide) breakpoint,
-              // so anchor near the true right edge instead of the feed-relative
-              // offset — avoids a growing dead margin on wide screens.
-              {
-                position: 'fixed',
-                right: getNavEdgeInset(windowWidth, wideNavWidth),
-                transform: a.scrollbar_offset.transform,
-                /**
-                 * Compensate for the right padding above (2px) to retain intended width.
-                 */
-                width: wideNavWidth,
-                maxHeight: '100vh',
-              },
-        ),
+        web({
+          position: 'fixed',
+          // Sit 24px to the right of the centered (and possibly shifted) feed
+          // so the pair is one block. The rail opening does not change this.
+          left: '50%',
+          transform: [
+            {
+              translateX:
+                CENTER_COLUMN_HALF_WIDTH +
+                FEED_RIGHT_NAV_GAP +
+                centerContentOffset,
+            },
+            ...a.scrollbar_offset.transform,
+          ],
+          width: RIGHT_NAV_WIDTH,
+          maxHeight: '100vh',
+        }),
       ]}>
       {isWriteRoute(routeName) ? (
         <WriteRightRail
@@ -135,11 +114,7 @@ export function DesktopRightNav({routeName}: {routeName: string}) {
             </>
           )}
 
-          {hasSession && routeName === 'Home' && (
-            <View style={{marginHorizontal: -16}}>
-              <StoriesTray />
-            </View>
-          )}
+          {hasSession && routeName === 'Home' && <StoriesTray />}
 
           {showTrending && <SidebarTrendingTopics />}
 

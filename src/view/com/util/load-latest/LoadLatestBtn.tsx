@@ -18,7 +18,11 @@ import {
 import {atoms as a, useLayoutBreakpoints, useTheme} from '#/alf'
 import {useInteractionState} from '#/components/hooks/useInteractionState'
 import {ArrowTop_Stroke2_Corner0_Rounded as ArrowIcon} from '#/components/icons/Arrow'
-import {CENTER_COLUMN_WIDTH, SIDEBAR_RAIL_WIDTH} from '#/components/Layout'
+import {
+  CENTER_COLUMN_WIDTH,
+  getShellChrome,
+  SIDEBAR_RAIL_WIDTH,
+} from '#/components/Layout'
 import {SubtleHover} from '#/components/SubtleHover'
 
 export function LoadLatestBtn({
@@ -33,7 +37,8 @@ export function LoadLatestBtn({
   const {hasSession} = useSession()
   const {isDesktop, isMobile, isTabletOrMobile, isTabletOrDesktop} =
     useWebMediaQueries()
-  const {centerContentOffset, leftNavMinimal} = useLayoutBreakpoints()
+  const {centerContentOffset, leftNavMinimal, desktopRail} =
+    useLayoutBreakpoints()
   const {width: windowWidth} = useWindowDimensions()
   const fabMinimalShellTransform = useMinimalShellFabTransform()
   const insets = useSafeAreaInsets()
@@ -56,13 +61,20 @@ export function LoadLatestBtn({
   // it on both tablet and mobile since we are showing the bottom bar (see createNativeStackNavigatorWithAuth)
   const showBottomBar = hasSession ? isMobile : isTabletOrMobile
 
+  const {showBottomBar: dockVisible} = getShellChrome({
+    hasSession,
+    hasOwnChrome: false,
+    isMobile,
+    desktopRail,
+    leftNavMinimal,
+  })
+
   const position = isTabletOrDesktop
     ? getWideScreenPosition({
         windowWidth,
-        // The Aqua dock shows whenever signed in, and below 1300px regardless
-        // (see createNativeStackNavigatorWithAuth).
-        dockVisible: hasSession || leftNavMinimal,
-        canGoOutOfLine: isDesktop && isTallViewport && !leftNavMinimal,
+        dockVisible,
+        canGoOutOfLine:
+          dockVisible && isDesktop && isTallViewport && !leftNavMinimal,
         centerContentOffset,
       })
     : {left: 18, bottom: clamp(insets.bottom, 15, 60) + 15}

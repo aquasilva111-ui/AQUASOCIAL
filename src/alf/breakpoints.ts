@@ -2,10 +2,7 @@ import {useMemo} from 'react'
 import {useWindowDimensions} from 'react-native'
 import {useMediaQuery} from 'react-responsive'
 
-import {
-  CENTER_COLUMN_OFFSET,
-  getCollapsedNavContentOffset,
-} from '#/components/Layout/const'
+import {getFeedColumnLayout} from '#/components/Layout/const'
 
 export type Breakpoint = 'gtPhone' | 'gtMobile' | 'gtTablet'
 
@@ -38,21 +35,16 @@ export function useBreakpoints(): Record<Breakpoint, boolean> & {
  */
 export function useLayoutBreakpoints() {
   const {width} = useWindowDimensions()
-  const rightNavVisible = useMediaQuery({minWidth: 1100})
-  const centerColumnOffset = useMediaQuery({minWidth: 1100, maxWidth: 1300})
   const leftNavMinimal = useMediaQuery({maxWidth: 1300})
-  // Wide desktop keeps the feed clear of the collapsed rail only. The
-  // expanded nav overlays that column and must not move it.
-  const centerContentOffset = centerColumnOffset
-    ? CENTER_COLUMN_OFFSET
-    : width > 1300
-      ? getCollapsedNavContentOffset(width)
-      : 0
+  // The rail's open state is intentionally not an input: the 240px panel
+  // overlays the column and must not push it.
+  const {centerContentOffset, showRightNav, desktopRail} =
+    getFeedColumnLayout(width)
 
   return {
-    rightNavVisible,
-    centerColumnOffset,
+    rightNavVisible: showRightNav,
     leftNavMinimal,
     centerContentOffset,
+    desktopRail,
   }
 }
