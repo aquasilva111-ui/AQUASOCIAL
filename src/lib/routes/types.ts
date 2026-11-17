@@ -36,6 +36,8 @@ export type CommonNavigatorParams = {
   DebugMod: undefined
   SharedPreferencesTester: undefined
   Log: undefined
+  About: undefined
+  Contact: undefined
   Support: undefined
   PrivacyPolicy: undefined
   TermsOfService: undefined

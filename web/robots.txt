@@ -1,0 +1,24 @@
+# Generated from src/lib/public-site.ts. Edit CONTENT_SIGNAL there.
+# One User-agent group on purpose: a more specific group that omitted the
+# Disallow lines would opt that crawler back into blocked URLs.
+User-agent: *
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
+Allow: /
+
+# Private app areas, including Mailssage (/messages) and settings.
+# Aqua+18 lives only under /adult (every Adult* screen in src/routes.ts).
+# This Disallow applies to all user-agents: do not crawl those URLs for
+# search or for AI training.
+Disallow: /adult
+Disallow: /settings
+Disallow: /messages
+Disallow: /notifications
+Disallow: /moderation
+Disallow: /sys
+Disallow: /saved
+
+# Posts share one path, /profile/<handle>/post/<rkey>, for Aqua and Bluesky.
+# robots.txt cannot exclude only Bluesky posts. Per-page meta is a separate
+# decision and is not set here.
+
+Sitemap: https://aquaapp.systems/sitemap.xml

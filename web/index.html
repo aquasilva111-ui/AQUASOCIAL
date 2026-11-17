@@ -12,6 +12,19 @@
       name="viewport"
       content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1.00001, viewport-fit=cover"
     />
+    <!-- BEGIN public-site-head -->
+    <meta name="description" content="Aqua é uma rede social multi-núcleos, fork do Bluesky no AT Protocol, com Pra você, Visionboard, Views, Artigos, Livros e Launch Hub.">
+    <link rel="canonical" id="canonical" href="https://aquaapp.systems/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Aqua">
+    <meta property="og:title" content="Aqua">
+    <meta property="og:description" content="Aqua é uma rede social multi-núcleos, fork do Bluesky no AT Protocol, com Pra você, Visionboard, Views, Artigos, Livros e Launch Hub.">
+    <meta property="og:url" content="https://aquaapp.systems/">
+    <meta property="og:image" content="https://aquaapp.systems/logo.png">
+    <!-- TODO(owner): Organization.sameAs is empty until official profile URLs are confirmed. -->
+    <!-- TODO(owner): Organization.email and contactPoint are omitted until a public contact address exists. -->
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","name":"Aqua","url":"https://aquaapp.systems/","logo":"https://aquaapp.systems/logo.png","description":"Aqua é uma rede social multi-núcleos, fork do Bluesky no AT Protocol, com Pra você, Visionboard, Views, Artigos, Livros e Launch Hub.","parentOrganization":{"@type":"Organization","name":"Evergreen"},"sameAs":[]},{"@type":"WebSite","name":"Aqua","url":"https://aquaapp.systems/","potentialAction":{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https://aquaapp.systems/search?q={search_term_string}"},"query-input":"required name=search_term_string"}},{"@type":["WebApplication","SoftwareApplication"],"name":"Aqua","url":"https://aquaapp.systems/","applicationCategory":"SocialNetworkingApplication","operatingSystem":"Web","description":"Aqua é uma rede social multi-núcleos, fork do Bluesky no AT Protocol, com Pra você, Visionboard, Views, Artigos, Livros e Launch Hub."}]}</script>
+    <!-- END public-site-head -->
     <!--
       Preconnect to essential domains
     -->
@@ -102,6 +115,39 @@
   </head>
 
   <body>
+    <!-- BEGIN public-site-body -->
+    <h1 id="aqua-home-heading" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);clip-path:inset(50%);white-space:nowrap;border:0;">Aqua</h1>
+    <script>(function(){
+  var suffixes = [".bsky.social",".bsky.app",".bsky.team"];
+  var site = "https://aquaapp.systems";
+  var path = (location.pathname || "/").split("?")[0].replace(/\/+$/, "") || "/";
+  if (path.charAt(0) !== "/") path = "/" + path;
+  var canonical = path === "/" ? site + "/" : site + path;
+  var match = /^\/profile\/([^/]+)\/post\/([^/]+)$/i.exec(path);
+  if (match) {
+    var handle = match[1];
+    var rkey = match[2];
+    try { handle = decodeURIComponent(handle); } catch (e) {}
+    try { rkey = decodeURIComponent(rkey); } catch (e) {}
+    var hosted = false;
+    var lower = handle.toLowerCase();
+    for (var i = 0; i < suffixes.length; i++) {
+      if (lower.slice(-suffixes[i].length) === suffixes[i]) hosted = true;
+    }
+    if (hosted) {
+      canonical = "https://bsky.app/profile/" + encodeURIComponent(handle) + "/post/" + encodeURIComponent(rkey);
+    } else {
+      canonical = site + "/profile/" + encodeURIComponent(handle) + "/post/" + encodeURIComponent(rkey);
+    }
+  }
+  var link = document.getElementById("canonical");
+  if (link) link.setAttribute("href", canonical);
+  var og = document.querySelector('meta[property="og:url"]');
+  if (og) og.setAttribute("content", canonical);
+  var heading = document.getElementById("aqua-home-heading");
+  if (heading && path !== "/") heading.remove();
+})();</script>
+    <!-- END public-site-body -->
     <!--
       A generic no script element with a reload button and a message.
       Feel free to customize this however you'd like.

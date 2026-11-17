@@ -1,7 +1,20 @@
 RewriteEngine On
 
+# Remember a real homepage request across the internal rewrite to index.html.
+# THE_REQUEST is unchanged by that rewrite, unlike REQUEST_URI.
+RewriteCond %{THE_REQUEST} ^[A-Z]+\s/(\s|\?)
+RewriteRule ^ - [E=aqua_home:1]
+
 # Old Aqua Views URLs (/videos/...) now live under /views/.
 RewriteRule ^videos(/.*)?$ /views$1 [R=301,L]
+
+# Institutional pages are static HTML (white background, text).
+RewriteRule ^about/?$ /about.html [L]
+RewriteRule ^contact/?$ /contact.html [L]
+
+# Homepage Markdown when the client asks for it. Browsers send text/html.
+RewriteCond %{HTTP_ACCEPT} text/markdown [NC]
+RewriteRule ^$ /index.md [L]
 
 # Serve existing static files and directories normally.
 RewriteCond %{REQUEST_FILENAME} -f [OR]
@@ -15,8 +28,31 @@ RewriteRule ^.+/(static/.+)$ /$1 [L]
 
 # Missing build assets must remain 404s instead of returning HTML.
 RewriteCond %{REQUEST_URI} /static/ [OR]
-RewriteCond %{REQUEST_URI} \.(?:js|mjs|css|map|json|png|jpe?g|gif|webp|avif|svg|ico|woff2?|ttf|txt|webmanifest|mp3|mp4)$ [NC]
+RewriteCond %{REQUEST_URI} \.(?:js|mjs|css|map|json|png|jpe?g|gif|webp|avif|svg|ico|woff2?|ttf|txt|webmanifest|mp3|mp4|xml|md)$ [NC]
 RewriteRule ^ - [L]
 
-# App routes, including profiles with dots in their handles, use the SPA.
+# Known app prefixes, including deep links (/profile/..., /visionboard/...,
+# /books/..., /views/...). The list is generated from SPA_FALLBACK_PREFIXES.
+# BEGIN spa-fallback-prefixes
+RewriteCond %{REQUEST_URI} ^/(about|adult|books|contact|creative-hub|docs|download|drops|feeds|gate|hashtag|images|intent|launch|lists|messages|moderation|music|noticias|notifications|profile|reads|saved|search|settings|start|starter-pack|starter-pack-short|stories|support|sys|topic|ui-ai|video-feed|views|visionboard|wiki)(/|$) [NC,OR]
+RewriteCond %{REQUEST_URI} ^/$
 RewriteRule ^ index.html [L]
+# END spa-fallback-prefixes
+
+# Any other path is a real HTTP 404. Unknown profiles and posts still match
+# /profile/ and stay on the SPA; Apache cannot know if that record exists.
+RewriteRule ^ - [R=404,L]
+
+ErrorDocument 404 /404.html
+
+<Files "index.md">
+  ForceType text/markdown
+</Files>
+<Files "llms.txt">
+  ForceType text/markdown
+</Files>
+
+# Link alternate on the homepage only. Requires mod_headers.
+<IfModule mod_headers.c>
+  Header always set Link "</llms.txt>; rel=\"alternate\"; type=\"text/markdown\"" env=aqua_home
+</IfModule>

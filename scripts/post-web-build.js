@@ -2,6 +2,7 @@ const path = require('path')
 const fs = require('fs')
 
 const projectRoot = path.join(__dirname, '..')
+require('./emit-public-web').emitPublicWeb()
 fs.copyFileSync(
   path.join(projectRoot, 'web/.htaccess'),
   path.join(projectRoot, 'web-build/.htaccess'),
