@@ -3,9 +3,11 @@ import {
   getWideScreenPosition,
 } from '#/view/com/util/load-latest/position'
 import {
-  DOCK_HEIGHT,
-  DOCK_INSET,
-  DOCK_MAX_WIDTH,
+  DOCK_HEIGHT_NARROW,
+  DOCK_HEIGHT_WIDE,
+  DOCK_INSET_NARROW,
+  DOCK_INSET_WIDE,
+  DOCK_MAX_WIDTH_WIDE,
   webFeedBottomSpacer,
 } from '#/view/shell/bottom-bar/metrics'
 import {
@@ -137,15 +139,23 @@ describe('getShellChrome', () => {
   })
 
   it('pads the web feed past the floating dock', () => {
-    expect(webFeedBottomSpacer(0)).toBeGreaterThanOrEqual(
-      DOCK_INSET + DOCK_HEIGHT,
+    const clearance = Math.max(
+      DOCK_INSET_WIDE + DOCK_HEIGHT_WIDE,
+      DOCK_INSET_NARROW + DOCK_HEIGHT_NARROW,
     )
-    expect(webFeedBottomSpacer(80)).toBe(80 + DOCK_INSET + DOCK_HEIGHT)
+    expect(webFeedBottomSpacer(0)).toBeGreaterThanOrEqual(clearance)
+    expect(webFeedBottomSpacer(80)).toBe(80 + clearance)
   })
 
-  it('keeps the centered dock clear of the rail, including the open panel', () => {
+  it('keeps the compact desktop dock clear of the rail, including the open panel', () => {
+    expect(DOCK_MAX_WIDTH_WIDE).toBeGreaterThanOrEqual(420)
+    expect(DOCK_MAX_WIDTH_WIDE).toBeLessThanOrEqual(460)
+    expect(DOCK_HEIGHT_WIDE).toBeLessThanOrEqual(62)
     for (const width of [1280, 1440, 1920]) {
-      const dockWidth = Math.min(width - DOCK_INSET * 2, DOCK_MAX_WIDTH)
+      const dockWidth = Math.min(
+        width - DOCK_INSET_WIDE * 2,
+        DOCK_MAX_WIDTH_WIDE,
+      )
       const dockLeft = (width - dockWidth) / 2
       expect(dockLeft).toBeGreaterThanOrEqual(SIDEBAR_OPEN_WIDTH)
     }
@@ -161,9 +171,12 @@ describe('getShellChrome', () => {
         canGoOutOfLine: width > 1300,
         centerContentOffset: layout.centerContentOffset,
       })
-      const dockWidth = Math.min(width - DOCK_INSET * 2, DOCK_MAX_WIDTH)
+      const dockWidth = Math.min(
+        width - DOCK_INSET_WIDE * 2,
+        DOCK_MAX_WIDTH_WIDE,
+      )
       const dockLeft = (width - dockWidth) / 2
-      const dockTop = DOCK_INSET + DOCK_HEIGHT
+      const dockTop = DOCK_INSET_WIDE + DOCK_HEIGHT_WIDE
       const overlaps =
         pos.left < dockLeft + dockWidth &&
         pos.left + button > dockLeft &&
@@ -178,7 +191,9 @@ describe('getShellChrome', () => {
       dockVisible: true,
       bottomWithoutDock: 30,
     })
-    expect(pos.bottom).toBeGreaterThanOrEqual(DOCK_INSET + DOCK_HEIGHT)
+    expect(pos.bottom).toBeGreaterThanOrEqual(
+      DOCK_INSET_NARROW + DOCK_HEIGHT_NARROW,
+    )
   })
 
   it('leaves the dock available on full-page routes that hide the rail', () => {

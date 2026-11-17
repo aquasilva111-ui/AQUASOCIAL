@@ -1,7 +1,9 @@
 import {
-  DOCK_HEIGHT,
-  DOCK_INSET,
-  DOCK_MAX_WIDTH,
+  DOCK_HEIGHT_NARROW,
+  DOCK_HEIGHT_WIDE,
+  DOCK_INSET_NARROW,
+  DOCK_INSET_WIDE,
+  DOCK_MAX_WIDTH_WIDE,
 } from '#/view/shell/bottom-bar/metrics'
 import {
   CENTER_COLUMN_WIDTH,
@@ -21,7 +23,9 @@ export function getNarrowScreenPosition({
 }) {
   return {
     left: 18,
-    bottom: dockVisible ? DOCK_INSET + DOCK_HEIGHT + GAP : bottomWithoutDock,
+    bottom: dockVisible
+      ? DOCK_INSET_NARROW + DOCK_HEIGHT_NARROW + GAP
+      : bottomWithoutDock,
   }
 }
 
@@ -40,7 +44,10 @@ export function getWideScreenPosition({
   canGoOutOfLine: boolean
   centerContentOffset: number
 }) {
-  const dockWidth = Math.min(windowWidth - DOCK_INSET * 2, DOCK_MAX_WIDTH)
+  const dockWidth = Math.min(
+    windowWidth - DOCK_INSET_WIDE * 2,
+    DOCK_MAX_WIDTH_WIDE,
+  )
   const dockLeft = (windowWidth - dockWidth) / 2
   const outOfLineLeft = dockLeft - BUTTON_SIZE - GAP
   // The desktop rail rests at the collapsed width; hover overlays and
@@ -52,6 +59,6 @@ export function getWideScreenPosition({
   const feedLeft = (windowWidth - CENTER_COLUMN_WIDTH) / 2 + centerContentOffset
   return {
     left: feedLeft + 18,
-    bottom: dockVisible ? DOCK_INSET + DOCK_HEIGHT + GAP : 30,
+    bottom: dockVisible ? DOCK_INSET_WIDE + DOCK_HEIGHT_WIDE + GAP : 30,
   }
 }

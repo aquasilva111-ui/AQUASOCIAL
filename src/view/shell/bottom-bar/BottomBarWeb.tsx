@@ -56,8 +56,9 @@ export function BottomBarWeb() {
   const {footerHeight} = useShellLayout()
   const {isTabletOrDesktop} = useWebMediaQueries()
   const createActionControl = useDialogControl()
-  const iconWidth = 24
-  const showLabels = isTabletOrDesktop
+  const compact = isTabletOrDesktop
+  const iconWidth = compact ? 20 : 22
+  const showLabels = compact
 
   const unreadMessageCount = useUnreadMessageCount()
   const notificationCountStr = useUnreadNotifications()
@@ -87,12 +88,17 @@ export function BottomBarWeb() {
       <View
         role="navigation"
         pointerEvents="box-none"
-        style={[styles.bottomBar, styles.bottomBarWeb]}
+        style={[
+          styles.bottomBar,
+          styles.bottomBarWeb,
+          compact ? styles.bottomBarWide : styles.bottomBarNarrow,
+        ]}
         onLayout={event => footerHeight.set(event.nativeEvent.layout.height)}>
         {hasSession ? (
           <View
             style={[
               styles.dock,
+              compact ? styles.dockWide : styles.dockNarrow,
               {
                 backgroundColor: dockSurface,
                 borderColor: dockBorder,
@@ -110,6 +116,7 @@ export function BottomBarWeb() {
               routeName="Home"
               href="/"
               label="Início"
+              compact={compact}
               showLabel={showLabels}>
               {({isActive}) => {
                 const Icon = isActive ? HomeFilled : Home
@@ -126,6 +133,7 @@ export function BottomBarWeb() {
               routeName="Drops"
               href="/drops"
               label="Drops"
+              compact={compact}
               showLabel={showLabels}>
               {({isActive}) => {
                 const Icon = isActive ? DropFilled : Drop
@@ -145,11 +153,12 @@ export function BottomBarWeb() {
                 label="Criar"
                 style={[
                   styles.createBtn,
+                  compact ? styles.createBtnWide : styles.createBtnNarrow,
                   {backgroundColor: t.palette.primary_500},
                 ]}>
                 <PlusIcon
                   aria-hidden={true}
-                  width={22}
+                  width={compact ? 16 : 20}
                   fill={t.palette.white}
                   style={{color: t.palette.white}}
                 />
@@ -158,8 +167,9 @@ export function BottomBarWeb() {
                 <Text
                   style={[
                     styles.ctrlLabel,
+                    compact && styles.ctrlLabelWide,
                     t.atoms.text_contrast_medium,
-                    {marginTop: 4},
+                    !compact && {marginTop: 4},
                   ]}>
                   Criar
                 </Text>
@@ -170,6 +180,7 @@ export function BottomBarWeb() {
               routeName="Messages"
               href="/messages"
               label="Mailssage"
+              compact={compact}
               notificationCount={unreadMessageCount.numUnread}
               hasNew={unreadMessageCount.hasNew}
               showLabel={showLabels}>
@@ -188,6 +199,7 @@ export function BottomBarWeb() {
               routeName="Notifications"
               href="/notifications"
               label="Notificações"
+              compact={compact}
               notificationCount={notificationCountStr}
               showLabel={showLabels}>
               {({isActive}) => {
@@ -212,6 +224,7 @@ export function BottomBarWeb() {
                   : '/'
               }
               label="Perfil"
+              compact={compact}
               showLabel={showLabels}>
               {({isActive}) => {
                 const Icon = isActive ? UserCircleFilled : UserCircle
@@ -229,6 +242,7 @@ export function BottomBarWeb() {
           <View
             style={[
               styles.dock,
+              compact ? styles.dockWide : styles.dockNarrow,
               {
                 backgroundColor: dockSurface,
                 borderColor: dockBorder,
@@ -309,6 +323,7 @@ const NavItem: React.FC<{
   href: string
   routeName: string
   label: string
+  compact?: boolean
   showLabel?: boolean
   hasNew?: boolean
   notificationCount?: string
@@ -317,6 +332,7 @@ const NavItem: React.FC<{
   href,
   routeName,
   label,
+  compact,
   showLabel,
   hasNew,
   notificationCount,
@@ -349,7 +365,7 @@ const NavItem: React.FC<{
   return (
     <Link
       href={href}
-      style={[styles.ctrl]}
+      style={[styles.ctrl, compact ? styles.ctrlWide : styles.ctrlNarrow]}
       navigationAction={isOnDifferentProfile ? 'push' : 'navigate'}
       aria-role="link"
       aria-label={label}
@@ -359,6 +375,7 @@ const NavItem: React.FC<{
         <Text
           style={[
             styles.ctrlLabel,
+            compact && styles.ctrlLabelWide,
             isActive ? t.atoms.text : t.atoms.text_contrast_medium,
             isActive && a.font_bold,
           ]}>
