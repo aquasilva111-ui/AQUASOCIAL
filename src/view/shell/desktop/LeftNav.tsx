@@ -1,4 +1,4 @@
-import {type JSX, useCallback, useMemo} from 'react'
+import {type JSX, useCallback, useMemo, useState} from 'react'
 import {Image, StyleSheet, useWindowDimensions, View} from 'react-native'
 import {type AppBskyActorDefs} from '@atproto/api'
 import {msg, plural, Trans} from '@lingui/macro'
@@ -17,6 +17,7 @@ import {
 } from '#/lib/routes/types'
 import {sanitizeDisplayName} from '#/lib/strings/display-names'
 import {sanitizeHandle} from '#/lib/strings/handles'
+import {useA11y} from '#/state/a11y'
 import {emitSoftReset} from '#/state/events'
 import {useProfilesQuery} from '#/state/queries/profile'
 import {type SessionAccount, useSession, useSessionApi} from '#/state/session'
@@ -46,6 +47,7 @@ import {
   CENTER_COLUMN_HALF_WIDTH,
   CENTER_COLUMN_OFFSET,
   getNavEdgeInset,
+  LEFT_NAV_MINIMAL_WIDTH,
   LEFT_NAV_WIDTH,
 } from '#/components/Layout'
 import * as Menu from '#/components/Menu'
@@ -55,10 +57,31 @@ import {PlatformInfo} from '../../../../modules/expo-bluesky-swiss-army'
 import {router} from '../../../routes'
 
 const NAV_ICON_WIDTH = 28
+/** Centers a 48px avatar in the collapsed rail. */
+const COLLAPSED_AVATAR_INSET = (LEFT_NAV_MINIMAL_WIDTH - 48) / 2
 const uiAiIcon = require('../../../../assets/icons/ui-ai.png')
 const visionboardIcon = require('../../../../assets/icons/visionboard.png')
 
-function ProfileCard() {
+function labelRevealStyle(hidden: boolean, reduceMotion: boolean) {
+  return web({
+    opacity: hidden ? 0 : 1,
+    maxWidth: hidden ? 0 : 200,
+    minWidth: 0,
+    overflow: 'hidden',
+    whiteSpace: 'nowrap',
+    transitionProperty: reduceMotion ? 'none' : 'opacity, max-width',
+    transitionDuration: reduceMotion ? '0ms' : '200ms',
+    transitionTimingFunction: 'ease',
+  })
+}
+
+function ProfileCard({
+  minimal,
+  revealLabel,
+}: {
+  minimal: boolean
+  revealLabel: boolean
+}) {
   const {currentAccount, accounts} = useSession()
   const {logoutEveryAccount} = useSessionApi()
   const {isLoading, data} = useProfilesQuery({
@@ -66,7 +89,7 @@ function ProfileCard() {
   })
   const profiles = data?.profiles
   const signOutPromptControl = Prompt.usePromptControl()
-  const {leftNavMinimal} = useLayoutBreakpoints()
+  const {reduceMotionEnabled} = useA11y()
   const {_} = useLingui()
   const t = useTheme()
 
@@ -82,8 +105,15 @@ function ProfileCard() {
 
   const {isActive: live} = useActorStatus(profile)
 
+  const showAccountText = revealLabel || !minimal
+
   return (
-    <View style={[a.my_md, !leftNavMinimal && [a.w_full, a.align_start]]}>
+    <View
+      style={[
+        a.my_md,
+        showAccountText && [a.w_full, a.align_start],
+        revealLabel && {paddingLeft: COLLAPSED_AVATAR_INSET},
+      ]}>
       {!isLoading && profile ? (
         <Menu.Root>
           <Menu.Trigger label={_(msg`Switch accounts`)}>
@@ -101,24 +131,26 @@ function ProfileCard() {
                     a.justify_between,
                     a.align_center,
                     a.flex_row,
-                    {gap: 6},
-                    !leftNavMinimal && [a.pl_lg, a.pr_md],
+                    {gap: revealLabel && minimal ? 0 : 6},
+                    !minimal && !revealLabel && [a.pl_lg, a.pr_md],
                   ]}>
                   <View
                     style={[
-                      !PlatformInfo.getIsReducedMotionEnabled() && [
-                        a.transition_transform,
-                        {transitionDuration: '250ms'},
-                        !active && a.transition_delay_50ms,
-                      ],
+                      !revealLabel &&
+                        !PlatformInfo.getIsReducedMotionEnabled() && [
+                          a.transition_transform,
+                          {transitionDuration: '250ms'},
+                          !active && a.transition_delay_50ms,
+                        ],
                       a.relative,
                       a.z_10,
-                      active && {
-                        transform: [
-                          {scale: !leftNavMinimal ? 2 / 3 : 0.8},
-                          {translateX: !leftNavMinimal ? -22 : 0},
-                        ],
-                      },
+                      active &&
+                        !revealLabel && {
+                          transform: [
+                            {scale: !minimal ? 2 / 3 : 0.8},
+                            {translateX: !minimal ? -22 : 0},
+                          ],
+                        },
                     ]}>
                     <UserAvatar
                       avatar={profile.avatar}
@@ -127,44 +159,64 @@ function ProfileCard() {
                       live={live}
                     />
                   </View>
-                  {!leftNavMinimal && (
+                  {showAccountText && (
                     <>
                       <View
                         style={[
-                          a.flex_1,
-                          a.transition_opacity,
-                          !active && a.transition_delay_50ms,
-                          {
-                            marginLeft: tokens.space.xl * -1,
-                            opacity: active ? 1 : 0,
-                          },
+                          !revealLabel && [
+                            a.flex_1,
+                            a.transition_opacity,
+                            !active && a.transition_delay_50ms,
+                            {
+                              marginLeft: tokens.space.xl * -1,
+                              opacity: active ? 1 : 0,
+                            },
+                          ],
+                          revealLabel && [
+                            a.flex_1,
+                            a.flex_row,
+                            a.align_center,
+                            a.gap_sm,
+                            labelRevealStyle(minimal, reduceMotionEnabled),
+                          ],
                         ]}>
-                        <Text
-                          style={[a.font_bold, a.text_sm, a.leading_snug]}
-                          numberOfLines={1}>
-                          {sanitizeDisplayName(
-                            profile.displayName || profile.handle,
-                          )}
-                        </Text>
-                        <Text
-                          style={[
-                            a.text_xs,
-                            a.leading_snug,
-                            t.atoms.text_contrast_medium,
-                          ]}
-                          numberOfLines={1}>
-                          {sanitizeHandle(profile.handle, '@')}
-                        </Text>
+                        <View style={[a.flex_1]}>
+                          <Text
+                            style={[a.font_bold, a.text_sm, a.leading_snug]}
+                            numberOfLines={1}>
+                            {sanitizeDisplayName(
+                              profile.displayName || profile.handle,
+                            )}
+                          </Text>
+                          <Text
+                            style={[
+                              a.text_xs,
+                              a.leading_snug,
+                              t.atoms.text_contrast_medium,
+                            ]}
+                            numberOfLines={1}>
+                            {sanitizeHandle(profile.handle, '@')}
+                          </Text>
+                        </View>
+                        {revealLabel && (
+                          <EllipsisIcon
+                            aria-hidden={true}
+                            style={t.atoms.text_contrast_medium}
+                            size="sm"
+                          />
+                        )}
                       </View>
-                      <EllipsisIcon
-                        aria-hidden={true}
-                        style={[
-                          t.atoms.text_contrast_medium,
-                          a.transition_opacity,
-                          {opacity: active ? 1 : 0},
-                        ]}
-                        size="sm"
-                      />
+                      {!revealLabel && (
+                        <EllipsisIcon
+                          aria-hidden={true}
+                          style={[
+                            t.atoms.text_contrast_medium,
+                            a.transition_opacity,
+                            {opacity: active ? 1 : 0},
+                          ]}
+                          size="sm"
+                        />
+                      )}
                     </>
                   )}
                 </Button>
@@ -180,7 +232,7 @@ function ProfileCard() {
         <LoadingPlaceholder
           width={size}
           height={size}
-          style={[{borderRadius: size}, !leftNavMinimal && a.ml_lg]}
+          style={[{borderRadius: size}, !minimal && !revealLabel && a.ml_lg]}
         />
       )}
       <Prompt.Basic
@@ -351,12 +403,25 @@ interface NavItemProps {
   icon: JSX.Element
   iconFilled: JSX.Element
   label: string
+  minimal: boolean
+  /** Desktop hover: keep the icon slot and fade the label instead of unmounting it. */
+  revealLabel: boolean
 }
-function NavItem({count, hasNew, href, icon, iconFilled, label}: NavItemProps) {
+function NavItem({
+  count,
+  hasNew,
+  href,
+  icon,
+  iconFilled,
+  label,
+  minimal,
+  revealLabel,
+}: NavItemProps) {
   const t = useTheme()
   const {_} = useLingui()
   const {currentAccount} = useSession()
-  const {leftNavMinimal} = useLayoutBreakpoints()
+  const {reduceMotionEnabled} = useA11y()
+  const iconSlot = minimal || revealLabel ? 40 : 24
   const [pathName] = useMemo(() => router.matchPath(href), [href])
   const currentRouteInfo = useNavigationState(state => {
     if (!state) {
@@ -398,6 +463,12 @@ function NavItem({count, hasNew, href, icon, iconFilled, label}: NavItemProps) {
         a.gap_sm,
         a.outline_inset_1,
         a.transition_color,
+        revealLabel && {
+          width: '100%',
+          // Keeps the glyph centered in the collapsed rail, then lets the
+          // label grow to the right without moving the icon.
+          paddingLeft: (LEFT_NAV_MINIMAL_WIDTH - iconSlot) / 2,
+        },
       ]}
       hoverStyle={t.atoms.bg_contrast_25}
       // @ts-expect-error the function signature differs on web -prf
@@ -412,12 +483,8 @@ function NavItem({count, hasNew, href, icon, iconFilled, label}: NavItemProps) {
           a.align_center,
           a.justify_center,
           {
-            width: 24,
-            height: 24,
-          },
-          leftNavMinimal && {
-            width: 40,
-            height: 40,
+            width: iconSlot,
+            height: iconSlot,
           },
         ]}>
         {isCurrent ? iconFilled : icon}
@@ -456,7 +523,7 @@ function NavItem({count, hasNew, href, icon, iconFilled, label}: NavItemProps) {
                   paddingVertical: 1,
                   minWidth: 16,
                 },
-                leftNavMinimal && [
+                (minimal || revealLabel) && [
                   {
                     top: '10%',
                     left: count.length === 1 ? 20 : 16,
@@ -479,7 +546,7 @@ function NavItem({count, hasNew, href, icon, iconFilled, label}: NavItemProps) {
                 right: -2,
                 top: -4,
               },
-              leftNavMinimal && {
+              (minimal || revealLabel) && {
                 right: 4,
                 top: 2,
               },
@@ -487,8 +554,15 @@ function NavItem({count, hasNew, href, icon, iconFilled, label}: NavItemProps) {
           />
         ) : null}
       </View>
-      {!leftNavMinimal && (
-        <Text style={[a.text_xl, isCurrent ? a.font_bold : a.font_normal]}>
+      {(revealLabel || !minimal) && (
+        <Text
+          numberOfLines={1}
+          style={[
+            a.text_xl,
+            isCurrent ? a.font_bold : a.font_normal,
+            revealLabel && a.flex_1,
+            revealLabel && labelRevealStyle(minimal, reduceMotionEnabled),
+          ]}>
           {label}
         </Text>
       )}
@@ -503,25 +577,43 @@ function NavItem({count, hasNew, href, icon, iconFilled, label}: NavItemProps) {
 export function DesktopLeftNav({embedded = false}: {embedded?: boolean} = {}) {
   const {hasSession} = useSession()
   const pal = usePalette('default')
+  const t = useTheme()
   const {_} = useLingui()
+  const {reduceMotionEnabled} = useA11y()
   const {isDesktop} = useWebMediaQueries()
   const {leftNavMinimal, centerColumnOffset} = useLayoutBreakpoints()
   const {width: windowWidth} = useWindowDimensions()
+  const [hovered, setHovered] = useState(false)
+
+  // Wide web desktop only. The tablet rail stays icon-only, native never
+  // mounts this overlay, and the embedded IU & AI column keeps its own toggle.
+  const hoverCapable = !embedded && !leftNavMinimal
+  const collapsed = leftNavMinimal || (hoverCapable && !hovered)
 
   if (!hasSession && !isDesktop) {
     return null
   }
 
+  const duration = reduceMotionEnabled ? '0ms' : '200ms'
+
   return (
     <View
       role="navigation"
+      {...web(
+        hoverCapable
+          ? {
+              onMouseEnter: () => setHovered(true),
+              onMouseLeave: () => setHovered(false),
+            }
+          : {},
+      )}
       style={[
         a.px_xl,
         embedded ? styles.leftNavEmbedded : styles.leftNav,
-        leftNavMinimal && styles.leftNavMinimal,
-        embedded
-          ? null
-          : leftNavMinimal
+        collapsed && !hoverCapable && styles.leftNavMinimal,
+        !embedded &&
+          !hoverCapable &&
+          (leftNavMinimal
             ? {
                 transform: [
                   {
@@ -533,18 +625,38 @@ export function DesktopLeftNav({embedded = false}: {embedded?: boolean} = {}) {
                   ...a.scrollbar_offset.transform,
                 ],
               }
-            : // Plenty of guaranteed room in this (already-wide) breakpoint,
-              // so anchor near the true left edge instead of the feed-relative
-              // offset — avoids a growing dead margin on wide screens.
-              {
+            : {
                 left: getNavEdgeInset(windowWidth, LEFT_NAV_WIDTH),
                 transform: a.scrollbar_offset.transform,
-              },
+              }),
+        hoverCapable && {
+          left: getNavEdgeInset(windowWidth, LEFT_NAV_MINIMAL_WIDTH),
+          width: collapsed ? LEFT_NAV_MINIMAL_WIDTH : LEFT_NAV_WIDTH,
+          paddingLeft: 0,
+          paddingRight: 0,
+          height: '100vh',
+          backgroundColor: t.atoms.bg.backgroundColor,
+          zIndex: 20,
+          transform: a.scrollbar_offset.transform,
+          ...web({
+            overflowX: 'hidden',
+            transitionProperty: reduceMotionEnabled
+              ? 'none'
+              : 'width, box-shadow',
+            transitionDuration: duration,
+            transitionTimingFunction: 'ease',
+            boxShadow: hovered
+              ? t.scheme === 'dark'
+                ? '4px 0 28px rgba(0, 0, 0, 0.45)'
+                : '4px 0 28px rgba(0, 0, 0, 0.12)'
+              : '0 0 0 rgba(0, 0, 0, 0)',
+          }),
+        },
       ]}>
       {hasSession ? (
-        <ProfileCard />
-      ) : !leftNavMinimal ? (
-        <View style={[a.pt_xl]}>
+        <ProfileCard minimal={collapsed} revealLabel={hoverCapable} />
+      ) : !collapsed ? (
+        <View style={[a.pt_xl, hoverCapable && {paddingLeft: 20}]}>
           <NavSignupCard />
         </View>
       ) : null}
@@ -552,6 +664,8 @@ export function DesktopLeftNav({embedded = false}: {embedded?: boolean} = {}) {
       {hasSession && (
         <>
           <NavItem
+            minimal={collapsed}
+            revealLabel={hoverCapable}
             href="/views"
             icon={<ViewsButterfly width={NAV_ICON_WIDTH} style={pal.text} />}
             iconFilled={
@@ -560,6 +674,8 @@ export function DesktopLeftNav({embedded = false}: {embedded?: boolean} = {}) {
             label="Views"
           />
           <NavItem
+            minimal={collapsed}
+            revealLabel={hoverCapable}
             href="/visionboard"
             icon={
               <Image
@@ -586,6 +702,8 @@ export function DesktopLeftNav({embedded = false}: {embedded?: boolean} = {}) {
             label="Visionboard"
           />
           <NavItem
+            minimal={collapsed}
+            revealLabel={hoverCapable}
             href="/reads"
             icon={
               <Book
@@ -604,6 +722,8 @@ export function DesktopLeftNav({embedded = false}: {embedded?: boolean} = {}) {
             label="Reads"
           />
           <NavItem
+            minimal={collapsed}
+            revealLabel={hoverCapable}
             href="/noticias"
             icon={
               <GlobeIcon
@@ -622,6 +742,8 @@ export function DesktopLeftNav({embedded = false}: {embedded?: boolean} = {}) {
             label="Notícias"
           />
           <NavItem
+            minimal={collapsed}
+            revealLabel={hoverCapable}
             href="/ui-ai"
             icon={
               <Image
@@ -648,6 +770,8 @@ export function DesktopLeftNav({embedded = false}: {embedded?: boolean} = {}) {
             label="IU & AI"
           />
           <NavItem
+            minimal={collapsed}
+            revealLabel={hoverCapable}
             href="/adult"
             icon={
               <AquaLogo
@@ -666,6 +790,8 @@ export function DesktopLeftNav({embedded = false}: {embedded?: boolean} = {}) {
             label="+18 Content"
           />
           <NavItem
+            minimal={collapsed}
+            revealLabel={hoverCapable}
             href="/settings"
             icon={
               <Settings
@@ -684,7 +810,7 @@ export function DesktopLeftNav({embedded = false}: {embedded?: boolean} = {}) {
             label={_(msg`Settings`)}
           />
 
-          <HubButtons />
+          <HubButtons flush={hoverCapable} minimal={collapsed} />
         </>
       )}
     </View>
@@ -718,7 +844,7 @@ const styles = StyleSheet.create({
     paddingLeft: 0,
     paddingRight: 0,
     height: '100%',
-    width: 86,
+    width: LEFT_NAV_MINIMAL_WIDTH,
     alignItems: 'center',
     ...web({overflowX: 'hidden'}),
   },

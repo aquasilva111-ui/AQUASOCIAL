@@ -41,7 +41,30 @@ export const NAV_EDGE_INSET = 48
  */
 export const LEFT_NAV_WIDTH = 260
 
+/**
+ * Icon-only left nav used below the desktop breakpoint, and the resting
+ * width of the desktop nav (it grows to {@link LEFT_NAV_WIDTH} on hover).
+ */
+export const LEFT_NAV_MINIMAL_WIDTH = 86
+
 export function getNavEdgeInset(windowWidth: number, navWidth: number) {
   const slack = (windowWidth - CENTER_COLUMN_WIDTH) / 2 - navWidth
   return Math.max(0, Math.min(NAV_EDGE_INSET, slack))
+}
+
+/**
+ * Shift of the center column on wide desktop, where the left nav reserves
+ * only its collapsed width. Negative moves the column left, into the space
+ * the full nav used to occupy. Clamped so the column stays clear of the
+ * collapsed rail. Hover never changes this value.
+ */
+export function getCollapsedNavContentOffset(windowWidth: number) {
+  const naturalLeft = (windowWidth - CENTER_COLUMN_WIDTH) / 2
+  const railRight =
+    getNavEdgeInset(windowWidth, LEFT_NAV_MINIMAL_WIDTH) +
+    LEFT_NAV_MINIMAL_WIDTH
+  const minLeft = railRight + 16
+  const freed = (LEFT_NAV_WIDTH - LEFT_NAV_MINIMAL_WIDTH) / 2
+  const nextLeft = Math.max(minLeft, naturalLeft - freed)
+  return Math.round(nextLeft - naturalLeft)
 }

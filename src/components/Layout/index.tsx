@@ -21,11 +21,7 @@ import {
   web,
 } from '#/alf'
 import {useDialogContext} from '#/components/Dialog'
-import {
-  CENTER_COLUMN_OFFSET,
-  CENTER_COLUMN_WIDTH,
-  SCROLLBAR_OFFSET,
-} from '#/components/Layout/const'
+import {CENTER_COLUMN_WIDTH, SCROLLBAR_OFFSET} from '#/components/Layout/const'
 import {ScrollbarOffsetContext} from '#/components/Layout/context'
 
 export * from '#/components/Layout/const'
@@ -167,7 +163,7 @@ export const Center = memo(function LayoutCenter({
 }: ViewProps & {ignoreTabletLayoutOffset?: boolean}) {
   const {isWithinOffsetView} = useContext(ScrollbarOffsetContext)
   const {gtMobile} = useBreakpoints()
-  const {centerColumnOffset} = useLayoutBreakpoints()
+  const {centerContentOffset} = useLayoutBreakpoints()
   const {isWithinDialog} = useDialogContext()
   const ctx = useMemo(() => ({isWithinOffsetView: true}), [])
   return (
@@ -182,10 +178,8 @@ export const Center = memo(function LayoutCenter({
           transform: [
             {
               translateX:
-                centerColumnOffset &&
-                !ignoreTabletLayoutOffset &&
-                !isWithinDialog
-                  ? CENTER_COLUMN_OFFSET
+                !ignoreTabletLayoutOffset && !isWithinDialog
+                  ? centerContentOffset
                   : 0,
             },
             {translateX: web(SCROLLBAR_OFFSET) ?? 0},

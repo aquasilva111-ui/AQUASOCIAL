@@ -7,6 +7,7 @@ import {
   LaunchMark,
 } from '#/components/icons/LaunchMark'
 import {PlusLarge_Stroke2_Corner0_Rounded as PlusIcon} from '#/components/icons/Plus'
+import {LEFT_NAV_MINIMAL_WIDTH} from '#/components/Layout'
 import {Link} from '#/components/Link'
 import {Text} from '#/components/Typography'
 
@@ -29,10 +30,14 @@ const glow = (color: string) => web({boxShadow: `0 6px 18px ${color}40`})
  * Left nav entry points: Creative Hub (build) and Launch Hub (distribute).
  * New Post stays in the floating dock.
  */
-export function HubButtons() {
+export function HubButtons({
+  minimal,
+  flush,
+}: {minimal?: boolean; flush?: boolean} = {}) {
   const {leftNavMinimal} = useLayoutBreakpoints()
+  const iconOnly = minimal ?? leftNavMinimal
 
-  if (leftNavMinimal) {
+  if (iconOnly) {
     return (
       <View style={[a.align_center, a.gap_sm, a.pt_md]}>
         <Link
@@ -81,7 +86,13 @@ export function HubButtons() {
         a.align_center,
         a.pt_xl,
         // use the nav's right padding so both pills share one row
-        {gap: 6, marginRight: -20},
+        flush
+          ? {
+              gap: 6,
+              paddingLeft: (LEFT_NAV_MINIMAL_WIDTH - 40) / 2,
+              paddingRight: 12,
+            }
+          : {gap: 6, marginRight: -20},
       ]}>
       <Link
         to="/creative-hub"
