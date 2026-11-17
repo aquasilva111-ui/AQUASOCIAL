@@ -5,7 +5,7 @@
   "description": "AQUA +18 backend: entitlements, creator economy, media engine, studios. DEV ONLY until production readiness is validated.",
   "type": "module",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "dev": "AQUA_ENV=development tsx watch src/server.ts",
