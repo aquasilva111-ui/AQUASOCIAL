@@ -169,7 +169,7 @@ export function BottomBarWeb() {
             <NavItem
               routeName="Messages"
               href="/messages"
-              label="Mailsage"
+              label="Mailssage"
               notificationCount={unreadMessageCount.numUnread}
               hasNew={unreadMessageCount.hasNew}
               showLabel={showLabels}>
