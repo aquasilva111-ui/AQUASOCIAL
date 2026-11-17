@@ -85,6 +85,14 @@ export const PROVIDERS: Provider[] = [
     color: '#1185fe',
   },
   {
+    id: 'mastodon',
+    name: 'Mastodon',
+    category: 'social',
+    adapter: 'mastodon-oauth',
+    monogram: 'M',
+    color: '#FF4500',
+  },
+  {
     id: 'tumblr',
     name: 'Tumblr',
     category: 'social',

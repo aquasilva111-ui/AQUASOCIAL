@@ -4,7 +4,8 @@ Interface web das ferramentas do Creative Hub sobre o `aqua-runtime`. Projeto e 
 no navegador (assets em IndexedDB, projeto em localStorage), com autosave.
 
 ```
-cd aqua-hub && npm install && npm run dev      # http://localhost:5192
+cd aqua-hub && npm ci
+VITE_AQUA_MATHSTUDIO_URL=http://localhost:8080 npm run dev  # http://localhost:5192/create/
 ```
 
 | Ferramenta | Tela |

@@ -26,17 +26,13 @@ import {atoms as a, tokens, useTheme, web} from '#/alf'
 import {Button, ButtonIcon, ButtonText} from '#/components/Button'
 import {Divider} from '#/components/Divider'
 import {AquaLogo} from '#/components/icons/AquaLogo'
-import {
-  HomeOpen_Filled_Corner0_Rounded as HomeFilled,
-  HomeOpen_Stoke2_Corner0_Rounded as Home,
-} from '#/components/icons/HomeOpen'
 import {Image_Stroke2_Corner0_Rounded as ImagesIcon} from '#/components/icons/Image'
 import {LiveVideo_Stroke2_Corner0_Rounded as VideosIcon} from '#/components/icons/LiveVideo'
 import {MagnifyingGlass_Filled_Stroke2_Corner0_Rounded as MagnifyingGlassFilled} from '#/components/icons/MagnifyingGlass'
 import {MagnifyingGlass2_Stroke2_Corner0_Rounded as MagnifyingGlass} from '#/components/icons/MagnifyingGlass2'
 import {Message_Stroke2_Corner0_Rounded as Message} from '#/components/icons/Message'
 import {PlusLarge_Stroke2_Corner0_Rounded as PlusIcon} from '#/components/icons/Plus'
-import {Reads_Filled_Corner2_Rounded as Book} from '#/components/icons/Reads'
+import {ReadsLogo} from '#/components/icons/Reads'
 import {SettingsGear2_Stroke2_Corner0_Rounded as Settings} from '#/components/icons/SettingsGear2'
 import {InlineLinkText} from '#/components/Link'
 import {Text} from '#/components/Typography'
@@ -137,14 +133,14 @@ let DrawerContent = ({}: React.PropsWithoutRef<{}>): React.ReactNode => {
   const insets = useSafeAreaInsets()
   const setDrawerOpen = useSetDrawerOpen()
   const navigation = useNavigation<NavigationProp>()
-  const {isAtHome, isAtSearch} = useNavigationTabState()
+  const {isAtSearch} = useNavigationTabState()
   const {hasSession, currentAccount} = useSession()
 
   // events
   // =
 
   const onPressTab = React.useCallback(
-    (tab: 'Home' | 'Search' | 'Messages' | 'Notifications' | 'MyProfile') => {
+    (tab: 'Search' | 'Messages' | 'Notifications' | 'MyProfile') => {
       const state = navigation.getState()
       setDrawerOpen(false)
       if (isWeb) {
@@ -183,8 +179,6 @@ let DrawerContent = ({}: React.PropsWithoutRef<{}>): React.ReactNode => {
     },
     [navigation, setDrawerOpen, currentAccount],
   )
-
-  const onPressHome = React.useCallback(() => onPressTab('Home'), [onPressTab])
 
   const onPressSearch = React.useCallback(
     () => onPressTab('Search'),
@@ -329,7 +323,7 @@ let DrawerContent = ({}: React.PropsWithoutRef<{}>): React.ReactNode => {
         {hasSession && (
           <>
             <MenuItem
-              icon={<Book width={iconWidth} style={t.atoms.text} />}
+              icon={<ReadsLogo width={iconWidth} />}
               label="Reads"
               onPress={() => {
                 navigation.navigate('Reads')
@@ -371,14 +365,9 @@ let DrawerContent = ({}: React.PropsWithoutRef<{}>): React.ReactNode => {
           </>
         )}
         {hasSession ? (
-          <>
-            <SettingsMenuItem onPress={onPressSettings} />
-          </>
+          <SettingsMenuItem onPress={onPressSettings} />
         ) : (
-          <>
-            <HomeMenuItem isActive={isAtHome} onPress={onPressHome} />
-            <SearchMenuItem isActive={isAtSearch} onPress={onPressSearch} />
-          </>
+          <SearchMenuItem isActive={isAtSearch} onPress={onPressSearch} />
         )}
 
         <View style={[a.px_xl]}>
@@ -482,32 +471,6 @@ let SearchMenuItem = ({
   )
 }
 SearchMenuItem = React.memo(SearchMenuItem)
-
-let HomeMenuItem = ({
-  isActive,
-  onPress,
-}: {
-  isActive: boolean
-  onPress: () => void
-}): React.ReactNode => {
-  const {_} = useLingui()
-  const t = useTheme()
-  return (
-    <MenuItem
-      icon={
-        isActive ? (
-          <HomeFilled style={[t.atoms.text]} width={iconWidth} />
-        ) : (
-          <Home style={[t.atoms.text]} width={iconWidth} />
-        )
-      }
-      label={_(msg`Home`)}
-      bold={isActive}
-      onPress={onPress}
-    />
-  )
-}
-HomeMenuItem = React.memo(HomeMenuItem)
 
 let SettingsMenuItem = ({onPress}: {onPress: () => void}): React.ReactNode => {
   const {_} = useLingui()

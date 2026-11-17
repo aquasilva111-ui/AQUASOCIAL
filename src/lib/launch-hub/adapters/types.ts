@@ -16,6 +16,12 @@ import {
 export type AdapterContext = {
   /** Agent of the account currently active in the app. */
   agent: BskyAgent
+  /**
+   * OAuth credentials for the Mastodon instance targeted by an OAuth adapter
+   * (Launch Hub phase 1). Kept out of the domain model on purpose: the vault
+   * owns storage, this context only carries the short-lived session token.
+   */
+  mastodon?: {accessToken: string; instance: string}
 }
 
 export type ValidationInput = {
@@ -35,6 +41,16 @@ export type DestinationPreview = {
   title?: string
   text: string
   media: MediaAsset[]
+  /** Graphemes/length of the text that will actually be sent. */
+  textLength?: number
+  /** Network limit the text must respect. */
+  limit?: number
+  /** True when the text has to be split into an automatic thread. */
+  thread?: boolean
+  /** First status of the automatic thread, when the text had to be split. */
+  threadText?: string
+  /** Alt text of the first image, when provided. */
+  alt?: string
 }
 
 export type PublishResult = {

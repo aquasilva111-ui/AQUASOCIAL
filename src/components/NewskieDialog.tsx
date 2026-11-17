@@ -98,9 +98,7 @@ function DialogInner({
 
     if (isMe) {
       if (profile.joinedViaStarterPack) {
-        return _(
-          msg`You joined Aqua using a starter pack ${timeAgoString} ago`,
-        )
+        return _(msg`You joined Aqua using a starter pack ${timeAgoString} ago`)
       } else {
         return _(msg`You joined Aqua ${timeAgoString} ago`)
       }

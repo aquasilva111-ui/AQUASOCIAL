@@ -194,7 +194,8 @@ function FeaturedBook({item}: {item: BookWithLatest}) {
           onPress={() =>
             add.mutate(item.uri, {
               onSuccess: () => Toast.show('Salvo na sua leitura'),
-              onError: () => Toast.show('Não foi possível salvar', 'error'),
+              onError: () =>
+                Toast.show('Não foi possível salvar', {type: 'error'}),
             })
           }>
           <ButtonText>Salvar</ButtonText>

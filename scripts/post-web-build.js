@@ -13,6 +13,10 @@ fs.cpSync(
   path.join(projectRoot, 'web-build/ui-ai'),
   {recursive: true},
 )
+const createBuild = path.join(projectRoot, 'aqua-hub', 'dist')
+if (fs.existsSync(path.join(createBuild, 'index.html'))) {
+  fs.cpSync(createBuild, path.join(projectRoot, 'web-build', 'create'), {recursive: true})
+}
 const templateFile = path.join(
   projectRoot,
   'bskyweb',

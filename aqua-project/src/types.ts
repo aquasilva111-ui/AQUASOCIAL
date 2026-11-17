@@ -12,6 +12,10 @@ export interface ProjectItem {
   id: string
   kind: ItemKind
   name: string
+  category?: string
+  tags?: string[]
+  width?: number
+  height?: number
   /** Hash of the current version's content. */
   head: string | null
   createdAt: string
@@ -33,6 +37,8 @@ export interface Version {
 export interface Project {
   id: string
   name: string
+  category?: string
+  tags?: string[]
   createdAt: string
   updatedAt: string
   items: ProjectItem[]

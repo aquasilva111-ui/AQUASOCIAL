@@ -10,6 +10,7 @@
 export type ProviderId =
   | 'aqua'
   | 'bluesky'
+  | 'mastodon'
   | 'tiktok'
   | 'instagram'
   | 'facebook'
@@ -70,7 +71,11 @@ export type Provider = {
   name: string
   category: ProviderCategory
   /** Which adapter implementation handles this provider. */
-  adapter: 'atproto-session' | 'integration-api' | 'same-network'
+  adapter:
+    | 'atproto-session'
+    | 'integration-api'
+    | 'same-network'
+    | 'mastodon-oauth'
   /** Short monogram used for the provider badge. */
   monogram: string
   color: string
@@ -126,6 +131,7 @@ export type IdentityGroup = {
 export type LaunchType =
   | 'social_post'
   | 'video_release'
+  | 'carousel'
   | 'music_release'
   | 'book_release'
   | 'article'

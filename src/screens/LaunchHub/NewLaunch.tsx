@@ -9,7 +9,6 @@ import {getAdapter} from '#/lib/launch-hub/adapters'
 import {
   FIELD_LABELS,
   getLaunchType,
-  LAUNCH_TYPES,
   type LaunchTypeField,
 } from '#/lib/launch-hub/launch-types'
 import {rememberAssetUri, resolveAssetUri} from '#/lib/launch-hub/media-cache'
@@ -23,6 +22,8 @@ import {
   type ManagedProfile,
   type MediaAsset,
   type MusicReleaseMetadata,
+  type Provider,
+  type ProviderId,
 } from '#/lib/launch-hub/types'
 import {
   getFieldValue,
@@ -46,6 +47,7 @@ import {Button, ButtonIcon, ButtonText} from '#/components/Button'
 import * as TextField from '#/components/forms/TextField'
 import * as Toggle from '#/components/forms/Toggle'
 import {Image_Stroke2_Corner0_Rounded as ImageIcon} from '#/components/icons/Image'
+import {Sparkle_Stroke2_Corner0_Rounded} from '#/components/icons/Sparkle'
 import {TimesLarge_Stroke2_Corner0_Rounded as XIcon} from '#/components/icons/Times'
 import * as Layout from '#/components/Layout'
 import {Text} from '#/components/Typography'
@@ -73,6 +75,19 @@ const MULTILINE_FIELDS: LaunchTypeField[] = [
   'description',
   'music.credits',
   'music.lyrics',
+]
+type ComposerTab = 'post' | 'video' | 'carousel' | 'article'
+
+const COMPOSER_TABS: {
+  id: ComposerTab
+  type: LaunchType
+  label: string
+  disabled?: boolean
+}[] = [
+  {id: 'post', type: 'social_post', label: 'Post'},
+  {id: 'video', type: 'video_release', label: 'Vídeo'},
+  {id: 'carousel', type: 'carousel', label: 'Carrossel'},
+  {id: 'article', type: 'article', label: 'Artigo', disabled: true},
 ]
 
 export function NewLaunchScreen({route}: Props) {
@@ -146,6 +161,24 @@ function Editor({draft}: {draft: Launch | undefined}) {
         updatedAt: now,
       }
     })
+    // Fase 1: o Bluesky publica pela própria sessão AT Protocol do usuário e
+    // entra automático em todo lançamento; o Mastodon entra quando selecionado.
+    const hasBluesky = destinations.some(d => d.provider === 'bluesky')
+    if (!hasBluesky) {
+      const aqua = profiles.find(p => p.provider === 'aqua')
+      if (aqua) {
+        destinations.push({
+          id: TID.nextStr(),
+          launchId,
+          provider: 'bluesky',
+          profileKey: aqua.key,
+          status: 'pending',
+          idempotencyKey: TID.nextStr(),
+          attempts: 0,
+          updatedAt: now,
+        })
+      }
+    }
     return {
       id: launchId,
       creatorDid: currentAccount?.did ?? '',
@@ -223,6 +256,11 @@ function Editor({draft}: {draft: Launch | undefined}) {
               setType={setType}
               content={content}
               setContent={setContent}
+              selected={selected}
+              profiles={profiles}
+              validations={validations}
+              overrides={overrides}
+              setOverrides={setOverrides}
             />
           )}
           {step === 1 && (
@@ -297,7 +335,7 @@ function Editor({draft}: {draft: Launch | undefined}) {
                 </Button>
               ) : (
                 <Button
-                  label="Lançar"
+                  label="Publicar em todas"
                   size="small"
                   color="primary"
                   disabled={
@@ -306,7 +344,7 @@ function Editor({draft}: {draft: Launch | undefined}) {
                     launchIssues.length > 0
                   }
                   onPress={onLaunch}>
-                  <ButtonText>Lançar</ButtonText>
+                  <ButtonText>Publicar em todas</ButtonText>
                 </Button>
               )}
             </View>
@@ -353,11 +391,21 @@ function ContentStep({
   setType,
   content,
   setContent,
+  selected,
+  profiles,
+  validations,
+  overrides,
+  setOverrides,
 }: {
   type: LaunchType
   setType: (type: LaunchType) => void
   content: ContentPackage
   setContent: (fn: (content: ContentPackage) => ContentPackage) => void
+  selected: string[]
+  profiles: ManagedProfile[]
+  validations: Record<string, ReturnType<typeof validateDestination>>
+  overrides: Overrides
+  setOverrides: (fn: (o: Overrides) => Overrides) => void
 }) {
   const t = useTheme()
   const images = content.media.filter(m => m.kind === 'image')
@@ -399,22 +447,53 @@ function ContentStep({
       media: c.media.map(m => (m.id === id ? {...m, ...changes} : m)),
     }))
 
+  const onAdapt = () => {
+    for (const key of selected) {
+      const profile = profiles.find(p => p.key === key)
+      const preview = profile
+        ? getAdapter(profile.provider).renderPreview({
+            type,
+            content,
+            destination: overrides[key] ?? {},
+            profile,
+          })
+        : null
+      const adapted =
+        preview && validations[key]?.level !== 'blocked' ? preview : null
+      if (!adapted) continue
+      setOverrides(o => ({
+        ...o,
+        [key]: {
+          ...o[key],
+          customCaption: adapted.threadText ?? adapted.text,
+        },
+      }))
+    }
+  }
+
   return (
     <View style={[a.gap_lg]}>
       <View style={[a.gap_sm]}>
-        <SectionTitleText>Tipo de lançamento</SectionTitleText>
+        <SectionTitleText>Tipo de publicação</SectionTitleText>
         <View style={[a.flex_row, a.flex_wrap, a.gap_xs]}>
-          {LAUNCH_TYPES.map(def => (
+          {COMPOSER_TABS.map(tab => (
             <Button
-              key={def.type}
-              label={def.label}
+              key={tab.id}
+              label={tab.label}
               size="small"
-              color={type === def.type ? 'primary' : 'secondary'}
-              onPress={() => setType(def.type)}>
-              <ButtonText>{def.label}</ButtonText>
+              color={type === tab.type ? 'primary' : 'secondary'}
+              disabled={tab.disabled}
+              onPress={() => setType(tab.type)}>
+              <ButtonText>{tab.label}</ButtonText>
             </Button>
           ))}
         </View>
+        {COMPOSER_TABS.some(tab => tab.type === type && tab.disabled) && (
+          <NoticeText>
+            A aba Artigo fica em breve: a escrita assistida do Aqua Write ainda
+            não está disponível no Launch Hub.
+          </NoticeText>
+        )}
       </View>
 
       <Field
@@ -424,6 +503,15 @@ function ContentStep({
         onChange={text => setContent(c => ({...c, text}))}
         multiline
       />
+
+      {!getLaunchType(type).fields.includes('link') && (
+        <Field
+          label="Cartão de link"
+          placeholder="https://… o link acompanha o post e vira cartão"
+          value={content.link}
+          onChange={link => setContent(c => ({...c, link}))}
+        />
+      )}
 
       {getLaunchType(type).fields.map(field =>
         field === 'music.albumOrSingle' ? (
@@ -522,6 +610,22 @@ function ContentStep({
           Envio de vídeo e áudio master ainda não está disponível no Launch Hub.
         </NoticeText>
       </View>
+
+      <View style={[a.gap_sm]}>
+        <Button
+          label="Adaptar por rede com IA"
+          size="small"
+          color="secondary"
+          disabled={!selected.length}
+          onPress={onAdapt}>
+          <ButtonIcon icon={Sparkle_Stroke2_Corner0_Rounded} />
+          <ButtonText>Adaptar por rede com IA</ButtonText>
+        </Button>
+        <NoticeText>
+          A adaptação ajusta o texto para o limite de cada rede e divide o post
+          em fio quando necessário. Nada é publicado sem o seu clique.
+        </NoticeText>
+      </View>
     </View>
   )
 }
@@ -584,59 +688,126 @@ function DestinationsStep({
           {providersByCategory().map(group => (
             <View key={group.category} style={[a.gap_sm]}>
               <SectionTitleText>{group.label}</SectionTitleText>
-              {group.providers.map(provider => {
-                const own = profiles.filter(p => p.provider === provider.id)
-                if (!own.length) {
-                  return (
-                    <View
-                      key={provider.id}
-                      style={[
-                        a.flex_row,
-                        a.align_center,
-                        a.gap_sm,
-                        {opacity: 0.6},
-                      ]}>
-                      <ProviderBadge provider={provider.id} size={28} />
-                      <Text style={[a.flex_1, a.text_sm]}>{provider.name}</Text>
-                      <Text style={[a.text_xs, t.atoms.text_contrast_medium]}>
-                        {provider.sameNetworkAs
-                          ? `Incluído via ${getProvider(provider.sameNetworkAs).name}`
-                          : CONNECTION_LABELS.not_configured}
-                      </Text>
-                    </View>
-                  )
-                }
-                return own.map(profile => (
-                  <Toggle.Item
-                    key={profile.key}
-                    name={profile.key}
-                    label={`${provider.name} — ${profile.displayName}`}>
-                    <Toggle.Checkbox />
-                    <ProfileAvatar profile={profile} size={28} />
-                    <View style={[a.flex_1]}>
-                      <Text style={[a.text_sm, a.font_bold]} numberOfLines={1}>
-                        {provider.name} —{' '}
-                        {profile.handle
-                          ? `@${profile.handle}`
-                          : profile.displayName}
-                      </Text>
-                      <Text style={[a.text_xs, t.atoms.text_contrast_medium]}>
-                        {PROFILE_TYPE_LABELS[profile.type]} ·{' '}
-                        {CONNECTION_LABELS[profile.status]}
-                      </Text>
-                    </View>
-                    {validations[profile.key] && (
-                      <ValidationPill validation={validations[profile.key]} />
-                    )}
-                  </Toggle.Item>
-                ))
-              })}
+              {group.providers.map(provider =>
+                PHASE_ONE_PROVIDERS.includes(provider.id) ? (
+                  <ProviderCapsule
+                    key={provider.id}
+                    provider={provider}
+                    profiles={profiles}
+                    validations={validations}
+                    phaseOne
+                  />
+                ) : (
+                  <View
+                    key={provider.id}
+                    style={[
+                      a.flex_row,
+                      a.align_center,
+                      a.gap_sm,
+                      {opacity: 0.6},
+                    ]}>
+                    <ProviderBadge provider={provider.id} size={28} />
+                    <Text style={[a.flex_1, a.text_sm]}>{provider.name}</Text>
+                    <PillText tone="warning">Em breve</PillText>
+                  </View>
+                ),
+              )}
             </View>
           ))}
         </View>
       </Toggle.Group>
     </View>
   )
+}
+
+const PHASE_ONE_PROVIDERS: ProviderId[] = ['bluesky', 'mastodon']
+
+function ProviderCapsule({
+  provider,
+  profiles,
+  validations,
+  phaseOne,
+}: {
+  provider: Provider
+  profiles: ManagedProfile[]
+  validations: Record<string, ReturnType<typeof validateDestination>>
+  phaseOne: boolean
+}) {
+  const t = useTheme()
+  const own = profiles.filter(p => p.provider === provider.id)
+  const isBluesky = provider.id === 'bluesky'
+
+  if (!phaseOne) {
+    return (
+      <View style={[a.flex_row, a.align_center, a.gap_sm, {opacity: 0.6}]}>
+        <ProviderBadge provider={provider.id} size={28} />
+        <Text style={[a.flex_1, a.text_sm]}>{provider.name}</Text>
+        <PillText tone="warning">Em breve</PillText>
+      </View>
+    )
+  }
+
+  if (!own.length) {
+    return (
+      <View style={[a.flex_row, a.align_center, a.gap_sm]}>
+        <ProviderBadge provider={provider.id} size={28} />
+        <Text style={[a.flex_1, a.text_sm]}>{provider.name}</Text>
+        <Text style={[a.text_xs, t.atoms.text_contrast_medium]}>
+          {isBluesky
+            ? 'Publica pela sua conta AQUA · automático'
+            : 'Conecte sua instância via OAuth'}
+        </Text>
+      </View>
+    )
+  }
+
+  const items = own.map(profile =>
+    provider.id === 'bluesky' ? (
+      <Toggle.Item
+        key={profile.key}
+        name={profile.key}
+        value={true}
+        disabled
+        label={`${provider.name} — ${profile.displayName}`}>
+        <Toggle.Checkbox />
+        <ProfileAvatar profile={profile} size={28} />
+        <View style={[a.flex_1]}>
+          <Text style={[a.text_sm, a.font_bold]} numberOfLines={1}>
+            {provider.name} —{' '}
+            {profile.handle ? `@${profile.handle}` : profile.displayName}
+          </Text>
+          <Text style={[a.text_xs, t.atoms.text_contrast_medium]}>
+            {PROFILE_TYPE_LABELS[profile.type]} · automático
+          </Text>
+        </View>
+        <ValidationPill validation={validations[profile.key]} />
+      </Toggle.Item>
+    ) : (
+      <Toggle.Item
+        key={profile.key}
+        name={profile.key}
+        label={`${provider.name} — ${profile.displayName}`}
+        disabled={profile.status !== 'connected'}>
+        <Toggle.Checkbox />
+        <ProfileAvatar profile={profile} size={28} />
+        <View style={[a.flex_1]}>
+          <Text style={[a.text_sm, a.font_bold]} numberOfLines={1}>
+            {provider.name} —{' '}
+            {profile.handle ? `@${profile.handle}` : profile.displayName}
+          </Text>
+          <Text style={[a.text_xs, t.atoms.text_contrast_medium]}>
+            {PROFILE_TYPE_LABELS[profile.type]} ·{' '}
+            {CONNECTION_LABELS[profile.status]}
+          </Text>
+        </View>
+        {validations[profile.key] && (
+          <ValidationPill validation={validations[profile.key]} />
+        )}
+      </Toggle.Item>
+    ),
+  )
+
+  return <View>{items}</View>
 }
 
 function ValidationStep({
@@ -759,6 +930,48 @@ function ValidationStep({
                       />
                     ))}
                   </View>
+                )}
+                {typeof preview.textLength === 'number' &&
+                  typeof preview.limit === 'number' && (
+                    <View style={[a.gap_xs]}>
+                      <View
+                        style={[
+                          {
+                            height: 6,
+                            borderRadius: 3,
+                            backgroundColor:
+                              t.atoms.bg_contrast_50.backgroundColor,
+                          },
+                        ]}>
+                        <View
+                          style={{
+                            width: `${
+                              preview.limit
+                                ? Math.min(
+                                    100,
+                                    (preview.textLength / preview.limit) * 100,
+                                  )
+                                : 0
+                            }%`,
+                            height: 6,
+                            borderRadius: 3,
+                            backgroundColor:
+                              preview.textLength > preview.limit
+                                ? t.palette.negative_500
+                                : t.palette.primary_500,
+                          }}
+                        />
+                      </View>
+                      <Text style={[a.text_xs, t.atoms.text_contrast_medium]}>
+                        {preview.textLength} / {preview.limit} caracteres
+                        {preview.thread ? ' · divisão em fio' : ''}
+                      </Text>
+                    </View>
+                  )}
+                {preview.thread && (
+                  <Text style={[a.text_sm, t.atoms.text_contrast_medium]}>
+                    Texto longo: o post será dividido em fio automaticamente.
+                  </Text>
                 )}
               </View>
             ) : (
