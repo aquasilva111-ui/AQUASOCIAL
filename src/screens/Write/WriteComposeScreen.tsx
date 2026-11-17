@@ -275,7 +275,6 @@ function BookFields({
 }) {
   return (
     <Section title="Book">
-      <Text style={[a.text_sm, a.font_bold, a.mb_xs]}>Book</Text>
       <View style={[a.flex_row, a.gap_sm, a.flex_wrap]}>
         {books.map(book => (
           <Chip
