@@ -1,4 +1,5 @@
 import {
+  CONTACT_MAILTO,
   CONTACT_PARAGRAPHS,
   CONTACT_TITLE,
   INFO_PAGE_LINKS,
@@ -10,7 +11,7 @@ export function ContactScreen() {
     <PlainInfoPage
       title={CONTACT_TITLE}
       paragraphs={CONTACT_PARAGRAPHS}
-      links={INFO_PAGE_LINKS}
+      links={[CONTACT_MAILTO, ...INFO_PAGE_LINKS]}
     />
   )
 }

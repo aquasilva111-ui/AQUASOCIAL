@@ -29,12 +29,8 @@ export const SITE_DESCRIPTION =
  */
 export const ORGANIZATION_SAME_AS: readonly string[] = []
 
-/**
- * schema.org email and contactPoint.
- * TODO(owner): the repo has no public Aqua contact address. Leave this empty
- * until one exists. Do not reuse noreply or a third-party inbox.
- */
-export const ORGANIZATION_EMAIL = ''
+/** Public contact address, set by the owner. */
+export const ORGANIZATION_EMAIL = 'team@aquaapp.online'
 
 export const LOGO_PATH = '/logo.png'
 
@@ -338,9 +334,14 @@ export const ABOUT_PARAGRAPHS = [
 export const CONTACT_TITLE = 'Contato'
 
 export const CONTACT_PARAGRAPHS = [
-  'A Aqua ainda não publica um endereço de e-mail de contato.',
+  `O e-mail público da Aqua é ${ORGANIZATION_EMAIL}.`,
   'As páginas de suporte, termos e privacidade estão no próprio site.',
 ] as const
+
+export const CONTACT_MAILTO = {
+  href: `mailto:${ORGANIZATION_EMAIL}`,
+  label: ORGANIZATION_EMAIL,
+} as const
 
 export const INFO_PAGE_LINKS = [
   {href: '/', label: 'Início'},
@@ -405,14 +406,18 @@ export function renderSimplePage(opts: {
   paragraphs: readonly string[]
   path: string
   robots?: string
+  extraLinks?: readonly {href: string; label: string}[]
 }) {
   const description = opts.paragraphs[0] ?? opts.title
   const robots = opts.robots
     ? `\n  <meta name="robots" content="${escapeHtml(opts.robots)}">`
     : ''
-  const links = INFO_PAGE_LINKS.map(
-    link => `<a href="${escapeHtml(link.href)}">${escapeHtml(link.label)}</a>`,
-  ).join(' · ')
+  const links = [...(opts.extraLinks ?? []), ...INFO_PAGE_LINKS]
+    .map(
+      link =>
+        `<a href="${escapeHtml(link.href)}">${escapeHtml(link.label)}</a>`,
+    )
+    .join(' · ')
   const body = opts.paragraphs
     .map(paragraph => `    <p>${escapeHtml(paragraph)}</p>`)
     .join('\n')
@@ -523,6 +528,7 @@ export function publicWebFiles(): Record<string, string> {
       title: CONTACT_TITLE,
       paragraphs: CONTACT_PARAGRAPHS,
       path: '/contact',
+      extraLinks: [CONTACT_MAILTO],
     }),
   }
   for (const section of sections) {
@@ -594,7 +600,6 @@ export function renderPublicSiteHead() {
     <meta property="og:url" content="${SITE_ORIGIN}/">
     <meta property="og:image" content="${SITE_ORIGIN}${LOGO_PATH}">
     <!-- TODO(owner): Organization.sameAs is empty until official profile URLs are confirmed. -->
-    <!-- TODO(owner): Organization.email and contactPoint are omitted until a public contact address exists. -->
     <script type="application/ld+json">${json}</script>
     <!-- END public-site-head -->`
 }
