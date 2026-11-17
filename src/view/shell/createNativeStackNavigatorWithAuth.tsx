@@ -183,8 +183,8 @@ function NativeStackNavigator({
 
   // Full-page experiences with their own header/navigation.
   const hasOwnChrome = FULL_PAGE_ROUTES.includes(activeRoute.name)
-  // Hover rail and bottom dock never show together. The dock stays on
-  // mobile/tablet, where the rail is not mounted.
+  // The dock stays at every width, including beside the desktop rail.
+  // Home and Write (/books) share this rule; only UIAI opts out below.
   const {showBottomBar} = getShellChrome({
     hasSession,
     hasOwnChrome,

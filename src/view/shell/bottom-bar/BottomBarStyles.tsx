@@ -1,12 +1,15 @@
 import {StyleSheet} from 'react-native'
 
 import {colors} from '#/lib/styles'
+import {
+  DOCK_HEIGHT,
+  DOCK_INSET,
+  DOCK_MAX_WIDTH,
+  webFeedBottomSpacer,
+} from '#/view/shell/bottom-bar/metrics'
 import {atoms as a} from '#/alf'
 
-export const DOCK_INSET = 12
-export const DOCK_MAX_WIDTH = 720
-/** Tallest dock variant: 48px create button + label, padding and border. */
-export const DOCK_HEIGHT = 82
+export {DOCK_HEIGHT, DOCK_INSET, DOCK_MAX_WIDTH, webFeedBottomSpacer}
 
 export const styles = StyleSheet.create({
   bottomBar: {
