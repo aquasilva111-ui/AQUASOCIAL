@@ -18,11 +18,7 @@ import {
 import {atoms as a, useLayoutBreakpoints, useTheme} from '#/alf'
 import {useInteractionState} from '#/components/hooks/useInteractionState'
 import {ArrowTop_Stroke2_Corner0_Rounded as ArrowIcon} from '#/components/icons/Arrow'
-import {
-  CENTER_COLUMN_WIDTH,
-  getNavEdgeInset,
-  LEFT_NAV_MINIMAL_WIDTH,
-} from '#/components/Layout'
+import {CENTER_COLUMN_WIDTH, SIDEBAR_RAIL_WIDTH} from '#/components/Layout'
 import {SubtleHover} from '#/components/SubtleHover'
 
 export function LoadLatestBtn({
@@ -138,9 +134,7 @@ function getWideScreenPosition({
   const outOfLineLeft = dockLeft - BUTTON_SIZE - GAP
   // The desktop rail rests at the collapsed width; hover overlays and
   // must not move this button.
-  const leftNavRight =
-    getNavEdgeInset(windowWidth, LEFT_NAV_MINIMAL_WIDTH) +
-    LEFT_NAV_MINIMAL_WIDTH
+  const leftNavRight = SIDEBAR_RAIL_WIDTH
   if (canGoOutOfLine && outOfLineLeft >= leftNavRight + GAP) {
     return {left: outOfLineLeft, bottom: 30}
   }

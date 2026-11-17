@@ -1,4 +1,12 @@
-import {type JSX, useCallback, useMemo, useState} from 'react'
+import {
+  cloneElement,
+  type JSX,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import {Image, StyleSheet, useWindowDimensions, View} from 'react-native'
 import {type AppBskyActorDefs} from '@atproto/api'
 import {msg, plural, Trans} from '@lingui/macro'
@@ -17,6 +25,7 @@ import {
 } from '#/lib/routes/types'
 import {sanitizeDisplayName} from '#/lib/strings/display-names'
 import {sanitizeHandle} from '#/lib/strings/handles'
+import {isWeb} from '#/platform/detection'
 import {useA11y} from '#/state/a11y'
 import {emitSoftReset} from '#/state/events'
 import {useProfilesQuery} from '#/state/queries/profile'
@@ -49,6 +58,8 @@ import {
   getNavEdgeInset,
   LEFT_NAV_MINIMAL_WIDTH,
   LEFT_NAV_WIDTH,
+  SIDEBAR_OPEN_WIDTH,
+  SIDEBAR_RAIL_WIDTH,
 } from '#/components/Layout'
 import * as Menu from '#/components/Menu'
 import * as Prompt from '#/components/Prompt'
@@ -57,21 +68,29 @@ import {PlatformInfo} from '../../../../modules/expo-bluesky-swiss-army'
 import {router} from '../../../routes'
 
 const NAV_ICON_WIDTH = 28
-/** Centers a 48px avatar in the collapsed rail. */
-const COLLAPSED_AVATAR_INSET = (LEFT_NAV_MINIMAL_WIDTH - 48) / 2
+const RAIL_ICON = 24
 const uiAiIcon = require('../../../../assets/icons/ui-ai.png')
 const visionboardIcon = require('../../../../assets/icons/visionboard.png')
+
+function tintRailIcon(node: JSX.Element, color: string) {
+  return cloneElement(node, {
+    width: RAIL_ICON,
+    height: RAIL_ICON,
+    tintColor: color,
+    style: [node.props.style, {color, width: RAIL_ICON, height: RAIL_ICON}],
+  })
+}
 
 function labelRevealStyle(hidden: boolean, reduceMotion: boolean) {
   return web({
     opacity: hidden ? 0 : 1,
-    maxWidth: hidden ? 0 : 200,
-    minWidth: 0,
-    overflow: 'hidden',
+    transform: hidden ? 'translateX(-6px)' : 'translateX(0px)',
     whiteSpace: 'nowrap',
-    transitionProperty: reduceMotion ? 'none' : 'opacity, max-width',
-    transitionDuration: reduceMotion ? '0ms' : '200ms',
-    transitionTimingFunction: 'ease',
+    pointerEvents: 'none',
+    transitionProperty: reduceMotion ? 'none' : 'opacity, transform',
+    transitionDuration: reduceMotion ? '0ms' : '160ms, 200ms',
+    transitionDelay: reduceMotion || hidden ? '0ms' : '20ms, 0ms',
+    transitionTimingFunction: 'ease-out',
   })
 }
 
@@ -112,7 +131,7 @@ function ProfileCard({
       style={[
         a.my_md,
         showAccountText && [a.w_full, a.align_start],
-        revealLabel && {paddingLeft: COLLAPSED_AVATAR_INSET},
+        revealLabel && {height: 48, marginTop: 2, marginBottom: 10},
       ]}>
       {!isLoading && profile ? (
         <Menu.Root>
@@ -131,8 +150,14 @@ function ProfileCard({
                     a.justify_between,
                     a.align_center,
                     a.flex_row,
-                    {gap: revealLabel && minimal ? 0 : 6},
+                    {gap: revealLabel ? 0 : 6},
                     !minimal && !revealLabel && [a.pl_lg, a.pr_md],
+                    revealLabel && {
+                      height: 48,
+                      paddingLeft: 0,
+                      paddingRight: 0,
+                      borderRadius: 999,
+                    },
                   ]}>
                   <View
                     style={[
@@ -144,6 +169,12 @@ function ProfileCard({
                         ],
                       a.relative,
                       a.z_10,
+                      revealLabel && {
+                        width: SIDEBAR_RAIL_WIDTH,
+                        height: 48,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      },
                       active &&
                         !revealLabel && {
                           transform: [
@@ -154,7 +185,7 @@ function ProfileCard({
                     ]}>
                     <UserAvatar
                       avatar={profile.avatar}
-                      size={size}
+                      size={revealLabel ? 40 : size}
                       type={profile?.associated?.labeler ? 'labeler' : 'user'}
                       live={live}
                     />
@@ -406,6 +437,9 @@ interface NavItemProps {
   minimal: boolean
   /** Desktop hover: keep the icon slot and fade the label instead of unmounting it. */
   revealLabel: boolean
+  /** Coarse pointer: the first press opens the rail instead of navigating. */
+  holdNavigation?: boolean
+  onRequestOpen?: () => void
 }
 function NavItem({
   count,
@@ -416,6 +450,8 @@ function NavItem({
   label,
   minimal,
   revealLabel,
+  holdNavigation,
+  onRequestOpen,
 }: NavItemProps) {
   const t = useTheme()
   const {_} = useLingui()
@@ -438,6 +474,11 @@ function NavItem({
   const navigation = useNavigation<NavigationProp>()
   const onPressWrapped = useCallback(
     (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+      if (holdNavigation) {
+        e.preventDefault()
+        onRequestOpen?.()
+        return
+      }
       if (e.ctrlKey || e.metaKey || e.altKey) {
         return
       }
@@ -450,8 +491,20 @@ function NavItem({
         navigation.navigate(screen, params, {pop: true})
       }
     },
-    [navigation, href, isCurrent],
+    [navigation, href, isCurrent, holdNavigation, onRequestOpen],
   )
+
+  const night = t.scheme === 'dark'
+  const railInk = night ? '#E8EEF7' : '#0F172A'
+  const railAccent = night ? '#7EC8F5' : '#002BEF'
+  const shownIcon = revealLabel
+    ? tintRailIcon(
+        isCurrent ? iconFilled : icon,
+        isCurrent ? railAccent : railInk,
+      )
+    : isCurrent
+      ? iconFilled
+      : icon
 
   return (
     <PressableWithHover
@@ -464,30 +517,45 @@ function NavItem({
         a.outline_inset_1,
         a.transition_color,
         revealLabel && {
-          width: '100%',
-          // Keeps the glyph centered in the collapsed rail, then lets the
-          // label grow to the right without moving the icon.
-          paddingLeft: (LEFT_NAV_MINIMAL_WIDTH - iconSlot) / 2,
+          height: 48,
+          marginHorizontal: 8,
+          padding: 0,
+          borderRadius: 999,
+          backgroundColor:
+            isCurrent && night
+              ? 'rgba(126,200,245,0.14)'
+              : isCurrent
+                ? 'rgba(0,43,239,0.08)'
+                : 'transparent',
         },
       ]}
-      hoverStyle={t.atoms.bg_contrast_25}
+      hoverStyle={
+        revealLabel
+          ? {
+              backgroundColor: night
+                ? 'rgba(255,255,255,0.08)'
+                : 'rgba(15,23,42,0.05)',
+            }
+          : t.atoms.bg_contrast_25
+      }
       // @ts-expect-error the function signature differs on web -prf
       onPress={onPressWrapped}
       href={href}
       dataSet={{noUnderline: 1}}
       role="link"
       accessibilityLabel={label}
-      accessibilityHint="">
+      accessibilityHint=""
+      aria-current={isCurrent ? 'page' : undefined}>
       <View
         style={[
           a.align_center,
           a.justify_center,
           {
-            width: iconSlot,
-            height: iconSlot,
+            width: revealLabel ? SIDEBAR_RAIL_WIDTH - 16 : iconSlot,
+            height: revealLabel ? 48 : iconSlot,
           },
         ]}>
-        {isCurrent ? iconFilled : icon}
+        {shownIcon}
         {typeof count === 'string' && count ? (
           <View
             style={[
@@ -583,27 +651,125 @@ export function DesktopLeftNav({embedded = false}: {embedded?: boolean} = {}) {
   const {isDesktop} = useWebMediaQueries()
   const {leftNavMinimal, centerColumnOffset} = useLayoutBreakpoints()
   const {width: windowWidth} = useWindowDimensions()
-  const [hovered, setHovered] = useState(false)
+  const [open, setOpen] = useState(false)
+  const [coarsePointer, setCoarsePointer] = useState(false)
+  const openTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const railRef = useRef<View>(null)
 
   // Wide web desktop only. The tablet rail stays icon-only, native never
   // mounts this overlay, and the embedded IU & AI column keeps its own toggle.
   const hoverCapable = !embedded && !leftNavMinimal
-  const collapsed = leftNavMinimal || (hoverCapable && !hovered)
+  const collapsed = leftNavMinimal || (hoverCapable && !open)
+  const night = t.scheme === 'dark'
+
+  const clearRailTimers = useCallback(() => {
+    if (openTimer.current) clearTimeout(openTimer.current)
+    if (closeTimer.current) clearTimeout(closeTimer.current)
+    openTimer.current = null
+    closeTimer.current = null
+  }, [])
+
+  const openNow = useCallback(() => {
+    clearRailTimers()
+    setOpen(true)
+  }, [clearRailTimers])
+
+  const scheduleOpen = useCallback(() => {
+    clearRailTimers()
+    const delay = reduceMotionEnabled ? 0 : 120
+    openTimer.current = setTimeout(() => setOpen(true), delay)
+  }, [clearRailTimers, reduceMotionEnabled])
+
+  const scheduleClose = useCallback(
+    (delayMs: number) => {
+      clearRailTimers()
+      const delay = reduceMotionEnabled ? 0 : delayMs
+      closeTimer.current = setTimeout(() => setOpen(false), delay)
+    },
+    [clearRailTimers, reduceMotionEnabled],
+  )
+
+  useEffect(() => clearRailTimers, [clearRailTimers])
+
+  useEffect(() => {
+    if (!hoverCapable || !isWeb || typeof document === 'undefined') return
+    const accent = night ? '#7EC8F5' : '#002BEF'
+    const ring = night ? '#000' : '#fff'
+    const el = document.createElement('style')
+    el.setAttribute('data-sidebar-rail-focus', '1')
+    el.textContent = `[data-sidebar-rail] a:focus-visible,[data-sidebar-rail] [role="link"]:focus-visible{box-shadow:0 0 0 2px ${ring},0 0 0 4px ${accent};}`
+    document.head.appendChild(el)
+    return () => el.remove()
+  }, [hoverCapable, night])
+
+  useEffect(() => {
+    if (!hoverCapable || !isWeb || typeof window === 'undefined') return
+    const hoverNone = window.matchMedia('(hover: none)')
+    const coarse = window.matchMedia('(pointer: coarse)')
+    const update = () => setCoarsePointer(hoverNone.matches || coarse.matches)
+    update()
+    hoverNone.addEventListener?.('change', update)
+    coarse.addEventListener?.('change', update)
+    return () => {
+      hoverNone.removeEventListener?.('change', update)
+      coarse.removeEventListener?.('change', update)
+    }
+  }, [hoverCapable])
+
+  useEffect(() => {
+    if (!hoverCapable || !open || !coarsePointer || !isWeb) return
+    const onDown = (event: PointerEvent) => {
+      const root = railRef.current as unknown as HTMLElement | null
+      if (
+        root &&
+        event.target instanceof Node &&
+        !root.contains(event.target)
+      ) {
+        setOpen(false)
+      }
+    }
+    document.addEventListener('pointerdown', onDown)
+    return () => document.removeEventListener('pointerdown', onDown)
+  }, [hoverCapable, open, coarsePointer])
 
   if (!hasSession && !isDesktop) {
     return null
   }
 
-  const duration = reduceMotionEnabled ? '0ms' : '200ms'
+  const holdNavigation = hoverCapable && coarsePointer && !open
 
   return (
     <View
+      ref={railRef}
       role="navigation"
+      accessibilityLabel={hoverCapable ? 'Menu principal' : undefined}
+      accessibilityHint=""
+      dataSet={hoverCapable ? {sidebarRail: '1'} : undefined}
       {...web(
         hoverCapable
           ? {
-              onMouseEnter: () => setHovered(true),
-              onMouseLeave: () => setHovered(false),
+              onMouseEnter: () => {
+                if (!coarsePointer) scheduleOpen()
+              },
+              onMouseLeave: () => {
+                if (!coarsePointer) scheduleClose(100)
+              },
+              onFocus: () => openNow(),
+              onBlur: (event: {
+                nativeEvent?: {relatedTarget?: EventTarget | null}
+              }) => {
+                const next = event.nativeEvent?.relatedTarget
+                const root = railRef.current as unknown as HTMLElement | null
+                if (root && next instanceof Node && root.contains(next)) return
+                scheduleClose(80)
+              },
+              onKeyDown: (event: {key?: string}) => {
+                if (event.key !== 'Escape') return
+                setOpen(false)
+                const active = document.activeElement
+                if (active instanceof HTMLElement) active.blur()
+              },
             }
           : {},
       )}
@@ -630,26 +796,44 @@ export function DesktopLeftNav({embedded = false}: {embedded?: boolean} = {}) {
                 transform: a.scrollbar_offset.transform,
               }),
         hoverCapable && {
-          left: getNavEdgeInset(windowWidth, LEFT_NAV_MINIMAL_WIDTH),
-          width: collapsed ? LEFT_NAV_MINIMAL_WIDTH : LEFT_NAV_WIDTH,
+          left: 0,
+          top: 0,
+          bottom: 0,
+          width: open ? SIDEBAR_OPEN_WIDTH : SIDEBAR_RAIL_WIDTH,
+          paddingTop: 14,
+          paddingBottom: 16,
           paddingLeft: 0,
           paddingRight: 0,
           height: '100vh',
-          backgroundColor: t.atoms.bg.backgroundColor,
           zIndex: 20,
-          transform: a.scrollbar_offset.transform,
+          flexDirection: 'column',
+          transform: [],
           ...web({
-            overflowX: 'hidden',
+            overflow: 'hidden',
+            backgroundColor: night
+              ? 'rgba(255,255,255,0.07)'
+              : 'rgba(255,255,255,0.72)',
+            backdropFilter: 'blur(18px) saturate(160%)',
+            WebkitBackdropFilter: 'blur(18px) saturate(160%)',
+            borderRightWidth: 1,
+            borderRightStyle: 'solid',
+            borderRightColor: open
+              ? night
+                ? 'rgba(255,255,255,0.16)'
+                : 'rgba(255,255,255,0.85)'
+              : night
+                ? 'rgba(255,255,255,0.08)'
+                : 'rgba(15,23,42,0.06)',
+            boxShadow: open
+              ? night
+                ? '8px 0 32px rgba(0,0,0,.5), 0 8px 24px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.08)'
+                : '8px 0 32px rgba(15,23,42,.08), 0 8px 24px rgba(0,43,239,.08), inset 0 1px 0 #fff'
+              : 'none',
             transitionProperty: reduceMotionEnabled
               ? 'none'
-              : 'width, box-shadow',
-            transitionDuration: duration,
-            transitionTimingFunction: 'ease',
-            boxShadow: hovered
-              ? t.scheme === 'dark'
-                ? '4px 0 28px rgba(0, 0, 0, 0.45)'
-                : '4px 0 28px rgba(0, 0, 0, 0.12)'
-              : '0 0 0 rgba(0, 0, 0, 0)',
+              : 'width, box-shadow, border-color, background-color',
+            transitionDuration: reduceMotionEnabled ? '0ms' : '200ms',
+            transitionTimingFunction: 'ease-out',
           }),
         },
       ]}>
@@ -666,6 +850,8 @@ export function DesktopLeftNav({embedded = false}: {embedded?: boolean} = {}) {
           <NavItem
             minimal={collapsed}
             revealLabel={hoverCapable}
+            holdNavigation={holdNavigation}
+            onRequestOpen={openNow}
             href="/views"
             icon={<ViewsButterfly width={NAV_ICON_WIDTH} style={pal.text} />}
             iconFilled={
@@ -676,6 +862,8 @@ export function DesktopLeftNav({embedded = false}: {embedded?: boolean} = {}) {
           <NavItem
             minimal={collapsed}
             revealLabel={hoverCapable}
+            holdNavigation={holdNavigation}
+            onRequestOpen={openNow}
             href="/visionboard"
             icon={
               <Image
@@ -704,6 +892,8 @@ export function DesktopLeftNav({embedded = false}: {embedded?: boolean} = {}) {
           <NavItem
             minimal={collapsed}
             revealLabel={hoverCapable}
+            holdNavigation={holdNavigation}
+            onRequestOpen={openNow}
             href="/reads"
             icon={
               <Book
@@ -724,6 +914,8 @@ export function DesktopLeftNav({embedded = false}: {embedded?: boolean} = {}) {
           <NavItem
             minimal={collapsed}
             revealLabel={hoverCapable}
+            holdNavigation={holdNavigation}
+            onRequestOpen={openNow}
             href="/noticias"
             icon={
               <GlobeIcon
@@ -744,6 +936,8 @@ export function DesktopLeftNav({embedded = false}: {embedded?: boolean} = {}) {
           <NavItem
             minimal={collapsed}
             revealLabel={hoverCapable}
+            holdNavigation={holdNavigation}
+            onRequestOpen={openNow}
             href="/ui-ai"
             icon={
               <Image
@@ -772,6 +966,8 @@ export function DesktopLeftNav({embedded = false}: {embedded?: boolean} = {}) {
           <NavItem
             minimal={collapsed}
             revealLabel={hoverCapable}
+            holdNavigation={holdNavigation}
+            onRequestOpen={openNow}
             href="/adult"
             icon={
               <AquaLogo
@@ -792,6 +988,8 @@ export function DesktopLeftNav({embedded = false}: {embedded?: boolean} = {}) {
           <NavItem
             minimal={collapsed}
             revealLabel={hoverCapable}
+            holdNavigation={holdNavigation}
+            onRequestOpen={openNow}
             href="/settings"
             icon={
               <Settings
@@ -810,7 +1008,16 @@ export function DesktopLeftNav({embedded = false}: {embedded?: boolean} = {}) {
             label={_(msg`Settings`)}
           />
 
-          <HubButtons flush={hoverCapable} minimal={collapsed} />
+          {hoverCapable && <View style={{flex: 1, minHeight: 8}} />}
+          <HubButtons
+            flush={hoverCapable}
+            minimal={collapsed}
+            rail={hoverCapable}
+            open={hoverCapable && !collapsed}
+            reduceMotion={reduceMotionEnabled}
+            holdNavigation={holdNavigation}
+            onFirstPress={openNow}
+          />
         </>
       )}
     </View>
