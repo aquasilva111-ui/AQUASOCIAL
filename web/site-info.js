@@ -4,6 +4,7 @@ const description =
   'AQUA Social é uma rede social baseada no AT Protocol para descobrir, criar e publicar texto, imagens e vídeos.'
 const repository = 'https://github.com/aquasilva111-ui/AQUASOCIAL'
 const email = 'team@aquaapp.online'
+const tiktok = 'https://www.tiktok.com/@aquasocial'
 const support = `${repository}/issues`
 const upstreamTerms = 'https://bsky.social/about/support/tos'
 const upstreamPrivacy = 'https://bsky.social/about/support/privacy-policy'
@@ -18,7 +19,10 @@ const pages = {
       description,
       'O projeto começou como um fork do aplicativo Bluesky. O AQUA reúne feeds, publicações e ferramentas criativas em torno de um perfil social.',
     ],
-    links: [['Código-fonte do AQUA', repository]],
+    links: [
+      ['AQUA no TikTok', tiktok],
+      ['Código-fonte do AQUA', repository],
+    ],
   },
   '/contact': {
     title: 'Contato',
@@ -74,6 +78,7 @@ const organization = {
   url: `${origin}/`,
   description,
   email,
+  sameAs: [tiktok],
   contactPoint: {
     '@type': 'ContactPoint',
     contactType: 'technical support',
