@@ -1,0 +1,6 @@
+# Cloudflare Pages previews only. The public site stays on Hostinger.
+# `npm run build` writes web-build/, including _headers and _redirects.
+# The project name in the Cloudflare dashboard can differ; change `name`
+# if you deploy with Wrangler against a project that uses another name.
+name = "aquaapp-systems"
+pages_build_output_dir = "web-build"

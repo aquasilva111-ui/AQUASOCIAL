@@ -1,8 +1,15 @@
+const {Buffer} = require('node:buffer')
 const http = require('node:http')
 const fs = require('node:fs')
 const path = require('node:path')
 
 const {endpoint, cardPath, handleMcp} = require('./web/mcp-server')
+const {
+  DISALLOW_ROBOTS,
+  ROBOTS_HEADER_VALUE,
+  ensureRobotsMeta,
+  isProductionHost,
+} = require('./scripts/deploy-env')
 
 const PORT = process.env.PORT || 3000
 const ROOT = path.join(__dirname, 'web-build')
@@ -69,6 +76,31 @@ async function findFile(root, pathname) {
   }
 }
 
+function installNoindexHeader(res, productionHost) {
+  if (productionHost) return
+  const writeHead = res.writeHead
+  res.writeHead = function (status, reason, headers) {
+    let message
+    let hdrs = {}
+    if (typeof reason === 'string') {
+      message = reason
+      if (headers && typeof headers === 'object') hdrs = {...headers}
+    } else if (reason && typeof reason === 'object') {
+      hdrs = {...reason}
+    }
+    hdrs['X-Robots-Tag'] = ROBOTS_HEADER_VALUE
+    if (message !== undefined)
+      return writeHead.call(this, status, message, hdrs)
+    return writeHead.call(this, status, hdrs)
+  }
+}
+
+function sendBuffer(res, req, status, body, headers) {
+  res.writeHead(status, {...headers, 'Content-Length': body.length})
+  if (req.method === 'HEAD') return res.end()
+  res.end(body)
+}
+
 function createSiteServer(root = ROOT) {
   let routeConfig
   function routes() {
@@ -85,7 +117,21 @@ function createSiteServer(root = ROOT) {
     return routeConfig
   }
 
+  async function robotsAsset(productionHost) {
+    const internal = productionHost
+      ? '/_aqua-pages/robots.production.txt'
+      : '/_aqua-pages/robots.disallow.txt'
+    const preferred = await findFile(root, internal)
+    if (preferred || !productionHost) return preferred
+    return findFile(root, '/robots.txt')
+  }
+
   return http.createServer(async (req, res) => {
+    // The public site is aquaapp.systems and www only. Preview hostnames
+    // stay out of search indexes even when this build was produced without
+    // AQUA_DEPLOY_ENV (the Hostinger production default).
+    const productionHost = isProductionHost(req.headers.host)
+    installNoindexHeader(res, productionHost)
     try {
       const url = new URL(req.url, 'http://localhost')
       let pathname
@@ -120,11 +166,21 @@ function createSiteServer(root = ROOT) {
       const headers = home ? {Vary: 'Accept', Link: homeLinks} : {}
       let asset
       let status = 200
-      if (home && wantsMarkdown(req.headers.accept)) {
+      if (pathname === '/robots.txt') {
+        asset = await robotsAsset(productionHost)
+        if (!asset && !productionHost) {
+          return sendBuffer(res, req, 200, Buffer.from(DISALLOW_ROBOTS), {
+            'Content-Type': 'text/plain; charset=utf-8',
+            'Cache-Control': 'no-cache',
+          })
+        }
+      }
+      if (!asset && home && wantsMarkdown(req.headers.accept)) {
         asset = await findFile(root, '/index.md')
-      } else if (page) {
+      } else if (!asset && page) {
         asset = await findFile(root, `/${page}`)
       } else if (
+        !asset &&
         !/^\/(?:_aqua-pages(?:\/|$)|site-routes\.json$)/i.test(pathname) &&
         !pathname.split('/').some(segment => segment.startsWith('.'))
       ) {
@@ -143,14 +199,24 @@ function createSiteServer(root = ROOT) {
       const hashAsset = asset.file.startsWith(
         path.join(root, 'static') + path.sep,
       )
-      const contentType = MIME[path.extname(asset.file).toLowerCase()]
-      res.writeHead(status, {
+      const extension = path.extname(asset.file).toLowerCase()
+      const contentType = MIME[extension]
+      const responseHeaders = {
         ...headers,
         'Content-Type': contentType || 'application/octet-stream',
-        'Content-Length': asset.length,
         'Cache-Control': hashAsset
           ? 'public, max-age=31536000, immutable'
           : 'no-cache',
+      }
+      if (extension === '.html' && !productionHost) {
+        const html = ensureRobotsMeta(
+          await fs.promises.readFile(asset.file, 'utf8'),
+        )
+        return sendBuffer(res, req, status, Buffer.from(html), responseHeaders)
+      }
+      res.writeHead(status, {
+        ...responseHeaders,
+        'Content-Length': asset.length,
       })
       if (req.method === 'HEAD') return res.end()
       const stream = fs.createReadStream(asset.file)

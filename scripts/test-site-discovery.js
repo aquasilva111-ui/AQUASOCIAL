@@ -1,5 +1,7 @@
 const assert = require('node:assert/strict')
+const {Buffer} = require('node:buffer')
 const fs = require('node:fs/promises')
+const http = require('node:http')
 const os = require('node:os')
 const path = require('node:path')
 const vm = require('node:vm')
@@ -14,7 +16,44 @@ let directory
 let server
 let baseUrl
 
+function request(urlPath, {host = 'aquaapp.systems', method = 'GET'} = {}) {
+  const target = new URL(urlPath, baseUrl)
+  return new Promise((resolve, reject) => {
+    const req = http.request(
+      {
+        hostname: '127.0.0.1',
+        port: server.address().port,
+        path: `${target.pathname}${target.search}`,
+        method,
+        setHost: false,
+        headers: {host},
+      },
+      res => {
+        const chunks = []
+        res.on('data', chunk => chunks.push(chunk))
+        res.on('end', () => {
+          resolve({
+            status: res.statusCode,
+            headers: {
+              get(name) {
+                const value = res.headers[String(name).toLowerCase()]
+                if (Array.isArray(value)) return value.join(', ')
+                return value == null ? null : String(value)
+              },
+            },
+            text: async () => Buffer.concat(chunks).toString('utf8'),
+          })
+        })
+      },
+    )
+    req.on('error', reject)
+    req.end()
+  })
+}
+
 before(async () => {
+  delete process.env.AQUA_DEPLOY_ENV
+  delete process.env.CF_PAGES
   directory = await fs.mkdtemp(path.join(os.tmpdir(), 'aqua-discovery-test-'))
   for (const file of [
     'src/routes.ts',
@@ -49,8 +88,9 @@ after(async () => {
 })
 
 test('publishes crawl files and indexable pages with unique titles, headings and canonicals', async () => {
-  const robots = await fetch(`${baseUrl}/robots.txt`)
+  const robots = await request('/robots.txt')
   const robotsText = await robots.text()
+  assert.equal(robots.headers.get('x-robots-tag'), null)
   assert.match(robotsText, /Content-Signal: search=yes, ai-train=yes/)
   assert.match(robotsText, /^Disallow: \/onboarding$/m)
   assert.match(robotsText, /^Disallow: \/oauth\/callback$/m)
@@ -92,6 +132,70 @@ test('publishes crawl files and indexable pages with unique titles, headings and
   for (const url of ['/about', '/contact', '/terms', `mailto:${email}`]) {
     assert.ok(home.includes(`href="${url}"`))
   }
+})
+
+test('keeps the public host indexable and noindexes every other host', async () => {
+  for (const host of [
+    'aquaapp.systems',
+    'www.aquaapp.systems',
+    'aquaapp.systems:443',
+  ]) {
+    const robots = await request('/robots.txt', {host})
+    const robotsText = await robots.text()
+    assert.equal(robots.status, 200, host)
+    assert.equal(robots.headers.get('x-robots-tag'), null, host)
+    assert.match(robotsText, /^Allow: \/$/m, host)
+    assert.match(
+      robotsText,
+      /^Sitemap: https:\/\/aquaapp\.systems\/sitemap\.xml$/m,
+    )
+    assert.doesNotMatch(robotsText, /^Disallow: \/$/m, host)
+    const home = await request('/', {host})
+    assert.equal(home.headers.get('x-robots-tag'), null, host)
+    assert.doesNotMatch(await home.text(), /name="robots"/, host)
+  }
+  for (const host of [
+    'teste.aquaapp.systems',
+    'preview.pages.dev',
+    '127.0.0.1:9999',
+    'aquaapp.systems.evil.example',
+  ]) {
+    const robots = await request('/robots.txt', {host})
+    assert.equal(await robots.text(), 'User-agent: *\nDisallow: /\n', host)
+    assert.equal(robots.headers.get('x-robots-tag'), 'noindex, nofollow', host)
+    const home = await request('/', {host})
+    assert.equal(home.headers.get('x-robots-tag'), 'noindex, nofollow', host)
+    const html = await home.text()
+    assert.match(html, /<meta name="robots" content="noindex, nofollow">/, host)
+    assert.equal(
+      html.match(/<meta name="robots" content="noindex, nofollow">/g).length,
+      1,
+      host,
+    )
+  }
+  const hidden = await request('/_aqua-pages/robots.production.txt', {
+    host: 'teste.aquaapp.systems',
+  })
+  assert.equal(hidden.status, 404)
+  const profile = await request('/profile/example.test', {
+    host: 'teste.aquaapp.systems',
+  })
+  assert.equal(profile.status, 200)
+  assert.match(
+    await profile.text(),
+    /<meta name="robots" content="noindex, nofollow">/,
+  )
+  const head = await request('/', {
+    host: 'teste.aquaapp.systems',
+    method: 'HEAD',
+  })
+  assert.equal(head.status, 200)
+  assert.equal(await head.text(), '')
+  assert.equal(head.headers.get('x-robots-tag'), 'noindex, nofollow')
+  const prodHead = await request('/', {method: 'HEAD'})
+  assert.equal(prodHead.status, 200)
+  assert.equal(await prodHead.text(), '')
+  assert.equal(prodHead.headers.get('x-robots-tag'), null)
 })
 
 test('negotiates Markdown with Vary and advertises discovery links', async () => {

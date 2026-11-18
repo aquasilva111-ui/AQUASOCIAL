@@ -3,6 +3,12 @@ const path = require('node:path')
 
 const {copyPublicSiteFiles} = require('./public-site-files')
 const {
+  applyPublicRobots,
+  ensureRobotsMeta,
+  isProductionDeployEnv,
+  writeCloudflarePagesFiles,
+} = require('./deploy-env')
+const {
   origin,
   name,
   description,
@@ -125,8 +131,10 @@ function infoPage(pathname, page) {
 `
 }
 
-function buildSiteDiscovery(projectRoot, html) {
+function buildSiteDiscovery(projectRoot, html, env = process.env) {
   const output = path.join(projectRoot, 'web-build')
+  const publish = content =>
+    isProductionDeployEnv(env) ? content : ensureRobotsMeta(content)
   const details = path.join(output, '_aqua-pages')
   fs.mkdirSync(details, {recursive: true})
   const routeFiles = {}
@@ -163,7 +171,7 @@ function buildSiteDiscovery(projectRoot, html) {
     )
     fs.writeFileSync(
       path.join(output, file),
-      page.body ? infoPage(pathname, page) : appPage,
+      publish(page.body ? infoPage(pathname, page) : appPage),
     )
   }
 
@@ -177,7 +185,7 @@ function buildSiteDiscovery(projectRoot, html) {
     'AQUA_SITE_LINKS',
     '',
   )
-  fs.writeFileSync(path.join(output, routeFiles['*']), app)
+  fs.writeFileSync(path.join(output, routeFiles['*']), publish(app))
   const patterns = routePatterns(projectRoot)
   const routes = {pages: routeFiles, patterns}
   fs.writeFileSync(
@@ -202,7 +210,10 @@ function buildSiteDiscovery(projectRoot, html) {
 
   // Committed robots.txt and sitemap index. Page HTML, llms.txt, and
   // index.md still come from site-info; the sitemap does not.
+  // applyPublicRobots may replace robots.txt for staging and preview.
   copyPublicSiteFiles(projectRoot, output)
+  applyPublicRobots(projectRoot, output, env)
+  writeCloudflarePagesFiles(output, Object.keys(pages))
   fs.copyFileSync(
     path.join(projectRoot, 'web/webmcp.js'),
     path.join(output, 'webmcp.js'),
@@ -224,7 +235,9 @@ function buildSiteDiscovery(projectRoot, html) {
   )
   fs.writeFileSync(
     path.join(output, '404.html'),
-    '<!doctype html><html lang="pt-BR"><meta charset="utf-8"><title>Página não encontrada — AQUA Social</title><h1>Página não encontrada</h1><p><a href="/">Voltar ao AQUA Social</a></p></html>\n',
+    publish(
+      '<!doctype html><html lang="pt-BR"><meta charset="utf-8"><title>Página não encontrada — AQUA Social</title><h1>Página não encontrada</h1><p><a href="/">Voltar ao AQUA Social</a></p></html>\n',
+    ),
   )
 }
 
