@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Disallow: /adult
+Disallow: /messages
+Disallow: /settings
+Disallow: /notifications
+Disallow: /moderation
+Disallow: /sys
+Disallow: /saved
+Content-Signal: search=yes, ai-train=yes
+
+Sitemap: https://aquaapp.systems/sitemap.xml

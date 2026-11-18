@@ -1,11 +1,8 @@
 const path = require('path')
 const fs = require('fs')
+const {buildSiteDiscovery} = require('./build-site-discovery')
 
 const projectRoot = path.join(__dirname, '..')
-fs.copyFileSync(
-  path.join(projectRoot, 'web/.htaccess'),
-  path.join(projectRoot, 'web-build/.htaccess'),
-)
 // Consola da Unidade de Inteligência em /ui-ai (página estática; fala com a
 // U.I. local do usuário). Fonte: repositório I.U-A.I, ui/web/consola.html.
 fs.cpSync(
@@ -51,7 +48,7 @@ if (fs.existsSync(indexPath)) {
     html = html.replace(/<head>/i, '<head>\n    <base href="/">')
   }
   html = html.replace(/(src|href)="(?!\/|https?:|data:)(static\/)/g, '$1="/$2')
-  fs.writeFileSync(indexPath, html)
+  buildSiteDiscovery(projectRoot, html)
   console.log('Absolutized static URLs in web-build/index.html')
 }
 

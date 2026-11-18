@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
   <head>
     <base href="/">
     <meta charset="utf-8">
@@ -18,6 +18,7 @@
     <link rel="preconnect" href="https://bsky.social">
     <link rel="preconnect" href="https://go.bsky.app">
     <title>%WEB_TITLE%</title>
+    <meta name="aqua-site-head">
 
     <link rel="preload" as="font" type="font/woff2" href="/static/media/InterVariable.c504db5c06caaf7cdfba.woff2" crossorigin>
 
@@ -102,6 +103,7 @@
   </head>
 
   <body>
+    <div id="aqua-site-heading"></div>
     <!--
       A generic no script element with a reload button and a message.
       Feel free to customize this however you'd like.
@@ -129,6 +131,7 @@
           "
         >
           <p lang="en">Oh no! It looks like JavaScript is not enabled in your browser.</p>
+          <p aria-label="AQUA Social"><span id="aqua-site-links"></span></p>
           <p lang="en" style="margin: 20px 0;">
             <button
               type="submit"

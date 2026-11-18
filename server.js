@@ -1,9 +1,13 @@
-const http = require('http')
-const fs = require('fs')
-const path = require('path')
+const http = require('node:http')
+const fs = require('node:fs')
+const path = require('node:path')
+
+const {endpoint, cardPath, handleMcp} = require('./web/mcp-server')
 
 const PORT = process.env.PORT || 3000
 const ROOT = path.join(__dirname, 'web-build')
+const homeLinks =
+  '</llms.txt>; rel=describedby; type="text/plain", </index.md>; rel=alternate; type="text/markdown"'
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',
@@ -22,61 +26,147 @@ const MIME = {
   '.woff': 'font/woff',
   '.woff2': 'font/woff2',
   '.mp3': 'audio/mpeg',
+  '.mp4': 'video/mp4',
   '.webmanifest': 'application/manifest+json',
   '.txt': 'text/plain; charset=utf-8',
+  '.md': 'text/markdown; charset=utf-8',
+  '.xml': 'application/xml; charset=utf-8',
 }
 
-/** "/views/static/js/a.js" → "/static/js/a.js"; other paths unchanged. */
+/** Resolve build chunks requested relative to a deep client route. */
 function staticPath(pathname) {
   const i = pathname.indexOf('/static/')
   return i > 0 ? pathname.slice(i) : pathname
 }
 
-const server = http.createServer((req, res) => {
-  try {
-    const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`)
-    let pathname = decodeURIComponent(url.pathname)
-    if (pathname === '/') pathname = '/index.html'
-    // Build assets asked for under a nested route (/views/static/js/…) live
-    // at /static/…; never answer them with the SPA's index.html.
-    pathname = staticPath(pathname)
+function wantsMarkdown(accept = '') {
+  const types = new Map(
+    accept.split(',').map(entry => {
+      const [type, ...parameters] = entry.toLowerCase().trim().split(';')
+      const weight = parameters.find(parameter => /^\s*q\s*=/.test(parameter))
+      const quality = weight ? Number(weight.split('=')[1]) : 1
+      return [type.trim(), quality >= 0 && quality <= 1 ? quality : 0]
+    }),
+  )
+  const markdown = types.get('text/markdown') || 0
+  const html = types.get('text/html') || 0
+  return markdown > 0 && markdown >= html
+}
 
-    const filePath = path.normalize(path.join(ROOT, pathname))
-    if (!filePath.startsWith(ROOT)) {
-      res.writeHead(403)
-      res.end('Forbidden')
-      return
-    }
-
-    fs.stat(filePath, (err, stat) => {
-      let finalPath = filePath
-      if (err || stat.isDirectory()) {
-        // SPA fallback: extensionless routes get index.html. A missing
-        // /static/ asset, including one resolved under a deep route, is a
-        // plain 404 so the browser does not execute the SPA document.
-        if (pathname.includes('/static/') || path.extname(pathname)) {
-          res.writeHead(404, {'Content-Type': 'text/plain; charset=utf-8'})
-          res.end('Not found')
-          return
-        }
-        finalPath = path.join(ROOT, 'index.html')
-      }
-
-      const ext = path.extname(finalPath).toLowerCase()
-      const headers = {'Content-Type': MIME[ext] || 'application/octet-stream'}
-      if (finalPath.includes(`${path.sep}static${path.sep}`)) {
-        headers['Cache-Control'] = 'public, max-age=31536000, immutable'
-      } else {
-        headers['Cache-Control'] = 'no-cache'
-      }
-      res.writeHead(200, headers)
-      fs.createReadStream(finalPath).pipe(res)
+async function findFile(root, pathname) {
+  const file = path.resolve(root, `.${pathname}`)
+  if (!file.startsWith(root + path.sep)) return
+  const info = await fs.promises.stat(file).catch(error => {
+    if (error.code !== 'ENOENT' && error.code !== 'ENOTDIR') throw error
+  })
+  if (info?.isFile()) return {file, length: info.size}
+  if (info?.isDirectory()) {
+    const index = path.join(file, 'index.html')
+    const stat = await fs.promises.stat(index).catch(error => {
+      if (error.code !== 'ENOENT') throw error
     })
-  } catch (e) {
-    res.writeHead(500)
-    res.end('Internal server error')
+    if (stat?.isFile()) return {file: index, length: stat.size}
   }
-})
+}
+
+function createSiteServer(root = ROOT) {
+  let routeConfig
+  function routes() {
+    // Load lazily so tools can import staticPath without a web build.
+    if (!routeConfig) {
+      const config = JSON.parse(
+        fs.readFileSync(path.join(root, 'site-routes.json'), 'utf8'),
+      )
+      routeConfig = {
+        pages: config.pages,
+        appRoutes: new RegExp(`^/(?:${config.patterns.join('|')})$`, 'i'),
+      }
+    }
+    return routeConfig
+  }
+
+  return http.createServer(async (req, res) => {
+    try {
+      const url = new URL(req.url, 'http://localhost')
+      let pathname
+      try {
+        pathname = decodeURIComponent(url.pathname)
+      } catch {
+        return res.writeHead(400).end('Invalid URL')
+      }
+      if (
+        // eslint-disable-next-line no-control-regex
+        /[\u0000-\u001f\u007f\\]/.test(pathname) ||
+        pathname.split('/').some(segment => segment === '..' || segment === '.')
+      ) {
+        return res.writeHead(400).end('Invalid URL')
+      }
+      if (pathname === endpoint || pathname === cardPath) {
+        await handleMcp(req, res, pathname, root)
+        return
+      }
+      if (req.method !== 'GET' && req.method !== 'HEAD') {
+        return res.writeHead(405, {Allow: 'GET, HEAD'}).end()
+      }
+      if (/^\/videos(?:\/|$)/.test(pathname)) {
+        const location =
+          url.pathname.replace(/^\/videos/, '/views') + url.search
+        return res.writeHead(301, {Location: location}).end()
+      }
+
+      const {pages, appRoutes} = routes()
+      const page = pages[pathname.replace(/\/$/, '').toLowerCase() || '/']
+      const home = pathname === '/'
+      const headers = home ? {Vary: 'Accept', Link: homeLinks} : {}
+      let asset
+      let status = 200
+      if (home && wantsMarkdown(req.headers.accept)) {
+        asset = await findFile(root, '/index.md')
+      } else if (page) {
+        asset = await findFile(root, `/${page}`)
+      } else if (
+        !/^\/(?:_aqua-pages(?:\/|$)|site-routes\.json$)/i.test(pathname) &&
+        !pathname.split('/').some(segment => segment.startsWith('.'))
+      ) {
+        const normalized = staticPath(pathname)
+        asset = await findFile(root, normalized)
+        if (!asset && normalized === pathname && appRoutes.test(pathname)) {
+          asset = await findFile(root, `/${pages['*']}`)
+        }
+      }
+      if (!asset) {
+        status = 404
+        asset = await findFile(root, '/404.html')
+        if (!asset) return res.writeHead(404).end('Not found')
+      }
+
+      const hashAsset = asset.file.startsWith(
+        path.join(root, 'static') + path.sep,
+      )
+      const contentType = MIME[path.extname(asset.file).toLowerCase()]
+      res.writeHead(status, {
+        ...headers,
+        'Content-Type': contentType || 'application/octet-stream',
+        'Content-Length': asset.length,
+        'Cache-Control': hashAsset
+          ? 'public, max-age=31536000, immutable'
+          : 'no-cache',
+      })
+      if (req.method === 'HEAD') return res.end()
+      const stream = fs.createReadStream(asset.file)
+      stream.on('error', error => res.destroy(error))
+      res.on('close', () => stream.destroy())
+      stream.pipe(res)
+    } catch (error) {
+      console.error(error)
+      if (!res.headersSent && !res.destroyed) {
+        res.writeHead(500).end('Internal server error')
+      }
+    }
+  })
+}
+
+const server = createSiteServer()
 
 if (require.main === module) {
   server.listen(PORT, () => {
@@ -84,4 +174,4 @@ if (require.main === module) {
   })
 }
 
-module.exports = {server, staticPath}
+module.exports = {server, staticPath, createSiteServer}
