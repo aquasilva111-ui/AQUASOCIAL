@@ -1,4 +1,16 @@
 import {
+  getNarrowScreenPosition,
+  getWideScreenPosition,
+} from '#/view/com/util/load-latest/position'
+import {
+  DOCK_HEIGHT_NARROW,
+  DOCK_HEIGHT_WIDE,
+  DOCK_INSET_NARROW,
+  DOCK_INSET_WIDE,
+  DOCK_MAX_WIDTH_WIDE,
+  webFeedBottomSpacer,
+} from '#/view/shell/bottom-bar/metrics'
+import {
   CENTER_COLUMN_WIDTH,
   DESKTOP_RAIL_MIN_WIDTH,
   FEED_RIGHT_NAV_GAP,
@@ -7,6 +19,7 @@ import {
   placeFeedColumn,
   RAIL_FEED_GAP,
   RIGHT_NAV_WIDTH,
+  SIDEBAR_OPEN_WIDTH,
   SIDEBAR_RAIL_WIDTH,
 } from '#/components/Layout/const'
 
@@ -99,38 +112,88 @@ describe('getShellChrome', () => {
     expect(chrome).toEqual({showRail: false, showBottomBar: true})
   })
 
-  it('shows the rail without the dock at 1280 and 1920', () => {
-    for (const width of [1280, 1920]) {
+  it('shows the rail and the dock together at 1024-and-up desktop widths', () => {
+    // 1024 CSS px is still below the rail. From 1280 the rail is up, and
+    // the dock stays with it (Home and Write /books share this shell).
+    expect(getFeedColumnLayout(1024).desktopRail).toBe(false)
+    for (const width of [1024, 1280, 1440, 1920]) {
       const chrome = getShellChrome({
         ...loggedInHome,
         leftNavMinimal: width <= 1300,
         desktopRail: getFeedColumnLayout(width).desktopRail,
       })
-      expect(chrome).toEqual({showRail: true, showBottomBar: false})
+      expect(chrome.showBottomBar).toBe(true)
+      expect(chrome.showRail).toBe(width >= 1280)
     }
   })
 
-  it('never shows the rail and the dock together', () => {
-    const cases = [
-      {width: 390, isMobile: true},
-      {width: 800, isMobile: false},
-      {width: 1000, isMobile: false},
-      {width: 1279, isMobile: false},
-      {width: 1280, isMobile: false},
-      {width: 1920, isMobile: false},
-    ]
-    for (const {width, isMobile} of cases) {
-      for (const hasSession of [true, false]) {
-        const chrome = getShellChrome({
-          hasSession,
-          hasOwnChrome: false,
-          isMobile,
-          desktopRail: getFeedColumnLayout(width).desktopRail,
-          leftNavMinimal: width <= 1300,
-        })
-        expect(chrome.showRail && chrome.showBottomBar).toBe(false)
-      }
+  it('keeps the dock beside the rail for a logged-out desktop window', () => {
+    const chrome = getShellChrome({
+      hasSession: false,
+      hasOwnChrome: false,
+      isMobile: false,
+      desktopRail: true,
+      leftNavMinimal: false,
+    })
+    expect(chrome).toEqual({showRail: true, showBottomBar: true})
+  })
+
+  it('pads the web feed past the floating dock', () => {
+    const clearance = Math.max(
+      DOCK_INSET_WIDE + DOCK_HEIGHT_WIDE,
+      DOCK_INSET_NARROW + DOCK_HEIGHT_NARROW,
+    )
+    expect(webFeedBottomSpacer(0)).toBeGreaterThanOrEqual(clearance)
+    expect(webFeedBottomSpacer(80)).toBe(80 + clearance)
+  })
+
+  it('keeps the compact desktop dock clear of the rail, including the open panel', () => {
+    expect(DOCK_MAX_WIDTH_WIDE).toBeGreaterThanOrEqual(420)
+    expect(DOCK_MAX_WIDTH_WIDE).toBeLessThanOrEqual(460)
+    expect(DOCK_HEIGHT_WIDE).toBeLessThanOrEqual(62)
+    for (const width of [1280, 1440, 1920]) {
+      const dockWidth = Math.min(
+        width - DOCK_INSET_WIDE * 2,
+        DOCK_MAX_WIDTH_WIDE,
+      )
+      const dockLeft = (width - dockWidth) / 2
+      expect(dockLeft).toBeGreaterThanOrEqual(SIDEBAR_OPEN_WIDTH)
     }
+  })
+
+  it('lifts the load-latest button off the dock on a desktop home', () => {
+    const button = 42
+    for (const width of [1280, 1440, 1920]) {
+      const layout = getFeedColumnLayout(width)
+      const pos = getWideScreenPosition({
+        windowWidth: width,
+        dockVisible: true,
+        canGoOutOfLine: width > 1300,
+        centerContentOffset: layout.centerContentOffset,
+      })
+      const dockWidth = Math.min(
+        width - DOCK_INSET_WIDE * 2,
+        DOCK_MAX_WIDTH_WIDE,
+      )
+      const dockLeft = (width - dockWidth) / 2
+      const dockTop = DOCK_INSET_WIDE + DOCK_HEIGHT_WIDE
+      const overlaps =
+        pos.left < dockLeft + dockWidth &&
+        pos.left + button > dockLeft &&
+        pos.bottom < dockTop
+      expect(overlaps).toBe(false)
+      expect(pos.left).toBeGreaterThanOrEqual(SIDEBAR_RAIL_WIDTH)
+    }
+  })
+
+  it('lifts the load-latest button off the dock on a phone', () => {
+    const pos = getNarrowScreenPosition({
+      dockVisible: true,
+      bottomWithoutDock: 30,
+    })
+    expect(pos.bottom).toBeGreaterThanOrEqual(
+      DOCK_INSET_NARROW + DOCK_HEIGHT_NARROW,
+    )
   })
 
   it('leaves the dock available on full-page routes that hide the rail', () => {

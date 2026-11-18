@@ -1,12 +1,26 @@
 import {StyleSheet} from 'react-native'
 
 import {colors} from '#/lib/styles'
+import {
+  DOCK_HEIGHT,
+  DOCK_INSET,
+  DOCK_INSET_NARROW,
+  DOCK_INSET_WIDE,
+  DOCK_MAX_WIDTH,
+  DOCK_MAX_WIDTH_WIDE,
+  webFeedBottomSpacer,
+} from '#/view/shell/bottom-bar/metrics'
 import {atoms as a} from '#/alf'
 
-export const DOCK_INSET = 12
-export const DOCK_MAX_WIDTH = 720
-/** Tallest dock variant: 48px create button + label, padding and border. */
-export const DOCK_HEIGHT = 82
+export {
+  DOCK_HEIGHT,
+  DOCK_INSET,
+  DOCK_INSET_NARROW,
+  DOCK_INSET_WIDE,
+  DOCK_MAX_WIDTH,
+  DOCK_MAX_WIDTH_WIDE,
+  webFeedBottomSpacer,
+}
 
 export const styles = StyleSheet.create({
   bottomBar: {
@@ -113,6 +127,51 @@ export const styles = StyleSheet.create({
     borderColor: 'transparent',
   },
   messagesIcon: {},
+  /** Tablet and desktop web: shorter pill, capped width, closer to the edge. */
+  bottomBarWide: {
+    paddingLeft: DOCK_INSET_WIDE,
+    paddingRight: DOCK_INSET_WIDE,
+    paddingBottom: DOCK_INSET_WIDE,
+  },
+  dockWide: {
+    maxWidth: DOCK_MAX_WIDTH_WIDE,
+    paddingTop: 3,
+    paddingBottom: 3,
+    paddingLeft: 4,
+    paddingRight: 4,
+  },
+  ctrlWide: {
+    paddingTop: 2,
+    paddingBottom: 1,
+    minHeight: 0,
+  },
+  ctrlLabelWide: {
+    fontSize: 10,
+    marginTop: 1,
+  },
+  createBtnWide: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+  },
+  /** Phone web: a light trim. The pill still spans the screen. */
+  bottomBarNarrow: {
+    paddingBottom: DOCK_INSET_NARROW,
+  },
+  dockNarrow: {
+    paddingTop: 5,
+    paddingBottom: 5,
+  },
+  ctrlNarrow: {
+    paddingTop: 4,
+    paddingBottom: 4,
+    minHeight: 40,
+  },
+  createBtnNarrow: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+  },
   onProfile: {
     borderWidth: 1,
     borderRadius: 100,

@@ -11,18 +11,13 @@ import {clamp} from '#/lib/numbers'
 import {useGate} from '#/lib/statsig/statsig'
 import {useSession} from '#/state/session'
 import {
-  DOCK_HEIGHT,
-  DOCK_INSET,
-  DOCK_MAX_WIDTH,
-} from '#/view/shell/bottom-bar/BottomBarStyles'
+  getNarrowScreenPosition,
+  getWideScreenPosition,
+} from '#/view/com/util/load-latest/position'
 import {atoms as a, useLayoutBreakpoints, useTheme} from '#/alf'
 import {useInteractionState} from '#/components/hooks/useInteractionState'
 import {ArrowTop_Stroke2_Corner0_Rounded as ArrowIcon} from '#/components/icons/Arrow'
-import {
-  CENTER_COLUMN_WIDTH,
-  getShellChrome,
-  SIDEBAR_RAIL_WIDTH,
-} from '#/components/Layout'
+import {getShellChrome} from '#/components/Layout'
 import {SubtleHover} from '#/components/SubtleHover'
 
 export function LoadLatestBtn({
@@ -77,7 +72,10 @@ export function LoadLatestBtn({
           dockVisible && isDesktop && isTallViewport && !leftNavMinimal,
         centerContentOffset,
       })
-    : {left: 18, bottom: clamp(insets.bottom, 15, 60) + 15}
+    : getNarrowScreenPosition({
+        dockVisible,
+        bottomWithoutDock: clamp(insets.bottom, 15, 60) + 15,
+      })
 
   return (
     <Animated.View
@@ -121,38 +119,4 @@ export function LoadLatestBtn({
       </PressableScale>
     </Animated.View>
   )
-}
-
-const BUTTON_SIZE = 42
-const GAP = 12
-
-/**
- * Beside the floating dock when there's room between it and the left nav,
- * otherwise inside the feed's left edge, lifted above the dock.
- */
-function getWideScreenPosition({
-  windowWidth,
-  dockVisible,
-  canGoOutOfLine,
-  centerContentOffset,
-}: {
-  windowWidth: number
-  dockVisible: boolean
-  canGoOutOfLine: boolean
-  centerContentOffset: number
-}) {
-  const dockWidth = Math.min(windowWidth - DOCK_INSET * 2, DOCK_MAX_WIDTH)
-  const dockLeft = (windowWidth - dockWidth) / 2
-  const outOfLineLeft = dockLeft - BUTTON_SIZE - GAP
-  // The desktop rail rests at the collapsed width; hover overlays and
-  // must not move this button.
-  const leftNavRight = SIDEBAR_RAIL_WIDTH
-  if (canGoOutOfLine && outOfLineLeft >= leftNavRight + GAP) {
-    return {left: outOfLineLeft, bottom: 30}
-  }
-  const feedLeft = (windowWidth - CENTER_COLUMN_WIDTH) / 2 + centerContentOffset
-  return {
-    left: feedLeft + 18,
-    bottom: dockVisible ? DOCK_INSET + DOCK_HEIGHT + GAP : 30,
-  }
 }

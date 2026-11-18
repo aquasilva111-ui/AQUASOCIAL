@@ -38,8 +38,8 @@ export const RIGHT_NAV_WIDTH = 300
 export const RAIL_FEED_GAP = 16
 
 /**
- * Hover rail (and no bottom dock) from this viewport width up. 1280px
- * is a desktop window; below that the tablet/mobile dock stays.
+ * Hover rail from this viewport width up. 1280px is a desktop window.
+ * The bottom dock stays at every width, including beside the rail.
  */
 export const DESKTOP_RAIL_MIN_WIDTH = 1280
 
@@ -159,8 +159,10 @@ export function getFeedColumnLayout(windowWidth: number): FeedColumnLayout {
 }
 
 /**
- * The hover rail and the bottom dock never show together. The dock stays
- * on the widths (and full-page routes) where the rail is not mounted.
+ * Shell chrome for a viewport. The bottom dock stays at every width where
+ * someone is signed in, on the tablet icon nav, or beside the desktop rail.
+ * The rail does not replace the dock. Full-page routes hide the rail and
+ * keep the dock; UIAI opts out of the dock on its own.
  */
 export function getShellChrome({
   hasSession,
@@ -176,6 +178,6 @@ export function getShellChrome({
   leftNavMinimal: boolean
 }) {
   const showRail = !isMobile && !hasOwnChrome && desktopRail
-  const showBottomBar = !showRail && (hasSession || leftNavMinimal)
+  const showBottomBar = hasSession || leftNavMinimal || showRail
   return {showRail, showBottomBar}
 }
