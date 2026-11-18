@@ -98,6 +98,8 @@ stats.json
 # environment variables
 .env
 .env.*
+# PDS secrets generated on the VPS. infra/pds/pds.env.example stays tracked.
+pds.env
 
 # Firebase (Android) Google services
 google-services.json
