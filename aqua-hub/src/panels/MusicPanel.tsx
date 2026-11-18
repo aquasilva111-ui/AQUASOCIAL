@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { MusicSession, Note, Song, Track } from 'aqua-runtime/src/adapters/music'
 import { renderSong } from 'aqua-runtime/src/render/music'
 
+import { clearAi, takeAi } from '../create/ai'
 import { download, runtime } from '../hub'
 import { playOnce, usePlayer } from './audio-play'
 import { UndoRedo, useSession } from './hooks'
@@ -42,6 +43,18 @@ export default function MusicPanel({ itemId }: { itemId: string }) {
   const beats = song ? song.bars * song.beatsPerBar : 0
 
   const player = usePlayer(() => (song ? renderSong(song) : null), song)
+
+  useEffect(() => {
+    if (takeAi('music')) setLab(true)
+    const onAi = (event: Event) => {
+      if ((event as CustomEvent<{ tool?: string }>).detail?.tool === 'music') {
+        clearAi('music')
+        setLab(true)
+      }
+    }
+    window.addEventListener('aqua-hub:ai', onAi)
+    return () => window.removeEventListener('aqua-hub:ai', onAi)
+  }, [])
   const secPerBeat = song ? 60 / song.bpm : 0.5
   const xOf = (beat: number) => KEYS + beat * bw
   const yOf = (pitch: number) => RULER + (HIGH - 1 - pitch) * ROW

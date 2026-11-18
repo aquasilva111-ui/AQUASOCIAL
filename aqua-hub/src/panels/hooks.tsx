@@ -23,6 +23,13 @@ export function useSession<S extends ToolSession>(itemId: string) {
       void runtime.save(itemId, 'Fechado')
     }
   }, [itemId])
+  useEffect(() => {
+    const onHistory = (event: Event) => {
+      if ((event as CustomEvent<{ itemId?: string }>).detail?.itemId === itemId) bump()
+    }
+    window.addEventListener('aqua-hub:history', onHistory)
+    return () => window.removeEventListener('aqua-hub:history', onHistory)
+  }, [itemId])
   return { session, refresh: bump }
 }
 
