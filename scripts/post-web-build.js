@@ -68,3 +68,29 @@ function copyFiles(sourceDir, targetDir) {
 copyFiles('web-build/static/js', 'bskyweb/static/js')
 copyFiles('web-build/static/css', 'bskyweb/static/css')
 copyFiles('web-build/static/media', 'bskyweb/static/media')
+
+// Public AT Protocol client metadata. The committed template uses
+// example.invalid. A real origin is written only into this build output.
+function writeOAuthClientMetadata() {
+  const {buildPublicClientMetadata} = require('./aqua-oauth-metadata')
+  const fromEnv = buildPublicClientMetadata(
+    process.env.EXPO_PUBLIC_AQUA_IDENTITY_ORIGIN,
+  )
+  const metadata =
+    fromEnv ||
+    JSON.parse(
+      fs.readFileSync(
+        path.join(projectRoot, 'public/oauth/client-metadata.json'),
+        'utf8',
+      ),
+    )
+  const dir = path.join(projectRoot, 'web-build/oauth')
+  fs.mkdirSync(dir, {recursive: true})
+  fs.writeFileSync(
+    path.join(dir, 'client-metadata.json'),
+    `${JSON.stringify(metadata, null, 2)}\n`,
+  )
+  console.log('Wrote web-build/oauth/client-metadata.json')
+}
+
+writeOAuthClientMetadata()
