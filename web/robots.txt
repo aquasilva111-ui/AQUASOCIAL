@@ -1,8 +1,7 @@
 # Aqua public site. One User-agent group on purpose: a more specific group
 # that omitted these Disallow lines would opt that crawler back into blocked URLs.
-# Open PR #44 (feat/agent-ready) regenerates this file from src/lib/public-site.ts.
-# Keep this single group so a merge only changes lines, and add /ui-ai, /intent,
-# and /gate to ROBOTS_DISALLOW_PREFIXES there so the generator does not drop them.
+# scripts/build-site-discovery.js copies this file. It does not regenerate
+# these Disallow lines.
 User-agent: *
 Allow: /
 # Private and app-internal prefixes. Longest match wins over Allow: /.
@@ -10,6 +9,7 @@ Allow: /
 # /ui-ai is the on-site intelligence console (the folder itself is unchanged).
 # /intent is an auth and app callback (/intent/verify-email, /intent/age-assurance,
 # /intent/apply-ota, /intent/compose). /gate is the signup captcha (/gate/signup).
+# /onboarding and /oauth/callback are AQUA Identity. /login and /register stay allowed.
 Disallow: /adult
 Disallow: /settings
 Disallow: /messages
@@ -20,5 +20,8 @@ Disallow: /saved
 Disallow: /ui-ai
 Disallow: /intent
 Disallow: /gate
+Disallow: /onboarding
+Disallow: /oauth/callback
+Content-Signal: search=yes, ai-train=yes
 
 Sitemap: https://aquaapp.systems/sitemap.xml

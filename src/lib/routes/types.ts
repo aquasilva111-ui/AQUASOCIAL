@@ -87,6 +87,11 @@ export type CommonNavigatorParams = {
   StarterPackEdit: {rkey?: string}
   VideoFeed: VideoFeedSourceContext
   Bookmarks: undefined
+  AquaIdentityLogin: undefined
+  AquaIdentityRegister: undefined
+  AquaIdentityOnboarding: undefined
+  AquaIdentityCallback: undefined
+  AquaIdentitySettings: undefined
   Images: {source?: string; q?: string} | undefined
   ImagesLegacy: undefined
   Videos: {source?: string; q?: string} | undefined

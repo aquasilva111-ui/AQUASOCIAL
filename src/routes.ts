@@ -8,6 +8,11 @@ type AllNavigatableRoutes = Omit<
 
 export const router = new Router<AllNavigatableRoutes>({
   Home: '/',
+  AquaIdentityLogin: '/login',
+  AquaIdentityRegister: '/register',
+  AquaIdentityOnboarding: '/onboarding',
+  AquaIdentityCallback: '/oauth/callback',
+  AquaIdentitySettings: '/settings/identity',
   Search: '/search',
   Drops: '/drops',
   Feeds: '/feeds',

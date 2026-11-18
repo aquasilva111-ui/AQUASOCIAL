@@ -94,6 +94,13 @@ import {
   AdultViewsScreen,
   AdultVisionboardScreen,
 } from '#/screens/Adult'
+import {
+  AquaIdentityCallbackScreen,
+  AquaIdentityLoginScreen,
+  AquaIdentityOnboardingScreen,
+  AquaIdentityRegisterScreen,
+  AquaIdentitySettingsScreen,
+} from '#/screens/AquaIdentity'
 import {BookmarksScreen} from '#/screens/Bookmarks'
 import {
   BookChapterScreen,
@@ -379,6 +386,31 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
         name="NotFound"
         getComponent={() => NotFoundScreen}
         options={{title: title(msg`Not Found`)}}
+      />
+      <Stack.Screen
+        name="AquaIdentityLogin"
+        component={AquaIdentityLoginScreen}
+        options={{title: 'Entrar'}}
+      />
+      <Stack.Screen
+        name="AquaIdentityRegister"
+        component={AquaIdentityRegisterScreen}
+        options={{title: 'Criar conta'}}
+      />
+      <Stack.Screen
+        name="AquaIdentityOnboarding"
+        component={AquaIdentityOnboardingScreen}
+        options={{title: 'Começar'}}
+      />
+      <Stack.Screen
+        name="AquaIdentityCallback"
+        component={AquaIdentityCallbackScreen}
+        options={{title: 'Entrar'}}
+      />
+      <Stack.Screen
+        name="AquaIdentitySettings"
+        component={AquaIdentitySettingsScreen}
+        options={{title: 'AQUA Identity'}}
       />
       <Stack.Screen
         name="Lists"

@@ -1,19 +1,10 @@
 const path = require('path')
 const fs = require('fs')
+const {buildSiteDiscovery} = require('./build-site-discovery')
 
 const {copyPublicSiteFiles} = require('./public-site-files')
 
 const projectRoot = path.join(__dirname, '..')
-fs.copyFileSync(
-  path.join(projectRoot, 'web/.htaccess'),
-  path.join(projectRoot, 'web-build/.htaccess'),
-)
-// robots.txt, sitemap.xml, and sitemaps/*.xml. Webpack also copies web/ into
-// web-build; this copy keeps those files in the export if that step changes.
-// feat/agent-ready's emit-public-web.js writes the same paths (and adds the
-// empty post/profile sitemaps). Call that instead of this copy when it lands.
-copyPublicSiteFiles(projectRoot, path.join(projectRoot, 'web-build'))
-console.log('Copied public robots.txt and sitemap files into web-build')
 // Consola da Unidade de Inteligência em /ui-ai (página estática; fala com a
 // U.I. local do usuário). Fonte: repositório I.U-A.I, ui/web/consola.html.
 fs.cpSync(
@@ -59,9 +50,15 @@ if (fs.existsSync(indexPath)) {
     html = html.replace(/<head>/i, '<head>\n    <base href="/">')
   }
   html = html.replace(/(src|href)="(?!\/|https?:|data:)(static\/)/g, '$1="/$2')
-  fs.writeFileSync(indexPath, html)
+  buildSiteDiscovery(projectRoot, html)
   console.log('Absolutized static URLs in web-build/index.html')
 }
+
+// robots.txt, sitemap.xml, and sitemaps/*.xml. Copy after site discovery so
+// the committed sitemap index is what the export serves. Do not copy
+// web/.htaccess here: discovery writes the generated rules.
+copyPublicSiteFiles(projectRoot, path.join(projectRoot, 'web-build'))
+console.log('Copied public robots.txt and sitemap files into web-build')
 
 function copyFiles(sourceDir, targetDir) {
   const files = fs.readdirSync(path.join(projectRoot, sourceDir))
@@ -76,3 +73,29 @@ function copyFiles(sourceDir, targetDir) {
 copyFiles('web-build/static/js', 'bskyweb/static/js')
 copyFiles('web-build/static/css', 'bskyweb/static/css')
 copyFiles('web-build/static/media', 'bskyweb/static/media')
+
+// Public AT Protocol client metadata. The committed template uses
+// example.invalid. A real origin is written only into this build output.
+function writeOAuthClientMetadata() {
+  const {buildPublicClientMetadata} = require('./aqua-oauth-metadata')
+  const fromEnv = buildPublicClientMetadata(
+    process.env.EXPO_PUBLIC_AQUA_IDENTITY_ORIGIN,
+  )
+  const metadata =
+    fromEnv ||
+    JSON.parse(
+      fs.readFileSync(
+        path.join(projectRoot, 'public/oauth/client-metadata.json'),
+        'utf8',
+      ),
+    )
+  const dir = path.join(projectRoot, 'web-build/oauth')
+  fs.mkdirSync(dir, {recursive: true})
+  fs.writeFileSync(
+    path.join(dir, 'client-metadata.json'),
+    `${JSON.stringify(metadata, null, 2)}\n`,
+  )
+  console.log('Wrote web-build/oauth/client-metadata.json')
+}
+
+writeOAuthClientMetadata()

@@ -6,10 +6,10 @@ const path = require('path')
  * copies the web/ template into web-build; this list is what the post-build
  * copies again so the export does not depend on that plugin.
  *
- * PR #44 (feat/agent-ready) writes the same robots.txt, sitemap.xml, and
- * sitemaps/*.xml paths from scripts/emit-public-web.js, and adds
- * sitemap-posts.xml plus sitemap-profiles.xml to the index. Those two stay
- * out of this branch: they would be empty until an Aqua PDS hostname exists.
+ * build-site-discovery.js copies the same paths. It must not replace
+ * sitemap.xml with a urlset generated from web/site-info.js.
+ * sitemap-posts.xml and sitemap-profiles.xml stay out: they would be empty
+ * until an Aqua PDS hostname exists.
  */
 const PUBLIC_SITE_FILES = [
   'robots.txt',

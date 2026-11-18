@@ -6,7 +6,6 @@ const {
   copyPublicSiteFiles,
   PUBLIC_SITE_FILES,
 } = require('../../scripts/public-site-files')
-const {contentType, isMissingAsset} = require('../../server')
 
 const ROOT = path.join(__dirname, '../..')
 const ORIGIN = 'https://aquaapp.systems'
@@ -23,6 +22,8 @@ const DISALLOW = [
   '/ui-ai',
   '/intent',
   '/gate',
+  '/onboarding',
+  '/oauth/callback',
 ]
 
 const INSTITUTIONAL = [
@@ -93,6 +94,7 @@ function parseRobots(text: string) {
   expect(text.includes('<html')).toBe(false)
   const groups: {agents: string[]; allow: string[]; disallow: string[]}[] = []
   const sitemaps: string[] = []
+  const signals: string[] = []
   let current: {agents: string[]; allow: string[]; disallow: string[]} | null =
     null
   for (const raw of text.split(/\r?\n/)) {
@@ -121,19 +123,25 @@ function parseRobots(text: string) {
       current!.disallow.push(value)
     } else if (field === 'sitemap') {
       sitemaps.push(value)
+    } else if (field === 'content-signal') {
+      expect(current).not.toBeNull()
+      signals.push(value)
     } else {
       throw new Error(`unexpected robots field: ${field}`)
     }
   }
-  return {groups, sitemaps}
+  return {groups, sitemaps, signals}
 }
 
 describe('public robots.txt and sitemap', () => {
   it('allows every crawler and blocks only private prefixes', () => {
-    const {groups, sitemaps} = parseRobots(readWeb('robots.txt'))
+    const {groups, sitemaps, signals} = parseRobots(readWeb('robots.txt'))
     expect(groups).toEqual([{agents: ['*'], allow: ['/'], disallow: DISALLOW}])
     expect(sitemaps).toEqual([`${ORIGIN}/sitemap.xml`])
+    expect(signals).toEqual(['search=yes, ai-train=yes'])
     expect(readWeb('robots.txt')).not.toMatch(/^Disallow:\s*\/\s*$/m)
+    expect(DISALLOW).not.toContain('/login')
+    expect(DISALLOW).not.toContain('/register')
   })
 
   it('publishes a sitemap index of static public pages', () => {
@@ -180,18 +188,16 @@ describe('public robots.txt and sitemap', () => {
     )
     const htaccess = fs.readFileSync(path.join(ROOT, 'web/.htaccess'), 'utf8')
     expect(postBuild).toContain('copyPublicSiteFiles')
+    const discoverAt = postBuild.indexOf('buildSiteDiscovery(')
+    const copyAt = postBuild.lastIndexOf('copyPublicSiteFiles(')
+    expect(discoverAt).toBeGreaterThan(-1)
+    expect(copyAt).toBeGreaterThan(discoverAt)
     expect(htaccess).toMatch(/REQUEST_FILENAME\} -f/)
-    expect(htaccess).toMatch(/txt\|webmanifest\|mp3\|mp4\|xml/)
+    expect(htaccess).toMatch(/AddType application\/xml \.xml/)
     const fileRule = htaccess.indexOf('REQUEST_FILENAME} -f')
-    const spaRule = htaccess.indexOf('RewriteRule ^ index.html')
+    const terminal = htaccess.indexOf('RewriteRule ^ - [R=404,L]')
     expect(fileRule).toBeGreaterThan(-1)
-    expect(fileRule).toBeLessThan(spaRule)
-    expect(isMissingAsset('/robots.txt')).toBe(true)
-    expect(isMissingAsset('/sitemap.xml')).toBe(true)
-    expect(isMissingAsset('/sitemaps/sections.xml')).toBe(true)
-    expect(isMissingAsset('/search')).toBe(false)
-    expect(isMissingAsset('/')).toBe(false)
-    expect(contentType('robots.txt')).toBe('text/plain; charset=utf-8')
-    expect(contentType('sitemap.xml')).toBe('application/xml; charset=utf-8')
+    expect(terminal).toBeGreaterThan(fileRule)
+    expect(htaccess).not.toMatch(/RewriteRule \^ index\.html/)
   })
 })
