@@ -10,6 +10,11 @@ const TEXT: Record<string, string> = {
     'Ainda não há um PDS da AQUA configurado. Contas atuais continuam em bsky.social.',
   'handle-domain-unset':
     'O domínio dos handles AQUA ainda não foi definido. Ele vem da configuração, não de um domínio fixo.',
+  'handle-domain-mismatch':
+    'Esse handle não está no domínio configurado da AQUA.',
+  'pds-health-pending': 'Conferindo se o PDS da AQUA responde.',
+  'pds-unhealthy':
+    'O PDS configurado não respondeu em /xrpc/_health. O cadastro fica oculto até essa checagem passar.',
   'invalid-handle':
     'Esse nome de handle não serve. Use letras, números e hífen.',
   'invalid-email': 'Informe um e-mail válido.',

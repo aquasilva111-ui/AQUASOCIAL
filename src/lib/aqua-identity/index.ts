@@ -34,7 +34,12 @@ export {
   prepareOAuthSignIn,
   readOAuthCallback,
 } from './flow'
-export {formatAquaHandle, planHandleChange} from './handles'
+export {
+  formatAquaHandle,
+  nativeHandleOnDomain,
+  normalizeHandleDomain,
+  planHandleChange,
+} from './handles'
 export {buildSessionCookie} from './http-cookie'
 export {
   buildPublicClientMetadata,
@@ -42,7 +47,9 @@ export {
   selectClientMetadata,
 } from './metadata'
 export {
+  checkPdsHealth,
   createNativeAccount,
+  nativeSignupOffer,
   redactSecrets,
   requestOwnPdsPasswordReset,
   resetOwnPdsPassword,

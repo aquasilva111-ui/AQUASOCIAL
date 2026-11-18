@@ -33,13 +33,22 @@ import {
   prepareOAuthSignIn,
   readOAuthCallback,
 } from '#/lib/aqua-identity/flow'
-import {formatAquaHandle, planHandleChange} from '#/lib/aqua-identity/handles'
+import {
+  formatAquaHandle,
+  nativeHandleOnDomain,
+  planHandleChange,
+} from '#/lib/aqua-identity/handles'
 import {buildSessionCookie} from '#/lib/aqua-identity/http-cookie'
 import {
   buildPublicClientMetadata,
   selectClientMetadata,
 } from '#/lib/aqua-identity/metadata'
-import {createNativeAccount, redactSecrets} from '#/lib/aqua-identity/pds'
+import {
+  checkPdsHealth,
+  createNativeAccount,
+  nativeSignupOffer,
+  redactSecrets,
+} from '#/lib/aqua-identity/pds'
 import {consumePending, savePending} from '#/lib/aqua-identity/pending'
 import {createCodeChallenge, createCodeVerifier} from '#/lib/aqua-identity/pkce'
 import {SlidingWindowRateLimiter} from '#/lib/aqua-identity/rate-limit'
@@ -303,6 +312,10 @@ describe('AQUA Identity', () => {
       fetch: fetchImpl as typeof fetch,
     })
     expect(fetchImpl).toHaveBeenCalledTimes(1)
+    expect(fetchImpl.mock.calls[0][0]).toBe(
+      `${PDS}/xrpc/com.atproto.server.createAccount`,
+    )
+    expect(String(fetchImpl.mock.calls[0][0])).not.toContain('bsky.social')
     const body = JSON.parse(sentBody) as {password?: string; handle?: string}
     expect(body.password).toBe('correct-horse')
     expect(body.handle).toBe('ada.aqua.test')
@@ -377,6 +390,10 @@ describe('AQUA Identity', () => {
   })
 
   test('AQUA handles use the configured domain and keep the DID', () => {
+    const defaults = readAquaIdentityConfig({})
+    expect(defaults.handleDomain).toBe('')
+    expect(defaults.pdsUrl).toBe('')
+    expect(defaults.pdsSignupEnabled).toBe(false)
     expect(formatAquaHandle('Ada', '')).toEqual({
       ok: false,
       reason: 'handle-domain-unset',
@@ -385,6 +402,25 @@ describe('AQUA Identity', () => {
       ok: true,
       handle: 'ada.example.test',
     })
+    expect(formatAquaHandle('Ada', '.exemplo.com')).toEqual({
+      ok: true,
+      handle: 'ada.exemplo.com',
+    })
+    expect(nativeHandleOnDomain('ada.exemplo.com', 'exemplo.com')).toEqual({
+      ok: true,
+      handle: 'ada.exemplo.com',
+    })
+    expect(nativeHandleOnDomain('ada.bsky.social', 'exemplo.com')).toEqual({
+      ok: false,
+      reason: 'handle-domain-mismatch',
+    })
+    expect(nativeHandleOnDomain('ada.aquaapp.systems', 'exemplo.com')).toEqual({
+      ok: false,
+      reason: 'handle-domain-mismatch',
+    })
+    expect(
+      nativeHandleOnDomain('ada.extra.exemplo.com', 'exemplo.com'),
+    ).toEqual({ok: false, reason: 'invalid-handle'})
     const plan = planHandleChange({
       did: DID,
       currentHandle: 'ada.example.test',
@@ -400,6 +436,90 @@ describe('AQUA Identity', () => {
     expect(dnsTxtName('ada.own.example')).toBe('_atproto.ada.own.example')
     expect(dnsTxtValue(DID)).toBe(`did=${DID}`)
     expect(wellKnownBody(DID)).toBe(DID)
+  })
+
+  test('the signup form stays hidden until the configured PDS answers /xrpc/_health', async () => {
+    const off = readAquaIdentityConfig({})
+    expect(nativeSignupOffer({config: off})).toEqual({
+      showForm: false,
+      reason: 'pds-unset',
+    })
+    const flagged = readAquaIdentityConfig({
+      EXPO_PUBLIC_AQUA_PDS_URL: PDS,
+      EXPO_PUBLIC_AQUA_PDS_SIGNUP_ENABLED: 'true',
+      EXPO_PUBLIC_AQUA_HANDLE_DOMAIN: 'exemplo.com',
+    })
+    expect(flagged.pdsSignupEnabled).toBe(true)
+    expect(nativeSignupOffer({config: flagged})).toEqual({
+      showForm: false,
+      reason: 'pds-health-pending',
+    })
+    expect(
+      nativeSignupOffer({
+        config: flagged,
+        health: {ok: false, reason: 'pds-unhealthy'},
+      }),
+    ).toEqual({showForm: false, reason: 'pds-unhealthy'})
+
+    const fetchImpl = jest.fn(async (input: RequestInfo | URL) => {
+      expect(String(input)).toBe(`${PDS}/xrpc/_health`)
+      return jsonResponse({version: '0.4.5051'})
+    })
+    const health = await checkPdsHealth({
+      pdsUrl: `${PDS}/`,
+      fetch: fetchImpl as typeof fetch,
+    })
+    expect(health).toEqual({ok: true, version: '0.4.5051'})
+    expect(nativeSignupOffer({config: flagged, health})).toEqual({
+      showForm: true,
+      pdsUrl: PDS,
+      version: '0.4.5051',
+    })
+
+    const down = await checkPdsHealth({
+      pdsUrl: PDS,
+      fetch: jest.fn(async () => {
+        throw new Error('network')
+      }) as typeof fetch,
+    })
+    expect(down).toEqual({ok: false, reason: 'pds-unreachable'})
+    const bad = await checkPdsHealth({
+      pdsUrl: PDS,
+      fetch: jest.fn(
+        async () => new Response('nope', {status: 500}),
+      ) as typeof fetch,
+    })
+    expect(bad).toEqual({ok: false, reason: 'pds-unhealthy'})
+    const noDomain = readAquaIdentityConfig({
+      EXPO_PUBLIC_AQUA_PDS_URL: PDS,
+      EXPO_PUBLIC_AQUA_PDS_SIGNUP_ENABLED: 'true',
+    })
+    expect(
+      nativeSignupOffer({
+        config: noDomain,
+        health: {ok: true, version: '0.4.5051'},
+      }),
+    ).toEqual({showForm: false, reason: 'handle-domain-unset'})
+  })
+
+  test('the PDS env example ships without secrets or a chosen domain', () => {
+    const env = readFileSync(
+      join(__dirname, '../../../../infra/pds/pds.env.example'),
+      'utf8',
+    )
+    const compose = readFileSync(
+      join(__dirname, '../../../../infra/pds/compose.yaml'),
+      'utf8',
+    )
+    expect(env).toMatch(/^PDS_JWT_SECRET=\s*$/m)
+    expect(env).toMatch(/^PDS_ADMIN_PASSWORD=\s*$/m)
+    expect(env).toMatch(/^PDS_PLC_ROTATION_KEY_K256_PRIVATE_KEY_HEX=\s*$/m)
+    expect(env).not.toMatch(/^[A-Z0-9_]+=.*aquaapp\.systems/m)
+    expect(env).toMatch(/^PDS_HOSTNAME=pds\.exemplo\.com$/m)
+    expect(env).toMatch(/^PDS_SERVICE_HANDLE_DOMAINS=\.exemplo\.com$/m)
+    expect(compose).toContain('ghcr.io/bluesky-social/pds:0.4')
+    expect(compose).toContain('multipathtcp=0')
+    expect(compose).not.toMatch(/BEGIN [A-Z ]*PRIVATE KEY/)
   })
 
   test('custom domain verification accepts HTTPS or DNS TXT for the same DID', async () => {
