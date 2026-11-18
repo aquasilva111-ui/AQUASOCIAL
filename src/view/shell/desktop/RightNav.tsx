@@ -21,7 +21,7 @@ import {
 import {AppLanguageDropdown} from '#/components/AppLanguageDropdown'
 import {Divider} from '#/components/Divider'
 import {RIGHT_NAV_EDGE_INSET, RIGHT_NAV_WIDTH} from '#/components/Layout'
-import {InlineLinkText} from '#/components/Link'
+import {InlineLinkText, SimpleInlineLinkText} from '#/components/Link'
 import {ProgressGuideList} from '#/components/ProgressGuide/List'
 import {StoriesTray} from '#/components/stories/StoriesTray'
 import {Text} from '#/components/Typography'
@@ -117,6 +117,24 @@ export function DesktopRightNav({routeName}: {routeName: string}) {
                   label={_(msg`Feedback`)}>
                   {_(msg`Feedback`)}
                 </InlineLinkText>
+                {' • '}
+              </>
+            )}
+            {routeName === 'Home' && (
+              <>
+                <SimpleInlineLinkText to="/about" label={_(msg`About AQUA`)}>
+                  {_(msg`About AQUA`)}
+                </SimpleInlineLinkText>
+                {' • '}
+                <SimpleInlineLinkText to="/contact" label={_(msg`Contact`)}>
+                  {_(msg`Contact`)}
+                </SimpleInlineLinkText>
+                {' • '}
+                <SimpleInlineLinkText
+                  to="/terms"
+                  label={_(msg`Terms and privacy`)}>
+                  {_(msg`Terms and privacy`)}
+                </SimpleInlineLinkText>
                 {' • '}
               </>
             )}
