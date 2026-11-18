@@ -338,6 +338,7 @@
       "/node_modules/",
       "<rootDir>/aqua-adult-api/",
       "<rootDir>/aqua-design-core/",
+      "<rootDir>/aqua-hub/",
       "<rootDir>/aqua-project/",
       "<rootDir>/aqua-render/",
       "<rootDir>/aqua-runtime/",

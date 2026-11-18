@@ -9,7 +9,8 @@
     "dev": "npm run prep && vite",
     "build": "npm run prep && tsc --noEmit && vite build",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "node --experimental-strip-types --test tests/*.test.ts"
   },
   "dependencies": {
     "@blocknote/core": "^0.55.0",
