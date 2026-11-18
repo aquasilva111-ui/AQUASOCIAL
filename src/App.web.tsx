@@ -11,6 +11,7 @@ import * as Sentry from '@sentry/react-native'
 import {QueryProvider} from '#/lib/react-query'
 import {Provider as StatsigProvider} from '#/lib/statsig/statsig'
 import {ThemeProvider} from '#/lib/ThemeContext'
+import {installWebMcpTools} from '#/lib/webmcp/install'
 import I18nProvider from '#/locale/i18nProvider'
 import {logger} from '#/logger'
 import {Provider as A11yProvider} from '#/state/a11y'
@@ -68,6 +69,7 @@ import {Provider as HideBottomBarBorderProvider} from './lib/hooks/useHideBottom
  */
 Geo.resolve()
 prefetchAgeAssuranceConfig()
+installWebMcpTools()
 
 function InnerApp() {
   const [isReady, setIsReady] = React.useState(false)
