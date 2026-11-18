@@ -61,4 +61,13 @@ export {
   subscribeIdentity,
   updateCurrentHandle,
 } from './runtime'
+export {
+  atprotoServiceLoginUrl,
+  emptySocialDirectory,
+  loadSocialDirectory,
+  parseSocialDirectory,
+  postIdentityService,
+  readSocialError,
+  socialAuthorizeUrl,
+} from './social'
 export {memoryStore} from './storage'

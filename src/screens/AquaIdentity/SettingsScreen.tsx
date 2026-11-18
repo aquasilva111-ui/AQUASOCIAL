@@ -10,6 +10,7 @@ import {Admonition} from '#/components/Admonition'
 import * as Layout from '#/components/Layout'
 import {Text} from '#/components/Typography'
 import {DomainPanel} from './DomainPanel'
+import {SocialAccounts} from './SocialAccounts'
 import {useCurrentIdentity} from './useCurrentIdentity'
 
 export function AquaIdentitySettingsScreen() {
@@ -45,6 +46,7 @@ export function AquaIdentitySettingsScreen() {
               : 'independente'}
             .
           </Text>
+          <SocialAccounts />
           <DomainPanel />
         </View>
       </Layout.Content>

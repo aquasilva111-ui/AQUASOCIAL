@@ -7,6 +7,33 @@ export const OAUTH_METADATA_PATH = '/oauth/client-metadata.json'
 const FIFTEEN_MINUTES = 15 * 60 * 1000
 const ONE_HOUR = 60 * 60 * 1000
 
+/**
+ * Expo inlines EXPO_PUBLIC_* only on a direct `process.env.NAME` read.
+ * `env[key]` stays for tests that pass their own map.
+ */
+const BUILD_ENV: Record<string, string | undefined> = {
+  EXPO_PUBLIC_AQUA_IDENTITY_ORIGIN:
+    process.env.EXPO_PUBLIC_AQUA_IDENTITY_ORIGIN,
+  EXPO_PUBLIC_AQUA_IDENTITY_SERVICE_URL:
+    process.env.EXPO_PUBLIC_AQUA_IDENTITY_SERVICE_URL,
+  EXPO_PUBLIC_AQUA_HANDLE_DOMAIN: process.env.EXPO_PUBLIC_AQUA_HANDLE_DOMAIN,
+  EXPO_PUBLIC_AQUA_PDS_URL: process.env.EXPO_PUBLIC_AQUA_PDS_URL,
+  EXPO_PUBLIC_AQUA_PDS_SIGNUP_ENABLED:
+    process.env.EXPO_PUBLIC_AQUA_PDS_SIGNUP_ENABLED,
+  EXPO_PUBLIC_AQUA_IDENTITY_INVITE_REQUIRED:
+    process.env.EXPO_PUBLIC_AQUA_IDENTITY_INVITE_REQUIRED,
+  EXPO_PUBLIC_AQUA_IDENTITY_CAPTCHA_ENABLED:
+    process.env.EXPO_PUBLIC_AQUA_IDENTITY_CAPTCHA_ENABLED,
+  EXPO_PUBLIC_AQUA_IDENTITY_CAPTCHA_SITE_KEY:
+    process.env.EXPO_PUBLIC_AQUA_IDENTITY_CAPTCHA_SITE_KEY,
+  EXPO_PUBLIC_AQUA_IDENTITY_HANDLE_RESOLVER:
+    process.env.EXPO_PUBLIC_AQUA_IDENTITY_HANDLE_RESOLVER,
+  EXPO_PUBLIC_AQUA_IDENTITY_PLC_URL:
+    process.env.EXPO_PUBLIC_AQUA_IDENTITY_PLC_URL,
+  EXPO_PUBLIC_AQUA_IDENTITY_DOH_URL:
+    process.env.EXPO_PUBLIC_AQUA_IDENTITY_DOH_URL,
+}
+
 function read(env: Record<string, string | undefined>, key: string): string {
   return (env[key] ?? '').trim()
 }
@@ -15,41 +42,56 @@ function flag(value: string): boolean {
   return value === 'true' || value === '1'
 }
 
+function serviceOrigin(value: string): string {
+  if (!value) return ''
+  try {
+    const url = new URL(value)
+    if (url.protocol !== 'https:' && url.protocol !== 'http:') return ''
+    return url.origin
+  } catch {
+    return ''
+  }
+}
+
 /**
  * Signup stays off unless a PDS URL exists and the flag is explicitly true.
  * The handle domain is never assumed: an empty string means "not chosen yet".
  */
 export function readAquaIdentityConfig(
-  env: Record<string, string | undefined> = typeof process === 'undefined'
-    ? {}
-    : process.env,
+  env?: Record<string, string | undefined>,
 ): AquaIdentityConfig {
-  const pdsUrl = read(env, 'EXPO_PUBLIC_AQUA_PDS_URL').replace(/\/$/, '')
-  const signupFlag = flag(read(env, 'EXPO_PUBLIC_AQUA_PDS_SIGNUP_ENABLED'))
+  // Callers that omit env get the build-time map. Comparing to process.env
+  // fails after the bundler replaces each process.env with a new object.
+  const source = env ?? BUILD_ENV
+  const pdsUrl = read(source, 'EXPO_PUBLIC_AQUA_PDS_URL').replace(/\/$/, '')
+  const signupFlag = flag(read(source, 'EXPO_PUBLIC_AQUA_PDS_SIGNUP_ENABLED'))
   return {
-    origin: read(env, 'EXPO_PUBLIC_AQUA_IDENTITY_ORIGIN').replace(/\/$/, ''),
-    handleDomain: read(env, 'EXPO_PUBLIC_AQUA_HANDLE_DOMAIN')
+    origin: read(source, 'EXPO_PUBLIC_AQUA_IDENTITY_ORIGIN').replace(/\/$/, ''),
+    serviceUrl: serviceOrigin(
+      read(source, 'EXPO_PUBLIC_AQUA_IDENTITY_SERVICE_URL'),
+    ),
+    handleDomain: read(source, 'EXPO_PUBLIC_AQUA_HANDLE_DOMAIN')
       .replace(/^\./, '')
       .toLowerCase(),
     pdsUrl,
     pdsSignupEnabled: signupFlag && pdsUrl.length > 0,
     inviteRequired: flag(
-      read(env, 'EXPO_PUBLIC_AQUA_IDENTITY_INVITE_REQUIRED'),
+      read(source, 'EXPO_PUBLIC_AQUA_IDENTITY_INVITE_REQUIRED'),
     ),
     captchaEnabled: flag(
-      read(env, 'EXPO_PUBLIC_AQUA_IDENTITY_CAPTCHA_ENABLED'),
+      read(source, 'EXPO_PUBLIC_AQUA_IDENTITY_CAPTCHA_ENABLED'),
     ),
-    captchaSiteKey: read(env, 'EXPO_PUBLIC_AQUA_IDENTITY_CAPTCHA_SITE_KEY'),
+    captchaSiteKey: read(source, 'EXPO_PUBLIC_AQUA_IDENTITY_CAPTCHA_SITE_KEY'),
     handleResolver:
-      read(env, 'EXPO_PUBLIC_AQUA_IDENTITY_HANDLE_RESOLVER').replace(
+      read(source, 'EXPO_PUBLIC_AQUA_IDENTITY_HANDLE_RESOLVER').replace(
         /\/$/,
         '',
       ) || 'https://bsky.social',
     plcDirectoryUrl:
-      read(env, 'EXPO_PUBLIC_AQUA_IDENTITY_PLC_URL').replace(/\/$/, '') ||
+      read(source, 'EXPO_PUBLIC_AQUA_IDENTITY_PLC_URL').replace(/\/$/, '') ||
       'https://plc.directory',
     dohUrl:
-      read(env, 'EXPO_PUBLIC_AQUA_IDENTITY_DOH_URL') ||
+      read(source, 'EXPO_PUBLIC_AQUA_IDENTITY_DOH_URL') ||
       'https://cloudflare-dns.com/dns-query',
     stateTtlMs: 10 * 60 * 1000,
     limits: {
