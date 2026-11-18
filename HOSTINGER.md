@@ -33,7 +33,7 @@ display an in-app error if the upstream record does not exist.
 
 To expose the public MCP endpoint and its discovery card, run the existing Node
 HTTP server behind the domain instead of the static React preset. Use the
-server-side Node configuration on Hostinger with Node 22.x, project root `./`,
+`Other` framework preset on Hostinger with Node 22.x, project root `./`,
 npm, build command `npm run build`, and entry file `server.js` (or start command
 `npm start` where applicable). Route requests through the Node entry point so
 homepage negotiation and the MCP paths reach it. Validate this configuration on

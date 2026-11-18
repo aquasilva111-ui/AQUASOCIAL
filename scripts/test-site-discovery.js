@@ -47,7 +47,7 @@ after(async () => {
 
 test('publishes crawl files and indexable pages with unique titles, headings and canonicals', async () => {
   const robots = await fetch(`${baseUrl}/robots.txt`)
-  assert.match(await robots.text(), /Content-Signal: search=yes, ai-train=no/)
+  assert.match(await robots.text(), /Content-Signal: search=yes, ai-train=yes/)
   const sitemap = await fetch(`${baseUrl}/sitemap.xml`)
   assert.match(sitemap.headers.get('content-type'), /^application\/xml/)
   const xml = await sitemap.text()
