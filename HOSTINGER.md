@@ -25,6 +25,34 @@ deploys while preserving static asset requests. It also copies `web/robots.txt`,
 export, so Apache serves them. A missing `.txt` or `.xml` is not rewritten to
 `index.html`.
 
+## Production, staging, and previews
+
+The public site and the test site are two Hostinger deployments of this same
+build. The step-by-step for Samu, in Portuguese, is `docs/ambientes.md`.
+
+| Site | Host | Git branch | `AQUA_DEPLOY_ENV` |
+| --- | --- | --- | --- |
+| Official | `aquaapp.systems` and `www` | `producao` | unset, or `production` |
+| Test | `teste.aquaapp.systems` | `1.111.0-ota-5` | `staging` |
+
+Leave the variable unset on the official site. An absent value keeps the
+current production `robots.txt`, sitemap, and HTML. Do not create the
+`producao` branch from a deploy script; it is promoted only when Samu merges
+a pull request into it.
+
+`web-build/.htaccess` and `server.js` treat every host other than
+`aquaapp.systems` and `www.aquaapp.systems` as non-production: they send
+`X-Robots-Tag: noindex, nofollow` and serve `Disallow: /` for `/robots.txt`.
+On the public host those rules do not run, so the committed robots file and
+the sitemap stay as they are. Staging and preview builds also write
+`<meta name="robots" content="noindex, nofollow">` into the HTML.
+`server.js` adds that tag on any non-production host, including when the
+build itself was production.
+
+Cloudflare Pages is only for pull-request previews. Its build command and
+output directory match the table above (`npm run build`, `web-build`). See
+`wrangler.toml` and `docs/ambientes.md`.
+
 ## Agent discovery and MCP
 
 The web build copies the static `robots.txt` and sitemap index, and generates
