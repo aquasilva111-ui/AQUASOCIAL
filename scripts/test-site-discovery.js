@@ -20,6 +20,9 @@ before(async () => {
     'src/routes.ts',
     'web/.htaccess',
     'web/robots.txt',
+    'web/sitemap.xml',
+    'web/sitemaps/institutional.xml',
+    'web/sitemaps/sections.xml',
     'web/webmcp.js',
   ]) {
     const target = path.join(directory, file)
@@ -47,12 +50,30 @@ after(async () => {
 
 test('publishes crawl files and indexable pages with unique titles, headings and canonicals', async () => {
   const robots = await fetch(`${baseUrl}/robots.txt`)
-  assert.match(await robots.text(), /Content-Signal: search=yes, ai-train=yes/)
+  const robotsText = await robots.text()
+  assert.match(robotsText, /Content-Signal: search=yes, ai-train=yes/)
+  assert.match(robotsText, /^Disallow: \/onboarding$/m)
+  assert.match(robotsText, /^Disallow: \/oauth\/callback$/m)
+  assert.doesNotMatch(robotsText, /^Disallow: \/login$/m)
+  assert.doesNotMatch(robotsText, /^Disallow: \/register$/m)
   const sitemap = await fetch(`${baseUrl}/sitemap.xml`)
   assert.match(sitemap.headers.get('content-type'), /^application\/xml/)
   const xml = await sitemap.text()
+  assert.match(xml, /<sitemapindex\b/)
+  assert.ok(xml.includes(`${origin}/sitemaps/institutional.xml`))
+  assert.ok(xml.includes(`${origin}/sitemaps/sections.xml`))
+  for (const child of [
+    '/sitemaps/institutional.xml',
+    '/sitemaps/sections.xml',
+  ]) {
+    const childResponse = await fetch(baseUrl + child)
+    assert.equal(childResponse.status, 200, child)
+    assert.match(
+      childResponse.headers.get('content-type') || '',
+      /^application\/xml/,
+    )
+  }
   for (const page of Object.keys(pages)) {
-    assert.ok(xml.includes(`<loc>${origin + page}</loc>`))
     const response = await fetch(baseUrl + page)
     assert.equal(response.status, 200)
     const html = await response.text()

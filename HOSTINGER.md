@@ -20,16 +20,19 @@ workflow is available as `yarn build:native`.
 After deployment, verify both the home page and a directly opened client route
 such as `/search`; the host must serve the corresponding generated HTML for known client routes.
 The post-build script generates `web-build/.htaccess` for static Hostinger
-deploys while preserving static asset requests.
+deploys while preserving static asset requests. It also copies `web/robots.txt`,
+`web/sitemap.xml`, and `web/sitemaps/*.xml`. Those files are real files in the
+export, so Apache serves them. A missing `.txt` or `.xml` is not rewritten to
+`index.html`.
 
 ## Agent discovery and MCP
 
-The web build generates robots.txt, the public-page sitemap, llms.txt, the
-Markdown homepage, and page metadata from `web/site-info.js`. Apache-compatible
-static serving uses the generated `web-build/.htaccess` rules for public pages,
-Markdown, and HTTP 404s. The route allowlist comes from `src/routes.ts`.
-Unrecognized app paths return HTTP 404. A recognized dynamic path may still
-display an in-app error if the upstream record does not exist.
+The web build copies the static `robots.txt` and sitemap index, and generates
+llms.txt, the Markdown homepage, and page metadata from `web/site-info.js`.
+Apache-compatible static serving uses the generated `web-build/.htaccess` rules
+for public pages, Markdown, and HTTP 404s. The route allowlist comes from
+`src/routes.ts`. Unrecognized app paths return HTTP 404. A recognized dynamic
+path may still display an in-app error if the upstream record does not exist.
 
 To expose the public MCP endpoint and its discovery card, run the existing Node
 HTTP server behind the domain instead of the static React preset. Use the

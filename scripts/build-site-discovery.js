@@ -1,6 +1,7 @@
 const fs = require('node:fs')
 const path = require('node:path')
 
+const {copyPublicSiteFiles} = require('./public-site-files')
 const {
   origin,
   name,
@@ -199,22 +200,12 @@ function buildSiteDiscovery(projectRoot, html) {
     ),
   )
 
-  fs.copyFileSync(
-    path.join(projectRoot, 'web/robots.txt'),
-    path.join(output, 'robots.txt'),
-  )
+  // Committed robots.txt and sitemap index. Page HTML, llms.txt, and
+  // index.md still come from site-info; the sitemap does not.
+  copyPublicSiteFiles(projectRoot, output)
   fs.copyFileSync(
     path.join(projectRoot, 'web/webmcp.js'),
     path.join(output, 'webmcp.js'),
-  )
-  fs.writeFileSync(
-    path.join(output, 'sitemap.xml'),
-    '<?xml version="1.0" encoding="UTF-8"?>\n' +
-      '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
-      Object.keys(pages)
-        .map(pathname => `  <url><loc>${origin + pathname}</loc></url>\n`)
-        .join('') +
-      '</urlset>\n',
   )
   const pageLinks = Object.entries(pages)
     .filter(([pathname]) => pathname !== '/')

@@ -1,12 +1,27 @@
+# Aqua public site. One User-agent group on purpose: a more specific group
+# that omitted these Disallow lines would opt that crawler back into blocked URLs.
+# scripts/build-site-discovery.js copies this file. It does not regenerate
+# these Disallow lines.
 User-agent: *
 Allow: /
+# Private and app-internal prefixes. Longest match wins over Allow: /.
+# /messages is Mailssage. /adult is every Aqua+18 screen in src/routes.ts.
+# /ui-ai is the on-site intelligence console (the folder itself is unchanged).
+# /intent is an auth and app callback (/intent/verify-email, /intent/age-assurance,
+# /intent/apply-ota, /intent/compose). /gate is the signup captcha (/gate/signup).
+# /onboarding and /oauth/callback are AQUA Identity. /login and /register stay allowed.
 Disallow: /adult
-Disallow: /messages
 Disallow: /settings
+Disallow: /messages
 Disallow: /notifications
 Disallow: /moderation
 Disallow: /sys
 Disallow: /saved
+Disallow: /ui-ai
+Disallow: /intent
+Disallow: /gate
+Disallow: /onboarding
+Disallow: /oauth/callback
 Content-Signal: search=yes, ai-train=yes
 
 Sitemap: https://aquaapp.systems/sitemap.xml

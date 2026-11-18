@@ -2,6 +2,8 @@ const path = require('path')
 const fs = require('fs')
 const {buildSiteDiscovery} = require('./build-site-discovery')
 
+const {copyPublicSiteFiles} = require('./public-site-files')
+
 const projectRoot = path.join(__dirname, '..')
 // Consola da Unidade de Inteligência em /ui-ai (página estática; fala com a
 // U.I. local do usuário). Fonte: repositório I.U-A.I, ui/web/consola.html.
@@ -51,6 +53,12 @@ if (fs.existsSync(indexPath)) {
   buildSiteDiscovery(projectRoot, html)
   console.log('Absolutized static URLs in web-build/index.html')
 }
+
+// robots.txt, sitemap.xml, and sitemaps/*.xml. Copy after site discovery so
+// the committed sitemap index is what the export serves. Do not copy
+// web/.htaccess here: discovery writes the generated rules.
+copyPublicSiteFiles(projectRoot, path.join(projectRoot, 'web-build'))
+console.log('Copied public robots.txt and sitemap files into web-build')
 
 function copyFiles(sourceDir, targetDir) {
   const files = fs.readdirSync(path.join(projectRoot, sourceDir))
