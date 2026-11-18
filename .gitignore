@@ -32,6 +32,7 @@ local.properties
 # node.js
 #
 node_modules/
+aqua-identity-service/data/
 npm-debug.log
 yarn-error.log
 

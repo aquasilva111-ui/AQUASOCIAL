@@ -43,6 +43,8 @@ Não há backend no site estático, então não há cookie `HttpOnly`. Quem cons
 
 O cliente confidencial fica em `aqua-identity-service/`. Ele usa `@atproto/oauth-client-node`, guarda o token no servidor e manda ao navegador só um id opaco no cookie `aqua_session` (`HttpOnly`, `Secure`, `SameSite=Lax`). Esse serviço não sobe com o site, não entra no compose da Hostinger e recusa iniciar sem `AQUA_IDENTITY_ENABLE_SERVER=true`. Tokens de cliente confidencial duram mais; por isso ele é o caminho quando o Samu quiser sessão longa.
 
+Google, Apple, GitHub, e-mail e senha AQUA também ficam nesse serviço, não no site estático. A descrição, as variáveis e o motivo da escolha de `openid-client` e SQLite estão em `docs/social-login.md`. Enquanto o serviço não estiver implantado, a tela `/login` continua só com Bluesky.
+
 Em `http://127.0.0.1` o SDK usa o cliente de loopback (`clientMetadata` vazio). `localhost` não serve: o protocolo exige `127.0.0.1`.
 
 ## Cadastro nativo
@@ -81,6 +83,7 @@ Sem sessão de PDS, a tela mostra o plano e o motivo, e não finge que o handle 
 | Variável | Padrão | Efeito |
 | --- | --- | --- |
 | `EXPO_PUBLIC_AQUA_IDENTITY_ORIGIN` | vazio | Origem HTTPS do `client_id`. Sem ela, OAuth público só no loopback. |
+| `EXPO_PUBLIC_AQUA_IDENTITY_SERVICE_URL` | vazio | Origem pública do serviço de identidade. Vazio: a tela não pede Google, Apple, GitHub nem e-mail. |
 | `EXPO_PUBLIC_AQUA_HANDLE_DOMAIN` | vazio | Sufixo do handle nativo. Não assumir um domínio. |
 | `EXPO_PUBLIC_AQUA_PDS_URL` | vazio | PDS próprio. |
 | `EXPO_PUBLIC_AQUA_PDS_SIGNUP_ENABLED` | `false` | Liga `createAccount`. Exige também a URL. |
