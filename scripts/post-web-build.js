@@ -1,11 +1,19 @@
 const path = require('path')
 const fs = require('fs')
 
+const {copyPublicSiteFiles} = require('./public-site-files')
+
 const projectRoot = path.join(__dirname, '..')
 fs.copyFileSync(
   path.join(projectRoot, 'web/.htaccess'),
   path.join(projectRoot, 'web-build/.htaccess'),
 )
+// robots.txt, sitemap.xml, and sitemaps/*.xml. Webpack also copies web/ into
+// web-build; this copy keeps those files in the export if that step changes.
+// feat/agent-ready's emit-public-web.js writes the same paths (and adds the
+// empty post/profile sitemaps). Call that instead of this copy when it lands.
+copyPublicSiteFiles(projectRoot, path.join(projectRoot, 'web-build'))
+console.log('Copied public robots.txt and sitemap files into web-build')
 // Consola da Unidade de Inteligência em /ui-ai (página estática; fala com a
 // U.I. local do usuário). Fonte: repositório I.U-A.I, ui/web/consola.html.
 fs.cpSync(

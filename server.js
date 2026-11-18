@@ -24,12 +24,26 @@ const MIME = {
   '.mp3': 'audio/mpeg',
   '.webmanifest': 'application/manifest+json',
   '.txt': 'text/plain; charset=utf-8',
+  '.xml': 'application/xml; charset=utf-8',
 }
 
 /** "/views/static/js/a.js" → "/static/js/a.js"; other paths unchanged. */
 function staticPath(pathname) {
   const i = pathname.indexOf('/static/')
   return i > 0 ? pathname.slice(i) : pathname
+}
+
+function contentType(filePath) {
+  const ext = path.extname(filePath).toLowerCase()
+  return MIME[ext] || 'application/octet-stream'
+}
+
+/**
+ * Missing files with an extension, including robots.txt and sitemap.xml,
+ * stay 404s. Extensionless app routes fall through to index.html.
+ */
+function isMissingAsset(pathname) {
+  return pathname.includes('/static/') || Boolean(path.extname(pathname))
 }
 
 const server = http.createServer((req, res) => {
@@ -52,9 +66,10 @@ const server = http.createServer((req, res) => {
       let finalPath = filePath
       if (err || stat.isDirectory()) {
         // SPA fallback: extensionless routes get index.html. A missing
-        // /static/ asset, including one resolved under a deep route, is a
-        // plain 404 so the browser does not execute the SPA document.
-        if (pathname.includes('/static/') || path.extname(pathname)) {
+        // /static/ asset, including one resolved under a deep route, and a
+        // missing robots.txt or sitemap.xml, is a plain 404 so the browser
+        // does not receive the SPA document.
+        if (isMissingAsset(pathname)) {
           res.writeHead(404, {'Content-Type': 'text/plain; charset=utf-8'})
           res.end('Not found')
           return
@@ -62,8 +77,7 @@ const server = http.createServer((req, res) => {
         finalPath = path.join(ROOT, 'index.html')
       }
 
-      const ext = path.extname(finalPath).toLowerCase()
-      const headers = {'Content-Type': MIME[ext] || 'application/octet-stream'}
+      const headers = {'Content-Type': contentType(finalPath)}
       if (finalPath.includes(`${path.sep}static${path.sep}`)) {
         headers['Cache-Control'] = 'public, max-age=31536000, immutable'
       } else {
@@ -84,4 +98,4 @@ if (require.main === module) {
   })
 }
 
-module.exports = {server, staticPath}
+module.exports = {server, staticPath, contentType, isMissingAsset}
