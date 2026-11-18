@@ -13,22 +13,22 @@ import {
 import {
   CENTER_COLUMN_WIDTH,
   DESKTOP_RAIL_MIN_WIDTH,
-  FEED_RIGHT_NAV_GAP,
   getFeedColumnLayout,
   getShellChrome,
   placeFeedColumn,
   RAIL_FEED_GAP,
+  RIGHT_NAV_EDGE_INSET,
+  RIGHT_NAV_MIN_GAP,
   RIGHT_NAV_WIDTH,
+  rightNavLeft,
   SIDEBAR_OPEN_WIDTH,
   SIDEBAR_RAIL_WIDTH,
 } from '#/components/Layout/const'
 
-const BLOCK_WIDTH = CENTER_COLUMN_WIDTH + FEED_RIGHT_NAV_GAP + RIGHT_NAV_WIDTH
-
-function blockEdges(windowWidth: number) {
+function edges(windowWidth: number) {
   const layout = getFeedColumnLayout(windowWidth)
   const feedRight = layout.feedLeft + CENTER_COLUMN_WIDTH
-  const navLeft = feedRight + FEED_RIGHT_NAV_GAP
+  const navLeft = rightNavLeft(windowWidth)
   const navRight = navLeft + RIGHT_NAV_WIDTH
   return {...layout, feedRight, navLeft, navRight}
 }
@@ -42,24 +42,53 @@ describe('getFeedColumnLayout', () => {
     expect(layout.feedLeft).toBe((1000 - CENTER_COLUMN_WIDTH) / 2)
   })
 
-  it('centers the feed and the right nav as one block at 1280 and 1920', () => {
-    for (const width of [1280, 1920]) {
-      const edges = blockEdges(width)
-      expect(edges.desktopRail).toBe(true)
-      expect(edges.showRightNav).toBe(true)
-      expect(edges.navLeft - edges.feedRight).toBe(FEED_RIGHT_NAV_GAP)
-      expect(edges.feedLeft).toBe((width - BLOCK_WIDTH) / 2)
-      expect(width - edges.navRight).toBe(edges.feedLeft)
-      expect(edges.feedLeft).toBeGreaterThanOrEqual(
+  it('keeps the feed centered and pins the right nav to the viewport edge', () => {
+    let previousGap = 0
+    for (const width of [1280, 1440, 1920]) {
+      const box = edges(width)
+      expect(box.desktopRail).toBe(true)
+      expect(box.showRightNav).toBe(true)
+      expect(box.centerContentOffset).toBe(0)
+      expect(box.feedLeft).toBe((width - CENTER_COLUMN_WIDTH) / 2)
+      expect(width - box.navRight).toBe(RIGHT_NAV_EDGE_INSET)
+      expect(box.navLeft - box.feedRight).toBeGreaterThanOrEqual(
+        RIGHT_NAV_MIN_GAP,
+      )
+      expect(box.navLeft - box.feedRight).toBeGreaterThan(previousGap)
+      expect(box.feedLeft).toBeGreaterThanOrEqual(
         SIDEBAR_RAIL_WIDTH + RAIL_FEED_GAP,
       )
+      previousGap = box.navLeft - box.feedRight
     }
   })
 
-  it('uses the same offset at every width where the block fits, so opening the rail cannot push the feed', () => {
+  it('hides the right nav instead of covering a centered feed', () => {
+    for (const width of [1024, 1200]) {
+      const box = edges(width)
+      expect(box.showRightNav).toBe(false)
+      expect(box.centerContentOffset).toBe(0)
+      expect(box.feedLeft).toBe((width - CENTER_COLUMN_WIDTH) / 2)
+      expect(box.navLeft).toBeLessThan(box.feedRight + RIGHT_NAV_MIN_GAP)
+    }
+  })
+
+  it('never overlaps the feed at any width where the right nav is shown', () => {
+    for (let width = 800; width <= 2560; width += 1) {
+      const box = edges(width)
+      if (!box.showRightNav) continue
+      expect(box.navLeft).toBeGreaterThanOrEqual(
+        box.feedRight + RIGHT_NAV_MIN_GAP,
+      )
+      expect(box.navRight).toBeLessThanOrEqual(width)
+      expect(width - box.navRight).toBe(RIGHT_NAV_EDGE_INSET)
+    }
+  })
+
+  it('does not move the feed when the right nav appears', () => {
     const wide = getFeedColumnLayout(1600)
     const wider = getFeedColumnLayout(1920)
-    expect(wide.centerContentOffset).toBe(wider.centerContentOffset)
+    expect(wide.centerContentOffset).toBe(0)
+    expect(wider.centerContentOffset).toBe(0)
     expect(wide.showRightNav).toBe(true)
   })
 

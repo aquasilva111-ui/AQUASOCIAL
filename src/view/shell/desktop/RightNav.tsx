@@ -20,11 +20,7 @@ import {
 } from '#/alf'
 import {AppLanguageDropdown} from '#/components/AppLanguageDropdown'
 import {Divider} from '#/components/Divider'
-import {
-  CENTER_COLUMN_HALF_WIDTH,
-  FEED_RIGHT_NAV_GAP,
-  RIGHT_NAV_WIDTH,
-} from '#/components/Layout'
+import {RIGHT_NAV_EDGE_INSET, RIGHT_NAV_WIDTH} from '#/components/Layout'
 import {InlineLinkText} from '#/components/Link'
 import {ProgressGuideList} from '#/components/ProgressGuide/List'
 import {StoriesTray} from '#/components/stories/StoriesTray'
@@ -52,13 +48,12 @@ export function DesktopRightNav({routeName}: {routeName: string}) {
   const {_} = useLingui()
   const {hasSession, currentAccount} = useSession()
   const kawaii = useKawaiiMode()
-  const gutters = useGutters(['base', 'base', 'base', 0])
+  const gutters = useGutters(['base', 0])
   const isSearchScreen = routeName === 'Search'
   const webqueryParams = useWebQueryParams()
   const searchQuery = webqueryParams?.q
   const showTrending = !isSearchScreen || (isSearchScreen && !!searchQuery)
-  const {rightNavVisible, centerContentOffset, leftNavMinimal} =
-    useLayoutBreakpoints()
+  const {rightNavVisible, leftNavMinimal} = useLayoutBreakpoints()
 
   if (
     !rightNavVisible ||
@@ -77,18 +72,11 @@ export function DesktopRightNav({routeName}: {routeName: string}) {
         a.gap_lg,
         web({
           position: 'fixed',
-          // Sit 24px to the right of the centered (and possibly shifted) feed
-          // so the pair is one block. The rail opening does not change this.
-          left: '50%',
-          transform: [
-            {
-              translateX:
-                CENTER_COLUMN_HALF_WIDTH +
-                FEED_RIGHT_NAV_GAP +
-                centerContentOffset,
-            },
-            ...a.scrollbar_offset.transform,
-          ],
+          // Anchored to the viewport, like X. The feed stays centered, so
+          // the gap between them grows with the window. Home and /books
+          // share this shell; hide the nav (rightNavVisible) when it would
+          // cover the feed.
+          right: RIGHT_NAV_EDGE_INSET,
           width: RIGHT_NAV_WIDTH,
           maxHeight: '100vh',
         }),
