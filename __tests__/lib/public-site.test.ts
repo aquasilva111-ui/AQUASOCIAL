@@ -3,14 +3,18 @@ import path from 'node:path'
 import vm from 'node:vm'
 
 import {
+  AQUA_PDS_HOSTS,
   canonicalForPathname,
+  capSitemapUrls,
   CONTENT_SIGNAL,
   headBootstrapScript,
   INCLUDE_AQUA_POSTS_IN_SITEMAP,
   INCLUDE_AQUA_PROFILES_IN_SITEMAP,
   isBlueskyHostedHandle,
+  loadAquaSitemap,
   ROBOTS_DISALLOW_PREFIXES,
   SITEMAP_FORBIDDEN_PREFIXES,
+  SITEMAP_URL_LIMIT,
   sitemapSections,
   SPA_FALLBACK_PREFIXES,
 } from '#/lib/public-site'
@@ -87,15 +91,18 @@ describe('public site', () => {
     expect(sitemap).not.toContain('/profile/')
   })
 
-  it('keeps Aqua posts and profiles behind a flag and uses a sitemap index', () => {
-    expect(INCLUDE_AQUA_POSTS_IN_SITEMAP).toBe(false)
-    expect(INCLUDE_AQUA_PROFILES_IN_SITEMAP).toBe(false)
+  it('lists Aqua posts and profiles in the sitemap index', () => {
+    expect(INCLUDE_AQUA_POSTS_IN_SITEMAP).toBe(true)
+    expect(INCLUDE_AQUA_PROFILES_IN_SITEMAP).toBe(true)
+    expect(AQUA_PDS_HOSTS).toEqual([])
     const index = readWeb('sitemap.xml')
     expect(index).toContain('<sitemapindex')
     expect(index).toContain('/sitemaps/institutional.xml')
     expect(index).toContain('/sitemaps/sections.xml')
-    expect(index).not.toContain('/sitemaps/posts.xml')
-    expect(index).not.toContain('/sitemaps/profiles.xml')
+    expect(index).toContain('/sitemap-posts.xml')
+    expect(index).toContain('/sitemap-profiles.xml')
+    expect(readWeb('sitemap-posts.xml')).not.toContain('<loc>')
+    expect(readWeb('sitemap-profiles.xml')).not.toContain('<loc>')
     expect(readWeb('sitemaps/sections.xml')).toContain(
       'https://aquaapp.systems/visionboard',
     )
@@ -194,6 +201,111 @@ describe('public site', () => {
     expect(htaccess).toContain(
       '</llms.txt>; rel=\\"alternate\\"; type=\\"text/markdown\\"',
     )
+  })
+
+  it('queries the AppView only for repos on an Aqua PDS', async () => {
+    let called = false
+    const skipped = await loadAquaSitemap({
+      hosts: [],
+      fetchImpl: async () => {
+        called = true
+        throw new Error('should not be called')
+      },
+    })
+    expect(called).toBe(false)
+    expect(skipped.posts).toEqual([])
+    expect(skipped.profiles).toEqual([])
+    expect(skipped.warning).toContain('AQUA_PDS_HOSTS')
+
+    const failed = await loadAquaSitemap({
+      hosts: ['pds.example.test'],
+      fetchImpl: async () => {
+        throw new Error('network down')
+      },
+    })
+    expect(failed.posts).toEqual([])
+    expect(failed.profiles).toEqual([])
+    expect(failed.warning).toMatch(/failed/i)
+
+    const fetchImpl = async (url: string) => {
+      if (url.includes('listRepos')) {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            repos: [
+              {did: 'did:plc:aqua'},
+              {did: 'did:plc:bsky'},
+              {did: 'did:plc:adult'},
+            ],
+          }),
+        }
+      }
+      if (url.includes('getProfile') && url.includes('did%3Aplc%3Aaqua')) {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({handle: 'ada.example.test', labels: []}),
+        }
+      }
+      if (url.includes('getProfile') && url.includes('did%3Aplc%3Absky')) {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({handle: 'ada.bsky.social', labels: []}),
+        }
+      }
+      if (url.includes('getProfile') && url.includes('did%3Aplc%3Aadult')) {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            handle: 'adult.example.test',
+            labels: [{val: 'porn'}],
+          }),
+        }
+      }
+      if (url.includes('getAuthorFeed') && url.includes('did%3Aplc%3Aaqua')) {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            feed: [
+              {
+                post: {
+                  uri: 'at://did:plc:aqua/app.bsky.feed.post/3ok',
+                  labels: [],
+                },
+              },
+              {
+                post: {
+                  uri: 'at://did:plc:aqua/app.bsky.feed.post/3no',
+                  labels: [{val: 'sexual'}],
+                },
+              },
+            ],
+          }),
+        }
+      }
+      return {ok: true, status: 200, json: async () => ({feed: []})}
+    }
+    const listed = await loadAquaSitemap({
+      hosts: ['pds.example.test'],
+      fetchImpl,
+    })
+    expect(listed.profiles).toEqual([
+      'https://aquaapp.systems/profile/ada.example.test',
+    ])
+    expect(listed.posts).toEqual([
+      'https://aquaapp.systems/profile/ada.example.test/post/3ok',
+    ])
+    expect(
+      capSitemapUrls(
+        new Array(SITEMAP_URL_LIMIT + 1).fill(
+          'https://aquaapp.systems/profile/ada.example.test',
+        ),
+      ),
+    ).toHaveLength(SITEMAP_URL_LIMIT)
   })
 
   it('describes Aqua in llms.txt without adult, messages, or settings links', () => {

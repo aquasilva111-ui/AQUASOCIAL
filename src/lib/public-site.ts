@@ -151,25 +151,54 @@ export function syncPublicDocument(pathname: string) {
 }
 
 /**
- * TODO(owner): public Aqua posts stay out of the sitemap until this is true.
- * Never list a post that carries the Bluesky origin ("Do Bluesky").
+ * Public Aqua posts and profiles are listed. The build fills the files from
+ * the public AppView. The lists change only when the site is deployed again.
+ * Bluesky-hosted accounts and Aqua+18 stay out.
  */
-export const INCLUDE_AQUA_POSTS_IN_SITEMAP = false
+export const INCLUDE_AQUA_POSTS_IN_SITEMAP = true
+
+/** Same switch for public Aqua profiles. */
+export const INCLUDE_AQUA_PROFILES_IN_SITEMAP = true
 
 /**
- * TODO(owner): public Aqua profiles stay out of the sitemap until this is true.
+ * Hostnames of Aqua PDSes (the `#atproto_pds` service), without a scheme.
+ * Empty on purpose: `deploy/pds` only has the placeholder `pds.seudominio.com`,
+ * and the app still talks to `bsky.social`. A handle that is not `.bsky.*` is
+ * not proof of an Aqua account. Custom-domain Bluesky accounts look the same.
  */
-export const INCLUDE_AQUA_PROFILES_IN_SITEMAP = false
+export const AQUA_PDS_HOSTS: readonly string[] = []
 
-/** Filled by a later change once INCLUDE_AQUA_POSTS_IN_SITEMAP is turned on. */
+/** Public Bluesky AppView. Used only after a repo is listed on an Aqua PDS. */
+export const APP_VIEW_ORIGIN = 'https://public.api.bsky.app'
+
+/** Sitemap protocol limit. One file never holds more than this. */
+export const SITEMAP_URL_LIMIT = 50000
+
+/**
+ * Same self-labels as `src/lib/adult/content.ts`. A post or profile with one
+ * of these stays out of the public sitemap.
+ */
+export const ADULT_SELF_LABELS = [
+  'porn',
+  'sexual',
+  'nudity',
+  'graphic-media',
+] as const
+
+export const MISSING_AQUA_PDS_WARNING =
+  '[public-site] sitemap-posts.xml and sitemap-profiles.xml are empty. AQUA_PDS_HOSTS has no hostname, so the build did not query the AppView. The public AppView cannot tell an Aqua account from a Bluesky account on a custom domain, and a non-.bsky handle is only a guess. Add the real PDS hostname (DID document service #atproto_pds). These files refresh only on the next deploy.'
+
+/** Static default. The build replaces this when the AppView returns records. */
 export const AQUA_POST_SITEMAP_URLS: readonly string[] = []
 
-/** Filled by a later change once INCLUDE_AQUA_PROFILES_IN_SITEMAP is turned on. */
+/** Static default. The build replaces this when the AppView returns records. */
 export const AQUA_PROFILE_SITEMAP_URLS: readonly string[] = []
 
 export type SitemapSection = {
   id: string
   urls: readonly string[]
+  /** Path from the site root. Defaults to sitemaps/<id>.xml. */
+  file?: string
 }
 
 function page(path: string) {
@@ -283,16 +312,37 @@ export const SPA_FALLBACK_PREFIXES = [
   'wiki',
 ] as const
 
-export function sitemapSections(): SitemapSection[] {
+export function sectionFile(section: SitemapSection) {
+  return section.file ?? `sitemaps/${section.id}.xml`
+}
+
+export function capSitemapUrls(urls: readonly string[]) {
+  if (urls.length <= SITEMAP_URL_LIMIT) return [...urls]
+  return urls.slice(0, SITEMAP_URL_LIMIT)
+}
+
+export function sitemapSections(dynamic?: {
+  posts?: readonly string[]
+  profiles?: readonly string[]
+}): SitemapSection[] {
   const sections: SitemapSection[] = SITEMAP_SECTIONS.map(section => ({
     id: section.id,
     urls: [...section.urls],
+    file: section.file,
   }))
   if (INCLUDE_AQUA_POSTS_IN_SITEMAP) {
-    sections.push({id: 'posts', urls: [...AQUA_POST_SITEMAP_URLS]})
+    sections.push({
+      id: 'posts',
+      file: 'sitemap-posts.xml',
+      urls: capSitemapUrls(dynamic?.posts ?? AQUA_POST_SITEMAP_URLS),
+    })
   }
   if (INCLUDE_AQUA_PROFILES_IN_SITEMAP) {
-    sections.push({id: 'profiles', urls: [...AQUA_PROFILE_SITEMAP_URLS]})
+    sections.push({
+      id: 'profiles',
+      file: 'sitemap-profiles.xml',
+      urls: capSitemapUrls(dynamic?.profiles ?? AQUA_PROFILE_SITEMAP_URLS),
+    })
   }
   for (const section of sections) {
     for (const url of section.urls) assertSitemapUrl(url)
@@ -311,15 +361,170 @@ export function assertSitemapUrl(url: string) {
       throw new Error(`Sitemap must not include ${prefix}: ${url}`)
     }
   }
-  const post = /^\/profile\/([^/]+)\/post\/[^/]+$/i.exec(path)
-  if (!post) return
-  if (!INCLUDE_AQUA_POSTS_IN_SITEMAP) {
-    throw new Error(
-      `Aqua posts stay out until INCLUDE_AQUA_POSTS_IN_SITEMAP is true: ${url}`,
-    )
+  const post = /^\/profile\/([^/]+)\/post\/([^/]+)$/i.exec(path)
+  const profile = /^\/profile\/([^/]+)$/i.exec(path)
+  const handle = post?.[1] ?? profile?.[1]
+  if (!handle) return
+  if (isBlueskyHostedHandle(safeDecode(handle))) {
+    throw new Error(`Sitemap must not include Bluesky accounts: ${url}`)
   }
-  if (isBlueskyHostedHandle(safeDecode(post[1]))) {
-    throw new Error(`Sitemap must not include Bluesky posts: ${url}`)
+}
+
+export function hasAdultSelfLabel(
+  labels: readonly {val?: string}[] | undefined,
+) {
+  return (labels ?? []).some(label =>
+    ADULT_SELF_LABELS.some(name => name === label.val),
+  )
+}
+
+export function profileSitemapUrl(handle: string) {
+  if (!handle || isBlueskyHostedHandle(handle)) return undefined
+  return `${SITE_ORIGIN}/profile/${encodeURIComponent(handle)}`
+}
+
+export function postSitemapUrl(handle: string, rkey: string) {
+  if (!handle || !rkey || isBlueskyHostedHandle(handle)) return undefined
+  return `${SITE_ORIGIN}/profile/${encodeURIComponent(handle)}/post/${encodeURIComponent(rkey)}`
+}
+
+type FetchLike = (
+  url: string,
+) => Promise<{ok: boolean; status: number; json: () => Promise<unknown>}>
+
+function recordsOf(body: unknown, key: string) {
+  if (!body || typeof body !== 'object') return []
+  const value = (body as Record<string, unknown>)[key]
+  return Array.isArray(value) ? value : []
+}
+
+async function readJson(fetchImpl: FetchLike, url: string) {
+  const response = await fetchImpl(url)
+  if (!response.ok) {
+    throw new Error(`${response.status} ${url}`)
+  }
+  return response.json()
+}
+
+/**
+ * An account is Aqua only when `listRepos` on a host in `AQUA_PDS_HOSTS`
+ * returns its DID. The AppView then supplies the handle and the public posts.
+ * Handles ending in `.bsky.social`, `.bsky.app`, or `.bsky.team` are dropped.
+ * Posts and profiles with an adult self-label are dropped. `/adult` URLs are
+ * never emitted.
+ */
+export async function loadAquaSitemap(opts?: {
+  fetchImpl?: FetchLike
+  hosts?: readonly string[]
+}): Promise<{posts: string[]; profiles: string[]; warning?: string}> {
+  const hosts = opts?.hosts ?? AQUA_PDS_HOSTS
+  if (hosts.length === 0) {
+    return {posts: [], profiles: [], warning: MISSING_AQUA_PDS_WARNING}
+  }
+  const fetchImpl = opts?.fetchImpl ?? fetch
+  try {
+    const posts: string[] = []
+    const profiles: string[] = []
+    for (const host of hosts) {
+      let cursor: string | undefined
+      for (let page = 0; page < 20; page++) {
+        const listed = new URL(
+          `https://${host}/xrpc/com.atproto.sync.listRepos`,
+        )
+        listed.searchParams.set('limit', '1000')
+        if (cursor) listed.searchParams.set('cursor', cursor)
+        const body = await readJson(fetchImpl, listed.toString())
+        const repos = recordsOf(body, 'repos')
+        for (const repo of repos) {
+          const did =
+            repo && typeof repo === 'object'
+              ? (repo as {did?: unknown}).did
+              : undefined
+          if (typeof did !== 'string' || !did) continue
+          await appendActor(fetchImpl, did, posts, profiles)
+          if (
+            posts.length >= SITEMAP_URL_LIMIT &&
+            profiles.length >= SITEMAP_URL_LIMIT
+          ) {
+            break
+          }
+        }
+        const next =
+          body && typeof body === 'object'
+            ? (body as {cursor?: unknown}).cursor
+            : undefined
+        if (typeof next !== 'string' || !next || next === cursor) break
+        cursor = next
+      }
+    }
+    const warning =
+      posts.length > SITEMAP_URL_LIMIT || profiles.length > SITEMAP_URL_LIMIT
+        ? `[public-site] sitemap truncated to ${SITEMAP_URL_LIMIT} URLs per file.`
+        : undefined
+    return {
+      posts: capSitemapUrls(posts),
+      profiles: capSitemapUrls(profiles),
+      warning,
+    }
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err)
+    return {
+      posts: [],
+      profiles: [],
+      warning: `[public-site] AppView or PDS request failed (${message}). sitemap-posts.xml and sitemap-profiles.xml were left empty. The list refreshes only on the next deploy.`,
+    }
+  }
+}
+
+async function appendActor(
+  fetchImpl: FetchLike,
+  did: string,
+  posts: string[],
+  profiles: string[],
+) {
+  const profileUrl = new URL(
+    `${APP_VIEW_ORIGIN}/xrpc/app.bsky.actor.getProfile`,
+  )
+  profileUrl.searchParams.set('actor', did)
+  const profile = await readJson(fetchImpl, profileUrl.toString())
+  if (!profile || typeof profile !== 'object') return
+  const handle = (profile as {handle?: unknown}).handle
+  const labels = (profile as {labels?: {val?: string}[]}).labels
+  if (typeof handle !== 'string' || hasAdultSelfLabel(labels)) return
+  const profileLoc = profileSitemapUrl(handle)
+  if (!profileLoc) return
+  profiles.push(profileLoc)
+
+  let cursor: string | undefined
+  for (let page = 0; page < 50 && posts.length < SITEMAP_URL_LIMIT; page++) {
+    const feedUrl = new URL(
+      `${APP_VIEW_ORIGIN}/xrpc/app.bsky.feed.getAuthorFeed`,
+    )
+    feedUrl.searchParams.set('actor', did)
+    feedUrl.searchParams.set('limit', '100')
+    if (cursor) feedUrl.searchParams.set('cursor', cursor)
+    const body = await readJson(fetchImpl, feedUrl.toString())
+    for (const item of recordsOf(body, 'feed')) {
+      if (!item || typeof item !== 'object') continue
+      const post = (item as {post?: {uri?: unknown; labels?: {val?: string}[]}})
+        .post
+      if (
+        !post ||
+        typeof post.uri !== 'string' ||
+        hasAdultSelfLabel(post.labels)
+      ) {
+        continue
+      }
+      const rkey = post.uri.split('/').pop()
+      const loc = rkey ? postSitemapUrl(handle, rkey) : undefined
+      if (loc) posts.push(loc)
+    }
+    const next =
+      body && typeof body === 'object'
+        ? (body as {cursor?: unknown}).cursor
+        : undefined
+    if (typeof next !== 'string' || !next || next === cursor) break
+    cursor = next
   }
 }
 
@@ -485,7 +690,7 @@ export function renderSitemapIndex(sections: readonly SitemapSection[]) {
   const body = sections
     .map(
       section =>
-        `  <sitemap><loc>${escapeXml(`${SITE_ORIGIN}/sitemaps/${section.id}.xml`)}</loc></sitemap>`,
+        `  <sitemap><loc>${escapeXml(`${SITE_ORIGIN}/${sectionFile(section)}`)}</loc></sitemap>`,
     )
     .join('\n')
   return `<?xml version="1.0" encoding="UTF-8"?>
@@ -506,8 +711,11 @@ ${body}
 `
 }
 
-export function publicWebFiles(): Record<string, string> {
-  const sections = sitemapSections()
+export function publicWebFiles(dynamic?: {
+  posts?: readonly string[]
+  profiles?: readonly string[]
+}): Record<string, string> {
+  const sections = sitemapSections(dynamic)
   const files: Record<string, string> = {
     'robots.txt': renderRobotsTxt(),
     'sitemap.xml': renderSitemapIndex(sections),
@@ -532,7 +740,7 @@ export function publicWebFiles(): Record<string, string> {
     }),
   }
   for (const section of sections) {
-    files[`sitemaps/${section.id}.xml`] = renderUrlSet(section.urls)
+    files[sectionFile(section)] = renderUrlSet(section.urls)
   }
   return files
 }

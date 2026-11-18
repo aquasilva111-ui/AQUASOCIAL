@@ -37,3 +37,10 @@ tell an unknown profile from a real one, so those URLs still return the SPA.
 HTML pages. The homepage returns `index.md` (same text as `llms.txt`) when
 `Accept` contains `text/markdown`, and adds
 `Link: </llms.txt>; rel="alternate"; type="text/markdown"`.
+
+`sitemap.xml` also lists `sitemap-posts.xml` and `sitemap-profiles.xml`.
+Those two files are filled at build time from the public AppView, and only
+for repos on a PDS hostname in `AQUA_PDS_HOSTS`. That list is empty until the
+real Aqua PDS hostname is set, so the files ship empty and the build logs a
+warning instead of failing. A failed AppView or PDS request does the same.
+The lists change only on the next deploy. Each file stops at 50,000 URLs.

@@ -25,8 +25,8 @@ function writeFile(filePath, contents) {
   fs.writeFileSync(filePath, contents)
 }
 
-function emitInto(directory) {
-  const files = site.publicWebFiles()
+function emitInto(directory, dynamic) {
+  const files = site.publicWebFiles(dynamic)
   for (const [name, contents] of Object.entries(files)) {
     writeFile(path.join(directory, name), contents)
   }
@@ -49,9 +49,21 @@ function patchIndex(indexPath) {
   fs.writeFileSync(indexPath, next)
 }
 
-function emitPublicWeb() {
+async function emitPublicWeb() {
+  let dynamic = {posts: [], profiles: []}
+  try {
+    const loaded = await site.loadAquaSitemap()
+    dynamic = {posts: loaded.posts, profiles: loaded.profiles}
+    if (loaded.warning) console.warn(loaded.warning)
+  } catch (err) {
+    console.warn(
+      '[public-site] sitemap-posts.xml and sitemap-profiles.xml were left empty.',
+      err,
+    )
+  }
+
   const webDir = path.join(projectRoot, 'web')
-  emitInto(webDir)
+  emitInto(webDir, dynamic)
 
   const logoFrom = path.join(projectRoot, 'assets', 'favicon.png')
   const logoTo = path.join(webDir, 'logo.png')
@@ -73,7 +85,7 @@ function emitPublicWeb() {
 
   const webBuild = path.join(projectRoot, 'web-build')
   if (fs.existsSync(webBuild)) {
-    emitInto(webBuild)
+    emitInto(webBuild, dynamic)
     fs.copyFileSync(logoTo, path.join(webBuild, 'logo.png'))
     fs.copyFileSync(htaccessPath, path.join(webBuild, '.htaccess'))
     patchIndex(path.join(webBuild, 'index.html'))
@@ -81,7 +93,10 @@ function emitPublicWeb() {
 }
 
 if (require.main === module) {
-  emitPublicWeb()
+  emitPublicWeb().catch(err => {
+    console.error(err)
+    process.exit(1)
+  })
 }
 
 module.exports = {emitPublicWeb}
