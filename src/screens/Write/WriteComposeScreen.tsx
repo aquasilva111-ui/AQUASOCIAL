@@ -23,7 +23,7 @@ import {atoms as a, useTheme} from '#/alf'
 import {Button, ButtonText} from '#/components/Button'
 import * as Layout from '#/components/Layout'
 import {Text} from '#/components/Typography'
-import {Chip, OPINION_LIMIT, PlaceholderBanner} from './ui'
+import {Chip, OPINION_LIMIT} from './ui'
 
 const TYPES: {id: WritePostType; label: string}[] = [
   {id: 'book', label: 'Book'},
@@ -93,7 +93,6 @@ export function WriteComposeScreen() {
   return (
     <Layout.Screen testID="writeComposeScreen" hideCenterBorders>
       <Layout.KeyboardAwareContent>
-        <PlaceholderBanner />
         <View
           style={[
             a.px_lg,

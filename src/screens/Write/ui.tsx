@@ -255,21 +255,6 @@ export function bookSubtitle(post: Extract<WritePost, {type: 'book'}>) {
   return `${genre} · ${post.book.chapterCount} chapters · ${post.book.status}`
 }
 
-export function PlaceholderBanner() {
-  const t = useTheme()
-  return (
-    <Text
-      style={[
-        a.text_center,
-        a.py_sm,
-        a.px_md,
-        {fontSize: 11, color: t.palette.contrast_400},
-      ]}>
-      MOCKUP — all names and content are placeholder examples
-    </Text>
-  )
-}
-
 export function RailCard({
   title,
   children,

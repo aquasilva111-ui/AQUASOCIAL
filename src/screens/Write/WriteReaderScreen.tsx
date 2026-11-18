@@ -14,7 +14,7 @@ import * as Layout from '#/components/Layout'
 import {Link} from '#/components/Link'
 import * as Toast from '#/components/Toast'
 import {Text} from '#/components/Typography'
-import {Avatar, PlaceholderBanner, PostActions, ProgressBar} from './ui'
+import {Avatar, PostActions, ProgressBar} from './ui'
 
 type Props = NativeStackScreenProps<CommonNavigatorParams, 'WriteRead'>
 
@@ -104,7 +104,6 @@ function ChapterReader({
   return (
     <Layout.Screen testID="writeReaderScreen" hideCenterBorders>
       <Layout.Content>
-        <PlaceholderBanner />
         <View style={[a.px_lg, a.pt_sm, a.pb_md, a.gap_sm]}>
           <View
             style={[a.flex_row, a.align_center, a.justify_between, a.gap_md]}>
@@ -357,7 +356,6 @@ function PieceReader({post}: {post: Exclude<WritePost, {type: 'book'}>}) {
   return (
     <Layout.Screen testID="writeReaderScreen" hideCenterBorders>
       <Layout.Content contentContainerStyle={[a.pb_2xl]}>
-        <PlaceholderBanner />
         <View style={[a.px_lg, a.py_md, a.gap_md]}>
           <Link to="/books" label="Back to Write">
             <Text style={[a.font_bold, {fontSize: 20}]}>← Write</Text>

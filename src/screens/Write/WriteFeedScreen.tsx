@@ -13,7 +13,7 @@ import {Pencil_Stroke2_Corner0_Rounded as Pencil} from '#/components/icons/Penci
 import * as Layout from '#/components/Layout'
 import {Link} from '#/components/Link'
 import {Text} from '#/components/Typography'
-import {Chip, PlaceholderBanner} from './ui'
+import {Chip} from './ui'
 import {WritePostCard} from './WritePostCard'
 
 const TABS: {id: WriteTab; label: string}[] = [
@@ -55,7 +55,6 @@ export function WriteFeedScreen() {
   return (
     <Layout.Screen testID="writeFeedScreen" hideCenterBorders>
       <Layout.Content>
-        <PlaceholderBanner />
         <View style={[a.px_lg, a.pt_sm, a.pb_md, a.gap_sm]}>
           <View style={[a.flex_row, a.align_center, a.justify_between]}>
             <Text style={[a.font_bold, {fontSize: 20}]}>
