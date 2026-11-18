@@ -233,11 +233,50 @@ function createSiteServer(root = ROOT) {
 }
 
 const server = createSiteServer()
+let listenStarted = false
 
-if (require.main === module) {
-  server.listen(PORT, () => {
-    console.log(`AQUASOCIAL web server listening on port ${PORT}`)
+/**
+ * LiteSpeed's lsnode.js and Phusion Passenger load this file with require().
+ * require.main is the loader, so a listen() gated only on require.main never
+ * runs and the export has no listen method. lsnode then skips its fallback
+ * (`exports.listen`) and the worker never accepts the socket. LiteSpeed waits
+ * and answers every URL with 503 "The server is temporarily busy".
+ */
+function launchedByAppServer() {
+  if (typeof PhusionPassenger !== 'undefined') return true
+  if (process.env.LSNODE_STARTUP_FILE || process.env.LSNODE_ROOT) return true
+  if (process.env.PASSENGER_APP_ENV) return true
+  const main = (require.main && require.main.filename) || ''
+  return /(?:^|[/\\])lsnode\.js$/.test(main)
+}
+
+function listen(port = PORT, host, callback) {
+  if (typeof host === 'function') {
+    callback = host
+    host = undefined
+  }
+  if (listenStarted) {
+    if (typeof callback === 'function') {
+      if (server.listening) process.nextTick(callback)
+      else server.once('listening', callback)
+    }
+    return server
+  }
+  listenStarted = true
+  if (port === 'passenger') return server.listen('passenger')
+  // 0.0.0.0 so Hostinger's IPv4 proxy can connect when IPv6 is bindv6only.
+  if (host === undefined) host = '0.0.0.0'
+  if (typeof callback === 'function') return server.listen(port, host, callback)
+  return server.listen(port, host)
+}
+
+if (require.main === module || launchedByAppServer()) {
+  const port = typeof PhusionPassenger !== 'undefined' ? 'passenger' : PORT
+  listen(port, () => {
+    const address = server.address()
+    const shown = address && typeof address === 'object' ? address.port : port
+    console.log(`AQUASOCIAL web server listening on port ${shown}`)
   })
 }
 
-module.exports = {server, staticPath, createSiteServer}
+module.exports = {server, staticPath, createSiteServer, listen}
