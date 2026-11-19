@@ -80,11 +80,12 @@ export function VideoEmbed({
     }
   }
 
-  // Native ratio, but a full-bleed card never letterboxes: width stays 100%
-  // and anything taller than 3:4 is cover-cropped.
+  // Feed media stays full width at the video's own ratio. A bare bleed
+  // frame still cover-crops anything taller than 3:4.
   const ratio = aspectRatio ?? 16 / 9
   const MAX_HEIGHT = 640
-  const frameRatio = bleed ? Math.max(ratio, 9 / 12) : ratio
+  const cover = !!bleed && !mediaChrome
+  const frameRatio = cover ? Math.max(ratio, 9 / 12) : ratio
 
   const contents = (
     <div
@@ -94,7 +95,7 @@ export function VideoEmbed({
         flex: 1,
         cursor: 'default',
         backgroundImage: `url(${embed.thumbnail})`,
-        backgroundSize: bleed ? 'cover' : 'contain',
+        backgroundSize: cover ? 'cover' : 'contain',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
       }}
@@ -107,7 +108,7 @@ export function VideoEmbed({
             setActive={setActive}
             onScreen={onScreen}
             lastKnownTime={lastKnownTime}
-            objectFit={bleed ? 'cover' : 'contain'}
+            objectFit={cover ? 'cover' : 'contain'}
             hideTimeIndicator={!!mediaChrome}
           />
         </OnlyNearScreen>
@@ -126,7 +127,7 @@ export function VideoEmbed({
             a.overflow_hidden,
             {
               aspectRatio: frameRatio,
-              maxWidth: bleed ? undefined : MAX_HEIGHT * ratio,
+              maxWidth: bleed || mediaChrome ? undefined : MAX_HEIGHT * ratio,
               width: '100%',
               ...(mediaChrome
                 ? aquaChromeRadii()

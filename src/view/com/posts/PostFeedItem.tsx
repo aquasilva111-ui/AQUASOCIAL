@@ -134,7 +134,7 @@ let FeedItemInner = ({
   parentAuthor,
   showReplyTo,
   isThreadChild,
-  isThreadLastChild,
+  isThreadLastChild: _isThreadLastChild,
   isThreadParent,
   hideTopBorder: _hideTopBorder,
   isParentBlocked,
@@ -240,10 +240,7 @@ let FeedItemInner = ({
     styles.outer,
     {
       borderColor: 'transparent',
-      paddingBottom:
-        isThreadLastChild || (!isThreadChild && !isThreadParent)
-          ? 8
-          : undefined,
+      paddingBottom: 0,
       borderTopWidth: 0,
     },
   ]
@@ -374,7 +371,7 @@ const styles = StyleSheet.create({
     paddingBottom: 6,
   },
   card: {
-    marginHorizontal: 4,
+    marginHorizontal: 0,
   },
   embed: {
     marginBottom: 6,

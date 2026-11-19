@@ -322,7 +322,6 @@ export function AquaPostCard({
                 onOpen={onOpenEmbed}
                 viewContext={viewContext}
                 mediaChrome={chrome}
-                bleed
                 style={{marginTop: 0}}
               />
             )}

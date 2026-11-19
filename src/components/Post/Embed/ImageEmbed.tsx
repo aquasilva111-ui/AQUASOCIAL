@@ -93,17 +93,20 @@ export function ImageEmbed({
           ]}>
           <AutoSizedImage
             crop={
-              rest.bleed
-                ? 'constrained'
-                : rest.viewContext === PostEmbedViewContext.ThreadHighlighted ||
-                    rest.viewContext === PostEmbedViewContext.FeedImages
-                  ? 'none'
+              rest.mediaChrome
+                ? 'none'
+                : rest.bleed
+                  ? 'constrained'
                   : rest.viewContext ===
-                      PostEmbedViewContext.FeedEmbedRecordWithMedia
-                    ? 'square'
-                    : 'constrained'
+                        PostEmbedViewContext.ThreadHighlighted ||
+                      rest.viewContext === PostEmbedViewContext.FeedImages
+                    ? 'none'
+                    : rest.viewContext ===
+                        PostEmbedViewContext.FeedEmbedRecordWithMedia
+                      ? 'square'
+                      : 'constrained'
             }
-            fullBleed={!!rest.bleed}
+            fullBleed={!!rest.bleed && !rest.mediaChrome}
             image={image}
             onPress={(containerRef, dims) => onPress(0, [containerRef], [dims])}
             onPressIn={() => onPressIn(0)}

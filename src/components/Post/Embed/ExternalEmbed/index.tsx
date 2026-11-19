@@ -107,7 +107,7 @@ export const ExternalEmbed = ({
             a.overflow_hidden,
             a.w_full,
             a.border,
-            bleed ? {borderWidth: 0} : null,
+            bleed || imageOverlay ? {borderWidth: 0} : null,
             style,
             hovered
               ? t.atoms.border_contrast_high
@@ -137,7 +137,7 @@ export const ExternalEmbed = ({
             </View>
           ) : undefined}
 
-          {bleed ? null : (
+          {bleed || imageOverlay ? null : (
             <View
               style={[
                 a.flex_1,
