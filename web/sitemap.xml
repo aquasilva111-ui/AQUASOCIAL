@@ -2,4 +2,6 @@
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <sitemap><loc>https://aquaapp.systems/sitemaps/institutional.xml</loc></sitemap>
   <sitemap><loc>https://aquaapp.systems/sitemaps/sections.xml</loc></sitemap>
+  <sitemap><loc>https://aquaapp.systems/sitemap-posts.xml</loc></sitemap>
+  <sitemap><loc>https://aquaapp.systems/sitemap-profiles.xml</loc></sitemap>
 </sitemapindex>

@@ -33,6 +33,37 @@ const MIME = {
   '.xml': 'application/xml; charset=utf-8',
 }
 
+const BLOCKED_ROBOTS = 'User-agent: *\nDisallow: /\n'
+
+/** True only for the public site. Previews and other hosts stay out of search. */
+function isPublicSiteHost(hostHeader) {
+  const raw = Array.isArray(hostHeader) ? hostHeader[0] : hostHeader || ''
+  const host = String(raw)
+    .split(',')[0]
+    .trim()
+    .replace(/:\d+$/, '')
+    .replace(/\.$/, '')
+    .toLowerCase()
+  return host === 'aquaapp.systems'
+}
+
+function markUnindexed(res) {
+  const writeHead = res.writeHead
+  res.writeHead = function (status, second, third) {
+    const extra = {'X-Robots-Tag': 'noindex, nofollow'}
+    if (second && typeof second === 'object') {
+      return writeHead.call(this, status, {...second, ...extra}, third)
+    }
+    if (typeof second === 'string' && third && typeof third === 'object') {
+      return writeHead.call(this, status, second, {...third, ...extra})
+    }
+    if (typeof second === 'string') {
+      return writeHead.call(this, status, second, extra)
+    }
+    return writeHead.call(this, status, extra)
+  }
+}
+
 /** Resolve build chunks requested relative to a deep client route. */
 function staticPath(pathname) {
   const i = pathname.indexOf('/static/')
@@ -86,6 +117,8 @@ function createSiteServer(root = ROOT) {
   }
 
   return http.createServer(async (req, res) => {
+    const indexable = isPublicSiteHost(req.headers.host)
+    if (!indexable) markUnindexed(res)
     try {
       const url = new URL(req.url, 'http://localhost')
       let pathname
@@ -107,6 +140,16 @@ function createSiteServer(root = ROOT) {
       }
       if (req.method !== 'GET' && req.method !== 'HEAD') {
         return res.writeHead(405, {Allow: 'GET, HEAD'}).end()
+      }
+      if (!indexable && pathname === '/robots.txt') {
+        const body = BLOCKED_ROBOTS
+        res.writeHead(200, {
+          'Content-Type': 'text/plain; charset=utf-8',
+          'Content-Length': body.length,
+          'Cache-Control': 'no-cache',
+        })
+        if (req.method === 'HEAD') return res.end()
+        return res.end(body)
       }
       if (/^\/videos(?:\/|$)/.test(pathname)) {
         const location =
@@ -213,4 +256,10 @@ if (require.main === module || launchedByAppServer()) {
   })
 }
 
-module.exports = {server, staticPath, createSiteServer, listen}
+module.exports = {
+  server,
+  staticPath,
+  createSiteServer,
+  listen,
+  isPublicSiteHost,
+}

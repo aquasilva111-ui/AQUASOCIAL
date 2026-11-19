@@ -60,6 +60,18 @@ if (fs.existsSync(indexPath)) {
 copyPublicSiteFiles(projectRoot, path.join(projectRoot, 'web-build'))
 console.log('Copied public robots.txt and sitemap files into web-build')
 
+// Refresh post and profile URLs from the Aqua PDS after the copy, so the
+// export is not stuck with the files committed in web/. A PDS failure writes
+// empty urlsets and does not fail this script.
+require('./emit-aqua-sitemap')
+  .emitAquaSitemaps(projectRoot)
+  .catch(err => {
+    console.warn(
+      '[aqua-sitemap] sitemap-posts.xml and sitemap-profiles.xml were left empty.',
+      err,
+    )
+  })
+
 function copyFiles(sourceDir, targetDir) {
   const files = fs.readdirSync(path.join(projectRoot, sourceDir))
   files.forEach(file => {

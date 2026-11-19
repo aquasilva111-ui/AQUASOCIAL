@@ -9,6 +9,8 @@ AddType application/xml .xml
 <IfModule mod_headers.c>
   Header always merge Vary "Accept" "expr=%{THE_REQUEST} =~ m#^[A-Z]+ /(?:[?][^ ]*)? HTTP/#"
   Header always set Link '</llms.txt>; rel=describedby; type="text/plain", </index.md>; rel=alternate; type="text/markdown"' "expr=%{THE_REQUEST} =~ m#^[A-Z]+ /(?:[?][^ ]*)? HTTP/#"
+  # Only aquaapp.systems is indexable. Every other host stays out of search.
+  Header always set X-Robots-Tag "noindex, nofollow" "expr=%{HTTP_HOST} !~ m#^aquaapp\.systems(?::[0-9]+)?$#i"
 </IfModule>
 
 # Keep generated templates and their routing manifest out of the public URL space.
@@ -23,6 +25,10 @@ RewriteRule ^$ index.md [L]
 
 # Old Aqua Views URLs (/videos/...) now live under /views/.
 RewriteRule ^videos(/.*)?$ /views$1 [R=301,L]
+
+# Hosts other than aquaapp.systems get Disallow: / instead of the public robots.txt.
+RewriteCond %{HTTP_HOST} !^aquaapp\.systems(?::[0-9]+)?$ [NC]
+RewriteRule ^robots\.txt$ /robots-disallow-all.txt [L]
 
 # Serve existing static files and directories normally.
 RewriteCond %{REQUEST_FILENAME} -f [OR]
