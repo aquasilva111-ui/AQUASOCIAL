@@ -3,6 +3,7 @@ const fs = require('fs')
 const {buildSiteDiscovery} = require('./build-site-discovery')
 
 const {copyPublicSiteFiles} = require('./public-site-files')
+const {applyPublicRobots} = require('./deploy-env')
 
 const projectRoot = path.join(__dirname, '..')
 // Consola da Unidade de Inteligência em /ui-ai (página estática; fala com a
@@ -55,10 +56,14 @@ if (fs.existsSync(indexPath)) {
 }
 
 // robots.txt, sitemap.xml, and sitemaps/*.xml. Copy after site discovery so
-// the committed sitemap index is what the export serves. Do not copy
+// the committed sitemap index is what the export serves, then apply the
+// deploy environment. Staging and preview replace robots.txt with
+// Disallow: /. Production keeps the committed file. Do not copy
 // web/.htaccess here: discovery writes the generated rules.
-copyPublicSiteFiles(projectRoot, path.join(projectRoot, 'web-build'))
-console.log('Copied public robots.txt and sitemap files into web-build')
+const webBuild = path.join(projectRoot, 'web-build')
+copyPublicSiteFiles(projectRoot, webBuild)
+applyPublicRobots(projectRoot, webBuild)
+console.log('Copied public sitemap files and wrote robots.txt for this deploy')
 
 function copyFiles(sourceDir, targetDir) {
   const files = fs.readdirSync(path.join(projectRoot, sourceDir))

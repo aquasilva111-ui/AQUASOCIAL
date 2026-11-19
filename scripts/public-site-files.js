@@ -10,6 +10,9 @@ const path = require('path')
  * sitemap.xml with a urlset generated from web/site-info.js.
  * sitemap-posts.xml and sitemap-profiles.xml stay out: they would be empty
  * until an Aqua PDS hostname exists.
+ *
+ * scripts/deploy-env.js may replace robots.txt after this copy when the
+ * build is staging or preview. The file in web/ stays the production policy.
  */
 const PUBLIC_SITE_FILES = [
   'robots.txt',

@@ -59,3 +59,5 @@ jobs:
       - name: Run tests
         run: |
           NODE_ENV=test yarn test --forceExit
+      - name: Web environment and discovery checks
+        run: node --test scripts/test-server-boot.js scripts/test-deploy-env.js scripts/test-site-discovery.js

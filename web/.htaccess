@@ -9,6 +9,10 @@ AddType application/xml .xml
 <IfModule mod_headers.c>
   Header always merge Vary "Accept" "expr=%{THE_REQUEST} =~ m#^[A-Z]+ /(?:[?][^ ]*)? HTTP/#"
   Header always set Link '</llms.txt>; rel=describedby; type="text/plain", </index.md>; rel=alternate; type="text/markdown"' "expr=%{THE_REQUEST} =~ m#^[A-Z]+ /(?:[?][^ ]*)? HTTP/#"
+  # aquaapp.systems and www stay indexable. Every other host (teste.,
+  # a Hostinger preview hostname, anything that is not the public site)
+  # gets noindex even when this build was made without AQUA_DEPLOY_ENV.
+  Header always set X-Robots-Tag "noindex, nofollow" "expr=%{HTTP_HOST} !~ m#^(www\.)?aquaapp\.systems\.?(:[0-9]+)?$#i"
 </IfModule>
 
 # Keep generated templates and their routing manifest out of the public URL space.
@@ -23,6 +27,12 @@ RewriteRule ^$ index.md [L]
 
 # Old Aqua Views URLs (/videos/...) now live under /views/.
 RewriteRule ^videos(/.*)?$ /views$1 [R=301,L]
+
+# Non-production hosts never serve the indexable robots.txt. The disallow
+# file lives under _aqua-pages, which is not a public URL (THE_REQUEST above).
+# Production hosts fall through and serve the real robots.txt file unchanged.
+RewriteCond %{HTTP_HOST} !^(www\.)?aquaapp\.systems\.?(:[0-9]+)?$ [NC]
+RewriteRule ^robots\.txt$ /_aqua-pages/robots.disallow.txt [L]
 
 # Serve existing static files and directories normally.
 RewriteCond %{REQUEST_FILENAME} -f [OR]
