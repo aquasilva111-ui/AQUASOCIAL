@@ -1,5 +1,6 @@
 const assert = require('node:assert/strict')
 const fs = require('node:fs/promises')
+const http = require('node:http')
 const os = require('node:os')
 const path = require('node:path')
 const vm = require('node:vm')
@@ -20,7 +21,10 @@ before(async () => {
     'src/routes.ts',
     'web/.htaccess',
     'web/robots.txt',
+    'web/robots-disallow-all.txt',
     'web/sitemap.xml',
+    'web/sitemap-posts.xml',
+    'web/sitemap-profiles.xml',
     'web/sitemaps/institutional.xml',
     'web/sitemaps/sections.xml',
     'web/webmcp.js',
@@ -48,20 +52,57 @@ after(async () => {
   if (directory) await fs.rm(directory, {recursive: true, force: true})
 })
 
+function fetchHost(url, host) {
+  return new Promise((resolve, reject) => {
+    const target = new URL(url)
+    const req = http.request(
+      {
+        hostname: target.hostname,
+        port: target.port,
+        path: `${target.pathname}${target.search}`,
+        headers: {Host: host},
+      },
+      res => {
+        res.setEncoding('utf8')
+        let text = ''
+        res.on('data', chunk => {
+          text += chunk
+        })
+        res.on('end', () =>
+          resolve({
+            status: res.statusCode,
+            headers: res.headers,
+            text,
+          }),
+        )
+      },
+    )
+    req.on('error', reject)
+    req.end()
+  })
+}
+
 test('publishes crawl files and indexable pages with unique titles, headings and canonicals', async () => {
-  const robots = await fetch(`${baseUrl}/robots.txt`)
-  const robotsText = await robots.text()
+  const blocked = await fetch(`${baseUrl}/robots.txt`)
+  const blockedText = await blocked.text()
+  assert.equal(blockedText, 'User-agent: *\nDisallow: /\n')
+  assert.equal(blocked.headers.get('x-robots-tag'), 'noindex, nofollow')
+  const robots = await fetchHost(`${baseUrl}/robots.txt`, 'aquaapp.systems')
+  const robotsText = robots.text
   assert.match(robotsText, /Content-Signal: search=yes, ai-train=yes/)
   assert.match(robotsText, /^Disallow: \/onboarding$/m)
   assert.match(robotsText, /^Disallow: \/oauth\/callback$/m)
   assert.doesNotMatch(robotsText, /^Disallow: \/login$/m)
   assert.doesNotMatch(robotsText, /^Disallow: \/register$/m)
+  assert.equal(robots.headers['x-robots-tag'], undefined)
   const sitemap = await fetch(`${baseUrl}/sitemap.xml`)
   assert.match(sitemap.headers.get('content-type'), /^application\/xml/)
   const xml = await sitemap.text()
   assert.match(xml, /<sitemapindex\b/)
   assert.ok(xml.includes(`${origin}/sitemaps/institutional.xml`))
   assert.ok(xml.includes(`${origin}/sitemaps/sections.xml`))
+  assert.ok(xml.includes(`${origin}/sitemap-posts.xml`))
+  assert.ok(xml.includes(`${origin}/sitemap-profiles.xml`))
   for (const child of [
     '/sitemaps/institutional.xml',
     '/sitemaps/sections.xml',
@@ -76,6 +117,7 @@ test('publishes crawl files and indexable pages with unique titles, headings and
   for (const page of Object.keys(pages)) {
     const response = await fetch(baseUrl + page)
     assert.equal(response.status, 200)
+    assert.equal(response.headers.get('x-robots-tag'), 'noindex, nofollow')
     const html = await response.text()
     assert.equal((html.match(/<h1\b/g) || []).length, 1, page)
     assert.ok(html.includes(`rel="canonical" href="${origin + page}"`), page)

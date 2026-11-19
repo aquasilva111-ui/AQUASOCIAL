@@ -23,7 +23,14 @@ The post-build script generates `web-build/.htaccess` for static Hostinger
 deploys while preserving static asset requests. It also copies `web/robots.txt`,
 `web/sitemap.xml`, and `web/sitemaps/*.xml`. Those files are real files in the
 export, so Apache serves them. A missing `.txt` or `.xml` is not rewritten to
-`index.html`.
+`index.html`. `scripts/emit-aqua-sitemap.js` then rewrites `sitemap-posts.xml`
+and `sitemap-profiles.xml` from the public Aqua PDS (`https://pds.aquaapp.online`,
+`com.atproto.sync.listRepos` and `app.bsky.feed.post` records). Profile URLs are
+`/profile/<handle>` and post URLs are `/profile/<handle>/post/<rkey>`. Deactivated
+accounts, takedowns, `!no-unauthenticated`, `!hide`, and adult labels stay out.
+If the PDS does not answer, those two files are written empty and the build
+continues. Only `aquaapp.systems` is indexable: any other host gets
+`X-Robots-Tag: noindex` and `Disallow: /`.
 
 ## Agent discovery and MCP
 

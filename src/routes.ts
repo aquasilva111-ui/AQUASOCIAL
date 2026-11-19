@@ -153,6 +153,8 @@ export const router = new Router<AllNavigatableRoutes>({
   ActivityNotificationSettings: '/settings/notifications/activity',
   MiscellaneousNotificationSettings: '/settings/notifications/miscellaneous',
   // support
+  About: '/about',
+  Contact: '/contact',
   Support: '/support',
   PrivacyPolicy: '/support/privacy',
   TermsOfService: '/support/tos',

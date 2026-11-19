@@ -28,6 +28,7 @@ import {
 import {useWebScrollRestoration} from '#/lib/hooks/useWebScrollRestoration'
 import {lazyNamed} from '#/lib/lazyScreen'
 import {logger as notyLogger} from '#/lib/notifications/util'
+import {syncPublicDocument} from '#/lib/public-site'
 import {buildStateObject} from '#/lib/routes/helpers'
 import {
   type AllNavigatorParams,
@@ -51,7 +52,9 @@ import {
   shouldRequestEmailConfirmation,
   snoozeEmailConfirmationPrompt,
 } from '#/state/shell/reminders'
+import {AboutScreen} from '#/view/screens/About'
 import {CommunityGuidelinesScreen} from '#/view/screens/CommunityGuidelines'
+import {ContactScreen} from '#/view/screens/Contact'
 import {CopyrightPolicyScreen} from '#/view/screens/CopyrightPolicy'
 import {DebugModScreen} from '#/view/screens/DebugMod'
 import {FeedsScreen} from '#/view/screens/Feeds'
@@ -565,6 +568,16 @@ function commonScreens(Stack: typeof Flat, unreadCountLabel?: string) {
         name="Log"
         getComponent={() => LogScreen}
         options={{title: title(msg`Log`), requireAuth: true}}
+      />
+      <Stack.Screen
+        name="About"
+        getComponent={() => AboutScreen}
+        options={{title: title(msg`About`)}}
+      />
+      <Stack.Screen
+        name="Contact"
+        getComponent={() => ContactScreen}
+        options={{title: title(msg`Contact`)}}
       />
       <Stack.Screen
         name="Support"
@@ -1577,13 +1590,17 @@ function RoutesContainer({children}: React.PropsWithChildren<{}>) {
         ref={navigationRef}
         linking={LINKING}
         theme={theme}
-        onStateChange={() => {
+        onStateChange={state => {
           logger.metric(
             'router:navigate',
             {from: prevLoggedRouteName.current},
             {statsig: false},
           )
           prevLoggedRouteName.current = getCurrentRouteName()
+          if (isWeb && state) {
+            const path = LINKING.getPathFromState(state)
+            if (path) syncPublicDocument(path)
+          }
         }}
         onReady={() => {
           attachRouteToLogEvents(getCurrentRouteName)
@@ -1591,6 +1608,9 @@ function RoutesContainer({children}: React.PropsWithChildren<{}>) {
           onReady()
           logger.metric('router:navigate', {}, {statsig: false})
           handlePushNotificationEntry()
+          if (isWeb && typeof window !== 'undefined') {
+            syncPublicDocument(window.location.pathname)
+          }
         }}
         // WARNING: Implicit navigation to nested navigators is depreciated in React Navigation 7.x
         // However, there's a fair amount of places we do that, especially in when popping to the top of stacks.

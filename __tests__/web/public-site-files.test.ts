@@ -155,6 +155,8 @@ describe('public robots.txt and sitemap', () => {
     expect(locs(index)).toEqual([
       `${ORIGIN}/sitemaps/institutional.xml`,
       `${ORIGIN}/sitemaps/sections.xml`,
+      `${ORIGIN}/sitemap-posts.xml`,
+      `${ORIGIN}/sitemap-profiles.xml`,
     ])
     expect(locs(institutional)).toEqual(INSTITUTIONAL.map(p => `${ORIGIN}${p}`))
     expect(locs(sections)).toEqual(
@@ -166,8 +168,22 @@ describe('public robots.txt and sitemap', () => {
     for (const pathName of listed) {
       expect(DISALLOW.some(prefix => pathName.startsWith(prefix))).toBe(false)
     }
-    expect(index).not.toContain('sitemap-posts.xml')
-    expect(index).not.toContain('sitemap-profiles.xml')
+    const posts = readWeb('sitemap-posts.xml')
+    const profiles = readWeb('sitemap-profiles.xml')
+    assertWellFormedXml(posts, 'urlset')
+    assertWellFormedXml(profiles, 'urlset')
+    for (const loc of [...locs(posts), ...locs(profiles)]) {
+      const pathName = new URL(loc).pathname
+      expect(loc.startsWith(`${ORIGIN}/profile/`)).toBe(true)
+      expect(pathName === '/adult' || pathName.startsWith('/adult/')).toBe(
+        false,
+      )
+      expect(pathName).not.toContain('.bsky.social')
+      expect(pathName).not.toContain('.bsky.app')
+      expect(pathName).not.toContain('.bsky.team')
+    }
+    expect(posts).not.toContain('/adult')
+    expect(profiles).not.toContain('/adult')
     expect(institutional).not.toContain('/about')
     expect(institutional).not.toContain('/contact')
   })
@@ -199,5 +215,12 @@ describe('public robots.txt and sitemap', () => {
     expect(fileRule).toBeGreaterThan(-1)
     expect(terminal).toBeGreaterThan(fileRule)
     expect(htaccess).not.toMatch(/RewriteRule \^ index\.html/)
+    expect(htaccess).toContain('robots-disallow-all.txt')
+    expect(htaccess).toContain('X-Robots-Tag')
+    expect(htaccess).toContain('!^aquaapp\\.systems')
+    expect(readWeb('robots-disallow-all.txt')).toBe(
+      'User-agent: *\nDisallow: /\n',
+    )
+    expect(readWeb('robots.txt')).not.toMatch(/^Disallow:\s*\/\s*$/m)
   })
 })

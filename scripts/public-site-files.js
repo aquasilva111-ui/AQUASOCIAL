@@ -8,12 +8,16 @@ const path = require('path')
  *
  * build-site-discovery.js copies the same paths. It must not replace
  * sitemap.xml with a urlset generated from web/site-info.js.
- * sitemap-posts.xml and sitemap-profiles.xml stay out: they would be empty
- * until an Aqua PDS hostname exists.
+ * sitemap-posts.xml and sitemap-profiles.xml are filled by
+ * scripts/emit-aqua-sitemap.js from the Aqua PDS. robots-disallow-all.txt
+ * is what every host other than aquaapp.systems serves as /robots.txt.
  */
 const PUBLIC_SITE_FILES = [
   'robots.txt',
+  'robots-disallow-all.txt',
   'sitemap.xml',
+  'sitemap-posts.xml',
+  'sitemap-profiles.xml',
   'sitemaps/institutional.xml',
   'sitemaps/sections.xml',
 ]
