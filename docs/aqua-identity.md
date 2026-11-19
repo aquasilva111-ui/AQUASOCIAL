@@ -14,7 +14,7 @@ O app é o fork do Bluesky (React Native / Expo). A sessão herdada fica em `src
 - `createAgentAndCreateAccount` cria conta no mesmo serviço, também com senha só no pedido.
 - O roteador (`src/routes.ts`) não tinha `/login`, `/register` nem `/onboarding`. A home é `/`.
 - O site publicado é export estático (`yarn build-web`) com `web/.htaccess` na Hostinger. Arquivo que existe é servido; `.json` ausente não vira o SPA.
-- `deploy/pds/` tem um compose de exemplo do PDS oficial. Não é o PDS em produção da AQUA. As contas atuais continuam em bsky.social.
+- `infra/pds/` é a configuração atual do PDS oficial (compose, env de exemplo e Caddyfile). `deploy/pds/` é um esboço anterior. Nenhum dos dois é o PDS em produção. As contas atuais continuam em bsky.social. O passo a passo está em `docs/aqua-pds.md`.
 
 A mudança nova não substitui essa sessão. As rotas `/login`, `/register`, `/onboarding`, `/oauth/callback` e `/settings/identity` ficam ao lado. A aba Mailssage e a rota `/ui-ai` não foram alteradas.
 
@@ -75,7 +75,7 @@ Sem sessão de PDS, a tela mostra o plano e o motivo, e não finge que o handle 
 
 - Confirmação: `com.atproto.server.requestEmailConfirmation` e `confirmEmail`, com a sessão OAuth ou com o JWT do PDS próprio guardado só em `sessionStorage`.
 - Recuperação de senha: só no PDS da AQUA (`requestPasswordReset` / `resetPassword`), na tela `/login`. Conta Bluesky recupera a senha no PDS dela. A AQUA não pede essa senha.
-- Limite local: 5 entradas em 15 minutos, 3 cadastros e 3 recuperações por hora, por identificador. Isso mora na memória da aba. Não substitui o limite do PDS (`PDS_RATE_LIMITS_ENABLED` no exemplo de `deploy/pds`) nem o do BFF.
+- Limite local: 5 entradas em 15 minutos, 3 cadastros e 3 recuperações por hora, por identificador. Isso mora na memória da aba. Não substitui o limite do PDS (`PDS_RATE_LIMITS_ENABLED` em `infra/pds/pds.env.example`) nem o do BFF.
 - Convite (`EXPO_PUBLIC_AQUA_IDENTITY_INVITE_REQUIRED`) e captcha (`EXPO_PUBLIC_AQUA_IDENTITY_CAPTCHA_ENABLED` mais a site key) travam o cadastro quando ligados. Token sem site key não passa. A checagem no navegador não prova que o captcha é válido; o BFF ou o PDS precisa verificar.
 
 ## Variáveis
@@ -122,8 +122,7 @@ Quando o Samu quiser ligar, nesta ordem:
 1. Escolher o domínio dos handles e colocar em `EXPO_PUBLIC_AQUA_HANDLE_DOMAIN`.
 2. Definir `EXPO_PUBLIC_AQUA_IDENTITY_ORIGIN` com a origem HTTPS real e gerar o metadata no build. Conferir `https://<origem>/oauth/client-metadata.json` no ar.
 3. Entrar com uma conta bsky.social pela rota `/login` e ver o DID em `/onboarding`.
-4. Subir o PDS (o compose em `deploy/pds/` é o ponto de partida, em outra máquina). Preencher `EXPO_PUBLIC_AQUA_PDS_URL`. Deixar o cadastro desligado até o e-mail, o convite e o limite do PDS estarem revisados.
-5. Só então `EXPO_PUBLIC_AQUA_PDS_SIGNUP_ENABLED=true`.
+4. O PDS já está em `https://pds.aquaapp.online`, com handles `aquaapp.online`. O build de produção usa esses valores e liga o cadastro. Veja `docs/aqua-pds.md`. A tela continua oculta enquanto `/xrpc/_health` não devolver uma versão. No fluxo principal, o Bluesky continua disponível e o captcha do Bluesky não abre quando o serviço é o PDS da AQUA.
 6. Se a sessão precisar ser longa e o token não puder ficar no navegador, instalar e rodar `aqua-identity-service` à parte, com chave privada fora do git e cookie `HttpOnly`. Não apontar o DNS da Hostinger para esse processo até essa revisão.
 
 ## O que está pronto e o que depende de decisão

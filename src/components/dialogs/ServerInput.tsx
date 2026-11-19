@@ -1,9 +1,16 @@
-import {useCallback, useImperativeHandle, useRef, useState} from 'react'
+import {
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from 'react'
 import {View} from 'react-native'
 import {useWindowDimensions} from 'react-native'
 import {msg, Trans} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 
+import {AQUA_PDS_URL, providerChoice} from '#/lib/aqua-pds'
 import {BSKY_SERVICE} from '#/lib/constants'
 import {logger} from '#/logger'
 import * as persisted from '#/state/persisted'
@@ -18,35 +25,46 @@ import {Globe_Stroke2_Corner0_Rounded as Globe} from '#/components/icons/Globe'
 import {InlineLinkText} from '#/components/Link'
 import {Text} from '#/components/Typography'
 
-type SegmentedControlOptions = typeof BSKY_SERVICE | 'custom'
+type SegmentedControlOptions = 'aqua' | 'bsky' | 'custom'
 
 export function ServerInputDialog({
   control,
   onSelect,
+  serviceUrl,
 }: {
   control: Dialog.DialogOuterProps['control']
   onSelect: (url: string) => void
+  serviceUrl: string
 }) {
   const {height} = useWindowDimensions()
   const formRef = useRef<DialogInnerRef>(null)
 
   // persist these options between dialog open/close
-  const [fixedOption, setFixedOption] =
-    useState<SegmentedControlOptions>(BSKY_SERVICE)
-  const [previousCustomAddress, setPreviousCustomAddress] = useState('')
+  const [fixedOption, setFixedOption] = useState<SegmentedControlOptions>(
+    providerChoice(serviceUrl),
+  )
+  const [previousCustomAddress, setPreviousCustomAddress] = useState(
+    providerChoice(serviceUrl) === 'custom' ? serviceUrl : '',
+  )
+
+  useEffect(() => {
+    const choice = providerChoice(serviceUrl)
+    setFixedOption(choice)
+    if (choice === 'custom') setPreviousCustomAddress(serviceUrl)
+  }, [serviceUrl])
 
   const onClose = useCallback(() => {
     const result = formRef.current?.getFormState()
     if (result) {
       onSelect(result)
-      if (result !== BSKY_SERVICE) {
+      if (result !== AQUA_PDS_URL && result !== BSKY_SERVICE) {
         setPreviousCustomAddress(result)
       }
     }
     logger.metric('signin:hostingProviderPressed', {
-      hostingProviderDidChange: fixedOption !== BSKY_SERVICE,
+      hostingProviderDidChange: fixedOption !== providerChoice(serviceUrl),
     })
-  }, [onSelect, fixedOption])
+  }, [onSelect, fixedOption, serviceUrl])
 
   return (
     <Dialog.Outer
@@ -100,8 +118,10 @@ function DialogInner({
           if (!url) {
             return null
           }
+        } else if (fixedOption === 'bsky') {
+          url = BSKY_SERVICE
         } else {
-          url = fixedOption
+          url = AQUA_PDS_URL
         }
         if (!url.startsWith('http://') && !url.startsWith('https://')) {
           if (url === 'localhost' || url.startsWith('localhost:')) {
@@ -142,11 +162,19 @@ function DialogInner({
           value={fixedOption}
           onChange={setFixedOption}>
           <SegmentedControl.Item
-            testID="bskyServiceSelectBtn"
-            value={BSKY_SERVICE}
+            testID="aquaServiceSelectBtn"
+            value="aqua"
             label={_(msg`Aqua`)}>
             <SegmentedControl.ItemText>
               {_(msg`Aqua`)}
+            </SegmentedControl.ItemText>
+          </SegmentedControl.Item>
+          <SegmentedControl.Item
+            testID="bskyServiceSelectBtn"
+            value="bsky"
+            label={_(msg`Bluesky`)}>
+            <SegmentedControl.ItemText>
+              {_(msg`Bluesky`)}
             </SegmentedControl.ItemText>
           </SegmentedControl.Item>
           <SegmentedControl.Item
@@ -159,7 +187,7 @@ function DialogInner({
           </SegmentedControl.Item>
         </SegmentedControl.Root>
 
-        {fixedOption === BSKY_SERVICE && isFirstTimeUser && (
+        {fixedOption === 'aqua' && isFirstTimeUser && (
           <View role="tabpanel">
             <Admonition type="tip">
               <Trans>

@@ -6,6 +6,7 @@ import {AppBskyGraphStarterpack} from '@atproto/api'
 import {msg, Trans} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 
+import {signupNeedsCaptcha} from '#/lib/aqua-pds'
 import {FEEDBACK_FORM_URL} from '#/lib/constants'
 import {logger} from '#/logger'
 import {isAndroid} from '#/platform/detection'
@@ -49,6 +50,10 @@ export function Signup({onPressBack}: {onPressBack: () => void}) {
     uri: activeStarterPack?.uri,
   })
 
+  const needsCaptcha = signupNeedsCaptcha(
+    state.serviceUrl,
+    state.serviceDescription,
+  )
   const [isFetchedAtMount] = useState(starterPack != null)
   const showStarterPackCard =
     activeStarterPack?.uri && !isFetchingStarterPack && starterPack
@@ -168,19 +173,17 @@ export function Signup({onPressBack}: {onPressBack: () => void}) {
                       style={[a.font_semi_bold, t.atoms.text_contrast_medium]}>
                       <Trans>
                         Step {state.activeStep + 1} of{' '}
-                        {state.serviceDescription &&
-                        !state.serviceDescription.phoneVerificationRequired
-                          ? '2'
-                          : '3'}
+                        {needsCaptcha ? '3' : '2'}
                       </Trans>
                     </Text>
                     <Text style={[a.text_3xl, a.font_semi_bold]}>
                       {state.activeStep === SignupStep.INFO ? (
                         <Trans>Your account</Trans>
-                      ) : state.activeStep === SignupStep.HANDLE ? (
-                        <Trans>Choose your username</Trans>
-                      ) : (
+                      ) : state.activeStep === SignupStep.CAPTCHA &&
+                        needsCaptcha ? (
                         <Trans>Complete the challenge</Trans>
+                      ) : (
+                        <Trans>Choose your username</Trans>
                       )}
                     </Text>
                   </View>
@@ -194,10 +197,11 @@ export function Signup({onPressBack}: {onPressBack: () => void}) {
                       isServerError={isError}
                       refetchServer={refetch}
                     />
-                  ) : state.activeStep === SignupStep.HANDLE ? (
-                    <StepHandle />
-                  ) : (
+                  ) : state.activeStep === SignupStep.CAPTCHA &&
+                    needsCaptcha ? (
                     <StepCaptcha />
+                  ) : (
+                    <StepHandle />
                   )}
 
                   <Divider />

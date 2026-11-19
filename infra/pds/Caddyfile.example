@@ -1,0 +1,17 @@
+# Caddyfile que o installer.sh oficial grava em /pds/caddy/etc/caddy/Caddyfile.
+# Host do PDS e curinga da zona de handles que já estão no ar.
+# O e-mail ACME é o contato do certificado, não um segredo.
+
+{
+	email confirmation@aquaapp.online
+	on_demand_tls {
+		ask http://localhost:3000/tls-check
+	}
+}
+
+pds.aquaapp.online, *.aquaapp.online {
+	tls {
+		on_demand
+	}
+	reverse_proxy http://localhost:3000
+}

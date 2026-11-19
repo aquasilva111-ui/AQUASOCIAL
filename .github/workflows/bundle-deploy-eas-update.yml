@@ -109,6 +109,12 @@ jobs:
           export json='${{ secrets.GOOGLE_SERVICES_TOKEN }}'
           echo "${{ secrets.ENV_TOKEN }}" > .env
           echo "EXPO_PUBLIC_ENV=${{ inputs.channel || 'testflight' }}" >> .env
+          if [ "${{ inputs.channel || 'testflight' }}" = "production" ]; then
+            echo "EXPO_PUBLIC_AQUA_PDS_URL=https://pds.aquaapp.online" >> .env
+            echo "EXPO_PUBLIC_AQUA_HANDLE_DOMAIN=aquaapp.online" >> .env
+            echo "EXPO_PUBLIC_AQUA_PDS_SIGNUP_ENABLED=true" >> .env
+            echo "EXPO_PUBLIC_AQUA_IDENTITY_INVITE_REQUIRED=false" >> .env
+          fi
           echo "EXPO_PUBLIC_RELEASE_VERSION=$(jq -r '.version' package.json)" >> .env
           echo "EXPO_PUBLIC_RELEASE_VERSION=$(jq -r '.version' package.json)" >> $GITHUB_OUTPUT
           echo "EXPO_PUBLIC_BUNDLE_IDENTIFIER=$(git rev-parse HEAD)" >> .env

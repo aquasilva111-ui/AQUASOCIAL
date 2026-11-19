@@ -9,9 +9,10 @@ import Animated, {
 import {msg, Plural, Trans} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 
+import {signupNeedsCaptcha} from '#/lib/aqua-pds'
 import {
   createFullHandle,
-  MAX_SERVICE_HANDLE_LENGTH,
+  maxServiceHandleLength,
   validateServiceHandle,
 } from '#/lib/strings/handles'
 import {logger} from '#/logger'
@@ -37,6 +38,7 @@ export function StepHandle() {
   const isNextLoading = useThrottledValue(state.isLoading, 500)
 
   const validCheck = validateServiceHandle(draftValue, state.userDomain)
+  const handleLimit = maxServiceHandleLength(state.userDomain)
 
   const {
     debouncedUsername: debouncedDraftValue,
@@ -97,8 +99,8 @@ export function StepHandle() {
       },
       {statsig: true},
     )
-    // phoneVerificationRequired is actually whether a captcha is required
-    if (!state.serviceDescription?.phoneVerificationRequired) {
+    // The AQUA PDS has no Bluesky gate. Other servers still use this field.
+    if (!signupNeedsCaptcha(state.serviceUrl, state.serviceDescription)) {
       dispatch({
         type: 'submit',
         task: {verificationCode: undefined, mutableProcessed: false},
@@ -232,10 +234,7 @@ export function StepHandle() {
                 <RequirementText>
                   <Trans>
                     Username cannot be longer than{' '}
-                    <Plural
-                      value={MAX_SERVICE_HANDLE_LENGTH}
-                      other="# characters"
-                    />
+                    <Plural value={handleLimit} other="# characters" />
                   </Trans>
                 </RequirementText>
               )}

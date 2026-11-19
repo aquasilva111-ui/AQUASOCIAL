@@ -1,3 +1,8 @@
+import {
+  configuredAquaPdsUrl,
+  configuredHandleDomain,
+  configuredSignupEnabled,
+} from '#/lib/aqua-pds'
 import {type AquaIdentityConfig} from './types'
 
 export const AQUA_OAUTH_SCOPE = 'atproto transition:generic'
@@ -32,6 +37,7 @@ const BUILD_ENV: Record<string, string | undefined> = {
     process.env.EXPO_PUBLIC_AQUA_IDENTITY_PLC_URL,
   EXPO_PUBLIC_AQUA_IDENTITY_DOH_URL:
     process.env.EXPO_PUBLIC_AQUA_IDENTITY_DOH_URL,
+  EXPO_PUBLIC_ENV: process.env.EXPO_PUBLIC_ENV,
 }
 
 function read(env: Record<string, string | undefined>, key: string): string {
@@ -54,8 +60,9 @@ function serviceOrigin(value: string): string {
 }
 
 /**
- * Signup stays off unless a PDS URL exists and the flag is explicitly true.
- * The handle domain is never assumed: an empty string means "not chosen yet".
+ * Outside a production build, signup stays off until the URL and the flag
+ * are set. A production build (EXPO_PUBLIC_ENV=production) defaults to the
+ * live AQUA PDS. An explicit false still turns signup off.
  */
 export function readAquaIdentityConfig(
   env?: Record<string, string | undefined>,
@@ -63,16 +70,22 @@ export function readAquaIdentityConfig(
   // Callers that omit env get the build-time map. Comparing to process.env
   // fails after the bundler replaces each process.env with a new object.
   const source = env ?? BUILD_ENV
-  const pdsUrl = read(source, 'EXPO_PUBLIC_AQUA_PDS_URL').replace(/\/$/, '')
-  const signupFlag = flag(read(source, 'EXPO_PUBLIC_AQUA_PDS_SIGNUP_ENABLED'))
+  const pdsUrl =
+    read(source, 'EXPO_PUBLIC_AQUA_PDS_URL').replace(/\/$/, '') ||
+    configuredAquaPdsUrl(source)
+  const signupRaw = read(source, 'EXPO_PUBLIC_AQUA_PDS_SIGNUP_ENABLED')
+  const signupFlag = signupRaw
+    ? flag(signupRaw)
+    : configuredSignupEnabled(source)
+  const handleFromEnv = read(source, 'EXPO_PUBLIC_AQUA_HANDLE_DOMAIN')
+    .replace(/^\.+/, '')
+    .toLowerCase()
   return {
     origin: read(source, 'EXPO_PUBLIC_AQUA_IDENTITY_ORIGIN').replace(/\/$/, ''),
     serviceUrl: serviceOrigin(
       read(source, 'EXPO_PUBLIC_AQUA_IDENTITY_SERVICE_URL'),
     ),
-    handleDomain: read(source, 'EXPO_PUBLIC_AQUA_HANDLE_DOMAIN')
-      .replace(/^\./, '')
-      .toLowerCase(),
+    handleDomain: handleFromEnv || configuredHandleDomain(source),
     pdsUrl,
     pdsSignupEnabled: signupFlag && pdsUrl.length > 0,
     inviteRequired: flag(

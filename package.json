@@ -29,7 +29,7 @@
     "web": "expo start --web",
     "use-build-number": "./scripts/useBuildNumberEnv.sh",
     "use-build-number-with-bump": "./scripts/useBuildNumberEnvWithBump.sh",
-    "build-web": "expo export:web && node ./scripts/post-web-build.js",
+    "build-web": "EXPO_PUBLIC_AQUA_PDS_URL=https://pds.aquaapp.online EXPO_PUBLIC_AQUA_HANDLE_DOMAIN=aquaapp.online EXPO_PUBLIC_AQUA_PDS_SIGNUP_ENABLED=true EXPO_PUBLIC_AQUA_IDENTITY_INVITE_REQUIRED=false expo export:web && node ./scripts/post-web-build.js",
     "build-all": "yarn intl:build && yarn use-build-number-with-bump eas build --platform all",
     "build-ios": "yarn use-build-number-with-bump eas build -p ios",
     "build-android": "yarn use-build-number-with-bump eas build -p android",

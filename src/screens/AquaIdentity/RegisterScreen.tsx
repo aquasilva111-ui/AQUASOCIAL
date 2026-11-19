@@ -1,4 +1,4 @@
-import {useState} from 'react'
+import {useEffect, useState} from 'react'
 import {View} from 'react-native'
 
 import {saveEphemeralPdsSession} from '#/lib/aqua-identity/accounts'
@@ -7,7 +7,12 @@ import {
   signupAvailability,
 } from '#/lib/aqua-identity/config'
 import {formatAquaHandle} from '#/lib/aqua-identity/handles'
-import {createNativeAccount} from '#/lib/aqua-identity/pds'
+import {
+  checkPdsHealth,
+  createNativeAccount,
+  nativeSignupOffer,
+  type PdsHealth,
+} from '#/lib/aqua-identity/pds'
 import {reasonText} from '#/lib/aqua-identity/reasons'
 import {attemptLimiter, rememberAccount} from '#/lib/aqua-identity/runtime'
 import {sessionBrowserStore} from '#/lib/aqua-identity/storage'
@@ -26,6 +31,8 @@ export function AquaIdentityRegisterScreen() {
   const go = useGoToIdentity()
   const config = readAquaIdentityConfig()
   const gate = signupAvailability(config)
+  const configuredPds = gate.enabled ? gate.pdsUrl : ''
+  const [health, setHealth] = useState<PdsHealth | undefined>()
   const [email, setEmail] = useState('')
   const [local, setLocal] = useState('')
   const [password, setPassword] = useState('')
@@ -34,8 +41,34 @@ export function AquaIdentityRegisterScreen() {
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const handle = formatAquaHandle(local || 'nome', config.handleDomain)
+  const offer = nativeSignupOffer({
+    config,
+    health: configuredPds ? health : undefined,
+  })
+
+  useEffect(() => {
+    if (!configuredPds) return
+    let cancelled = false
+    checkPdsHealth({
+      pdsUrl: configuredPds,
+      fetch: globalThis.fetch.bind(globalThis),
+    })
+      .then(result => {
+        if (!cancelled) setHealth(result)
+      })
+      .catch(() => {
+        if (!cancelled) setHealth({ok: false, reason: 'pds-unreachable'})
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [configuredPds])
 
   const submit = async () => {
+    if (!offer.showForm) {
+      setError(reasonText(offer.reason))
+      return
+    }
     setError('')
     setBusy(true)
     try {
@@ -77,105 +110,107 @@ export function AquaIdentityRegisterScreen() {
       leadin="AQUA"
       title="Criar conta"
       description="O cadastro nativo só abre quando o PDS da AQUA estiver configurado.">
-      <Admonition type={gate.enabled ? 'tip' : 'warning'}>
-        {gate.enabled
-          ? 'O PDS da AQUA está aceitando cadastro. A senha segue só até esse PDS e não fica na AQUA.'
-          : 'O cadastro nativo está desligado. As contas de hoje estão em bsky.social. Você pode entrar com uma conta que já existe.'}
+      <Admonition type={offer.showForm ? 'tip' : 'warning'}>
+        {offer.showForm
+          ? `O PDS ${offer.pdsUrl} respondeu em /xrpc/_health (${offer.version}). A senha segue só até esse PDS e não fica na AQUA.`
+          : reasonText(offer.reason)}
       </Admonition>
-      <View>
-        <TextField.LabelText>E-mail</TextField.LabelText>
-        <TextField.Root>
-          <TextField.Input
-            testID="aquaIdentityEmail"
-            label="E-mail"
-            value={email}
-            onChangeText={setEmail}
-            autoCapitalize="none"
-            autoComplete="email"
-            keyboardType="email-address"
-          />
-        </TextField.Root>
-      </View>
-      <View>
-        <TextField.LabelText>Nome do handle</TextField.LabelText>
-        <TextField.Root>
-          <TextField.Input
-            testID="aquaIdentityHandle"
-            label="Nome do handle"
-            value={local}
-            onChangeText={setLocal}
-            autoCapitalize="none"
-            autoCorrect={false}
-          />
-        </TextField.Root>
-        <HintText>
-          {handle.ok
-            ? `Handle ${handle.handle}. O domínio vem da configuração.`
-            : reasonText(handle.reason)}
-        </HintText>
-      </View>
-      <View>
-        <TextField.LabelText>Senha do PDS</TextField.LabelText>
-        <TextField.Root>
-          <TextField.Input
-            testID="aquaIdentityPassword"
-            label="Senha do PDS"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            autoCapitalize="none"
-            autoComplete="new-password"
-          />
-        </TextField.Root>
-        <HintText>
-          Essa senha não é gravada no site nem num servidor da AQUA.
-        </HintText>
-      </View>
-      {config.inviteRequired ? (
-        <View>
-          <TextField.LabelText>Código de convite</TextField.LabelText>
-          <TextField.Root>
-            <TextField.Input
-              label="Código de convite"
-              value={invite}
-              onChangeText={setInvite}
-              autoCapitalize="none"
-            />
-          </TextField.Root>
-        </View>
+      {offer.showForm ? (
+        <>
+          <View>
+            <TextField.LabelText>E-mail</TextField.LabelText>
+            <TextField.Root>
+              <TextField.Input
+                testID="aquaIdentityEmail"
+                label="E-mail"
+                value={email}
+                onChangeText={setEmail}
+                autoCapitalize="none"
+                autoComplete="email"
+                keyboardType="email-address"
+              />
+            </TextField.Root>
+          </View>
+          <View>
+            <TextField.LabelText>Nome do handle</TextField.LabelText>
+            <TextField.Root>
+              <TextField.Input
+                testID="aquaIdentityHandle"
+                label="Nome do handle"
+                value={local}
+                onChangeText={setLocal}
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+            </TextField.Root>
+            <HintText>
+              {handle.ok
+                ? `Handle ${handle.handle}. O domínio vem da configuração.`
+                : reasonText(handle.reason)}
+            </HintText>
+          </View>
+          <View>
+            <TextField.LabelText>Senha do PDS</TextField.LabelText>
+            <TextField.Root>
+              <TextField.Input
+                testID="aquaIdentityPassword"
+                label="Senha do PDS"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+                autoCapitalize="none"
+                autoComplete="new-password"
+              />
+            </TextField.Root>
+            <HintText>
+              Essa senha não é gravada no site nem num servidor da AQUA.
+            </HintText>
+          </View>
+          {config.inviteRequired ? (
+            <View>
+              <TextField.LabelText>Código de convite</TextField.LabelText>
+              <TextField.Root>
+                <TextField.Input
+                  label="Código de convite"
+                  value={invite}
+                  onChangeText={setInvite}
+                  autoCapitalize="none"
+                />
+              </TextField.Root>
+            </View>
+          ) : null}
+          {config.captchaEnabled ? (
+            <View>
+              <TextField.LabelText>Verificação antiabuso</TextField.LabelText>
+              <TextField.Root>
+                <TextField.Input
+                  label="Token da verificação"
+                  value={captcha}
+                  onChangeText={setCaptcha}
+                  autoCapitalize="none"
+                />
+              </TextField.Root>
+              <HintText>
+                {config.captchaSiteKey
+                  ? `Site key configurada. O BFF precisa validar o token; a presença dele no navegador não prova nada.`
+                  : 'Captcha ligado, sem site key. O cadastro continua bloqueado até a configuração.'}
+              </HintText>
+            </View>
+          ) : null}
+          <FormError error={error} />
+          <Button
+            testID="aquaIdentityCreate"
+            label="Criar conta"
+            color="primary"
+            size="large"
+            disabled={busy}
+            onPress={() => {
+              submit().catch(() => {})
+            }}>
+            <ButtonText>Criar conta</ButtonText>
+          </Button>
+        </>
       ) : null}
-      {config.captchaEnabled ? (
-        <View>
-          <TextField.LabelText>Verificação antiabuso</TextField.LabelText>
-          <TextField.Root>
-            <TextField.Input
-              label="Token da verificação"
-              value={captcha}
-              onChangeText={setCaptcha}
-              autoCapitalize="none"
-            />
-          </TextField.Root>
-          <HintText>
-            {config.captchaSiteKey
-              ? `Site key configurada. O BFF precisa validar o token; a presença dele no navegador não prova nada.`
-              : 'Captcha ligado, sem site key. O cadastro continua bloqueado até a configuração.'}
-          </HintText>
-        </View>
-      ) : null}
-      <FormError error={error} />
-      <Button
-        testID="aquaIdentityCreate"
-        label="Criar conta"
-        color="primary"
-        size="large"
-        disabled={busy}
-        onPress={() => {
-          submit().catch(() => {})
-        }}>
-        <ButtonText>
-          {gate.enabled ? 'Criar conta' : 'Cadastro desligado'}
-        </ButtonText>
-      </Button>
       <Link to="/login" label="Entrar com conta existente">
         <Text style={[a.text_md, a.font_bold, {color: t.palette.primary_500}]}>
           Já tenho uma conta Bluesky

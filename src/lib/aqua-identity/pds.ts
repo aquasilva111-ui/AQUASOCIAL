@@ -1,6 +1,6 @@
 import {assessAbuse} from './abuse'
 import {signupAvailability} from './config'
-import {formatAquaHandle} from './handles'
+import {formatAquaHandle, nativeHandleOnDomain} from './handles'
 import {type SlidingWindowRateLimiter} from './rate-limit'
 import {
   type AquaIdentityAccount,
@@ -19,6 +19,61 @@ export type CreateAccountInput = {
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+export type PdsHealth =
+  | {ok: true; version: string}
+  | {ok: false; reason: 'pds-unset' | 'pds-unhealthy' | 'pds-unreachable'}
+
+/**
+ * GET {pdsUrl}/xrpc/_health. The signup form stays hidden until this returns
+ * a JSON body with a non-empty version string.
+ */
+export async function checkPdsHealth(input: {
+  pdsUrl: string
+  fetch: FetchLike
+}): Promise<PdsHealth> {
+  const base = input.pdsUrl.trim().replace(/\/$/, '')
+  if (!base) return {ok: false, reason: 'pds-unset'}
+  let response: Response
+  try {
+    response = await input.fetch(`${base}/xrpc/_health`, {
+      method: 'GET',
+      headers: {accept: 'application/json'},
+    })
+  } catch {
+    return {ok: false, reason: 'pds-unreachable'}
+  }
+  if (!response.ok) return {ok: false, reason: 'pds-unhealthy'}
+  try {
+    const body = (await response.json()) as {version?: unknown}
+    if (typeof body.version !== 'string' || body.version.trim() === '') {
+      return {ok: false, reason: 'pds-unhealthy'}
+    }
+    return {ok: true, version: body.version.trim()}
+  } catch {
+    return {ok: false, reason: 'pds-unhealthy'}
+  }
+}
+
+/**
+ * The form is shown only when the flag, the PDS URL, the handle domain and
+ * a healthy `/xrpc/_health` are all present. Default config hides it.
+ */
+export function nativeSignupOffer(input: {
+  config: AquaIdentityConfig
+  health?: PdsHealth
+}):
+  | {showForm: true; pdsUrl: string; version: string}
+  | {showForm: false; reason: string} {
+  const gate = signupAvailability(input.config)
+  if (!gate.enabled) return {showForm: false, reason: gate.reason}
+  if (!input.config.handleDomain) {
+    return {showForm: false, reason: 'handle-domain-unset'}
+  }
+  if (!input.health) return {showForm: false, reason: 'pds-health-pending'}
+  if (!input.health.ok) return {showForm: false, reason: input.health.reason}
+  return {showForm: true, pdsUrl: gate.pdsUrl, version: input.health.version}
+}
 
 export function redactSecrets(value: string): string {
   return value
@@ -59,13 +114,18 @@ export async function createNativeAccount(input: {
     input.config.handleDomain,
   )
   if (!handle.ok) return handle
+  const onDomain = nativeHandleOnDomain(
+    handle.handle,
+    input.config.handleDomain,
+  )
+  if (!onDomain.ok) return onDomain
   const limited = input.limiter.consume('register', input.account.email)
   if (!limited.ok) return {ok: false, reason: limited.reason}
 
   const body: Record<string, string> = {
     email: input.account.email.trim(),
     password: input.account.password,
-    handle: handle.handle,
+    handle: onDomain.handle,
   }
   if (input.account.inviteCode?.trim())
     body.inviteCode = input.account.inviteCode.trim()
