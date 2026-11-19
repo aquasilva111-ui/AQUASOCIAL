@@ -669,6 +669,7 @@ describe('AQUA Identity', () => {
   test('616 stays a DID reference and the module does not import auth', () => {
     expect(IDENTITY_616_BOUNDARY.identityDependsOn616).toBe(false)
     expect(IDENTITY_616_BOUNDARY.privateDataOnChain).toBe(false)
+    expect(IDENTITY_616_BOUNDARY.externalLoginSharesSessionWith616).toBe(false)
     const ref = resourceRefForDid(DID, 'resource-1')
     expect(Object.keys(ref).sort()).toEqual(['did', 'resourceId'])
     const source = readFileSync(join(__dirname, '../boundary-616.ts'), 'utf8')

@@ -14,6 +14,7 @@ export const IDENTITY_616_BOUNDARY = {
   protocol: 'atproto',
   identityDependsOn616: false,
   privateDataOnChain: false,
+  externalLoginSharesSessionWith616: false,
   futureAssociation: 'authorized-did-only',
 } as const
 

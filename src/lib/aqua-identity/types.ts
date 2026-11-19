@@ -66,6 +66,7 @@ export type LimitWindow = {
 
 export type AquaIdentityConfig = {
   origin: string
+  serviceUrl: string
   handleDomain: string
   pdsUrl: string
   pdsSignupEnabled: boolean

@@ -43,8 +43,7 @@ const TEXT: Record<string, string> = {
   'pds-rejected': 'O PDS recusou o pedido.',
   'pds-unreachable': 'Não foi possível falar com o PDS.',
   'reset-token-required': 'Informe o código de recuperação enviado pelo PDS.',
-  'session-required':
-    'Essa ação precisa de uma sessão ativa no PDS. Entre de novo.',
+  'session-required': 'Essa ação precisa de uma sessão ativa. Entre de novo.',
   'external-oauth-uses-pds':
     'Contas Bluesky recuperam o acesso no PDS delas. A AQUA não recebe essa senha.',
   'handle-did-mismatch':
@@ -53,6 +52,24 @@ const TEXT: Record<string, string> = {
     'Ainda não encontrei o DID nesse domínio. Publique o TXT ou o well-known e tente de novo.',
   'missing-did':
     'Entre primeiro. A troca de handle usa o DID da conta, que não muda.',
+  'provider-disabled': 'Esse provedor não está configurado.',
+  'token-invalid':
+    'O provedor não confirmou a identidade. Nenhuma conta foi associada.',
+  'account-conflict':
+    'Essa identidade já pertence a outra conta. A AQUA não junta contas pelo e-mail.',
+  'reauth-required':
+    'Entre de novo para vincular ou desvincular. A confirmação precisa ser recente.',
+  'last-method': 'Não dá para remover o último jeito de entrar.',
+  'code-invalid': 'Código inválido ou expirado.',
+  'login-failed': 'Não foi possível entrar.',
+  'csrf-invalid': 'A confirmação de segurança falhou. Atualize a página.',
+  'origin-rejected': 'Essa origem não pode falar com o serviço de identidade.',
+  'email-unavailable': 'Não foi possível enviar o código agora.',
+  'password-depends-on-email':
+    'Remova a senha AQUA antes de desvincular o e-mail.',
+  'email-required': 'Associe um e-mail antes de criar uma senha AQUA.',
+  'password-rejected': 'Essa senha não pode ser usada.',
+  'not-linked': 'Esse provedor não está vinculado.',
 }
 
 export function reasonText(reason: string, fallback?: string): string {

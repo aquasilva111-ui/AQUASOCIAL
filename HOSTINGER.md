@@ -38,7 +38,9 @@ To expose the public MCP endpoint and its discovery card, run the existing Node
 HTTP server behind the domain instead of the static React preset. Use the
 `Other` framework preset on Hostinger with Node 22.x, project root `./`,
 npm, build command `npm run build`, and entry file `server.js` (or start command
-`npm start` where applicable). Route requests through the Node entry point so
+`npm start` where applicable). LiteSpeed loads that entry with `require()`,
+not as the main module; `server.js` listens in that case too, on `PORT`.
+Route requests through the Node entry point so
 homepage negotiation and the MCP paths reach it. Validate this configuration on
 a preview before switching production.
 
