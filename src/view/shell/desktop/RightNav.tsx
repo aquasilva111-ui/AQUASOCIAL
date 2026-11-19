@@ -122,18 +122,16 @@ export function DesktopRightNav({routeName}: {routeName: string}) {
             )}
             {routeName === 'Home' && (
               <>
-                <SimpleInlineLinkText to="/about" label={_(msg`About AQUA`)}>
-                  {_(msg`About AQUA`)}
+                <SimpleInlineLinkText to="/about" label="Sobre a AQUA">
+                  Sobre a AQUA
                 </SimpleInlineLinkText>
                 {' • '}
-                <SimpleInlineLinkText to="/contact" label={_(msg`Contact`)}>
-                  {_(msg`Contact`)}
+                <SimpleInlineLinkText to="/contact" label="Contato">
+                  Contato
                 </SimpleInlineLinkText>
                 {' • '}
-                <SimpleInlineLinkText
-                  to="/terms"
-                  label={_(msg`Terms and privacy`)}>
-                  {_(msg`Terms and privacy`)}
+                <SimpleInlineLinkText to="/terms" label="Termos e privacidade">
+                  Termos e privacidade
                 </SimpleInlineLinkText>
                 {' • '}
               </>
