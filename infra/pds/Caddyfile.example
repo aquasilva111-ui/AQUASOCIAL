@@ -1,20 +1,15 @@
 # Caddyfile que o installer.sh oficial grava em /pds/caddy/etc/caddy/Caddyfile.
-# Troque o e-mail ACME e os hostnames. exemplo.com é placeholder.
-# Não é aquaapp.systems.
-#
-# O instalador só lista PDS_HOSTNAME e *.PDS_HOSTNAME. Se o domínio dos
-# handles for outro (PDS_SERVICE_HANDLE_DOMAINS=.exemplo.com com
-# PDS_HOSTNAME=pds.exemplo.com), inclua os dois nomes no site, senão o
-# certificado de alice.exemplo.com não sai e o handle não resolve por HTTPS.
+# Host do PDS e curinga da zona de handles que já estão no ar.
+# O e-mail ACME é o contato do certificado, não um segredo.
 
 {
-	email admin@exemplo.com
+	email confirmation@aquaapp.online
 	on_demand_tls {
 		ask http://localhost:3000/tls-check
 	}
 }
 
-pds.exemplo.com, *.exemplo.com {
+pds.aquaapp.online, *.aquaapp.online {
 	tls {
 		on_demand
 	}

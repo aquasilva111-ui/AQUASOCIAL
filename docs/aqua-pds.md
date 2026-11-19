@@ -1,8 +1,29 @@
 # PDS da AQUA
 
-Servidor de dados pessoal (PDS) oficial do Bluesky, para a AQUA hospedar contas AT Protocol. O cadastro nativo do app (`com.atproto.server.createAccount` em `src/lib/aqua-identity`) continua desligado. Este documento não contrata VPS, não muda DNS e não publica nada.
+Servidor de dados pessoal (PDS) oficial do Bluesky, para a AQUA hospedar contas AT Protocol. A instalação no VPS já foi feita. Este documento não guarda senha, não muda DNS e não publica nada sozinho.
 
-O domínio dos handles ainda não foi escolhido. Nos exemplos ele se chama `exemplo.com`. Não é `aquaapp.systems`. Esse nome é o site. O PDS precisa de uma máquina e de um nome próprios, porque o instalador oficial ocupa as portas 80 e 443.
+## Estado atual
+
+| | |
+| --- | --- |
+| PDS | `https://pds.aquaapp.online` |
+| DID do serviço | `did:web:pds.aquaapp.online` |
+| Handles | `nome.aquaapp.online` (`PDS_SERVICE_HANDLE_DOMAINS=.aquaapp.online`) |
+| Saúde | `https://pds.aquaapp.online/xrpc/_health` devolve a versão (`0.4.5051` na conferência) |
+| Convite | `inviteCodeRequired=false` |
+| SMTP | configurado, remetente `confirmation@aquaapp.online` |
+| Captcha | o PDS não tem o gate do Bluesky (`/gate/signup`) |
+| Site | `aquaapp.systems` continua sendo o site, não o PDS |
+
+O build de produção (`EXPO_PUBLIC_ENV=production`, os perfis `production` e `production-apk` do EAS, o update OTA no canal `production` e `yarn build-web`) aponta o cadastro nativo para esse PDS e liga `EXPO_PUBLIC_AQUA_PDS_SIGNUP_ENABLED`. O Bluesky (`https://bsky.social`) continua como opção no seletor de provedor. Fora de produção, sem essas variáveis, o cadastro nativo fica desligado e o provedor padrão continua o Bluesky.
+
+Depois de subir ou mudar de host, peça ao relay para ler o PDS. O `PDS_CRAWLERS=https://bsky.network` só anuncia o crawler. O pedido é outro comando, no VPS:
+
+```bash
+sudo pdsadmin request-crawl bsky.network
+```
+
+Sem isso o relay pode não consumir os repositórios novos. Confira em seguida o WebSocket `wss://pds.aquaapp.online/xrpc/com.atproto.sync.subscribeRepos?cursor=0`.
 
 A 616 Network não entra neste servidor. A identidade AT Protocol continua isolada em `src/lib/aqua-identity/boundary-616.ts`.
 
@@ -36,17 +57,17 @@ Há dois nomes. Podem ser o mesmo host ou hosts diferentes. Os dois continuam po
 
 | Nome | Onde | Exemplo (placeholder) | Função |
 | --- | --- | --- | --- |
-| `PDS_HOSTNAME` | `/pds/pds.env` | `pds.exemplo.com` | Host HTTPS do PDS. Saúde em `https://<PDS_HOSTNAME>/xrpc/_health`. |
-| `PDS_SERVICE_HANDLE_DOMAINS` | `/pds/pds.env` | `.exemplo.com` | Zonas de handle que o PDS hospeda. Cada item começa com ponto. Lista separada por vírgula. Se ficar vazio, o PDS usa `.<PDS_HOSTNAME>`. Sem o ponto, o processo recusa subir. |
-| `EXPO_PUBLIC_AQUA_PDS_URL` | build do app | `https://pds.exemplo.com` | Mesmo host, com `https://`, sem barra no fim. |
-| `EXPO_PUBLIC_AQUA_HANDLE_DOMAIN` | build do app | `exemplo.com` | A mesma zona, sem o ponto. Vazio significa "ainda não escolhido". |
+| `PDS_HOSTNAME` | `/pds/pds.env` | `pds.aquaapp.online` | Host HTTPS do PDS. Saúde em `https://pds.aquaapp.online/xrpc/_health`. |
+| `PDS_SERVICE_HANDLE_DOMAINS` | `/pds/pds.env` | `.aquaapp.online` | Zona de handle. O ponto na frente é obrigatório. Sem o ponto, o processo recusa subir. |
+| `EXPO_PUBLIC_AQUA_PDS_URL` | build do app | `https://pds.aquaapp.online` | Mesmo host, com `https://`, sem barra no fim. |
+| `EXPO_PUBLIC_AQUA_HANDLE_DOMAIN` | build do app | `aquaapp.online` | A mesma zona, sem o ponto. |
 
-Handle nativo: `<nome>.<EXPO_PUBLIC_AQUA_HANDLE_DOMAIN>`, um rótulo só. `ada.exemplo.com` serve. `ada.bsky.social` e `ada.aquaapp.systems` não servem enquanto o domínio configurado for outro.
+Handle nativo: `<nome>.aquaapp.online`, um rótulo só. O nome continua limitado a 18 caracteres, no Bluesky e no PDS da AQUA, e o handle inteiro não passa de 253. O formulário recusa o que passa disso e volta para o passo do nome, sem abrir o captcha.
 
 Dois jeitos válidos:
 
-- Um nome só, que é o que o instalador oficial faz. `PDS_HOSTNAME=exemplo.com`. Handles `alice.exemplo.com`. Pode omitir `PDS_SERVICE_HANDLE_DOMAINS`. DNS: `exemplo.com` e `*.exemplo.com`.
-- Host do PDS separado da zona dos handles, que é o que os arquivos de exemplo mostram para as duas variáveis ficarem visíveis. `PDS_HOSTNAME=pds.exemplo.com` e `PDS_SERVICE_HANDLE_DOMAINS=.exemplo.com`. O Caddy gerado pelo instalador só cobre `PDS_HOSTNAME` e `*.PDS_HOSTNAME`. Nesse caso o Caddyfile precisa listar também `*.exemplo.com`. O modelo está em `infra/pds/Caddyfile.example`.
+- Um nome só, que é o que o instalador oficial faz. Não é o arranjo deste PDS.
+- Host do PDS separado da zona dos handles, que é o arranjo no ar: `PDS_HOSTNAME=pds.aquaapp.online` e `PDS_SERVICE_HANDLE_DOMAINS=.aquaapp.online`. O Caddy precisa listar os dois, senão `alice.aquaapp.online` não ganha certificado. O modelo está em `infra/pds/Caddyfile.example`.
 
 `deploy/pds/` e os guias `docs/BACKEND-QUICKSTART.md` e `docs/BACKEND-COMPLETO.md` são um esboço anterior (o env deles chama `.env`, o oficial chama `pds.env`). O caminho deste documento é `infra/pds/`.
 
@@ -88,7 +109,7 @@ sudo bash installer.sh
 O script pergunta o DNS público (o `PDS_HOSTNAME`) e um e-mail de contato para o certificado. Esse e-mail não precisa ser do domínio dos handles. Na pergunta de criar conta, pode responder não e criar a primeira conta depois, com `pdsadmin`, quando o DNS estiver estável.
 
 7. Compare `/pds/compose.yaml` com `infra/pds/compose.yaml`. O instalador baixa o compose de `main` na hora. Se `main` tiver andado, leia o diff antes de confiar. A linha `GODEBUG=multipathtcp=0` precisa continuar.
-8. Se a zona dos handles não for o `PDS_HOSTNAME`, edite `/pds/pds.env` (`PDS_SERVICE_HANDLE_DOMAINS=.exemplo.com`, com o ponto) e o Caddyfile em `/pds/caddy/etc/caddy/Caddyfile` para incluir `*.<zona>`. Use `infra/pds/Caddyfile.example` como modelo. Depois: `sudo systemctl restart pds`.
+8. A zona dos handles não é o `PDS_HOSTNAME`. `/pds/pds.env` precisa de `PDS_SERVICE_HANDLE_DOMAINS=.aquaapp.online` (com o ponto) e o Caddyfile precisa incluir `*.aquaapp.online`. O modelo está em `infra/pds/Caddyfile.example`. Depois: `sudo systemctl restart pds`.
 9. Confira:
 
 ```bash
@@ -116,14 +137,14 @@ Zona única (`PDS_HOSTNAME` igual ao pai dos handles):
 | `exemplo.com` | AAAA | IPv6 do VPS, se houver |
 | `*.exemplo.com` | AAAA | IPv6 do VPS, se houver |
 
-Host separado:
+Host separado, que é o DNS deste PDS:
 
 | Nome | Tipo | Valor |
 | --- | --- | --- |
-| `pds.exemplo.com` | A | IPv4 do VPS |
-| `*.exemplo.com` | A | IPv4 do VPS |
-| `pds.exemplo.com` | AAAA | IPv6, se houver |
-| `*.exemplo.com` | AAAA | IPv6, se houver |
+| `pds.aquaapp.online` | A | IPv4 do VPS |
+| `*.aquaapp.online` | A | IPv4 do VPS |
+| `pds.aquaapp.online` | AAAA | IPv6, se houver |
+| `*.aquaapp.online` | AAAA | IPv6, se houver |
 
 O curinga é obrigatório para conta nova: o handle `alice.exemplo.com` precisa chegar no PDS para o certificado e para `https://alice.exemplo.com/.well-known/atproto-did`. Alguns painéis pedem o nome `*`, outros `*.exemplo.com`.
 
@@ -225,23 +246,30 @@ hCaptcha, se quiser uma trava a mais no PDS, são três variáveis juntas: `PDS_
 
 Abrir o cadastro sem convite é `PDS_INVITE_REQUIRED=false` e um restart. Faça isso só com SMTP, backup testado, alerta de disco e alguém olhando `pdsadmin account list`. Conta abusiva: `pdsadmin account takedown <DID>`.
 
-## Ligar o cadastro no app
+## Cadastro no app
 
-Continua desligado neste branch. As variáveis `EXPO_PUBLIC_*` entram no bundle na hora do build (`yarn build-web` ou o update do Expo). Mudar um arquivo no servidor sem rebuild não liga o cadastro.
-
-Ordem, quando o PDS já responder `_health` e o SMTP e o convite estiverem revisados:
+O build de produção já sai com:
 
 | Variável | Valor |
 | --- | --- |
-| `EXPO_PUBLIC_AQUA_PDS_URL` | `https://<PDS_HOSTNAME>` |
-| `EXPO_PUBLIC_AQUA_HANDLE_DOMAIN` | a zona, sem ponto, igual a `PDS_SERVICE_HANDLE_DOMAINS` |
+| `EXPO_PUBLIC_AQUA_PDS_URL` | `https://pds.aquaapp.online` |
+| `EXPO_PUBLIC_AQUA_HANDLE_DOMAIN` | `aquaapp.online` |
 | `EXPO_PUBLIC_AQUA_PDS_SIGNUP_ENABLED` | `true` |
-| `EXPO_PUBLIC_AQUA_IDENTITY_INVITE_REQUIRED` | `true` enquanto o PDS exigir convite |
-| `EXPO_PUBLIC_AQUA_IDENTITY_ORIGIN` | origem HTTPS do site, para o OAuth público |
+| `EXPO_PUBLIC_AQUA_IDENTITY_INVITE_REQUIRED` | `false` |
 
-O formulário em `/register` só aparece se as quatro coisas forem verdade: URL preenchida, flag exatamente `true`, domínio de handle preenchido, e `GET <PDS>/xrpc/_health` com HTTP 200 e JSON `{"version":"..."}`. Flag apagada, PDS fora ou domínio vazio: o formulário não é mostrado e `createAccount` não é chamado pela tela. A senha, quando o pedido existe, vai no corpo desse único POST e não volta no registro da conta.
+`EXPO_PUBLIC_ENV=production` liga os mesmos padrões quando as variáveis ficam vazias. `false` explícito desliga de novo. TestFlight e o desenvolvimento local, sem essas variáveis, continuam no Bluesky.
 
-Conferir no ar, depois do build: `curl` no `_health`, abrir `/register`, ver o handle de exemplo no domínio escolhido, criar uma conta com um convite de teste, e confirmar que a senha não aparece no armazenamento `aqua-identity.accounts.v1`.
+Onde isso entra:
+
+- `eas.json`, perfis `production` e `production-apk`
+- o workflow de OTA quando o canal é `production`
+- `yarn build-web`, o export do site
+
+O fluxo "Criar conta" abre em `https://pds.aquaapp.online`. No seletor há Aqua, Bluesky (`https://bsky.social`) e um servidor customizado. Conta no Bluesky ainda passa pelo gate `/gate/signup` quando o `describeServer` pede `phoneVerificationRequired`. Conta no PDS da AQUA não mostra esse captcha: o servidor não tem gate, e o app não avança para esse passo nem manda erro de handle para lá.
+
+`/register` da AQUA Identity só mostra o formulário com URL, flag, domínio e `GET /xrpc/_health` devolvendo `version`. A senha vai num único `createAccount` e não volta no registro da conta.
+
+Convite não é pedido. O `describeServer` ao vivo responde `inviteCodeRequired: false`.
 
 ## Domínio próprio, com o mesmo DID
 
@@ -277,10 +305,9 @@ Sem a publicação, a troca não acontece. Sem sessão no PDS, a tela mostra o p
 
 ## Checklist de produção
 
-- [ ] Domínio do PDS e domínio dos handles escolhidos, diferentes de `aquaapp.systems`.
-- [ ] VPS novo, Ubuntu 24.04, portas 80 e 443 livres e abertas no hPanel e no `ufw`. SSH restrito. Porta 3000 fechada para a internet.
-- [ ] A/AAAA do host e curinga `*.<zona>` resolvendo para o VPS.
-- [ ] `https://<PDS_HOSTNAME>/xrpc/_health` devolve `version`.
+- [x] PDS no ar em `https://pds.aquaapp.online`, handles `.aquaapp.online`, SMTP com `confirmation@aquaapp.online`, convite desligado.
+- [ ] `sudo pdsadmin request-crawl bsky.network` já rodou e o relay enxerga o host.
+- [ ] `https://pds.aquaapp.online/xrpc/_health` devolve `version`.
 - [ ] Caddy cobre o host e o curinga da zona. `GODEBUG=multipathtcp=0` presente.
 - [ ] `/pds/pds.env` com segredos gerados no servidor, modo restrito, cópia cifrada fora do VPS. Nada disso no git.
 - [ ] SMTP testado (confirmação ou reset chega).
@@ -288,14 +315,11 @@ Sem a publicação, a troca não acontece. Sem sessão no PDS, a tela mostra o p
 - [ ] Backup com tar testado numa restauração de leitura.
 - [ ] Uma conta de prova criada com `pdsadmin`, handle na zona certa, DID anotado.
 - [ ] WebSocket do relay conecta.
-- [ ] Só então o build do app com `EXPO_PUBLIC_AQUA_PDS_URL`, `EXPO_PUBLIC_AQUA_HANDLE_DOMAIN`, flag de cadastro e flag de convite. `/register` mostra o formulário depois do `_health` e esconde se o PDS cair.
+- [x] Build de produção aponta para o PDS da AQUA, com Bluesky ainda selecionável e sem captcha nesse PDS.
 - [ ] Domínio próprio de teste: TXT ou well-known com o mesmo DID, `updateHandle`, DID inalterado.
 
 ## O que ainda depende do Samu
 
-1. Escolher `PDS_HOSTNAME` e a zona dos handles.
-2. Contratar o VPS na Hostinger e abrir o firewall.
-3. Publicar o DNS.
-4. Rodar o instalador oficial, depois de ler o script, e guardar `/pds/pds.env` fora do git.
-5. Configurar SMTP e um backup.
-6. Decidir quando o build do app pode receber `EXPO_PUBLIC_AQUA_PDS_SIGNUP_ENABLED=true`.
+1. Rodar `sudo pdsadmin request-crawl bsky.network` se o relay ainda não estiver lendo `pds.aquaapp.online`.
+2. Manter o backup cifrado de `/pds/pds.env` fora do git.
+3. Publicar um build de produção (site ou app) para o cadastro nativo chegar em quem usa o app. Este branch não faz merge.

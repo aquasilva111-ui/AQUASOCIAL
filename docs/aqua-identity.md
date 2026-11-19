@@ -119,8 +119,7 @@ Quando o Samu quiser ligar, nesta ordem:
 1. Escolher o domínio dos handles e colocar em `EXPO_PUBLIC_AQUA_HANDLE_DOMAIN`.
 2. Definir `EXPO_PUBLIC_AQUA_IDENTITY_ORIGIN` com a origem HTTPS real e gerar o metadata no build. Conferir `https://<origem>/oauth/client-metadata.json` no ar.
 3. Entrar com uma conta bsky.social pela rota `/login` e ver o DID em `/onboarding`.
-4. Subir o PDS numa máquina nova, com o passo a passo de `docs/aqua-pds.md` (`infra/pds/`). Preencher `EXPO_PUBLIC_AQUA_PDS_URL` com `https://<PDS_HOSTNAME>` e `EXPO_PUBLIC_AQUA_HANDLE_DOMAIN` com a zona escolhida, sem ponto. Deixar o cadastro desligado até o e-mail, o convite, o `/xrpc/_health` e o limite do PDS estarem revisados.
-5. Só então `EXPO_PUBLIC_AQUA_PDS_SIGNUP_ENABLED=true`, num build novo. A tela de cadastro continua oculta enquanto `/xrpc/_health` não devolver uma versão.
+4. O PDS já está em `https://pds.aquaapp.online`, com handles `aquaapp.online`. O build de produção usa esses valores e liga o cadastro. Veja `docs/aqua-pds.md`. A tela continua oculta enquanto `/xrpc/_health` não devolver uma versão. No fluxo principal, o Bluesky continua disponível e o captcha do Bluesky não abre quando o serviço é o PDS da AQUA.
 6. Se a sessão precisar ser longa e o token não puder ficar no navegador, instalar e rodar `aqua-identity-service` à parte, com chave privada fora do git e cookie `HttpOnly`. Não apontar o DNS da Hostinger para esse processo até essa revisão.
 
 ## O que está pronto e o que depende de decisão

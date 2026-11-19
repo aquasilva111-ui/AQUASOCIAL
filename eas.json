@@ -44,7 +44,11 @@
       },
       "channel": "production",
       "env": {
-        "EXPO_PUBLIC_ENV": "production"
+        "EXPO_PUBLIC_ENV": "production",
+        "EXPO_PUBLIC_AQUA_PDS_URL": "https://pds.aquaapp.online",
+        "EXPO_PUBLIC_AQUA_HANDLE_DOMAIN": "aquaapp.online",
+        "EXPO_PUBLIC_AQUA_PDS_SIGNUP_ENABLED": "true",
+        "EXPO_PUBLIC_AQUA_IDENTITY_INVITE_REQUIRED": "false"
       }
     },
     "production-apk": {
@@ -59,7 +63,11 @@
       },
       "channel": "production",
       "env": {
-        "EXPO_PUBLIC_ENV": "production"
+        "EXPO_PUBLIC_ENV": "production",
+        "EXPO_PUBLIC_AQUA_PDS_URL": "https://pds.aquaapp.online",
+        "EXPO_PUBLIC_AQUA_HANDLE_DOMAIN": "aquaapp.online",
+        "EXPO_PUBLIC_AQUA_PDS_SIGNUP_ENABLED": "true",
+        "EXPO_PUBLIC_AQUA_IDENTITY_INVITE_REQUIRED": "false"
       }
     },
     "testflight": {

@@ -1,3 +1,8 @@
+import {
+  configuredAquaPdsUrl,
+  configuredHandleDomain,
+  configuredSignupEnabled,
+} from '#/lib/aqua-pds'
 import {type AquaIdentityConfig} from './types'
 
 export const AQUA_OAUTH_SCOPE = 'atproto transition:generic'
@@ -16,21 +21,27 @@ function flag(value: string): boolean {
 }
 
 /**
- * Signup stays off unless a PDS URL exists and the flag is explicitly true.
- * The handle domain is never assumed: an empty string means "not chosen yet".
+ * Outside a production build, signup stays off until the URL and the flag
+ * are set. A production build (EXPO_PUBLIC_ENV=production) defaults to the
+ * live AQUA PDS. An explicit false still turns signup off.
  */
 export function readAquaIdentityConfig(
   env: Record<string, string | undefined> = typeof process === 'undefined'
     ? {}
     : process.env,
 ): AquaIdentityConfig {
-  const pdsUrl = read(env, 'EXPO_PUBLIC_AQUA_PDS_URL').replace(/\/$/, '')
-  const signupFlag = flag(read(env, 'EXPO_PUBLIC_AQUA_PDS_SIGNUP_ENABLED'))
+  const pdsUrl =
+    read(env, 'EXPO_PUBLIC_AQUA_PDS_URL').replace(/\/$/, '') ||
+    configuredAquaPdsUrl(env)
+  const signupFlag = read(env, 'EXPO_PUBLIC_AQUA_PDS_SIGNUP_ENABLED')
+    ? flag(read(env, 'EXPO_PUBLIC_AQUA_PDS_SIGNUP_ENABLED'))
+    : configuredSignupEnabled(env)
+  const handleFromEnv = read(env, 'EXPO_PUBLIC_AQUA_HANDLE_DOMAIN')
+    .replace(/^\.+/, '')
+    .toLowerCase()
   return {
     origin: read(env, 'EXPO_PUBLIC_AQUA_IDENTITY_ORIGIN').replace(/\/$/, ''),
-    handleDomain: read(env, 'EXPO_PUBLIC_AQUA_HANDLE_DOMAIN')
-      .replace(/^\./, '')
-      .toLowerCase(),
+    handleDomain: handleFromEnv || configuredHandleDomain(env),
     pdsUrl,
     pdsSignupEnabled: signupFlag && pdsUrl.length > 0,
     inviteRequired: flag(

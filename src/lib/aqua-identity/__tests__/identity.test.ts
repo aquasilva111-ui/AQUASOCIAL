@@ -54,6 +54,11 @@ import {createCodeChallenge, createCodeVerifier} from '#/lib/aqua-identity/pkce'
 import {SlidingWindowRateLimiter} from '#/lib/aqua-identity/rate-limit'
 import {didWebUrl, resolveIdentity} from '#/lib/aqua-identity/resolve'
 import {memoryStore} from '#/lib/aqua-identity/storage'
+import {signupNeedsCaptcha} from '#/lib/aqua-pds'
+import {
+  maxServiceHandleLength,
+  validateServiceHandle,
+} from '#/lib/strings/handles'
 
 const require = createRequire(__filename)
 const {buildPublicClientMetadata: buildMetadataScript} =
@@ -502,7 +507,7 @@ describe('AQUA Identity', () => {
     ).toEqual({showForm: false, reason: 'handle-domain-unset'})
   })
 
-  test('the PDS env example ships without secrets or a chosen domain', () => {
+  test('the PDS env example names the live host and has no secrets', () => {
     const env = readFileSync(
       join(__dirname, '../../../../infra/pds/pds.env.example'),
       'utf8',
@@ -514,12 +519,48 @@ describe('AQUA Identity', () => {
     expect(env).toMatch(/^PDS_JWT_SECRET=\s*$/m)
     expect(env).toMatch(/^PDS_ADMIN_PASSWORD=\s*$/m)
     expect(env).toMatch(/^PDS_PLC_ROTATION_KEY_K256_PRIVATE_KEY_HEX=\s*$/m)
-    expect(env).not.toMatch(/^[A-Z0-9_]+=.*aquaapp\.systems/m)
-    expect(env).toMatch(/^PDS_HOSTNAME=pds\.exemplo\.com$/m)
-    expect(env).toMatch(/^PDS_SERVICE_HANDLE_DOMAINS=\.exemplo\.com$/m)
+    expect(env).not.toMatch(/^PDS_EMAIL_SMTP_URL=/m)
+    expect(env).toMatch(/^PDS_HOSTNAME=pds\.aquaapp\.online$/m)
+    expect(env).toMatch(/^PDS_SERVICE_HANDLE_DOMAINS=\.aquaapp\.online$/m)
+    expect(env).toMatch(/^PDS_INVITE_REQUIRED=false$/m)
     expect(compose).toContain('ghcr.io/bluesky-social/pds:0.4')
     expect(compose).toContain('multipathtcp=0')
     expect(compose).not.toMatch(/BEGIN [A-Z ]*PRIVATE KEY/)
+  })
+
+  test('a production build signs up on the AQUA PDS and skips the Bluesky captcha', () => {
+    const config = readAquaIdentityConfig({EXPO_PUBLIC_ENV: 'production'})
+    expect(config.pdsUrl).toBe('https://pds.aquaapp.online')
+    expect(config.handleDomain).toBe('aquaapp.online')
+    expect(config.pdsSignupEnabled).toBe(true)
+    expect(config.inviteRequired).toBe(false)
+    expect(
+      readAquaIdentityConfig({
+        EXPO_PUBLIC_ENV: 'production',
+        EXPO_PUBLIC_AQUA_PDS_SIGNUP_ENABLED: 'false',
+      }).pdsSignupEnabled,
+    ).toBe(false)
+    expect(
+      signupNeedsCaptcha('https://pds.aquaapp.online', {
+        phoneVerificationRequired: true,
+      }),
+    ).toBe(false)
+    expect(
+      signupNeedsCaptcha('https://bsky.social', {
+        phoneVerificationRequired: true,
+      }),
+    ).toBe(true)
+    expect(maxServiceHandleLength('bsky.social')).toBe(18)
+    expect(maxServiceHandleLength('.aquaapp.online')).toBe(18)
+    expect(
+      validateServiceHandle('a'.repeat(18), 'aquaapp.online').overall,
+    ).toBe(true)
+    expect(validateServiceHandle('a'.repeat(19), 'bsky.social').overall).toBe(
+      false,
+    )
+    expect(
+      validateServiceHandle('a'.repeat(19), 'aquaapp.online').overall,
+    ).toBe(false)
   })
 
   test('custom domain verification accepts HTTPS or DNS TXT for the same DID', async () => {
