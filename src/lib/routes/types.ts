@@ -89,6 +89,11 @@ export type CommonNavigatorParams = {
   StarterPackEdit: {rkey?: string}
   VideoFeed: VideoFeedSourceContext
   Bookmarks: undefined
+  AquaIdentityLogin: undefined
+  AquaIdentityRegister: undefined
+  AquaIdentityOnboarding: undefined
+  AquaIdentityCallback: undefined
+  AquaIdentitySettings: undefined
   Images: {source?: string; q?: string} | undefined
   ImagesLegacy: undefined
   Videos: {source?: string; q?: string} | undefined
@@ -119,6 +124,8 @@ export type CommonNavigatorParams = {
   BooksCollection: undefined
   BookEdit: {book: string}
   ChapterEdit: {book: string; chapter: string}
+  WriteCompose: undefined
+  WriteRead: {id: string}
   BookDetail: {handle: string; book: string}
   BookChapter: {handle: string; book: string; chapter: string}
   LaunchHub: undefined

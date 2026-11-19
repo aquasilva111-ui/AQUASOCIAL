@@ -253,6 +253,11 @@ describe('routes', () => {
       'ChapterEdit',
       {book: 'b1', chapter: 'new'},
     ])
+    expect(m('/books/compose')[0]).toBe('WriteCompose')
+    expect(m('/books/read/sample-tide-ch7')).toEqual([
+      'WriteRead',
+      {id: 'sample-tide-ch7'},
+    ])
     expect(m('/books/ana.aquaapp.online/b1')).toEqual([
       'BookDetail',
       {handle: 'ana.aquaapp.online', book: 'b1'},

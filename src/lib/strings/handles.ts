@@ -6,6 +6,23 @@ const VALIDATE_REGEX =
   /^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$/
 
 export const MAX_SERVICE_HANDLE_LENGTH = 18
+const HANDLE_TOTAL_MAX = 253
+
+/**
+ * The signup name stays within 18 characters on every server, and also
+ * within the room left under the 253-character handle limit.
+ */
+export function maxServiceHandleLength(userDomain: string): number {
+  const domain = userDomain
+    .trim()
+    .replace(/^\.+/, '')
+    .replace(/\.+$/, '')
+    .toLowerCase()
+  const room = domain
+    ? HANDLE_TOTAL_MAX - domain.length - 1
+    : MAX_SERVICE_HANDLE_LENGTH
+  return Math.max(0, Math.min(MAX_SERVICE_HANDLE_LENGTH, room))
+}
 
 export function makeValidHandle(str: string): string {
   if (str.length > 20) {
@@ -59,7 +76,7 @@ export function validateServiceHandle(
       !str || (VALIDATE_REGEX.test(fullHandle) && !str.includes('.')),
     hyphenStartOrEnd: !str.startsWith('-') && !str.endsWith('-'),
     frontLengthNotTooShort: str.length >= 3,
-    frontLengthNotTooLong: str.length <= MAX_SERVICE_HANDLE_LENGTH,
+    frontLengthNotTooLong: str.length <= maxServiceHandleLength(userDomain),
     totalLength: fullHandle.length <= 253,
   }
 

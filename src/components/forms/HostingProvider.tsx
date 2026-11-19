@@ -37,6 +37,7 @@ export function HostingProvider({
     <>
       <ServerInputDialog
         control={serverInputControl}
+        serviceUrl={serviceUrl}
         onSelect={onSelectServiceUrl}
       />
       {minimal ? (

@@ -8,6 +8,11 @@ type AllNavigatableRoutes = Omit<
 
 export const router = new Router<AllNavigatableRoutes>({
   Home: '/',
+  AquaIdentityLogin: '/login',
+  AquaIdentityRegister: '/register',
+  AquaIdentityOnboarding: '/onboarding',
+  AquaIdentityCallback: '/oauth/callback',
+  AquaIdentitySettings: '/settings/identity',
   Search: '/search',
   Drops: '/drops',
   Feeds: '/feeds',
@@ -50,6 +55,8 @@ export const router = new Router<AllNavigatableRoutes>({
   BooksCollection: '/books/collection',
   BookEdit: '/books/studio/book/:book',
   ChapterEdit: '/books/studio/book/:book/chapter/:chapter',
+  WriteCompose: '/books/compose',
+  WriteRead: '/books/read/:id',
   BookDetail: '/books/:handle/:book',
   BookChapter: '/books/:handle/:book/:chapter',
   LaunchHub: '/launch',

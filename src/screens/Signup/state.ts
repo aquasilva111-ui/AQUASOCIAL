@@ -8,9 +8,10 @@ import {msg} from '@lingui/macro'
 import {useLingui} from '@lingui/react'
 import * as EmailValidator from 'email-validator'
 
+import {signupNeedsCaptcha} from '#/lib/aqua-pds'
 import {DEFAULT_SERVICE} from '#/lib/constants'
 import {cleanError} from '#/lib/strings/errors'
-import {createFullHandle} from '#/lib/strings/handles'
+import {createFullHandle, validateServiceHandle} from '#/lib/strings/handles'
 import {getAge} from '#/lib/strings/time'
 import {logger} from '#/logger'
 import {useSessionApi} from '#/state/session'
@@ -136,6 +137,12 @@ export function reducer(s: SignupState, a: SignupAction): SignupState {
       break
     }
     case 'next': {
+      if (
+        s.activeStep === SignupStep.HANDLE &&
+        !signupNeedsCaptcha(s.serviceUrl, s.serviceDescription)
+      ) {
+        break
+      }
       if (s.activeStep !== SignupStep.CAPTCHA) {
         next.screenTransitionDirection = 'Forward'
         next.activeStep++
@@ -290,8 +297,19 @@ export function useSubmitSignup() {
           field: 'handle',
         })
       }
+      const handleCheck = validateServiceHandle(state.handle, state.userDomain)
+      if (!handleCheck.overall) {
+        dispatch({type: 'setStep', value: SignupStep.HANDLE})
+        return dispatch({
+          type: 'setError',
+          value: !handleCheck.frontLengthNotTooLong
+            ? _(msg`That username is too long for this server.`)
+            : _(msg`That username is invalid.`),
+          field: 'handle',
+        })
+      }
       if (
-        state.serviceDescription?.phoneVerificationRequired &&
+        signupNeedsCaptcha(state.serviceUrl, state.serviceDescription) &&
         !state.pendingSubmit?.verificationCode
       ) {
         dispatch({type: 'setStep', value: SignupStep.CAPTCHA})
@@ -356,7 +374,10 @@ export function useSubmitSignup() {
           value: error,
           field: isHandleError ? 'handle' : undefined,
         })
-        dispatch({type: 'setStep', value: isHandleError ? 2 : 1})
+        dispatch({
+          type: 'setStep',
+          value: isHandleError ? SignupStep.HANDLE : SignupStep.INFO,
+        })
 
         logger.error('Signup Flow Error', {
           errorMessage: error,

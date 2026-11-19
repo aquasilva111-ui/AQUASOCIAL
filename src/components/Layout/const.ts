@@ -23,13 +23,28 @@ export const CENTER_COLUMN_WIDTH = 600
 export const CENTER_COLUMN_HALF_WIDTH = CENTER_COLUMN_WIDTH / 2
 
 /**
- * The feed and the right nav are one centered block, with this gap
- * between the column edges (Bluesky's desktop rhythm).
+ * RightNav sits this far from the viewport's right edge, the same lateral
+ * padding X uses. One knob: the feed stays centered, so the space between
+ * them grows with the window. No glass on this column.
  */
-export const FEED_RIGHT_NAV_GAP = 24
+export const RIGHT_NAV_EDGE_INSET = 16
+
+/**
+ * Hide the RightNav when anchoring it to the right edge would come closer
+ * than this to the feed. The gap above this minimum is whatever width is left.
+ */
+export const RIGHT_NAV_MIN_GAP = 16
 
 /** Fixed width of the right column (search, Discover, trending). */
 export const RIGHT_NAV_WIDTH = 300
+
+/** Left edge of a right-anchored RightNav, in viewport coordinates. */
+export function rightNavLeft(
+  windowWidth: number,
+  rightNavWidth = RIGHT_NAV_WIDTH,
+) {
+  return windowWidth - RIGHT_NAV_EDGE_INSET - rightNavWidth
+}
 
 /**
  * Clearance kept between the collapsed 72px rail and the feed when a
@@ -38,8 +53,8 @@ export const RIGHT_NAV_WIDTH = 300
 export const RAIL_FEED_GAP = 16
 
 /**
- * Hover rail (and no bottom dock) from this viewport width up. 1280px
- * is a desktop window; below that the tablet/mobile dock stays.
+ * Hover rail from this viewport width up. 1280px is a desktop window.
+ * The bottom dock stays at every width, including beside the rail.
  */
 export const DESKTOP_RAIL_MIN_WIDTH = 1280
 
@@ -77,9 +92,9 @@ export function getNavEdgeInset(windowWidth: number, navWidth: number) {
 export type FeedColumnLayout = {
   /**
    * translateX applied to a column that is already centered with
-   * margin: auto. Negative values shift the feed left so the feed and
-   * the right nav share the viewport center. Does not change when the
-   * rail opens: the 240px panel overlays the column.
+   * margin: auto. Zero while the centered feed clears the left chrome.
+   * Positive only when the rail or tablet nav would otherwise cover it.
+   * The right nav does not move the feed. The open rail overlays.
    */
   centerContentOffset: number
   /** Left edge of the feed column in viewport coordinates. */
@@ -89,7 +104,8 @@ export type FeedColumnLayout = {
 }
 
 /**
- * Place the 600px feed, and the right nav beside it when the pair fits.
+ * Center the 600px feed. Pinning the RightNav to the right edge does not
+ * shift it. Hide that nav when its box would overlap the feed.
  *
  * The open sidebar is not an input: it overlays and must not push.
  * `minFeedLeft` is the rail (plus a breath) or the tablet icon nav.
@@ -115,30 +131,31 @@ export function placeFeedColumn({
   }
 
   const centeredFeedLeft = (windowWidth - CENTER_COLUMN_WIDTH) / 2
-  const blockWidth = CENTER_COLUMN_WIDTH + FEED_RIGHT_NAV_GAP + rightNavWidth
-  const centeredBlockLeft = (windowWidth - blockWidth) / 2
-  const blockFits =
-    centeredBlockLeft >= minFeedLeft &&
-    centeredBlockLeft + blockWidth <= windowWidth
-
-  let feedLeft = blockFits ? centeredBlockLeft : centeredFeedLeft
+  let feedLeft = centeredFeedLeft
   if (feedLeft < minFeedLeft) feedLeft = minFeedLeft
   const maxFeedLeft = Math.max(0, windowWidth - CENTER_COLUMN_WIDTH)
   if (feedLeft > maxFeedLeft) feedLeft = maxFeedLeft
 
   const centerContentOffset = Math.round(feedLeft - centeredFeedLeft)
+  const resolvedFeedLeft = centeredFeedLeft + centerContentOffset
+  const feedRight = resolvedFeedLeft + CENTER_COLUMN_WIDTH
+  const navLeft = rightNavLeft(windowWidth, rightNavWidth)
+  const navFits =
+    navLeft >= feedRight + RIGHT_NAV_MIN_GAP &&
+    navLeft + rightNavWidth <= windowWidth - RIGHT_NAV_EDGE_INSET
+
   return {
     centerContentOffset,
-    feedLeft: centeredFeedLeft + centerContentOffset,
-    showRightNav: blockFits,
+    feedLeft: resolvedFeedLeft,
+    showRightNav: navFits,
     desktopRail,
   }
 }
 
 /**
  * Shell layout for a viewport width. Mobile keeps a full-width column.
- * From the tablet icon nav upward, the feed is centered, and the right
- * nav joins it as one centered block when that block clears the left chrome.
+ * From the tablet icon nav upward, the feed stays centered. The right
+ * nav is anchored to the viewport edge and only joins when it clears the feed.
  */
 export function getFeedColumnLayout(windowWidth: number): FeedColumnLayout {
   const desktopRail = windowWidth >= DESKTOP_RAIL_MIN_WIDTH
@@ -159,8 +176,10 @@ export function getFeedColumnLayout(windowWidth: number): FeedColumnLayout {
 }
 
 /**
- * The hover rail and the bottom dock never show together. The dock stays
- * on the widths (and full-page routes) where the rail is not mounted.
+ * Shell chrome for a viewport. The bottom dock stays at every width where
+ * someone is signed in, on the tablet icon nav, or beside the desktop rail.
+ * The rail does not replace the dock. Full-page routes hide the rail and
+ * keep the dock; UIAI opts out of the dock on its own.
  */
 export function getShellChrome({
   hasSession,
@@ -176,6 +195,6 @@ export function getShellChrome({
   leftNavMinimal: boolean
 }) {
   const showRail = !isMobile && !hasOwnChrome && desktopRail
-  const showBottomBar = !showRail && (hasSession || leftNavMinimal)
+  const showBottomBar = hasSession || leftNavMinimal || showRail
   return {showRail, showBottomBar}
 }

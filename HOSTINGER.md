@@ -18,29 +18,34 @@ For native development, use `yarn native:prebuild`. The previous EAS build
 workflow is available as `yarn build:native`.
 
 After deployment, verify both the home page and a directly opened client route
-such as `/search`; the host must serve `index.html` for client-side routes.
-The post-build script copies `web/.htaccess` into `web-build` to configure this
-fallback on Hostinger while preserving static asset requests.
+such as `/search`; the host must serve the corresponding generated HTML for known client routes.
+The post-build script generates `web-build/.htaccess` for static Hostinger
+deploys while preserving static asset requests. It also copies `web/robots.txt`,
+`web/sitemap.xml`, and `web/sitemaps/*.xml`. Those files are real files in the
+export, so Apache serves them. A missing `.txt` or `.xml` is not rewritten to
+`index.html`.
 
-`node scripts/emit-public-web.js` (also run by the post-build script) writes
-`robots.txt`, `sitemap.xml`, `sitemaps/*.xml`, `llms.txt`, `index.md`,
-`404.html`, `about.html`, `contact.html`, and `logo.png` from
-`src/lib/public-site.ts`. Change `CONTENT_SIGNAL` in that module to update the
-robots.txt line. Hostinger is a static Apache host: Markdown negotiation,
-the homepage `Link` alternate header, and HTTP 404s are done in `web/.htaccess`
-(`mod_rewrite`, `mod_headers`). A request is served as a real file when one
-exists, known app prefixes fall back to `index.html`, and every other path
-returns 404 with `404.html`. Deep links under those prefixes (`/profile/...`,
-`/visionboard/...`, `/books/...`, `/views/...`) keep working. Apache cannot
-tell an unknown profile from a real one, so those URLs still return the SPA.
-`/videos/...` redirects to `/views/...`. `/about` and `/contact` are static
-HTML pages. The homepage returns `index.md` (same text as `llms.txt`) when
-`Accept` contains `text/markdown`, and adds
-`Link: </llms.txt>; rel="alternate"; type="text/markdown"`.
+## Agent discovery and MCP
 
-`sitemap.xml` also lists `sitemap-posts.xml` and `sitemap-profiles.xml`.
-Those two files are filled at build time from the public AppView, and only
-for repos on a PDS hostname in `AQUA_PDS_HOSTS`. That list is empty until the
-real Aqua PDS hostname is set, so the files ship empty and the build logs a
-warning instead of failing. A failed AppView or PDS request does the same.
-The lists change only on the next deploy. Each file stops at 50,000 URLs.
+The web build copies the static `robots.txt` and sitemap index, and generates
+llms.txt, the Markdown homepage, and page metadata from `web/site-info.js`.
+Apache-compatible static serving uses the generated `web-build/.htaccess` rules
+for public pages, Markdown, and HTTP 404s. The route allowlist comes from
+`src/routes.ts`. Unrecognized app paths return HTTP 404. A recognized dynamic
+path may still display an in-app error if the upstream record does not exist.
+
+To expose the public MCP endpoint and its discovery card, run the existing Node
+HTTP server behind the domain instead of the static React preset. Use the
+`Other` framework preset on Hostinger with Node 22.x, project root `./`,
+npm, build command `npm run build`, and entry file `server.js` (or start command
+`npm start` where applicable). LiteSpeed loads that entry with `require()`,
+not as the main module; `server.js` listens in that case too, on `PORT`.
+Route requests through the Node entry point so
+homepage negotiation and the MCP paths reach it. Validate this configuration on
+a preview before switching production.
+
+The MCP card is served at `/.well-known/mcp/server-card.json`. It points to the
+stateless Streamable HTTP endpoint at `/mcp`, which exposes one read-only tool
+returning the public site guide. WebMCP exposes the same guide in browsers with
+the API enabled. Run `node --test scripts/test-site-discovery.js` to validate
+the generated files and exercise both MCP interfaces with Node 22.

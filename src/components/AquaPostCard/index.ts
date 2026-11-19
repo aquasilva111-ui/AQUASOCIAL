@@ -1,7 +1,8 @@
+export {AquaPlainActionRow} from './AquaActionRow'
 export {AquaEmbedChrome} from './AquaEmbedChrome'
 export {AquaPostCard} from './AquaPostCard'
 export {LikeCapsule} from './LikeCapsule'
-export {AquaMediaChrome, DurationChip} from './MediaChrome'
+export {AquaMediaChrome, AquaTextActionBar, DurationChip} from './MediaChrome'
 export {aquaMediaKind, postOrigin, videoEmbedOf} from './model'
 export {AQUA, AQUA_RADIUS} from './palette'
 export {

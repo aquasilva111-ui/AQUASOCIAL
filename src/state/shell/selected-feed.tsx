@@ -13,6 +13,34 @@ stateContext.displayName = 'SelectedFeedStateContext'
 const setContext = React.createContext<SetContext>((_: string) => {})
 setContext.displayName = 'SelectedFeedSetContext'
 
+let externalSelect: SetContext | null = null
+
+/**
+ * Selects a home feed from outside React. WebMCP uses this to open Pra você
+ * without reading the signed-in timeline. Before the provider mounts, the
+ * choice is stored the same way a reload would read it.
+ */
+export function selectHomeFeed(feed: FeedDescriptor) {
+  try {
+    if (externalSelect) {
+      externalSelect(feed)
+      return
+    }
+    if (isWeb) {
+      try {
+        sessionStorage.setItem('lastSelectedHomeFeed', feed)
+      } catch {
+        // sessionStorage can be blocked. The provider still applies a later call.
+      }
+    }
+    persisted.write('lastSelectedHomeFeed', feed).catch(() => {
+      // Storage can fail in private mode. A later call still updates the feed.
+    })
+  } catch {
+    // Feed selection must not escape to the caller.
+  }
+}
+
 function getInitialFeed(): FeedDescriptor | null {
   if (isWeb) {
     if (window.location.pathname === '/') {
@@ -52,6 +80,13 @@ export function Provider({children}: React.PropsWithChildren<{}>) {
     }
     persisted.write('lastSelectedHomeFeed', feed)
   }, [])
+
+  React.useLayoutEffect(() => {
+    externalSelect = saveState
+    return () => {
+      if (externalSelect === saveState) externalSelect = null
+    }
+  }, [saveState])
 
   return (
     <stateContext.Provider value={state}>

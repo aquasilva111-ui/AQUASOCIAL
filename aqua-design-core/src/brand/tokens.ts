@@ -4,9 +4,13 @@
  */
 export const AQUA = {
   blue: '#002BEF',
+  /** Create CTA hover. Lighter than blueHover; the shell uses this, not orange. */
+  blueComplement: '#0D2BDB',
   blueHover: '#0022C2',
   blueActive: '#001A96',
   blueSoft: '#E6EBFF',
+  /** Night accent (focus ring, active item). Day accent stays blue. */
+  iris: '#7EC8F5',
   sky: '#009EFF',
   orange: '#F04C24',
   ink: '#0F172A',

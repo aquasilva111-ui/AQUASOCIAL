@@ -1,0 +1,12 @@
+{
+  "client_id": "https://example.invalid/oauth/client-metadata.json",
+  "client_name": "AQUA",
+  "client_uri": "https://example.invalid",
+  "redirect_uris": ["https://example.invalid/oauth/callback"],
+  "scope": "atproto transition:generic",
+  "grant_types": ["authorization_code", "refresh_token"],
+  "response_types": ["code"],
+  "application_type": "web",
+  "token_endpoint_auth_method": "none",
+  "dpop_bound_access_tokens": true
+}

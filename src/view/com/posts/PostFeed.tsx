@@ -60,6 +60,7 @@ import {useSelectedFeed} from '#/state/shell/selected-feed'
 import {List, type ListRef} from '#/view/com/util/List'
 import {PostFeedLoadingPlaceholder} from '#/view/com/util/LoadingPlaceholder'
 import {LoadMoreRetryBtn} from '#/view/com/util/LoadMoreRetryBtn'
+import {webFeedBottomSpacer} from '#/view/shell/bottom-bar/metrics'
 import {type VideoFeedSourceContext} from '#/screens/VideoFeed/types'
 import {useBreakpoints, useLayoutBreakpoints} from '#/alf'
 import {
@@ -883,7 +884,9 @@ let PostFeed = ({
      * reach the end, so that content isn't cut off by the bottom of the
      * screen.
      */
-    const offset = Math.max(headerOffset, 32) * (isWeb ? 1 : 2)
+    const offset = isWeb
+      ? webFeedBottomSpacer(headerOffset)
+      : Math.max(headerOffset, 32) * 2
 
     return isFetchingNextPage ? (
       <View style={[styles.feedFooter]}>

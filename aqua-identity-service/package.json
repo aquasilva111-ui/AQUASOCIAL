@@ -1,0 +1,23 @@
+{
+  "name": "@aqua/identity-service",
+  "private": true,
+  "type": "module",
+  "description": "Confidential AT Protocol OAuth BFF for AQUA Identity. Not deployed and not started by the static site.",
+  "scripts": {
+    "start": "node --experimental-strip-types --disable-warning=ExperimentalWarning src/server.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "node --experimental-strip-types --disable-warning=ExperimentalWarning --test --test-concurrency=1 test/*.test.ts"
+  },
+  "dependencies": {
+    "@atproto/jwk-jose": "0.2.4",
+    "@atproto/oauth-client-node": "0.5.17",
+    "hash-wasm": "^4.13.0",
+    "nodemailer": "^10.6.0",
+    "openid-client": "^6.9.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@types/nodemailer": "^8.0.2",
+    "typescript": "^7.0.2"
+  }
+}

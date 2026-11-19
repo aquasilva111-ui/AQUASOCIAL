@@ -895,7 +895,7 @@ export function DesktopLeftNav({embedded = false}: {embedded?: boolean} = {}) {
             revealLabel={hoverCapable}
             holdNavigation={holdNavigation}
             onRequestOpen={openNow}
-            href="/reads"
+            href="/books"
             icon={
               <Book
                 aria-hidden={true}
@@ -910,7 +910,7 @@ export function DesktopLeftNav({embedded = false}: {embedded?: boolean} = {}) {
                 style={pal.text}
               />
             }
-            label="Reads"
+            label="Write"
           />
           <NavItem
             minimal={collapsed}
