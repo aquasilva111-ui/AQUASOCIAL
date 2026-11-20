@@ -6762,13 +6762,13 @@ msgstr ""
 msgid "Porn"
 msgstr ""
 
-#: src/view/com/composer/Composer.tsx:1117
-#: src/view/com/composer/Composer.tsx:1125
+#: src/screens/PostThread/index.tsx:542
+msgctxt "description"
 msgid "Post"
 msgstr ""
 
-#: src/screens/PostThread/index.tsx:542
-msgctxt "description"
+#: src/view/com/composer/Composer.tsx:1117
+#: src/view/com/composer/Composer.tsx:1125
 msgid "Post"
 msgstr ""
 
